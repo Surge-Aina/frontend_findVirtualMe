@@ -1,9 +1,15 @@
-import { useState } from 'react';
-import Auth from '../pages/login/Auth.jsx';
+import { useState } from "react";
+import Auth from "../pages/login/Auth.jsx";
 import { motion } from "framer-motion"; // Make sure to install framer-motion
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar({ loggedIn, onLogout }) {
   const [showAuth, setShowAuth] = useState(false);
+
+  const navigate = useNavigate();
+  const navigateHome = () => {
+    navigate("/");
+  };
 
   return (
     <motion.nav
@@ -22,13 +28,15 @@ export default function Navbar({ loggedIn, onLogout }) {
             <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-medium">FV</span>
             </div>
-            <span className="font-medium text-lg text-slate-800">FindVirtual.me</span>
+            <span className="font-medium text-lg text-slate-800">
+              FindVirtual.me
+            </span>
           </motion.div>
 
           <div className="hidden md:flex items-center space-x-8">
             <button
               className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
-              onClick={() => window.location.reload()}
+              onClick={navigateHome}
             >
               <span className="relative z-10">About</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
