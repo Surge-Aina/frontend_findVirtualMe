@@ -19,7 +19,8 @@ const Auth = ({ onClose }) => {
     const token = localStorage.getItem("token");
     const portfolioId = localStorage.getItem("portfolioId");
     if (token) {
-      navigate(`/portfolio/${portfolioId}`);
+      // navigate(`/portfolio/${portfolioId}`);
+      navigate("/dashboard");
       if (onClose) onClose();
     }
     setLoggedIn(!!token);
@@ -43,11 +44,13 @@ const Auth = ({ onClose }) => {
         localStorage.setItem("portfolioId", portfolioId);
         setLoggedIn(true);
         toast.success("Login successful!");
-        navigate(`/portfolio/${portfolioId}`);
+        //navigate(`/portfolio/${portfolioId}`);
+        navigate("/dashboard");
         if (onClose) onClose();
       } else {
         setLoggedIn(true);
         toast.success("Login successful, but no portfolio found!");
+        navigate("/dashboard");
         if (onClose) onClose();
       }
     } catch (err) {
@@ -60,6 +63,8 @@ const Auth = ({ onClose }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    localStorage.removeItem("portfolioId");
     setLoggedIn(false);
     setForm({ email: "", password: "" });
     toast.success("Logged out!");
