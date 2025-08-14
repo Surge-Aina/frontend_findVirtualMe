@@ -1,16 +1,19 @@
 import { toast } from "react-toastify";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../../context/AuthContext";
+import SignUp from "./SignUp";
 
 const Auth = ({ onClose }) => {
-  const apiUrl = import.meta.env.VITE_BAKEND_API;
+  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const { contextLogin } = useContext(AuthContext);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,6 +23,7 @@ const Auth = ({ onClose }) => {
     const portfolioId = localStorage.getItem("portfolioId");
     if (token) {
       // navigate(`/portfolio/${portfolioId}`);
+      contextLogin();
       navigate("/dashboard");
       if (onClose) onClose();
     }
@@ -44,6 +48,7 @@ const Auth = ({ onClose }) => {
         localStorage.setItem("portfolioId", portfolioId);
         setLoggedIn(true);
         toast.success("Login successful!");
+        contextLogin(res.data.token);
         //navigate(`/portfolio/${portfolioId}`);
         navigate("/dashboard");
         if (onClose) onClose();
@@ -174,7 +179,8 @@ const Auth = ({ onClose }) => {
             type="button"
             className="relative w-full px-6 py-3 mt-2 bg-slate-200 border border-slate-600 text-slate-700 rounded-xl font-semibold hover:bg-slate-300 hover:border-slate-700 transition-all duration-300 overflow-hidden group"
             onClick={() => {
-              /* open sign up modal or switch to sign up form */
+              onClose();
+              navigate("/signup");
             }}
           >
             <span className="relative z-10">Sign Up</span>

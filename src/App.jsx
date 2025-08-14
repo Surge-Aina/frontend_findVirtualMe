@@ -10,6 +10,7 @@ import ResumeUpload from "./components/ResumeUpload";
 import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
 import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
+import SignUp from "./pages/login/SignUp";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -32,6 +33,8 @@ export default function App() {
           path="/dashboard"
           element={<Dashboard onRequestAdmin={handleRequestAdmin} />}
         />
+
+        <Route path={"/signup"} element={<SignUp />} />
 
         <Route path="/resume" element={<ResumeUpload />} />
 
