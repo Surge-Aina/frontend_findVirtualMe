@@ -13,6 +13,7 @@ import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
 import HandymanPage from './pages/portfolios/handyman/HandyManPage.jsx';
+import Occupations from "./components/Occupations";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -36,7 +37,9 @@ export default function App() {
           element={<Dashboard onRequestAdmin={handleRequestAdmin} />}
         />
 
+
         <Route path={"/signup"} element={<SignUp />} />
+        <Route path="/occupations" element={<Occupations />} />
 
         <Route path="/resume" element={<ResumeUpload />} />
 
