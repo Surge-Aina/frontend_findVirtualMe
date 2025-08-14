@@ -24,18 +24,19 @@ export default function ExamplePortfolios() {
     {
       title: "Local Food Vendor",
       summary: "Porftolio showcasing a Local Food Vendor",
+      location: "/portfolios/localVendor",
     },
 
     {
       title: "Photographer",
       summary: "Porftolio showcasing Photography Portfolio",
-      location: "/portfolios/photographer"
+      location: "/portfolios/photographer",
     },
 
     {
       title: "Handyman/Local Repair Services",
       summary: "Porftolio showcasing Handyman and Repair services",
-      location: "/portfolios/handyman"
+      location: "/portfolios/handyman",
     },
   ];
 
