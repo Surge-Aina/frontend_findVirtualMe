@@ -2,42 +2,41 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
-  Palette,
-  Zap,
-  Globe,
-  Shield,
+  Camera,
+  Brush,
+  ShoppingBag,
+  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 const features = [
   {
-    icon: Palette,
-    title: "Beautiful Templates",
+    icon: Camera,
+    title: "Showcase Your Best Shots",
     description:
-      "Choose from the variety of professionally designed templates that adapt to your unique style and content.",
+      "Whether you're a photographer, artist, or craftsperson — display your work in a format that puts it in the spotlight.",
   },
   {
-    icon: Zap,
-    title: "Lightning Fast",
+    icon: Brush,
+    title: "Creative Freedom",
     description:
-      "Build and deploy your portfolio in minutes, not hours. Our platform handles all the technical complexity.",
+      "Pick from stylish, easy-to-edit templates that match your personal vibe and make your portfolio feel truly yours.",
   },
   {
-    icon: Globe,
-    title: "Global Reach",
+    icon: ShoppingBag,
+    title: "Attract Clients",
     description:
-      "Your portfolio is responsive and performs beautifully across all devices.",
+      "Add pricing, contact forms, or booking options so visitors can go from admiring your work to hiring you instantly.",
   },
   {
-    icon: Shield,
-    title: "Secure & Reliable",
+    icon: Star,
+    title: "Make a Lasting Impression",
     description:
-      "Enterprise-grade security with 99.9% uptime. Your work deserves a platform you can trust.",
+      "Our layouts keep eyes where they belong — on your talent — with fast loading and mobile-first design.",
   },
 ];
 
-export default function About() {
+export default function PortfolioShowcase() {
   const navigate = useNavigate();
   const handleGetStarted = () => {
     navigate("/resume");
@@ -47,17 +46,17 @@ export default function About() {
       {/* Hero Section */}
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden w-full">
         {/* Background gradient */}
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-50 via-white to-slate-100"></div>
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-sky-50 via-white to-blue-50"></div>
 
-        {/* Floating elements for visual interest */}
+        {/* Floating elements */}
         <div className="absolute inset-0 overflow-hidden w-full h-full">
           <motion.div
-            className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-slate-200/30 to-slate-300/20 rounded-full blur-3xl"
+            className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-blue-100/30 to-sky-100/20 rounded-full blur-3xl"
             animate={{ y: [0, -20, 0], x: [0, 10, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-slate-300/20 to-slate-200/30 rounded-full blur-3xl"
+            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-sky-100/20 to-blue-100/30 rounded-full blur-3xl"
             animate={{ y: [0, 20, 0], x: [0, -15, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -73,7 +72,7 @@ export default function About() {
             <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
               <Sparkles className="w-4 h-4 text-slate-600" />
               <span className="text-sm text-slate-600">
-                Create stunning portfolios in minutes
+                Share your craft with the world
               </span>
             </div>
           </motion.div>
@@ -84,10 +83,10 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Showcase your work
+            Your work,
             <br />
-            <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
-              beautifully
+            <span className="bg-gradient-to-r from-sky-700 to-slate-900 bg-clip-text text-transparent">
+              beautifully displayed
             </span>
           </motion.h1>
 
@@ -97,9 +96,9 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            FindVirtual.me empowers creators, designers, and professionals to
-            build stunning portfolio websites that stand out. No coding required
-            – just your creativity and our intelligent platform.
+            FindVirtual.me makes it effortless for photographers, artists,
+            street vendors, and creators of all kinds to build an online space
+            that shows the world what you can do — no tech skills needed.
           </motion.p>
 
           <motion.div
@@ -113,14 +112,14 @@ export default function About() {
               className="relative bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl group transition-all duration-300 shadow-2xl shadow-slate-800/25 flex items-center overflow-hidden"
             >
               <span className="relative z-10 flex items-center">
-                Start creating your portfolio
+                Start Your Creative Showcase
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
               <span className="absolute inset-0 w-1/3 h-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
 
             <button
-              onClick={() => navigate("/portfolios", { state: { from: "about" } })}
+              onClick={() => navigate("/portfolios", { state: { from: "occupations" } })}
               className="text-slate-600 hover:text-slate-800 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20"
             >
               View examples
@@ -133,7 +132,7 @@ export default function About() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.2 }}
           >
-            Join amazing creators who trust FindVirtual.me
+            Join thousands of creators showcasing their talent
           </motion.div>
         </div>
       </div>
@@ -152,14 +151,15 @@ export default function About() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
-              Everything you need to{" "}
-              <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
-                succeed
+              Tools to{" "}
+              <span className="bg-gradient-to-r from-sky-700 to-slate-900 bg-clip-text text-transparent">
+                showcase your work
               </span>
             </h2>
             <p className="text-lg text-slate-800 max-w-2xl mx-auto">
-              Our platform combines powerful features with intuitive design to
-              help you create portfolios that truly represent your work.
+              From photographers to street food vendors, our platform gives you
+              everything you need to create a portfolio that tells your story
+              and attracts the right audience.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center">
               <motion.div
@@ -170,15 +170,15 @@ export default function About() {
                 viewport={{ once: true }}
               >
                 <div className="flex items-center justify-center mb-3">
-                  <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" />
+                <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-800 mb-2 text-center">
-                  Portfolio Intelligence
+                Portfolio Insights
                 </h3>
                 <p className="text-slate-700 text-center">
-                 Go beyond just beautiful design. 
-                  We show you <span className="font-semibold">detailed analytics</span> about your portfolio visitors - like which sections they spend the most time on, which are skipped, and how they interact with your content. 
-                  <span className="font-semibold">Get smart recommendations</span> to improve your portfolio and make a lasting impression.
+                A stunning portfolio is just the start.  
+                We give you <span className="font-semibold">deep insights</span> into how visitors engage with your work — which sections capture attention, which get skipped, and how they navigate your content.  
+                <span className="font-semibold">Get personalized tips</span> to refine your portfolio, keep visitors hooked, and leave a lasting impression.
                 </p>
               </motion.div>
             </div>
@@ -195,9 +195,9 @@ export default function About() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 group-hover:-translate-y-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                      <feature.icon className="w-6 h-6 text-slate-700" />
+                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-sky-200/50 group-hover:-translate-y-2">
+                    <div className="w-12 h-12 bg-gradient-to-br from-sky-100 to-blue-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="w-6 h-6 text-sky-700" />
                     </div>
                     <h3 className="text-lg font-medium text-slate-800 mb-3">
                       {feature.title}
