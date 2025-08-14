@@ -18,7 +18,7 @@ const PortfolioPage = () => {
   const [animating, setAnimating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const apiUrl = import.meta.env.VITE_BAKEND_API;
+  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const userPortfolioId = localStorage.getItem("portfolioId");
 
   const fetchPortfolio = async (id) => {

@@ -19,13 +19,14 @@ const Login = () => {
     setLoggedIn(!!token);
   }, []);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/user/login', {
+  const res = await axios.post(`${backendUrl}/user/login`, {
         email: form.email,
         password: form.password
       });

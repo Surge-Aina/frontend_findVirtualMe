@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 
 export default function FileUploader({ portfolio }) {
-  const apiUrl = import.meta.env.VITE_BAKEND_API;
+  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const [file, setFile] = useState(null);
   const [fileContent, setFileContent] = useState("");
   const [matchedWords, setMatchedWords] = useState([]);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Editable from "./Editable";
 
 export default function About() {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [photoUrl, setPhotoUrl] = useState("https://images.unsplash.com/photo-1494790108755-2616b612b5b5?auto=format&fit=crop&w=800&q=80"); // Default photo
   const [text, setText] = useState(
     "Hi, I'm Jane Doe, a professional photographer with a passion for capturing life's most beautiful moments. I offer services for weddings, graduations, sports, parties, and so much more. Head over to my Contacts page to learn more about how to book a session from me!"
@@ -14,7 +15,7 @@ export default function About() {
     const fetchData = async () => {
       try {
         // Fetch description
-        const descriptionRes = await fetch('http://localhost:5000/settings/aboutDescription');
+        const descriptionRes = await fetch(`${backendUrl}/settings/aboutDescription`);
         if (descriptionRes.ok) {
           const descriptionData = await descriptionRes.json();
           if (descriptionData.value) {
@@ -23,7 +24,7 @@ export default function About() {
         }
 
         // Fetch photo URL from settings
-        const photoRes = await fetch('http://localhost:5000/settings/aboutPhoto');
+        const photoRes = await fetch(`${backendUrl}/settings/aboutPhoto`);
         if (photoRes.ok) {
           const photoData = await photoRes.json();
           if (photoData.value) {
@@ -32,7 +33,7 @@ export default function About() {
         }
 
         // Fetch heading
-        const headingRes = await fetch('http://localhost:5000/settings/aboutHeading');
+        const headingRes = await fetch(`${backendUrl}/settings/aboutHeading`);
         if (headingRes.ok) {
           const headingData = await headingRes.json();
           if (headingData.value) {
@@ -41,7 +42,7 @@ export default function About() {
         }
 
         // Fetch text
-        const textRes = await fetch('http://localhost:5000/settings/aboutText');
+        const textRes = await fetch(`${backendUrl}/settings/aboutText`);
         if (textRes.ok) {
           const textData = await textRes.json();
           if (textData.value) {
@@ -60,7 +61,7 @@ export default function About() {
     setPhotoUrl(newUrl);
     
     try {
-      await fetch('http://localhost:5000/settings/aboutPhoto', {
+        await fetch(`${backendUrl}/settings/aboutPhoto`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newUrl }),
@@ -74,7 +75,7 @@ export default function About() {
     setDescription(newDescription);
   
     try {
-      await fetch('http://localhost:5000/settings/aboutDescription', {
+        await fetch(`${backendUrl}/settings/aboutDescription`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newDescription }),
@@ -88,7 +89,7 @@ export default function About() {
     setText(newText);
     
     try {
-      await fetch('http://localhost:5000/settings/aboutText', {
+        await fetch(`${backendUrl}/settings/aboutText`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newText }),

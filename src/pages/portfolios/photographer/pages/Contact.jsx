@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Editable from '../components/Editable';
 
 export default function Contact() {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [email, setEmail] = useState('janedoe@example.com');
   const [phone, setPhone] = useState('(123) 456-7890');
   const [responseTime, setResponseTime] = useState('Within 24 hours');
@@ -12,7 +13,7 @@ export default function Contact() {
     const fetchContactData = async () => {
       try {
         // Fetch description
-        const descriptionRes = await fetch('http://localhost:5000/settings/contactDescription');
+  const descriptionRes = await fetch(`${backendUrl}/settings/contactDescription`);
         if (descriptionRes.ok) {
           const descriptionData = await descriptionRes.json();
           if (descriptionData.value) {
@@ -21,7 +22,7 @@ export default function Contact() {
         }
 
         // Fetch email
-        const emailRes = await fetch('http://localhost:5000/settings/contactEmail');
+  const emailRes = await fetch(`${backendUrl}/settings/contactEmail`);
         if (emailRes.ok) {
           const emailData = await emailRes.json();
           if (emailData.value) {
@@ -30,7 +31,7 @@ export default function Contact() {
         }
 
         // Fetch phone
-        const phoneRes = await fetch('http://localhost:5000/settings/contactPhone');
+  const phoneRes = await fetch(`${backendUrl}/settings/contactPhone`);
         if (phoneRes.ok) {
           const phoneData = await phoneRes.json();
           if (phoneData.value) {
@@ -39,7 +40,7 @@ export default function Contact() {
         }
 
         // Fetch response time
-        const responseTimeRes = await fetch('http://localhost:5000/settings/contactResponseTime');
+  const responseTimeRes = await fetch(`${backendUrl}/settings/contactResponseTime`);
         if (responseTimeRes.ok) {
           const responseTimeData = await responseTimeRes.json();
           if (responseTimeData.value) {
@@ -74,7 +75,7 @@ export default function Contact() {
     setDescription(newDescription);
     
     try {
-      await fetch('http://localhost:5000/settings/contactDescription', {
+  await fetch(`${backendUrl}/settings/contactDescription`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newDescription }),
@@ -88,7 +89,7 @@ export default function Contact() {
     setEmail(newEmail);
     
     try {
-      await fetch('http://localhost:5000/settings/contactEmail', {
+  await fetch(`${backendUrl}/settings/contactEmail`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newEmail }),
@@ -102,7 +103,7 @@ export default function Contact() {
     setPhone(newPhone);
     
     try {
-      await fetch('http://localhost:5000/settings/contactPhone', {
+  await fetch(`${backendUrl}/settings/contactPhone`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newPhone }),
@@ -116,7 +117,7 @@ export default function Contact() {
     setResponseTime(newTime);
   
     try {
-      await fetch('http://localhost:5000/settings/contactResponseTime', {
+  await fetch(`${backendUrl}/settings/contactResponseTime`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newTime }),

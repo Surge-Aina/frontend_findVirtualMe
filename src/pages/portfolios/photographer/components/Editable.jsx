@@ -22,11 +22,12 @@ const Editable = ({
     setPreviewUrl(null);
   }, [value]);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch('http://localhost:5000/upload/image', {
+  const response = await fetch(`${backendUrl}/upload/image`, {
       method: 'POST',
       body: formData,
     });

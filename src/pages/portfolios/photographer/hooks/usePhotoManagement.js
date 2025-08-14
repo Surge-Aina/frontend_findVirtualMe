@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const [photos, setPhotos] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({});
@@ -10,12 +11,12 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     async function fetchData() {
       try {
         // Fetch photos
-        const photosRes = await fetch(`http://localhost:5000/drive/${endpoint}`);
+  const photosRes = await fetch(`${backendUrl}/drive/${endpoint}`);
         const photosData = await photosRes.json();
         setPhotos(photosData);
 
         // Fetch layout type
-        const layoutRes = await fetch(`http://localhost:5000/settings/${endpoint}Layout`);
+  const layoutRes = await fetch(`${backendUrl}/settings/${endpoint}Layout`);
         if (layoutRes.ok) {
           const layoutData = await layoutRes.json();
           if (layoutData.value) {
@@ -24,7 +25,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
         }
 
         // Fetch layout settings
-        const settingsRes = await fetch(`http://localhost:5000/settings/${endpoint}LayoutSettings`);
+  const settingsRes = await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`);
         if (settingsRes.ok) {
           const settingsData = await settingsRes.json();
           if (settingsData.value) {
@@ -44,7 +45,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     const updatedPhoto = { ...photoToUpdate, url: newUrl };
 
     try {
-      await fetch(`http://localhost:5000/photo/${endpoint}/${photoToUpdate._id}`, {
+  await fetch(`${backendUrl}/photo/${endpoint}/${photoToUpdate._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedPhoto),
@@ -62,7 +63,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     setLayoutType(newLayout);
     
     try {
-      await fetch(`http://localhost:5000/settings/${endpoint}Layout`, {
+  await fetch(`${backendUrl}/settings/${endpoint}Layout`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newLayout }),
@@ -80,7 +81,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     setLayoutSettings(newLayoutSettings);
     
     try {
-      await fetch(`http://localhost:5000/settings/${endpoint}LayoutSettings`, {
+  await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newLayoutSettings }),
@@ -93,7 +94,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
   const addPhoto = async () => {
     try {
       const newPhoto = { url: '/sample-placeholder.jpg' };
-      const res = await fetch(`http://localhost:5000/photo/${endpoint}`, {
+  const res = await fetch(`${backendUrl}/photo/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPhoto),
@@ -109,7 +110,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     const photoToDelete = photos[index];
     try {
       console.log('Deleting photo:', photoToDelete);
-      await fetch(`http://localhost:5000/photo/${endpoint}/${photoToDelete._id}`, {
+  await fetch(`${backendUrl}/photo/${endpoint}/${photoToDelete._id}`, {
         method: 'DELETE',
       });
       setPhotos(photos.filter((_, i) => i !== index));

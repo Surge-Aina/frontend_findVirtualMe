@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const [photos, setPhotos] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({});
@@ -25,7 +26,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
     }
 
     // Server fetch
-    fetch(`http://localhost:5000/settings/${endpoint}DriveFolderId`)
+  fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data?.value) {
@@ -65,7 +66,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
 
       setIsLoading(true);
       try {
-        const photosRes = await fetch(`http://localhost:5000/drive/admin/${currentFolderId}`);
+  const photosRes = await fetch(`${backendUrl}/drive/admin/${currentFolderId}`);
         if (photosRes.ok) {
           const photosData = await photosRes.json();
           setPhotos(photosData);
@@ -91,7 +92,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
     if (!endpoint) return;
     setIsLoading(true);
     try {
-      const photosRes = await fetch(`http://localhost:5000/drive/${endpoint}`);
+  const photosRes = await fetch(`${backendUrl}/drive/${endpoint}`);
       if (photosRes.ok) {
         const photosData = await photosRes.json();
         setPhotos(photosData);
@@ -113,12 +114,12 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
   const fetchLayoutData = async () => {
     if (!endpoint) return;
     try {
-      const layoutRes = await fetch(`http://localhost:5000/settings/${endpoint}Layout`);
+  const layoutRes = await fetch(`${backendUrl}/settings/${endpoint}Layout`);
       if (layoutRes.ok) {
         const layoutData = await layoutRes.json();
         if (layoutData.value) setLayoutType(layoutData.value);
       }
-      const settingsRes = await fetch(`http://localhost:5000/settings/${endpoint}LayoutSettings`);
+  const settingsRes = await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`);
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json();
         if (settingsData.value) setLayoutSettings(settingsData.value);
@@ -142,7 +143,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
       setPhotos(newPhotos);
       return;
     }
-    await fetch(`http://localhost:5000/photo/${endpoint}/${photoToUpdate._id}`, {
+  await fetch(`${backendUrl}/photo/${endpoint}/${photoToUpdate._id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedPhoto),
@@ -155,7 +156,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
   const handleLayoutChange = async (newLayout) => {
     setLayoutType(newLayout);
     if (!endpoint) return;
-    await fetch(`http://localhost:5000/settings/${endpoint}Layout`, {
+  await fetch(`${backendUrl}/settings/${endpoint}Layout`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value: newLayout }),
@@ -166,7 +167,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
     const newLayoutSettings = { ...layoutSettings, [layoutType]: settings };
     setLayoutSettings(newLayoutSettings);
     if (!endpoint) return;
-    await fetch(`http://localhost:5000/settings/${endpoint}LayoutSettings`, {
+  await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value: newLayoutSettings }),
@@ -177,7 +178,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
     if (currentFolderId) return;
     if (!endpoint) return;
     const newPhoto = { url: '/sample-placeholder.jpg' };
-    const res = await fetch(`http://localhost:5000/photo/${endpoint}`, {
+  const res = await fetch(`${backendUrl}/photo/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPhoto),
@@ -190,7 +191,7 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
     if (currentFolderId) return;
     const photoToDelete = photos[index];
     if (!endpoint || !photoToDelete._id) return;
-    await fetch(`http://localhost:5000/photo/${endpoint}/${photoToDelete._id}`, {
+  await fetch(`${backendUrl}/photo/${endpoint}/${photoToDelete._id}`, {
       method: 'DELETE',
     });
     setPhotos(photos.filter((_, i) => i !== index));

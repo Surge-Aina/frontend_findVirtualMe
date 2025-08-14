@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Editable from "./Editable";
 
 export default function ClientTestimonial() {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [testimonials, setTestimonials] = useState([
     { quote: "Absolutely stunning work. Every photo tells a story and captures emotion beautifully.", author: "Sarah M." },
     { quote: "Professional, creative, and incredibly talented. Made our wedding day magical.", author: "David & Emma" },
@@ -16,7 +17,7 @@ export default function ClientTestimonial() {
     const fetchTestimonialsData = async () => {
       try {
         // Fetch description
-        const descriptionRes = await fetch('http://localhost:5000/settings/testimonialsDescription');
+  const descriptionRes = await fetch(`${backendUrl}/settings/testimonialsDescription`);
         if (descriptionRes.ok) {
           const descriptionData = await descriptionRes.json();
           if (descriptionData.value) {
@@ -25,7 +26,7 @@ export default function ClientTestimonial() {
         }
 
         // Fetch testimonials
-        const res = await fetch('http://localhost:5000/settings/testimonials');
+  const res = await fetch(`${backendUrl}/settings/testimonials`);
         if (res.ok) {
           const data = await res.json();
           if (data.value) {
@@ -44,7 +45,7 @@ export default function ClientTestimonial() {
     setDescription(newDescription);
   
     try {
-      await fetch('http://localhost:5000/settings/testimonialsDescription', {
+  await fetch(`${backendUrl}/settings/testimonialsDescription`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newDescription }),
@@ -61,7 +62,7 @@ export default function ClientTestimonial() {
 
     // Save to backend
     try {
-      await fetch('http://localhost:5000/settings/testimonials', {
+  await fetch(`${backendUrl}/settings/testimonials`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: JSON.stringify(updatedTestimonials) }),

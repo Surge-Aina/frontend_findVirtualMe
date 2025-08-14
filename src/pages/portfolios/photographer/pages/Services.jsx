@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Editable from "../components/Editable";
 
 export default function Services() {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [heroData, setHeroData] = useState({
@@ -57,7 +58,7 @@ export default function Services() {
     const fetchServicesData = async () => {
       try {
         // Fetch hero data
-        const heroRes = await fetch('http://localhost:5000/settings/servicesHero');
+  const heroRes = await fetch(`${backendUrl}/settings/servicesHero`);
         if (heroRes.ok) {
           const heroData = await heroRes.json();
           if (heroData.value) {
@@ -66,7 +67,7 @@ export default function Services() {
         }
 
         // Fetch services data
-        const servicesRes = await fetch('http://localhost:5000/settings/servicesData');
+  const servicesRes = await fetch(`${backendUrl}/settings/servicesData`);
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
           if (servicesData.value) {
@@ -75,7 +76,7 @@ export default function Services() {
         }
 
         // Fetch packages data
-        const packagesRes = await fetch('http://localhost:5000/settings/packagesData');
+  const packagesRes = await fetch(`${backendUrl}/settings/packagesData`);
         if (packagesRes.ok) {
           const packagesData = await packagesRes.json();
           if (packagesData.value) {
@@ -95,7 +96,7 @@ export default function Services() {
     setHeroData(updatedHero);
     
     try {
-      await fetch('http://localhost:5000/settings/servicesHero', {
+  await fetch(`${backendUrl}/settings/servicesHero`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updatedHero }),
@@ -111,7 +112,7 @@ export default function Services() {
     setServices(updated);
     
     try {
-      await fetch('http://localhost:5000/settings/servicesData', {
+  await fetch(`${backendUrl}/settings/servicesData`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updated }),
@@ -127,7 +128,7 @@ export default function Services() {
     setPackages(updated);
     
     try {
-      await fetch('http://localhost:5000/settings/packagesData', {
+  await fetch(`${backendUrl}/settings/packagesData`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updated }),
@@ -143,7 +144,7 @@ export default function Services() {
       setServices(updated);
       
       try {
-        await fetch('http://localhost:5000/settings/servicesData', {
+  await fetch(`${backendUrl}/settings/servicesData`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ value: updated }),
@@ -160,7 +161,7 @@ export default function Services() {
       setPackages(updated);
       
       try {
-        await fetch('http://localhost:5000/settings/packagesData', {
+  await fetch(`${backendUrl}/settings/packagesData`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ value: updated }),
@@ -182,7 +183,7 @@ export default function Services() {
     setServices(updated);
     
     try {
-      await fetch('http://localhost:5000/settings/servicesData', {
+  await fetch(`${backendUrl}/settings/servicesData`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updated }),
@@ -202,7 +203,7 @@ export default function Services() {
     setPackages(updated);
     
     try {
-      await fetch('http://localhost:5000/settings/packagesData', {
+  await fetch(`${backendUrl}/settings/packagesData`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updated }),

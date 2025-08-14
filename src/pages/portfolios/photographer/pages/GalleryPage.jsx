@@ -12,11 +12,12 @@ const GalleryPage = () => {
   });
 
   // Load initial data from backend
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   useEffect(() => {
     const fetchGalleryData = async () => {
       try {
         // Fetch hero data
-        const heroRes = await fetch('http://localhost:5000/settings/galleryHero');
+  const heroRes = await fetch(`${backendUrl}/settings/galleryHero`);
         if (heroRes.ok) {
           const heroData = await heroRes.json();
           if (heroData.value) {
@@ -25,7 +26,7 @@ const GalleryPage = () => {
         }
 
         // Fetch services data
-        const servicesRes = await fetch('http://localhost:5000/settings/galleryServices');
+  const servicesRes = await fetch(`${backendUrl}/settings/galleryServices`);
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
           if (servicesData.value) {
@@ -96,7 +97,7 @@ const GalleryPage = () => {
     setHeroData(updatedHero);
     
     try {
-      await fetch('http://localhost:5000/settings/galleryHero', {
+  await fetch(`${backendUrl}/settings/galleryHero`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updatedHero }),
@@ -119,7 +120,7 @@ const GalleryPage = () => {
     setServices(updated);
     
     try {
-      await fetch('http://localhost:5000/settings/galleryServices', {
+  await fetch(`${backendUrl}/settings/galleryServices`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updated }),
@@ -141,7 +142,7 @@ const GalleryPage = () => {
     setServices(updatedServices);
     
     try {
-      await fetch('http://localhost:5000/settings/galleryServices', {
+  await fetch(`${backendUrl}/settings/galleryServices`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updatedServices }),
@@ -156,7 +157,7 @@ const GalleryPage = () => {
     setServices(updated);
     
     try {
-      await fetch('http://localhost:5000/settings/galleryServices', {
+  await fetch(`${backendUrl}/settings/galleryServices`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: updated }),

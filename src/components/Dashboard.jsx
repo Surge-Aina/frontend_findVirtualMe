@@ -7,7 +7,7 @@ import axios from "axios";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [portfolios, setPortfolios] = useState([]);
-  const backendUrl = import.meta.env.VITE_BAKEND_API;
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const loggedInEmail = localStorage.getItem("email");
 
   useEffect(() => {

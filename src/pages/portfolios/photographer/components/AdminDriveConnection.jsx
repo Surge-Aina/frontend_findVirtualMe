@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export default function AdminDriveConnection({ onDriveConnected, currentFolderId, compact = false, endpoint }) {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const getStorageKey = () => `adminDriveFolderId_${endpoint}`;
   
   const [folderId, setFolderId] = useState('');
@@ -25,7 +26,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
     }
 
     // Fetch from server for latest data
-    fetch(`http://localhost:5000/settings/${endpoint}DriveFolderId`)
+  fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data?.value) {
@@ -57,7 +58,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
     setTestResults(null);
 
     try {
-      const testResponse = await fetch(`http://localhost:5000/drive/test/${folderId.trim()}`);
+  const testResponse = await fetch(`${backendUrl}/drive/test/${folderId.trim()}`);
       
       if (testResponse.ok) {
         const testData = await testResponse.json();
@@ -65,7 +66,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
         setConnectionStatus('Connection successful!');
 
         // Save to server
-        await fetch(`http://localhost:5000/settings/${endpoint}DriveFolderId`, {
+  await fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ value: folderId.trim() }),
@@ -104,7 +105,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
 
   const handleDisconnect = async () => {
     // Clear server value
-    await fetch(`http://localhost:5000/settings/${endpoint}DriveFolderId`, {
+  await fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value: null }),

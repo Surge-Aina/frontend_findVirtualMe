@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Editable from "./Editable";
 
 export default function Specializations() {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [description, setDescription] = useState("From intimate portraits to grand celebrations, I capture the essence of every moment");
   const [services, setServices] = useState([
     { name: 'Wedding Photography', description: 'Capturing your most precious day with artistry and emotion' },
@@ -15,7 +16,7 @@ export default function Specializations() {
     const fetchSpecializationsData = async () => {
       try {
         // Fetch description
-        const descRes = await fetch('http://localhost:5000/settings/specializationsDescription');
+  const descRes = await fetch(`${backendUrl}/settings/specializationsDescription`);
         if (descRes.ok) {
           const descData = await descRes.json();
           if (descData.value) {
@@ -24,7 +25,7 @@ export default function Specializations() {
         }
 
         // Fetch services
-        const servicesRes = await fetch('http://localhost:5000/settings/specializationsServices');
+  const servicesRes = await fetch(`${backendUrl}/settings/specializationsServices`);
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
           if (servicesData.value) {
@@ -43,7 +44,7 @@ export default function Specializations() {
     setDescription(newDescription);
     
     try {
-      await fetch('http://localhost:5000/settings/specializationsDescription', {
+  await fetch(`${backendUrl}/settings/specializationsDescription`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newDescription }),
@@ -60,7 +61,7 @@ export default function Specializations() {
 
     // Save to backend
     try {
-      await fetch('http://localhost:5000/settings/specializationsServices', {
+  await fetch(`${backendUrl}/settings/specializationsServices`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: JSON.stringify(updatedServices) }),

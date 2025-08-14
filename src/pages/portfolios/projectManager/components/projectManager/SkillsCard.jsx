@@ -10,7 +10,7 @@ const SkillsCard = ({ portfolio }) => {
   const [adding, setAdding] = useState(false);
 
   const queryClient = useQueryClient();
-  const apiUrl = import.meta.env.VITE_BAKEND_API;
+  const apiUrl = import.meta.env.VITE_BACKEND_API;
 
   // Update local state when skills prop changes
   useEffect(() => {

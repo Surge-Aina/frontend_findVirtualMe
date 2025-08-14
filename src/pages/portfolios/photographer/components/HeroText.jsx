@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Editable from './Editable';
 
 export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "Party"] }) {
+  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
   const [heroWords, setHeroWords] = useState(words);
@@ -12,7 +13,7 @@ export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "
     const fetchHeroData = async () => {
       try {
         // Fetch hero words
-        const wordsRes = await fetch('http://localhost:5000/settings/heroWords');
+  const wordsRes = await fetch(`${backendUrl}/settings/heroWords`);
         if (wordsRes.ok) {
           const wordsData = await wordsRes.json();
           if (wordsData.value) {
@@ -21,7 +22,7 @@ export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "
         }
 
         // Fetch tagline
-        const taglineRes = await fetch('http://localhost:5000/settings/heroTagline');
+  const taglineRes = await fetch(`${backendUrl}/settings/heroTagline`);
         if (taglineRes.ok) {
           const taglineData = await taglineRes.json();
           if (taglineData.value) {
@@ -52,7 +53,7 @@ export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "
     setTagline(newTagline);
     
     try {
-      await fetch('http://localhost:5000/settings/heroTagline', {
+  await fetch(`${backendUrl}/settings/heroTagline`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newTagline }),
