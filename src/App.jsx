@@ -12,6 +12,7 @@ import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.js
 import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
+// import HandymanPage from './pages/portfolios/projectManager/components/handyman'; route to adjust for handyman page
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
