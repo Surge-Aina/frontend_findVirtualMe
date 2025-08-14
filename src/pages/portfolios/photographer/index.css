@@ -1,0 +1,149 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Prata&display=swap");
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.photographerStyles {
+  --font-heading: 'Prata', serif;
+  --font-body: 'Lato', sans-serif;
+}
+
+.photographerStyles {
+  font-family: var(--font-body);
+  background-color: #ffffff;
+  color: #1a1a1a;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.photographerStyles h1,
+.photographerStyles h2,
+.photographerStyles h3,
+.photographerStyles h4,
+.photographerStyles h5,
+.photographerStyles h6 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.photographerStyles p,
+.photographerStyles span,
+.photographerStyles li,
+.photographerStyles input,
+.photographerStyles textarea {
+  font-family: var(--font-body);
+  color: #4a4a4a;
+}
+
+/* Separate rules for links and buttons to avoid color conflicts */
+.photographerStyles a {
+  font-family: var(--font-body);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* Only apply dark color to regular links, not button-styled ones */
+.photographerStyles a:not([class*="bg-"]) {
+  color: #4a4a4a;
+}
+
+.photographerStyles a:not([class*="bg-"]):hover {
+  color: #1a1a1a;
+}
+
+.photographerStyles button {
+  font-family: var(--font-body);
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+
+/* Only apply dark color to buttons without background classes */
+.photographerStyles button:not([class*="bg-"]) {
+  color: #4a4a4a;
+}
+
+.photographerStyles input,
+.photographerStyles textarea,
+.photographerStyles select {
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.photographerStyles input:focus,
+.photographerStyles textarea:focus,
+.photographerStyles select:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+/* Minimal admin controls */
+.photographerStyles .admin-controls {
+  background-color: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.photographerStyles .admin-button {
+  background-color: transparent;
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+
+.photographerStyles .admin-button:hover {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.photographerStyles .admin-button-secondary {
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+
+.photographerStyles .admin-button-secondary:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Minimal card styles */
+.photographerStyles .minimal-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.photographerStyles .minimal-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Minimal photo container */
+.photographerStyles .photo-container {
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.photographerStyles .photo-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
