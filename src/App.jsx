@@ -12,7 +12,7 @@ import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.js
 import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
-// import HandymanPage from './pages/portfolios/projectManager/components/handyman'; route to adjust for handyman page
+import HandymanPage from './pages/portfolios/handyman/HandyManPage.jsx';
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -49,7 +49,8 @@ export default function App() {
         <Route path="/portfolios/cleaning-services" />
         <Route path="/portfolios/local-food-vendor" />
         <Route path="/portfolios/photographer/*" element={<PhotographerPage/>}/>
-        <Route path="/portfolios/handyman" />
+        
+        <Route path="/portfolios/handyman" element={<HandymanPage/>}/> 
       </Routes>
       {adminRequested && (
         <Tip message="Request received! Our admin team will contact you shortly." />

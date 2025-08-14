@@ -39,12 +39,13 @@ export default function ExamplePortfolios() {
     {
       title: "Handyman/Local Repair Services",
       summary: "Porftolio showcasing Handyman and Repair services",
+      location: "/portfolios/handyman"
     },
   ];
 
   const navigate = useNavigate();
   const handleCardClick = (portfolio) => {
-    portfolio.location ? navigate(portfolio.location) : toast("Comming Soon!");
+    portfolio.location ? navigate(portfolio.location) : toast("Coming Soon!");
   };
 
   return (
