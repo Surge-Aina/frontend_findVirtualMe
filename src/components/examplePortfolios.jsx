@@ -57,7 +57,7 @@ export default function ExamplePortfolios() {
             {portfolios.map((p, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between"
+                className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between hover:bg-slate-200 cursor-pointer"
                 onClick={() => handleCardClick(p)}
               >
                 {/* PortfolioCard content here */}

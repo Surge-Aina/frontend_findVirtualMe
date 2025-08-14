@@ -44,7 +44,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <Navbar loggedIn={true} onLogout={handleLogout} />
       <main className="min-h-screen bg-slate-50 pt-24 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-semibold mb-8 text-slate-800">

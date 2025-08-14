@@ -33,7 +33,7 @@ const EducationCard = ({ portfolio }) => {
       console.log("Saving education data:", educationData);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${apiUrl}/portfolio/edit?email=testEmail@example.com`,
+        `${apiUrl}/portfolio/edit?email=${portfolio.email}`,
         {
           method: "PATCH",
           headers: {
