@@ -1,0 +1,76 @@
+@import "tailwindcss";
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+.localvendor .image-gallery-thumbnail-image {
+  height: 80px !important;
+  object-fit: cover;
+}
+
+.localvendor html {
+  scroll-behavior: smooth;
+}
+
+.localvendor .clip-blob {
+  clip-path: path(
+    "M55.4,-65.6C69.6,-52.2,77.2,-34.2,76.5,-17.7C75.8,-1.3,66.9,13.6,57.3,27.2C47.7,40.9,37.4,53.3,24.8,60.2C12.2,67,-2.8,68.3,-18.4,66.7C-33.9,65,-49.9,60.3,-58.6,48.3C-67.2,36.2,-68.5,16.9,-67.7,-2.4C-66.9,-21.7,-63.8,-40.9,-52.6,-55.2C-41.4,-69.5,-20.7,-79,-1.1,-77.7C18.6,-76.3,37.3,-64.9,55.4,-65.6Z"
+  );
+}
+
+.localvendor .auth-box {
+  width: 100%;
+  max-width: 400px;
+  background: rgb(255, 252, 252);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 24px 16px;
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.localvendor .auth-box input,
+.localvendor .auth-box button,
+.localvendor .auth-box form button {
+  width: 100%;
+  max-width: 320px;
+  margin: 0.5em auto;
+  box-sizing: border-box;
+}
+
+.localvendor .auth-box form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.localvendor .auth-box .mt-4 {
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .localvendor .auth-box {
+    padding: 32px 32px;
+    margin: 32px auto;
+  }
+}
+
+.localvendor button:hover {
+  transform: translateY(2px);
+  box-shadow: 1px 1px 0px rgba(43, 39, 36, 0.6);
+}
+
+.localvendor img {
+  border: 0;
+}
+
+.localvendor .card,
+.localvendor .tile {
+  border: 0;
+}
