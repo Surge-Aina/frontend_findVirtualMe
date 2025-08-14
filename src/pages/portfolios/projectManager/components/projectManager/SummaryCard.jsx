@@ -31,7 +31,7 @@ const SummaryCard = ({ portfolio }) => {
       console.log("Saving summary data:", summaryData); // DEBUG
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${apiUrl}/portfolio/edit?email=${summaryData.email}`,
+        `${apiUrl}/portfolio/edit?email=${portfolio.email}`,
         {
           method: "PATCH",
           headers: {

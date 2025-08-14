@@ -36,7 +36,7 @@ const ProjectsCard = ({ portfolio }) => {
       console.log("Saving projects data:", projectsData); // DEBUG
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${apiUrl}/portfolio/edit?email=testEmail@example.com`,
+        `${apiUrl}/portfolio/edit?email=${portfolio.email}`,
         {
           method: "PATCH",
           headers: {

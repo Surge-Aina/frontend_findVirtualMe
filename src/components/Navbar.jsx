@@ -1,13 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import Auth from "../pages/login/Auth.jsx";
 import { motion } from "framer-motion"; // Make sure to install framer-motion
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext.jsx";
 
-export default function Navbar({ loggedIn, onLogout }) {
+export default function Navbar() {
   const [showAuth, setShowAuth] = useState(false);
+  const { contextLoggedIn, contextLogout } = useContext(AuthContext);
 
   const navigate = useNavigate();
   const navigateHome = () => {
+    navigate("/");
+  };
+
+  const logout = () => {
+    contextLogout();
     navigate("/");
   };
 
@@ -21,9 +28,10 @@ export default function Navbar({ loggedIn, onLogout }) {
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <motion.div
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 cursor-pointer"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            onClick={navigateHome}
           >
             <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-medium">FV</span>
@@ -44,10 +52,10 @@ export default function Navbar({ loggedIn, onLogout }) {
           </div>
 
           <div className="flex items-center space-x-3">
-            {loggedIn ? (
+            {contextLoggedIn ? (
               <button
                 className="relative bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition-colors overflow-hidden group"
-                onClick={onLogout}
+                onClick={logout}
               >
                 <span className="relative z-10">Logout</span>
                 <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
