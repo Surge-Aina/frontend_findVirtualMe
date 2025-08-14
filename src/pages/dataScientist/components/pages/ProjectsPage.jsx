@@ -352,12 +352,14 @@ const InteractiveDashboard = ({ onClose }) => {
           console.log('Dashboard data received:', data); // Debug log
           
           if (data) {
+            // Check if the API returned empty data arrays and use fallback
+            const hasValidData = data.data?.revenue && data.data.revenue.length > 0;
             const newSampleData = {
-              sales: data.data?.sales || getStoredData().sales,
-              revenue: data.data?.revenue || getStoredData().revenue,
+              sales: hasValidData ? data.data.sales : getStoredData().sales,
+              revenue: hasValidData ? data.data.revenue : getStoredData().revenue,
               categories: data.categories || getStoredData().categories,
               categoryData: data.categoryData || getStoredData().categoryData,
-              xLabels: data.data?.xLabels || getStoredData().xLabels,
+              xLabels: hasValidData ? data.data.xLabels : getStoredData().xLabels,
               hiddenPoints: data.data?.hiddenPoints || []
             };
             
