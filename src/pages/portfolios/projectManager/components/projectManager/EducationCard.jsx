@@ -20,7 +20,7 @@ const EducationCard = ({ portfolio }) => {
   });
 
   const queryClient = useQueryClient();
-  const apiUrl = import.meta.env.VITE_BAKEND_API;
+  const apiUrl = import.meta.env.VITE_BACKEND_API;
 
   // Update local state when education prop changes
   useEffect(() => {

@@ -33,6 +33,7 @@ export default function ExamplePortfolios() {
     {
       title: "Photographer",
       summary: "Porftolio showcasing Photography Portfolio",
+      location: "/portfolios/photographer"
     },
 
     {

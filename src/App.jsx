@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import "./App.css";
 import ResumeUpload from "./components/ResumeUpload";
 import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
+import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx"
 import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
@@ -46,7 +47,7 @@ export default function App() {
         <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
         <Route path="/portfolios/cleaning-services" />
         <Route path="/portfolios/local-food-vendor" />
-        <Route path="/portfolios/photographer" />
+        <Route path="/portfolios/photographer/*" element={<PhotographerPage/>}/>
         <Route path="/portfolios/handyman" />
       </Routes>
       {adminRequested && (
