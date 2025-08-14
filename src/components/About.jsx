@@ -152,7 +152,7 @@ export default function About() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
-              Everything you need to
+              Everything you need to{" "}
               <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
                 succeed
               </span>
@@ -161,31 +161,54 @@ export default function About() {
               Our platform combines powerful features with intuitive design to
               help you create portfolios that truly represent your work.
             </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
+            <div className="mt-8 flex flex-col items-center justify-center">
               <motion.div
-                key={feature.title}
-                className="group"
+                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 max-w-xl"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 group-hover:-translate-y-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <feature.icon className="w-6 h-6 text-slate-700" />
-                  </div>
-                  <h3 className="text-lg font-medium text-slate-800 mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-800 leading-relaxed">
-                    {feature.description}
-                  </p>
+                <div className="flex items-center justify-center mb-3">
+                  <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" />
                 </div>
+                <h3 className="text-xl font-semibold text-slate-800 mb-2 text-center">
+                  Portfolio Intelligence
+                </h3>
+                <p className="text-slate-700 text-center">
+                 Go beyond just beautiful design. 
+                  We show you <span className="font-semibold">detailed analytics</span> about your portfolio visitors - like which sections they spend the most time on, which are skipped, and how they interact with your content. 
+                  <span className="font-semibold">Get smart recommendations</span> to improve your portfolio and make a lasting impression.
+                </p>
               </motion.div>
-            ))}
+            </div>
+          </motion.div>
+
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  className="group"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 group-hover:-translate-y-2">
+                    <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="w-6 h-6 text-slate-700" />
+                    </div>
+                    <h3 className="text-lg font-medium text-slate-800 mb-3">
+                      {feature.title}
+                    </h3>
+                    <p className="text-slate-800 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
