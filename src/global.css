@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 :root {
     --primary: #1a73e8;
@@ -8,9 +9,10 @@
 
 body {
     margin: 0;
-    font-family: var(--font-family);
-    background: var(--secondary);
-    color: #222;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+    background: #ffffff;
+    color: #212529;
+    scroll-behavior: smooth;
 }
 
 .btn {

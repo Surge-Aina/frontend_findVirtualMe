@@ -9,6 +9,7 @@ import "./App.css";
 import ResumeUpload from "./components/ResumeUpload";
 import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
 import ExamplePortfolios from "./components/examplePortfolios";
+import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -39,7 +40,7 @@ export default function App() {
         <Route path="/portfolios/project-manager" element={<PortfolioPage />} />
 
         <Route path="/portfolios/software-engineer" />
-        <Route path="/portfolios/data-scientist" />
+        <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
         <Route path="/portfolios/cleaning-services" />
         <Route path="/portfolios/local-food-vendor" />
         <Route path="/portfolios/photographer" />
