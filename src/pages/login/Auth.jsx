@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import SignUp from "./SignUp";
 
 const Auth = ({ onClose }) => {
-  const apiUrl = import.meta.env.VITE_BAKEND_API;
+  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
