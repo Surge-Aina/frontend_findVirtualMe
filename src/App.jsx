@@ -10,6 +10,7 @@ import ResumeUpload from "./components/ResumeUpload";
 import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
 import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx"
 import ExamplePortfolios from "./components/examplePortfolios";
+import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
 
 export default function App() {
@@ -43,7 +44,7 @@ export default function App() {
         <Route path="/portfolios/project-manager" element={<PortfolioPage />} />
 
         <Route path="/portfolios/software-engineer" />
-        <Route path="/portfolios/data-scientist" />
+        <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
         <Route path="/portfolios/cleaning-services" />
         <Route path="/portfolios/local-food-vendor" />
         <Route path="/portfolios/photographer/*" element={<PhotographerPage/>}/>

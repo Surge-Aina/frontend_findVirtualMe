@@ -17,6 +17,7 @@ export default function ExamplePortfolios() {
     {
       title: "Data Scientist",
       summary: "Porftolio showcasing Data Scientist's Resume",
+      location: "/portfolios/data-scientist",
     },
 
     {
