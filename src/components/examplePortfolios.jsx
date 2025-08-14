@@ -1,7 +1,8 @@
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function ExamplePortfolios() {
+  const location = useLocation();
   const portfolios = [
     {
       title: "Project Manager",
@@ -18,11 +19,6 @@ export default function ExamplePortfolios() {
       title: "Data Scientist",
       summary: "Porftolio showcasing Data Scientist's Resume",
       location: "/portfolios/data-scientist",
-    },
-
-    {
-      title: "Cleaning Services",
-      summary: "Porftolio showcasing Cleaning Services",
     },
 
     {
@@ -48,6 +44,14 @@ export default function ExamplePortfolios() {
     portfolio.location ? navigate(portfolio.location) : toast("Comming Soon!");
   };
 
+  // Determine which portfolios to show based on navigation source
+  let displayPortfolios = portfolios;
+  if (location.state?.from === "about") {
+    displayPortfolios = portfolios.slice(0, 3);
+  } else if (location.state?.from === "occupations") {
+    displayPortfolios = portfolios.slice(-3);
+  }
+
   return (
     <>
       <main className="min-h-screen bg-slate-50 pt-24 px-4">
@@ -56,7 +60,7 @@ export default function ExamplePortfolios() {
             Portfolios
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {portfolios.map((p, i) => (
+            {displayPortfolios.map((p, i) => (
               <div
                 key={i}
                 className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between hover:bg-slate-200 cursor-pointer"
