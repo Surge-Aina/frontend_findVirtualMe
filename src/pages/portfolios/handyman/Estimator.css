@@ -1,0 +1,53 @@
+.estimator-section {
+  padding: 4rem 2rem;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.estimator-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.estimator-container h2 {
+  margin-top: 0;
+}
+
+.estimator-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.estimator-select, .estimator-input {
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.estimator-input {
+  width: 60px;
+}
+
+.estimator-result {
+  margin: 1.5rem 0;
+}
+
+.price-range {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007bff;
+  margin: 0;
+}
+
+.estimator-disclaimer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}

@@ -1,0 +1,113 @@
+.portfolio-section {
+  padding: 4rem 0;
+  background-color: #ffffff;
+  text-align: center;
+  overflow: hidden; 
+}
+
+.portfolio-filters {
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.portfolio-filters button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 20px;
+  border: 1px solid #007bff;
+  background-color: #fff;
+  color: #007bff;
+  transition: all 0.3s ease;
+}
+
+.portfolio-filters button:hover {
+  background-color: #e7f3ff;
+}
+
+.portfolio-filters button.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+
+.portfolio-slider {
+  margin: 0 20px;
+}
+
+.project-slide {
+  padding: 0 15px;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  transform: scale(0.85); 
+  opacity: 0.5; 
+}
+
+
+.slick-center .project-slide {
+  transform: scale(1); 
+  opacity: 1; 
+}
+
+.project-card {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: left;
+}
+
+.project-card h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.project-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.project-image {
+  position: relative;
+}
+
+.project-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.slick-prev:before, .slick-next:before {
+  color: #007bff;
+}
+.portfolio-slider {
+  margin: 0 20px;
+}
+
+/* Responsive settings for the slider */
+@media (max-width: 768px) {
+  .portfolio-slider {
+    margin: 0;
+  }
+  .project-slide {
+    transform: scale(1); /* No scaling on mobile */
+    opacity: 1; /* Full opacity on mobile */
+  }
+}

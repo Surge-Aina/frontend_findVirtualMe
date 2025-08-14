@@ -1,0 +1,111 @@
+/* Main navbar container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+
+/* Desktop links */
+.navbar-links {
+  display: flex;
+  list-style: none;
+  margin: 0 auto; /* This helps center the links */
+  padding: 0;
+  align-items: center;
+}
+
+.navbar-links li {
+  margin: 0 1.5rem;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: #555;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+  color: #007bff;
+}
+
+/* Login/Logout button styling */
+.navbar-button {
+  background-color: #007bff;
+  color: white !important; /* Use !important to override link color */
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none; /* This removes the underline */
+  display: inline-block;
+  text-align: center;
+  font-family: inherit;
+}
+
+.navbar-button:hover {
+  background-color: #0056b3;
+}
+
+/* Hide mobile-only elements on desktop */
+.menu-icon, .mobile-nav-links {
+  display: none;
+}
+
+/* --- Mobile Responsive Styles --- */
+@media (max-width: 768px) {
+  /* Hide desktop elements on mobile */
+  .navbar-links, .navbar-auth-desktop {
+    display: none;
+  }
+  
+  /* Show hamburger icon */
+  .menu-icon {
+    display: block;
+  }
+  
+  /* Mobile navigation menu styles */
+  .mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 65px; /* Position below navbar */
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .mobile-nav-links li {
+    padding: 1rem;
+    text-align: center;
+    width: 100%;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .mobile-nav-links a, .mobile-nav-links .navbar-button {
+    text-decoration: none;
+    color: #333;
+    width: 90%;
+    display: block;
+    margin: 0 auto;
+  }
+}

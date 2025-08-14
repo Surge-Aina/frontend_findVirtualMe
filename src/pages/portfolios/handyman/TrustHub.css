@@ -1,0 +1,56 @@
+.trust-hub-section {
+  padding: 4rem 2rem;
+  background-color: #f0f4f8;
+}
+
+.trust-hub-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.owner-card, .guarantees-card {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.owner-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 1rem;
+  border: 4px solid #007bff;
+}
+
+.guarantees-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guarantees-card li {
+  display: flex;
+  align-items: start;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.guarantees-card li span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .trust-hub-container {
+    grid-template-columns: 1fr;
+  }
+}
