@@ -13,6 +13,7 @@ import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
 import SignUp from "./pages/login/SignUp";
+import HandymanPage from './pages/portfolios/handyman/HandyManPage.jsx';
 import Occupations from "./components/Occupations";
 
 export default function App() {
