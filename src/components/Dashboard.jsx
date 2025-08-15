@@ -67,9 +67,9 @@ export default function Dashboard() {
                     onClick={() => handleCardClick(p)}
                   >
                     <div className="font-semibold text-slate-800 mb-2">
-                      {p.title}
+                      {p.name}
                     </div>
-                    <div className="text-slate-600">{p.summary}</div>
+                    <div className="text-slate-600">{p.title}</div>
                   </div>
                 ))}
               </div>
@@ -97,9 +97,9 @@ export default function Dashboard() {
                   onClick={() => handleCardClick(p)}
                 >
                   <div className="font-semibold text-slate-800 mb-2">
-                    {p.title}
+                    {p.name}
                   </div>
-                  <div className="text-slate-600">{p.summary}</div>
+                  <div className="text-slate-600">{p.title}</div>
                 </div>
               ))}
             </div>
