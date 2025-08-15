@@ -192,13 +192,15 @@ const ProjectsCard = ({ portfolio }) => {
               </div>
             ) : (
               <>
-                <button
-                  onClick={() => handleEdit(idx)}
-                  className="absolute top-4 right-4 p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
-                  aria-label="Edit"
-                >
-                  <FaPen className="w-4 h-4" />
-                </button>
+                {portfolio.email === localStorage.getItem("email") && (
+                  <button
+                    onClick={() => handleEdit(idx)}
+                    className="absolute top-4 right-4 p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
+                    aria-label="Edit"
+                  >
+                    <FaPen className="w-4 h-4" />
+                  </button>
+                )}
 
                 <div className="pr-12 flex-1 flex flex-col">
                   <div className="flex-1">
