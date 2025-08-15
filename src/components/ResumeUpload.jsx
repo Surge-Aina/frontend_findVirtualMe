@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; 
 
 export default function ResumeUpload() {
   const apiUrl = import.meta.env.VITE_BACKEND_API;
@@ -7,6 +8,7 @@ export default function ResumeUpload() {
   const [fileContent, setFileContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
+  const navigate = useNavigate(); 
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -45,6 +47,7 @@ export default function ResumeUpload() {
       setUploaded(true);
       setFile(null);
       setFileContent(null);
+      navigate("/dashboard"); // Redirect after upload
     } catch (err) {
       console.error("Error uploading file:", err);
     } finally {
