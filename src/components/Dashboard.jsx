@@ -71,9 +71,10 @@ export default function Dashboard() {
                       {p.title}
                     </div>
                     <div className="text-slate-600">
-                      {p.summary && p.summary.length > 240
+                      {/* {p.summary && p.summary.length > 240
                         ? p.summary.slice(0, 240) + "…"
-                        : p.summary}
+                        : p.summary} */}
+                      {p.name}
                     </div>
                   </div>
                 ))}
@@ -109,9 +110,10 @@ export default function Dashboard() {
                       {p.title}
                     </div>
                     <div className="text-slate-600">
-                      {p.summary && p.summary.length > 240
+                      {/* {p.summary && p.summary.length > 240
                         ? p.summary.slice(0, 240) + "…"
-                        : p.summary}
+                        : p.summary} */}
+                      {p.name}
                     </div>
                   </div>
                 ))}
