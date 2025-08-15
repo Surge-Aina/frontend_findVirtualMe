@@ -30,7 +30,8 @@ const PortfolioPage = () => {
   };
 
   //get portfolio id from the url parameters
-  const id = "689b833c90c7ecc042b7b2ac"; //useParams();
+  //const id = "689b833c90c7ecc042b7b2ac"; //useParams();
+  const { id } = useParams();
 
   const {
     data: portfolio,

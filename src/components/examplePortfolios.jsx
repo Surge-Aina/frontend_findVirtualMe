@@ -7,7 +7,7 @@ export default function ExamplePortfolios() {
     {
       title: "Project Manager",
       summary: "Porftolio showcasing Project Manager's Resume",
-      location: "/portfolios/project-manager",
+      location: "/portfolios/project-manager/689b833c90c7ecc042b7b2ac",
     },
 
     {
@@ -29,13 +29,13 @@ export default function ExamplePortfolios() {
     {
       title: "Photographer",
       summary: "Porftolio showcasing Photography Portfolio",
-      location: "/portfolios/photographer"
+      location: "/portfolios/photographer",
     },
 
     {
       title: "Handyman/Local Repair Services",
       summary: "Porftolio showcasing Handyman and Repair services",
-      location: "/portfolios/handyman"
+      location: "/portfolios/handyman",
     },
   ];
 

@@ -50,11 +50,13 @@ const Auth = ({ onClose }) => {
         toast.success("Login successful!");
         contextLogin(res.data.token);
         //navigate(`/portfolio/${portfolioId}`);
+        window.location.reload();
         navigate("/dashboard");
         if (onClose) onClose();
       } else {
         setLoggedIn(true);
         toast.success("Login successful, but no portfolio found!");
+        window.location.reload();
         navigate("/dashboard");
         if (onClose) onClose();
       }
