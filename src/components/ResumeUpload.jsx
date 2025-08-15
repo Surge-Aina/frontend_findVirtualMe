@@ -38,7 +38,7 @@ export default function ResumeUpload() {
     formData.append("resume", file);
     const email = localStorage.getItem("email");
     if (email) {
-      formData.append("email");
+      formData.append("email", email);
     }
 
     try {
