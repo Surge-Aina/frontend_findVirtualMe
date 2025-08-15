@@ -87,15 +87,11 @@ const ProjectsPage = () => {
               </div>
               
               <div className="flex-grow mb-4">
-                {project.content?.description && (
+                {project.description && (
                   <p className="text-terminal-textDim text-xs sm:text-sm leading-relaxed">
-                    {Array.isArray(project.content.description) 
-                      ? (project.content.description[0] && project.content.description[0].length > 80 
-                          ? `${project.content.description[0].substring(0, 80)}...` 
-                          : project.content.description[0])
-                      : (project.content.description.length > 80 
-                          ? `${project.content.description.substring(0, 80)}...` 
-                          : project.content.description)
+                    {project.description.length > 80 
+                      ? `${project.description.substring(0, 80)}...` 
+                      : project.description
                     }
                   </p>
                 )}
@@ -103,9 +99,9 @@ const ProjectsPage = () => {
               
               <div className="mt-auto">
                 {/* Show tags if available, otherwise show technologies */}
-                {project.content?.tags ? (
+                {project.tags ? (
                   <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
-                    {project.content.tags
+                    {project.tags
                       .slice(0, 3)
                       .map((tag, i) => (
                         <span 
@@ -203,33 +199,22 @@ const ProjectDetailsModal = ({ project, onClose }) => {
       }
       
       // Handle project items
-      if (project.content?.description) {
+      if (project.description) {
         return (
           <div className="space-y-3 sm:space-y-4">
-            {Array.isArray(project.content.description) ? (
-              <ul className="space-y-2">
-                {project.content.description.map((desc, index) => (
-                  <li key={index} className="text-terminal-output text-xs sm:text-sm flex items-start">
-                    <span className="text-terminal-accent mr-2 mt-1">•</span>
-                    <span>{desc}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-terminal-output text-sm sm:text-base">{project.content.description}</p>
-            )}
-            {project.content?.technologies && (
+            <p className="text-terminal-output text-sm sm:text-base">{project.description}</p>
+            {project.technologies && (
               <div className="flex flex-wrap gap-1 sm:gap-2 mt-3 sm:mt-4">
-                {project.content.technologies.split(',').map((tech, index) => (
+                {project.technologies.split(',').map((tech, index) => (
                   <span key={index} className="tech-badge text-xs px-2 py-1">
                     {tech.trim()}
                   </span>
                 ))}
               </div>
             )}
-            {project.content?.tags && (
+            {project.tags && (
               <div className="flex flex-wrap gap-1 sm:gap-2 mt-3 sm:mt-4">
-                {project.content.tags.map((tag, index) => (
+                {project.tags.map((tag, index) => (
                   <span key={index} className="tech-badge text-xs px-2 py-1">
                     {tag}
                   </span>
@@ -344,7 +329,7 @@ const InteractiveDashboard = ({ onClose }) => {
       try {
         setLoading(true);
         console.log('Loading dashboard data...'); // Debug log
-        const response = await fetch('http://localhost:5000/dashboard');
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/dashboard`);
         console.log('Response status:', response.status); // Debug log
         
         if (response.ok) {
@@ -400,7 +385,7 @@ const InteractiveDashboard = ({ onClose }) => {
         sales: newData.sales.map(value => value === '' ? 0 : value)
       };
       
-      const response = await fetch('http://localhost:5000/dashboard', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/dashboard`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -524,7 +509,7 @@ const InteractiveDashboard = ({ onClose }) => {
   // Reset to data from MongoDB
   const resetData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/dashboard');
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/dashboard`);
               if (response.ok) {
           const data = await response.json();
           if (data) {
