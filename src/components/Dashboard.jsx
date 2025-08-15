@@ -45,7 +45,9 @@ export default function Dashboard() {
   };
 
   const handleCardClick = (portfolio) => {
-    navigate(`/portfolios/project-manager/${portfolio._id}`);
+    navigate(
+      `/portfolios/project-manager/${portfolio.username}/${portfolio._id}`
+    );
   };
 
   return (
