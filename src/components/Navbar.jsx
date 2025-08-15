@@ -4,10 +4,12 @@ import SignUp from "../pages/login/SignUp.jsx";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
+import { Menu, X } from "lucide-react"; 
 
 export default function Navbar() {
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // "login" or "signup"
+  const [authMode, setAuthMode] = useState("login");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { contextLoggedIn, contextLogout } = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -43,15 +45,8 @@ export default function Navbar() {
             </span>
           </motion.div>
 
+          {/* Desktop links */}
           <div className="hidden md:flex items-center space-x-8">
-            <button
-              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
-              onClick={navigateHome}
-            >
-              <span className="relative z-10">Job Seekers</span>
-              <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
-            </button>
-
             <button
               className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
               onClick={() => navigate("/occupations")}
@@ -59,18 +54,34 @@ export default function Navbar() {
               <span className="relative z-10">Creators</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
-
-            {
-              <button
-                className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
-                onClick={() => navigate("/dashboard")}
-              >
-                <span className="relative z-10">Dashboard</span>
-                <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
-              </button>
-            }
+            <button
+              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+              onClick={navigateHome}
+            >
+              <span className="relative z-10">Job Seekers</span>
+              <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+            </button>
+            <button
+              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+              onClick={() => navigate("/dashboard")}
+            >
+              <span className="relative z-10">Dashboard</span>
+              <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+            </button>
           </div>
 
+          {/* Hamburger for mobile */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg focus:outline-none"
+              aria-label="Open menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Auth buttons */}
           <div className="flex items-center space-x-3">
             {contextLoggedIn ? (
               <button
@@ -143,6 +154,41 @@ export default function Navbar() {
             )}
           </div>
         </div>
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-full bg-white/95 shadow-lg border-t border-slate-200 z-40">
+            <div className="flex flex-col items-center py-4 space-y-2">
+              <button
+                className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate("/occupations");
+                }}
+              >
+                Creators
+              </button>
+              <button
+                className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigateHome();
+                }}
+              >
+                Job Seekers
+              </button>
+              <button
+                className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate("/dashboard");
+                }}
+              >
+                Dashboard
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </motion.nav>
   );
