@@ -60,28 +60,34 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">
                 My Portfolios
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
+                {/* Render user's portfolios */}
                 {myPortfolios.map((p, i) => (
                   <div
-                    key={i}
+                    key={p._id || i}
                     className="bg-white rounded-xl shadow-md p-6"
                     onClick={() => handleCardClick(p)}
                   >
                     <div className="font-semibold text-slate-800 mb-2">
                       {p.title}
                     </div>
-                    <div className="text-slate-600">{p.summary}</div>
+                    <div className="text-slate-600">
+                      {p.summary && p.summary.length > 240
+                        ? p.summary.slice(0, 240) + "…"
+                        : p.summary}
+                    </div>
                   </div>
                 ))}
+                {/* Add Portfolio card */}
+                <button
+                  onClick={handleAddPortfolio}
+                  className="flex flex-col items-center justify-center bg-white rounded-xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all min-h-[180px] cursor-pointer"
+                  style={{ minHeight: "180px" }}
+                >
+                  <span className="text-5xl text-blue-400 font-bold">+</span>
+                  <span className="mt-2 text-slate-500">Add Portfolio</span>
+                </button>
               </div>
-              {/* Add Portfolios */}
-              <button
-                onClick={handleAddPortfolio}
-                className="flex flex-col items-center justify-center bg-white rounded-xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all min-h-[180px] cursor-pointer"
-              >
-                <span className="text-5xl text-blue-400 font-bold">+</span>
-                <span className="mt-2 text-slate-500">Add Portfolio</span>
-              </button>
             </section>
           )}
 
@@ -90,19 +96,26 @@ export default function Dashboard() {
             <h2 className="text-2xl font-semibold mb-6 text-slate-800">
               Other Portfolios
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-              {otherPortfolios.map((p, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl shadow-md p-6"
-                  onClick={() => handleCardClick(p)}
-                >
-                  <div className="font-semibold text-slate-800 mb-2">
-                    {p.title}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
+              {/* Only render actual portfolios, no empty card */}
+              {otherPortfolios
+                .filter((p) => p.title && p.summary) // filter out any empty/invalid portfolios
+                .map((p, i) => (
+                  <div
+                    key={p._id || i}
+                    className="bg-white rounded-xl shadow-md p-6"
+                    onClick={() => handleCardClick(p)}
+                  >
+                    <div className="font-semibold text-slate-800 mb-2">
+                      {p.title}
+                    </div>
+                    <div className="text-slate-600">
+                      {p.summary && p.summary.length > 240
+                        ? p.summary.slice(0, 240) + "…"
+                        : p.summary}
+                    </div>
                   </div>
-                  <div className="text-slate-600">{p.summary}</div>
-                </div>
-              ))}
+                ))}
             </div>
           </section>
         </div>
