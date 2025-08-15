@@ -7,7 +7,7 @@ export default function ExamplePortfolios() {
     {
       title: "Project Manager",
       summary: "Porftolio showcasing Project Manager's Resume",
-      location: "/portfolios/project-manager/689b833c90c7ecc042b7b2ac",
+      location: "/portfolios/project-manager/example/689b833c90c7ecc042b7b2ac",
     },
 
     {
