@@ -14,6 +14,7 @@ import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
 import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import Occupations from "./components/Occupations";
+import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -55,7 +56,7 @@ export default function App() {
           element={<DataScientistPage />}
         />
         <Route path="/portfolios/cleaning-services" />
-        <Route path="/portfolios/local-food-vendor" />
+        <Route path="/portfolios/localVendor/*" element={<LocalVendorApp />} />
         <Route
           path="/portfolios/photographer/*"
           element={<PhotographerPage />}

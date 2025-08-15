@@ -24,6 +24,7 @@ export default function ExamplePortfolios() {
     {
       title: "Local Food Vendor",
       summary: "Porftolio showcasing a Local Food Vendor",
+      location: "/portfolios/localVendor",
     },
 
     {
