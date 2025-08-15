@@ -49,7 +49,7 @@ export default function About() {
         {/* Background gradient */}
         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-50 via-white to-slate-100"></div>
 
-        {/* Floating elements for visual interest */}
+        {/* Floating elements */}
         <div className="absolute inset-0 overflow-hidden w-full h-full">
           <motion.div
             className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-slate-200/30 to-slate-300/20 rounded-full blur-3xl"
@@ -103,14 +103,14 @@ export default function About() {
           </motion.p>
 
           <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6"
+            className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             <button
               onClick={handleGetStarted}
-              className="relative bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl group transition-all duration-300 shadow-2xl shadow-slate-800/25 flex items-center overflow-hidden"
+              className="relative bg-slate-800 hover:bg-slate-700 text-white px-8 py-6 text-lg rounded-xl group transition-all duration-300 shadow-2xl shadow-slate-800/25 flex items-center overflow-hidden w-full sm:w-auto mx-2"
             >
               <span className="relative z-10 flex items-center">
                 Start creating your portfolio
@@ -121,7 +121,7 @@ export default function About() {
 
             <button
               onClick={() => navigate("/portfolios", { state: { from: "about" } })}
-              className="text-slate-600 hover:text-slate-800 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20"
+              className="text-slate-600 hover:text-slate-800 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20 w-full sm:w-auto mx-2"
             >
               View examples
             </button>
@@ -163,7 +163,7 @@ export default function About() {
             </p>
             <div className="mt-8 flex flex-col items-center justify-center">
               <motion.div
-                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 max-w-xl"
+                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 max-w-xl w-full mx-2"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -176,7 +176,7 @@ export default function About() {
                   Portfolio Intelligence
                 </h3>
                 <p className="text-slate-700 text-center">
-                 Go beyond just beautiful design. 
+                  Go beyond just beautiful design. 
                   We show you <span className="font-semibold">detailed analytics</span> about your portfolio visitors - like which sections they spend the most time on, which are skipped, and how they interact with your content. 
                   <span className="font-semibold">Get smart recommendations</span> to improve your portfolio and make a lasting impression.
                 </p>

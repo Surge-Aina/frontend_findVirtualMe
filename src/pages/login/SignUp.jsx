@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const apiUrl = import.meta.env.VITE_BACKEND_API;
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", username: "" });
   const [success, setSuccess] = useState(false);
   const { contextLogin } = useContext(AuthContext);
 
@@ -19,7 +19,7 @@ export default function SignUp() {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password || !form.username) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -51,6 +51,14 @@ export default function SignUp() {
           name="name"
           placeholder="Name"
           value={form.name}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
           onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />

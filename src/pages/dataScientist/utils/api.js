@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_BAKEND_API || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_BACKEND_API || 'http://localhost:5100';
 
 // Create axios instance
 const api = axios.create({
@@ -53,7 +53,7 @@ export const portfolioAPI = {
     const sectionMap = {
       'experience': 'experience',
       'education': 'education', 
-      'projects': 'project' // Backend uses 'project' not 'projects'
+      'projects': 'projects' // Backend uses 'projects' (plural)
     };
     const backendSection = sectionMap[itemData.section] || itemData.section;
     const response = await api.post(`/datascience-portfolio/${backendSection}`, itemData.content);
@@ -65,7 +65,7 @@ export const portfolioAPI = {
     const sectionMap = {
       'experience': 'experience',
       'education': 'education',
-      'projects': 'project' // Backend uses 'project' not 'projects'
+      'projects': 'projects' // Backend uses 'projects' (plural)
     };
     const backendSection = sectionMap[updates.section] || updates.section;
     const response = await api.patch(`/datascience-portfolio/${backendSection}/${id}`, updates.content);
@@ -77,7 +77,7 @@ export const portfolioAPI = {
     const sectionMap = {
       'experience': 'experience',
       'education': 'education',
-      'projects': 'project' // Backend uses 'project' not 'projects'
+      'projects': 'projects' // Backend uses 'projects' (plural)
     };
     const backendSection = sectionMap[section] || section;
     const response = await api.delete(`/datascience-portfolio/${backendSection}/${id}`);
