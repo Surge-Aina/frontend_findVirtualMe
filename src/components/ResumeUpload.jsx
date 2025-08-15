@@ -38,12 +38,16 @@ export default function ResumeUpload() {
     setLoading(true);
     const formData = new FormData();
     formData.append("resume", file);
+    const email = localStorage.getItem("email");
+    if (email) {
+      formData.append("email", email);
+    }
 
     try {
       const res = await axios.post(`${apiUrl}/portfolio/upload-pdf`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Uploaded:", res.data); 
+      console.log("Uploaded:", res.data);
       setUploaded(true);
       setFile(null);
       setFileContent(null);
@@ -62,8 +66,9 @@ export default function ResumeUpload() {
           Upload Your Resume
         </h2>
         <p className="text-slate-500 mb-6 text-center max-w-lg mx-auto">
-          Easily upload your PDF resume to enhance your portfolio and showcase your experience. 
-          Your resume will be securely stored and used to help personalize your profile.
+          Easily upload your PDF resume to enhance your portfolio and showcase
+          your experience. Your resume will be securely stored and used to help
+          personalize your profile.
         </p>
         <label className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500 disabled:opacity-50 w-50 cursor-pointer block mx-auto mb-6">
           Choose PDF File
@@ -114,7 +119,9 @@ export default function ResumeUpload() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-400 border-r-2 border-slate-700"></span>
-                    <span className="text-blue-400 font-semibold animate-pulse">Uploading...</span>
+                    <span className="text-blue-400 font-semibold animate-pulse">
+                      Uploading...
+                    </span>
                   </span>
                 ) : (
                   "Upload"
@@ -126,8 +133,18 @@ export default function ResumeUpload() {
 
         {uploaded && (
           <div className="mt-6 flex items-center justify-center gap-2 text-blue-600 font-semibold">
-            <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            <svg
+              className="w-6 h-6 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
             Resume uploaded successfully!
           </div>

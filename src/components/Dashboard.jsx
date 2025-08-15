@@ -45,9 +45,8 @@ export default function Dashboard() {
   };
 
   const handleCardClick = (portfolio) => {
-    navigate(
-      `/portfolios/project-manager/${portfolio.username}/${portfolio._id}`
-    );
+    const username = portfolio.email.split("@")[0];
+    navigate(`/portfolios/project-manager/${username}/${portfolio._id}`);
   };
 
   return (
