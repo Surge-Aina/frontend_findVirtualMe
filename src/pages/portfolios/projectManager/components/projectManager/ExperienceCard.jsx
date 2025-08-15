@@ -227,13 +227,15 @@ const ExperienceCard = ({ portfolio }) => {
               </div>
             ) : (
               <>
-                <button
-                  onClick={() => handleEdit(idx)}
-                  className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
-                  aria-label="Edit"
-                >
-                  <FaPen className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
+                {portfolio.email === localStorage.getItem("email") && (
+                  <button
+                    onClick={() => handleEdit(idx)}
+                    className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
+                    aria-label="Edit"
+                  >
+                    <FaPen className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </button>
+                )}
 
                 <div className="pr-8 sm:pr-12">
                   <div className="flex flex-col gap-2 mb-3 sm:mb-4">

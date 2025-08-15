@@ -103,13 +103,15 @@ const SkillsCard = ({ portfolio }) => {
                 className="group relative inline-flex items-center gap-2 bg-blue-500/20 text-blue-200 text-sm font-medium px-4 py-2 rounded-full border border-blue-400/30 hover:bg-blue-500/30 transition-colors"
               >
                 <span className="drop-shadow-sm">{skill}</span>
-                <button
-                  onClick={() => handleDeleteSkill(idx)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-300 rounded-full hover:bg-red-500/20 transition-all"
-                  aria-label="Delete skill"
-                >
-                  <FaTrash className="w-3 h-3" />
-                </button>
+                {portfolio.email === localStorage.getItem("email") && (
+                  <button
+                    onClick={() => handleDeleteSkill(idx)}
+                    className="opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-300 rounded-full hover:bg-red-500/20 transition-all"
+                    aria-label="Delete skill"
+                  >
+                    <FaTrash className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             ))
           ) : (
