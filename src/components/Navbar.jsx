@@ -60,7 +60,7 @@ export default function Navbar() {
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
 
-            {contextLoggedIn && (
+            {
               <button
                 className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
                 onClick={() => navigate("/dashboard")}
@@ -68,7 +68,7 @@ export default function Navbar() {
                 <span className="relative z-10">Dashboard</span>
                 <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
               </button>
-            )}
+            }
           </div>
 
           <div className="flex items-center space-x-3">
@@ -93,7 +93,10 @@ export default function Navbar() {
                   <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
                 </button>
                 {showAuth && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 min-h-screen" style={{ backdropFilter: "blur(2px)" }}>
+                  <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 min-h-screen"
+                    style={{ backdropFilter: "blur(2px)" }}
+                  >
                     <div className="relative max-w-md w-full mx-auto bg-gradient-to-br from-slate-100 to-slate-300 border border-slate-300 rounded-2xl shadow-2xl px-4 py-8 sm:px-10 sm:py-12 z-10">
                       <button
                         onClick={() => setShowAuth(false)}

@@ -45,7 +45,10 @@ export default function App() {
 
         <Route path="/portfolios" element={<ExamplePortfolios />} />
 
-        <Route path="/portfolios/project-manager" element={<PortfolioPage />} />
+        <Route
+          path="/portfolios/project-manager/:id"
+          element={<PortfolioPage />}
+        />
 
         <Route path="/portfolios/software-engineer" />
         <Route
