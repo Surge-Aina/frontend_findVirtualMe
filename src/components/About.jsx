@@ -49,7 +49,7 @@ export default function About() {
         {/* Background gradient */}
         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-50 via-white to-slate-100"></div>
 
-        {/* Floating elements for visual interest */}
+        {/* Floating elements */}
         <div className="absolute inset-0 overflow-hidden w-full h-full">
           <motion.div
             className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-slate-200/30 to-slate-300/20 rounded-full blur-3xl"
