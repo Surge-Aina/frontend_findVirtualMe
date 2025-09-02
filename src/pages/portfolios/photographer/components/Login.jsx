@@ -1,7 +1,6 @@
 import { toast } from 'react-toastify';
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from './AuthContext.jsx';
 
 const Login = () => {
@@ -26,15 +25,22 @@ const Login = () => {
     setLoading(true);
 
     try {
-  const res = await axios.post(`${backendUrl}/user/login`, {
-        email: form.email,
-        password: form.password
+      const res = await fetch(`${backendUrl}/user/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password
+        })
       });
 
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('isAdmin', res.data.isAdmin);
+      const data = await res.json();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('isAdmin', data.isAdmin);
       setLoggedIn(true);
-      setIsAdmin(res.data.isAdmin);
+      setIsAdmin(data.isAdmin);
       toast.success('Login successful!');
       navigate('/portfolios/photographer/');
     } catch (err) {
@@ -46,16 +52,22 @@ const Login = () => {
   };
 
   const handleLogout = () => {
-    // Save the Google Drive folder ID before clearing localStorage
-    const savedFolderId = localStorage.getItem('adminDriveFolderId');
+    // Save all Google Drive folder IDs before clearing localStorage
+    const savedFolderIds = {};
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('adminDriveFolderId_')) {
+        savedFolderIds[key] = localStorage.getItem(key);
+      }
+    });
     
-    // Clear all localStorage except the folder ID
+    // Clear all localStorage
     localStorage.clear();
     
-    // Restore the folder ID if it exists
-    if (savedFolderId) {
-      localStorage.setItem('adminDriveFolderId', savedFolderId);
-    }
+    // Restore all the saved folder IDs
+    Object.keys(savedFolderIds).forEach(key => {
+      localStorage.setItem(key, savedFolderIds[key]);
+    });
     
     setLoggedIn(false);
     setIsAdmin(false);

@@ -12,11 +12,13 @@ import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.js
 import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
+import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
 import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
+import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
 import Occupations from "./components/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
-
+import Payment from "./components/Payment"; // Add this import
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -68,6 +70,15 @@ export default function App() {
           element={<CleaningPage />}
         />
         <Route path="/portfolios/handyman" element={<HandymanPage />} />
+
+        <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
+
+        {/* Route 2: The dynamic, data-driven page for a specific user's portfolio */}
+        <Route path="/portfolios/handyman/:id" element={<HandymanPage />} />
+
+        {/* Route 3: The page where a logged-in user can edit their portfolio */}
+        <Route path="/portfolios/handyman/:id/edit" element={<EditHandymanPortfolio />} />
+        <Route path="/payment" element={<Payment />} /> {/* Add this line */}
       </Routes>
       {adminRequested && (
         <Tip message="Request received! Our admin team will contact you shortly." />

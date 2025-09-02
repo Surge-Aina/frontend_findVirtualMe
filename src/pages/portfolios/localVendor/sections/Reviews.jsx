@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { isAdminLoggedIn } from "../services/auth";
-import API from "../services/api";
+import { useVendorApi } from "../services/api";
+import { useVendor } from "../../../../context/VendorContext";
 
 const FiveStar = ({ value = 0, onChange }) => {
   const [hover, setHover] = useState(0);
@@ -42,11 +43,14 @@ const StarsReadOnly = ({ rating = 0 }) => (
 );
 
 const Reviews = () => {
+  const { vendorId } = useVendor();
+  const api = useVendorApi();
+
   const [reviews, setReviews] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [form, setForm] = useState({ name: "", feedback: "", rating: 1 });
 
-  // NEW: sort + filter + scroll helpers
+  // sort + filter + scroll helpers
   const [sortBy, setSortBy] = useState("Newest");
   const [filterRating, setFilterRating] = useState("All");
   const [canLeft, setCanLeft] = useState(false);
@@ -54,13 +58,16 @@ const Reviews = () => {
   const scrollRef = useRef(null);
   const glideTimer = useRef(null);
 
+  // fetch reviews
   useEffect(() => {
+    if (!vendorId) return;
     fetchReviews();
-  }, []);
+  }, [vendorId]);
 
   const fetchReviews = () => {
-    API.get("/reviews")
-      .then((res) => setReviews(res.data))
+    api
+      .getReviews()
+      .then((data) => setReviews(data))
       .catch((err) => console.error("Failed to fetch reviews", err));
   };
 
@@ -69,7 +76,6 @@ const Reviews = () => {
     setEditingIndex(reviews.length); // new-card slot
   };
 
-  // ---- original save logic unchanged ----
   const handleSaveReview = () => {
     const payload = {
       name: form.name,
@@ -78,7 +84,8 @@ const Reviews = () => {
     };
 
     if (editingIndex === reviews.length) {
-      API.post("/reviews", payload)
+      api
+        .createReview(payload)
         .then(() => {
           fetchReviews();
           setEditingIndex(null);
@@ -87,7 +94,8 @@ const Reviews = () => {
         .catch((err) => console.error("Failed to add review", err));
     } else {
       const id = reviews[editingIndex]._id;
-      API.put(`/reviews/${id}`, payload)
+      api
+        .updateReview(id, payload)
         .then(() => {
           fetchReviews();
           setEditingIndex(null);
@@ -99,7 +107,8 @@ const Reviews = () => {
 
   const handleDeleteReview = (index) => {
     const id = reviews[index]._id;
-    API.delete(`/reviews/${id}`)
+    api
+      .deleteReview(id)
       .then(() => fetchReviews())
       .catch((err) => console.error("Failed to delete review", err));
   };
@@ -113,7 +122,7 @@ const Reviews = () => {
     setForm({ name: "", feedback: "", rating: 1 });
   };
 
-  // ---- derived: summary + filtering + sorting ----
+  // derived: summary + filtering + sorting
   const total = reviews.length;
   const counts = [1, 2, 3, 4, 5].reduce((acc, r) => {
     acc[r] = reviews.filter((rv) => Number(rv.rating) === r).length;
@@ -146,7 +155,7 @@ const Reviews = () => {
       ? reviews[editingIndex]._id
       : null;
 
-  // ---- better scroll buttons + edges ----
+  // scroll state
   const updateScrollState = () => {
     const el = scrollRef.current;
     if (!el) return;

@@ -6,22 +6,25 @@ import TaggedImage from "./sections/TaggedImage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
+import { VendorProvider } from "../../../context/VendorContext.jsx";
 
 function LocalVendorApp() {
   return (
-    <div className="localvendor">
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-          <ToastContainer />
-          <Routes>
-            <Route path="" element={<Home />} />
-            <Route path="admin/tagged" element={<TaggedImage />} />
-            <Route path="login" element={<Login />} />
-          </Routes>
-        </main>
+    <VendorProvider>
+      <div className="localvendor">
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow">
+            <ToastContainer />
+            <Routes>
+              <Route path="" element={<Home />} />
+              <Route path="admin/tagged" element={<TaggedImage />} />
+              <Route path="login" element={<Login />} />
+            </Routes>
+          </main>
+        </div>
       </div>
-    </div>
+    </VendorProvider>
   );
 }
 

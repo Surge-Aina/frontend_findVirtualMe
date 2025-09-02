@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './ContactForm.css';
+import handymanAPI from './api';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -19,7 +19,7 @@ const ContactForm = () => {
 
     try {
       // Send the form data to your new backend endpoint
-      await axios.post('http://localhost:5001/api/handyman/inquiries', formData);
+      await handymanAPI.post('/api/handyman/inquiries', formData);
       
       toast.success('Message sent successfully! We will get back to you soon.');
       

@@ -44,13 +44,14 @@ const Auth = ({ onClose }) => {
       const portfolioId = res.data.portfolioIds && res.data.portfolioIds[0];
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("email", form.email);
+      localStorage.setItem("userId", res.data.userId);
       if (portfolioId) {
         localStorage.setItem("portfolioId", portfolioId);
         setLoggedIn(true);
         toast.success("Login successful!");
         contextLogin(res.data.token);
         //navigate(`/portfolio/${portfolioId}`);
-        window.location.reload();
+        window.location.reload(); // 
         navigate("/dashboard");
         if (onClose) onClose();
       } else {

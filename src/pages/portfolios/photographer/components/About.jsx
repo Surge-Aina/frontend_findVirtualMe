@@ -32,15 +32,6 @@ export default function About() {
           }
         }
 
-        // Fetch heading
-        const headingRes = await fetch(`${backendUrl}/settings/aboutHeading`);
-        if (headingRes.ok) {
-          const headingData = await headingRes.json();
-          if (headingData.value) {
-            setHeading(headingData.value);
-          }
-        }
-
         // Fetch text
         const textRes = await fetch(`${backendUrl}/settings/aboutText`);
         if (textRes.ok) {

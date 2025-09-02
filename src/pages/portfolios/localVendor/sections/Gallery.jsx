@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
-import API from "../services/api";
+import { useVendorApi } from "../services/api";
+import { useVendor } from "../../../../context/VendorContext";
 import { isAdminLoggedIn } from "../services/auth";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
@@ -9,6 +10,8 @@ import { toast } from "react-toastify";
 const cx = (...c) => c.filter(Boolean).join(" ");
 
 const Gallery = () => {
+  const api = useVendorApi();
+  const { vendorId } = useVendor();
   const [images, setImages] = useState([]);
   const [formData, setFormData] = useState({ image: null, caption: "" });
   const [editingId, setEditingId] = useState(null);
@@ -28,10 +31,12 @@ const Gallery = () => {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
   useEffect(() => {
-    API.get("/gallery")
-      .then((res) => setImages(res.data || []))
+    if (!vendorId) return; // don’t fetch until a vendor is set
+    api
+      .getGallery()
+      .then((data) => setImages(data || []))
       .catch((err) => console.error("Error fetching gallery:", err));
-  }, []);
+  }, [vendorId]);
 
   const handleSubmit = () => {
     if (
@@ -46,17 +51,11 @@ const Gallery = () => {
     payload.append("caption", formData.caption);
 
     const req = editingId
-      ? API.put(`/gallery/${editingId}`, payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-      : API.post("/gallery", payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      ? api.updateGalleryImage(editingId, payload)
+      : api.createGalleryImage(payload);
 
     req
-      .then(() => {
-        return API.get("/gallery").then((res) => setImages(res.data || []));
-      })
+      .then(() => api.getGallery().then((data) => setImages(data || [])))
       .then(() => {
         setFormData({ image: null, caption: "" });
         setEditingId(null);
@@ -73,10 +72,9 @@ const Gallery = () => {
 
   const handleDelete = (id) => {
     if (confirm("Are you sure?")) {
-      API.delete(`/gallery/${id}`)
-        .then(() =>
-          API.get("/gallery").then((res) => setImages(res.data || []))
-        )
+      api
+        .deleteGalleryImage(id)
+        .then(() => api.getGallery().then((data) => setImages(data || [])))
         .catch((err) => console.error("Delete failed:", err));
     }
   };

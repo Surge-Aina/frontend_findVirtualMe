@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import API from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdClose } from "react-icons/md";
+import { useVendorApi } from "../services/api";
+import { useVendor } from "../../../../context/VendorContext";
 
 /* helpers */
 const cx = (...c) => c.filter(Boolean).join(" ");
@@ -10,7 +11,7 @@ const isUnavailable = (mi) =>
   (mi.isAvailable === false ||
     (mi.unavailableUntil && new Date(mi.unavailableUntil) > new Date()));
 
-/* pill tag badge (readable anywhere) */
+/* pill tag badge */
 function TagBadge({ label, price, unavailable, onClick }) {
   return (
     <button
@@ -35,6 +36,9 @@ function TagBadge({ label, price, unavailable, onClick }) {
 }
 
 export default function TaggedShowcase() {
+  const { vendorId } = useVendor();
+  const api = useVendorApi();
+
   const [image, setImage] = useState(null);
   const [tags, setTags] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -53,16 +57,18 @@ export default function TaggedShowcase() {
 
   /* data */
   useEffect(() => {
-    API.get("/tagged")
+    if (!vendorId) return;
+    api
+      .getTaggedImages()
       .then((res) => {
-        const latest = res.data[res.data.length - 1];
+        const latest = res.length ? res[res.length - 1] : null;
         if (latest) {
           setImage(latest.imageUrl);
           setTags(latest.tags || []);
         }
       })
       .catch((err) => console.error("Error loading tagged image:", err));
-  }, []);
+  }, [vendorId]);
 
   /* measure image size */
   const measureBase = useCallback(() => {
@@ -98,7 +104,7 @@ export default function TaggedShowcase() {
     [baseSize.w, baseSize.h, scale]
   );
 
-  /* wheel zoom (non-passive) */
+  /* wheel zoom */
   useEffect(() => {
     const el = imageContainerRef.current;
     if (!el || !zoomEnabled) return;
@@ -112,7 +118,6 @@ export default function TaggedShowcase() {
       const next = Math.max(1, Math.min(3, prev - e.deltaY * 0.0015));
       if (next === prev) return;
 
-      // zoom around cursor
       const worldX = (mx - pan.x) / prev;
       const worldY = (my - pan.y) / prev;
       const newX = mx - worldX * next;

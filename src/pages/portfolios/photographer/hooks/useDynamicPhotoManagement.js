@@ -32,9 +32,6 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
         if (data?.value) {
           setCurrentFolderId(data.value);
           localStorage.setItem(getStorageKey(), data.value);
-        } else {
-          setCurrentFolderId(null);
-          localStorage.removeItem(getStorageKey());
         }
       })
       .catch(err => console.error('Failed to load folder ID from server', err));
@@ -91,24 +88,50 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
   const fetchDefaultData = async () => {
     if (!endpoint) return;
     setIsLoading(true);
-    try {
-  const photosRes = await fetch(`${backendUrl}/drive/${endpoint}`);
-      if (photosRes.ok) {
-        const photosData = await photosRes.json();
-        setPhotos(photosData);
-        setError(null);
-      } else {
+    
+    // Check if there's a cached folder ID in localStorage
+    const cachedFolderId = localStorage.getItem(getStorageKey());
+    
+    if (cachedFolderId) {
+      // If there's a cached folder ID, try to fetch photos from it
+      try {
+        const photosRes = await fetch(`${backendUrl}/drive/admin/${cachedFolderId}`);
+        if (photosRes.ok) {
+          const photosData = await photosRes.json();
+          setPhotos(photosData);
+          setError(null);
+          setCurrentFolderId(cachedFolderId);
+        } else {
+          setPhotos([]);
+          setError('No Google Drive folder connected');
+          setCurrentFolderId(null);
+        }
+      } catch {
+        setPhotos([]);
+        setError('No Google Drive folder connected');
+        setCurrentFolderId(null);
+      }
+    } else {
+      // No cached folder ID, try to fetch from the regular endpoint
+      try {
+        const photosRes = await fetch(`${backendUrl}/drive/${endpoint}`);
+        if (photosRes.ok) {
+          const photosData = await photosRes.json();
+          setPhotos(photosData);
+          setError(null);
+        } else {
+          setPhotos([]);
+          setError('No Google Drive folder connected');
+        }
+      } catch {
         setPhotos([]);
         setError('No Google Drive folder connected');
       }
-      await fetchLayoutData();
-    } catch {
-      setPhotos([]);
-      setError('No Google Drive folder connected');
-    } finally {
-      setIsLoading(false);
-      setHasInitialized(true);
     }
+    
+    await fetchLayoutData();
+    setIsLoading(false);
+    setHasInitialized(true);
   };
 
   const fetchLayoutData = async () => {

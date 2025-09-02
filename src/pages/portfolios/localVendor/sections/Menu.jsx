@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import API from "../services/api";
 import { isAdminLoggedIn } from "../services/auth";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
+import { useVendorApi } from "../services/api";
+import { useVendor } from "../../../../context/VendorContext";
 
 const PAGE_SIZE = 6; // your limit
 
 const Menu = () => {
+  const { vendorId } = useVendor();
+  const api = useVendorApi();
+
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -43,13 +47,15 @@ const Menu = () => {
 
   // categories for chips
   useEffect(() => {
-    API.get("/menu")
-      .then((res) => {
+    if (!vendorId) return;
+    api
+      .getMenu()
+      .then((data) => {
         const allCats = [
           "All",
           ...Array.from(
             new Set(
-              res.data
+              data
                 .map((item) => item.category)
                 .filter((cat) => cat && cat.trim() !== "")
             )
@@ -58,24 +64,34 @@ const Menu = () => {
         setAllCategories(allCats);
       })
       .catch((err) => console.error("Error fetching categories:", err));
-  }, []);
+  }, [vendorId]);
 
   // fetch list by category
   useEffect(() => {
-    const url =
-      activeCategory && activeCategory !== "All"
-        ? `/menu?category=${encodeURIComponent(activeCategory)}`
-        : "/menu";
-    setLoading(true);
-    API.get(url)
-      .then((res) => {
-        setMenuItems(res.data || []);
+    if (!vendorId) return;
+
+    const fetchMenu = async () => {
+      try {
+        let items;
+        if (activeCategory && activeCategory !== "All") {
+          // server-side filter (if you’ve wired ?category= in backend)
+          items = await api.getMenuByCategory(activeCategory);
+        } else {
+          items = await api.getMenu();
+        }
+        setMenuItems(items || []);
         setPage(1);
-        setAutoLoad(false); // reset autoload on filter change
-      })
-      .catch((err) => console.error("Error fetching menu:", err))
-      .finally(() => setLoading(false));
-  }, [activeCategory]);
+        setAutoLoad(false);
+      } catch (err) {
+        console.error("Error fetching menu:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    setLoading(true);
+    fetchMenu();
+  }, [activeCategory, vendorId]);
 
   // enable auto-load only after user clicks Load more once
   useEffect(() => {
@@ -113,7 +129,6 @@ const Menu = () => {
   const hasMore = visible.length < sorted.length;
 
   const handleLoadMore = () => {
-    // First click reveals next page and turns on autoLoad for subsequent pages
     setPage((p) => p + 1);
     setAutoLoad(true);
   };
@@ -138,23 +153,13 @@ const Menu = () => {
     if (formData.image) formPayload.append("image", formData.image);
 
     const request = editingId
-      ? API.put(`/menu/${editingId}`, formPayload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-      : API.post("/menu", formPayload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      ? api.updateMenuItem(editingId, formPayload)
+      : api.createMenuItem(formPayload);
 
     request
-      .then(() => {
-        const url =
-          activeCategory && activeCategory !== "All"
-            ? `/menu?category=${encodeURIComponent(activeCategory)}`
-            : "/menu";
-        return API.get(url);
-      })
-      .then((res) => {
-        setMenuItems(res.data || []);
+      .then(() => api.getMenu(activeCategory !== "All" ? activeCategory : null))
+      .then((data) => {
+        setMenuItems(data || []);
         setPage(1);
         setAutoLoad(false);
         setFormData({
@@ -189,7 +194,8 @@ const Menu = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure?")) {
-      API.delete(`/menu/${id}`)
+      api
+        .deleteMenuItem(id)
         .then(() => setMenuItems((prev) => prev.filter((i) => i._id !== id)))
         .catch((err) => console.error("Delete failed:", err));
     }

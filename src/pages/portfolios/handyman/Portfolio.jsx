@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
+// import handymanAPI from './api'; 
 import axios from 'axios';
 import Slider from 'react-slick';
 
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import './Portfolio.css';
 
 const Portfolio = () => {
   const [projects, setProjects] = useState([]);
   const [filter, setFilter] = useState('All');
-  
-  // This hook runs once when the component loads to fetch data
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        // Make the API call to your newly named backend endpoint
-        const response = await axios.get('http://localhost:5001/api/handyman/portfolio');
-        setProjects(response.data); // Update state with data from the backend
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-    fetchProjects();
-  }, []); // The empty array [] ensures this runs only once
+
+useEffect(() => {
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get('http://localhost:5173/api/handyman/portfolio');
+      setProjects(response.data.projects || []); 
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      setProjects([]); 
+    }
+  };
+  fetchProjects();
+}, []);
 
   const filteredProjects = filter === 'All' ? projects : projects.filter(p => p.category === filter);
   const categories = ['All', ...new Set(projects.map(p => p.category))];

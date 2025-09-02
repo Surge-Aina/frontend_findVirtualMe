@@ -23,6 +23,13 @@ const NavBar = ({ isLoggedIn, onLogout }) => {
         <li><a href="/#services">Services</a></li>
         <li><a href="/#portfolio">Our Work</a></li>
         <li><a href="/#contact">Contact</a></li>
+        <li>
+          {isLoggedIn ? (
+            <button onClick={logoutAndRedirect} className="navbar-button">Logout</button>
+          ) : (
+            <Link to="/login" className="navbar-button">Login</Link>
+          )}
+        </li>
       </ul>
       
       {/* Standalone Login/Logout Button for desktop view */}

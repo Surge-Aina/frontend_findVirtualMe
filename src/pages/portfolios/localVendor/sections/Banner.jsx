@@ -1,35 +1,38 @@
 import { useEffect, useState } from "react";
-import API from "../services/api";
+import { useVendorApi } from "../services/api";
+import { useVendor } from "../../../../context/VendorContext";
 import { FiEdit } from "react-icons/fi";
 import { isAdminLoggedIn } from "../services/auth";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
 
 const SHAPE_CLASS = {
-  blob: "clip-blob", // you already have this CSS
-  oval: "rounded-[50%]", // full ellipse look
+  blob: "clip-blob",
+  oval: "rounded-[50%]",
   square: "rounded-none",
-  fullscreen: "", // no extra styling
+  fullscreen: "",
 };
 
 const Banner = () => {
   const [banner, setBanner] = useState(null);
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState(null);
+  const { vendorId } = useVendor();
+  const api = useVendorApi();
 
   useEffect(() => {
-    API.get("/banner")
-      .then((res) => {
-        const data = res.data?.[0] || {};
-        setBanner(data);
+    if (!vendorId) return; // don’t fetch until a vendor is set
+    api
+      .getBanner()
+      .then((data) => {
+        if (data?.length) setBanner(data[0]);
       })
       .catch((err) => console.error("Fetch error:", err));
-  }, []);
+  }, [vendorId]);
 
   const handleSave = () => {
     if (!editData) return;
 
-    // ✅ validate the file that’s actually being saved (bug fix)
     const img = editData.image;
     if (img instanceof File) {
       if (!/^image\//.test(img.type)) {
@@ -48,18 +51,14 @@ const Banner = () => {
     payload.append("shape", editData.shape || "fullscreen");
     if (img instanceof File) payload.append("image", img);
 
-    const endpoint = banner?._id ? `/banner/${banner._id}` : "/banner";
+    // 🔹 vendor-aware save: create or update
     const req = banner?._id
-      ? API.put(endpoint, payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-      : API.post(endpoint, payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      ? api.updateBanner(banner._id, payload)
+      : api.createBanner(payload);
 
     req
       .then((res) => {
-        setBanner(res.data);
+        setBanner(res);
         setEditing(false);
         setEditData(null);
         toast.success("Home screen updated!");
@@ -84,7 +83,6 @@ const Banner = () => {
           banner.shape === "fullscreen" ? "h-screen" : "h-[70vh]"
         } overflow-hidden`}
       >
-        {/* Background image */}
         {banner?.image && (
           <img
             src={`${import.meta.env.VITE_BACKEND_API}${banner.image}`}
@@ -95,15 +93,13 @@ const Banner = () => {
           />
         )}
 
-        {/* Always-on contrast overlay (works for any photo) */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/45" />
 
-        {/* Admin edit button OUTSIDE the centered content */}
         {isAdmin && !editing && (
           <button
             onClick={() => {
               setEditing(true);
-              setEditData({ ...banner, image: null }); // keep file field separate
+              setEditData({ ...banner, image: null });
             }}
             className="absolute right-4 top-4 z-20 rounded-full bg-white/90 p-2 text-black shadow hover:bg-white"
             title="Edit Banner"
@@ -112,7 +108,6 @@ const Banner = () => {
           </button>
         )}
 
-        {/* Centered content */}
         <div className="relative z-10 mx-auto flex h-full max-w-5xl flex-col items-center justify-center px-6 text-center">
           {editing ? (
             <>
@@ -172,7 +167,6 @@ const Banner = () => {
             </>
           ) : (
             <>
-              {/* Text panel with slight blur for busy images */}
               <div className="rounded-2xl bg-black/30 px-4 py-2 backdrop-blur-sm">
                 <h1 className="text-4xl font-extrabold uppercase tracking-tight text-white drop-shadow sm:text-6xl md:text-7xl">
                   {banner.title}
@@ -183,7 +177,6 @@ const Banner = () => {
                 {banner.description}
               </p>
 
-              {/* CTAs */}
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <a
                   href="#menu"

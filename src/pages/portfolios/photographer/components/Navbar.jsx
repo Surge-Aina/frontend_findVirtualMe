@@ -9,21 +9,27 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    // Save the Google Drive folder ID before clearing localStorage
-    const savedFolderId = localStorage.getItem('adminDriveFolderId');
+    // Save all Google Drive folder IDs before clearing localStorage
+    const savedFolderIds = {};
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('adminDriveFolderId_')) {
+        savedFolderIds[key] = localStorage.getItem(key);
+      }
+    });
     
-    // Clear all localStorage except the folder ID
+    // Clear all localStorage
     localStorage.clear();
     
-    // Restore the folder ID if it exists
-    if (savedFolderId) {
-      localStorage.setItem('adminDriveFolderId', savedFolderId);
-    }
+    // Restore all the saved folder IDs
+    Object.keys(savedFolderIds).forEach(key => {
+      localStorage.setItem(key, savedFolderIds[key]);
+    });
     
     setLoggedIn(false);
     setIsAdmin(false);
     toast.success('Logged out!');
-  navigate('/portfolios/photographer/');
+    navigate('/portfolios/photographer/');
     setIsMobileMenuOpen(false); // Close mobile menu after logout
   };
 

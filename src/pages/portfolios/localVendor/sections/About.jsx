@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import API from "../services/api";
+import { useVendor } from "../../../../context/VendorContext";
+import { useVendorApi } from "../services/api";
 import FileUploader from "../components/FileUploader";
 import { isAdminLoggedIn } from "../services/auth";
 
@@ -18,11 +19,16 @@ const AboutSection = () => {
   const [bottomImages, setBottomImages] = useState([]);
   const dragIndexRef = useRef(null);
 
+  // 🔹 initialize vendor-aware API
+  const { vendorId } = useVendor();
+  const api = useVendorApi();
+
   useEffect(() => {
-    API.get("/about")
-      .then((res) => {
-        const data = res.data || {};
-        const blocks = data.contentBlocks || [];
+    if (!vendorId) return; // don’t fetch until vendor selected
+    api
+      .getAbout()
+      .then((data) => {
+        const blocks = data?.contentBlocks || [];
         const midpoint = Math.ceil(blocks.length / 2);
 
         const withIds = (arr) =>
@@ -39,7 +45,7 @@ const AboutSection = () => {
       .catch((err) =>
         console.error("Failed to fetch or create about data", err)
       );
-  }, []);
+  }, [vendorId]);
 
   // ----- text blocks -----
   const handleAddTextBlock = (side) => {
@@ -78,11 +84,12 @@ const AboutSection = () => {
         ? [...updatedBlocks, ...rightBlocks]
         : [...leftBlocks, ...updatedBlocks];
 
-    API.put("/about", {
-      // strip UI-only fields before saving
-      contentBlocks: mergedBlocks.map(({ isEditing, clientId, ...b }) => b),
-      gridImages: bottomImages,
-    })
+    // 🔹 vendor-aware updateAbout
+    api
+      .updateAbout({
+        contentBlocks: mergedBlocks.map(({ isEditing, clientId, ...b }) => b),
+        gridImages: bottomImages,
+      })
       .then(() => {
         side === "left"
           ? setLeftBlocks(updatedBlocks)
@@ -120,13 +127,12 @@ const AboutSection = () => {
     toUpload.forEach((file) => payload.append("images", file));
 
     try {
-      const res = await API.post("/about/upload-grid-images", payload, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const uploaded = (res.data?.urls || []).slice(0, remaining);
+      // 🔹 vendor-aware upload & update
+      const res = await api.uploadAboutImages(payload);
+      const uploaded = (res?.urls || []).slice(0, remaining);
       const newImages = [...bottomImages, ...uploaded].slice(0, MAX_IMAGES);
       setBottomImages(newImages);
-      await API.put("/about", { gridImages: newImages });
+      await api.updateAbout({ gridImages: newImages });
     } catch (err) {
       console.error("Failed to upload/persist images", err);
     } finally {
@@ -139,7 +145,8 @@ const AboutSection = () => {
     const newImages = bottomImages.filter((u) => u !== src);
     setBottomImages(newImages);
     try {
-      await API.put("/about", { gridImages: newImages });
+      // 🔹 vendor-aware update
+      await api.updateAbout({ gridImages: newImages });
     } catch (err) {
       console.error("Failed to persist image removal", err);
     }

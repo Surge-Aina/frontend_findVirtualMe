@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { isAdminLoggedIn } from "../services/auth";
+import VendorSelector from "./VendorSelector";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,13 +20,12 @@ const Navbar = () => {
 
   return (
     <nav className="w-full bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
-      {/* <h1 className="text-xl font-bold">Street Vendor</h1> */}
       <a href="#home" className="text-xl font-bold">
         Street Vendor
       </a>
 
       {/* Desktop Menu */}
-      <div className="space-x-4 hidden sm:flex">
+      <div className="space-x-4 hidden sm:flex items-center flex-wrap">
         {navLinks.map((link) => (
           <a
             key={link.label}
@@ -35,6 +35,11 @@ const Navbar = () => {
             {link.label}
           </a>
         ))}
+
+        <div className="hidden md:flex items-center gap-3">
+          {isAdminLoggedIn() && <VendorSelector />}
+        </div>
+
         {isAdminLoggedIn() && (
           <Link
             to="admin/tagged"
@@ -60,7 +65,7 @@ const Navbar = () => {
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col items-center space-y-4 py-4 sm:hidden z-40">
+        <div className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col items-center space-y-4 py-4 sm:hidden z-40 z-40 max-h-[80vh] overflow-y-auto">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -71,6 +76,10 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
+
+          {/* 🔹 Vendor Selector also in mobile view */}
+          {isAdminLoggedIn() && <VendorSelector />}
+
           {isAdminLoggedIn() && (
             <Link
               to="admin/tagged"

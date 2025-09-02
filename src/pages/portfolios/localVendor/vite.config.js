@@ -6,4 +6,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   //   build: { outDir: "dist" },
   //   server: { historyApiFallback: true },
+  server: {
+    proxy: {
+      "/vendor": "http://localhost:5000",
+    },
+  },
 });

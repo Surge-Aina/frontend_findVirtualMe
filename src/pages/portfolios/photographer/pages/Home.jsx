@@ -119,7 +119,7 @@ export default function Home() {
       </div>
 
       {/* Custom Styles */}
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes fade-in-up {
           from {
             opacity: 0;
