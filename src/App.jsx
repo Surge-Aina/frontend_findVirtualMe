@@ -15,6 +15,8 @@ import SignUp from "./pages/login/SignUp";
 import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import Occupations from "./components/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
+import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
+
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -55,13 +57,16 @@ export default function App() {
           path="/portfolios/data-scientist/*"
           element={<DataScientistPage />}
         />
-        <Route path="/portfolios/cleaning-services" />
+     
         <Route path="/portfolios/localVendor/*" element={<LocalVendorApp />} />
         <Route
           path="/portfolios/photographer/*"
           element={<PhotographerPage />}
         />
-
+        <Route
+          path="/portfolios/cleaningService/*"
+          element={<CleaningPage />}
+        />
         <Route path="/portfolios/handyman" element={<HandymanPage />} />
       </Routes>
       {adminRequested && (
