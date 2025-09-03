@@ -7,46 +7,86 @@ import { AuthContext } from "../context/AuthContext.jsx";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [portfolios, setPortfolios] = useState([]);
+  // const [portfolios, setPortfolios] = useState([]);
   const backendUrl = import.meta.env.VITE_BACKEND_API;
   const loggedInEmail = localStorage.getItem("email");
 
-  const { contextLoggedIn, contextLogout } = useContext(AuthContext);
+  const { contextLoggedIn, contextLogout } = useContext(AuthContext); 
 
   useEffect(() => {
-    fetchPortfolios();
+    if (contextLoggedIn) {
+      fetchPortfolios();
+    }
   }, [contextLoggedIn]);
 
   const [myPortfolios, setMyPortfolios] = useState([]);
   const [otherPortfolios, setOtherPortfolios] = useState([]);
+  
+  
 
   const fetchPortfolios = async () => {
     try {
       const res = await axios.get(`${backendUrl}/portfolio/all-portfolios`);
       const all = res.data;
-
-      const mine = all.filter((p) => p.email === loggedInEmail);
-      const others = all.filter((p) => p.email !== loggedInEmail);
-
-      if (mine.length === 0 && others.length === 0) {
-        toast.info("No portfolios found");
-      }
-
-      setMyPortfolios(mine);
-      setOtherPortfolios(others);
+      const userId = localStorage.getItem("userId");
+      setMyPortfolios(all.filter((p) => p.email === loggedInEmail || p.userId === userId));
+      setOtherPortfolios(all.filter((p) => p.email !== loggedInEmail && p.userId !== userId));
     } catch (err) {
       toast.error("Error fetching portfolios");
       console.error(err);
     }
   };
+      // if (mine.length === 0 && others.length === 0) {
+      //   toast.info("No portfolios found");
+      // }
+
+  //     setMyPortfolios(mine);
+  //     setOtherPortfolios(others);
+  //   } catch (err) {
+  //     toast.error("Error fetching portfolios");
+  //     console.error(err);
+  //   }
+  // };
 
   const handleAddPortfolio = () => {
     navigate("/resume");
   };
 
-  const handleCardClick = (portfolio) => {
-    const username = portfolio.email.split("@")[0];
-    navigate(`/portfolios/project-manager/${username}/${portfolio._id}`);
+const handleCardClick = (portfolio) => {
+    if (portfolio.type === 'project-manager') {
+      const username = portfolio.email.split("@")[0];
+      navigate(`/portfolios/project-manager/${username}/${portfolio._id}`);
+    } else if (portfolio.type === 'handyman') { // CORRECTED: Moved to the same line
+      navigate(`/portfolios/handyman/${portfolio._id}`);
+    } else {
+      toast.info("This portfolio type has no view page configured yet.");
+    }
+  };
+
+  const handleCreatePortfolio = (type) => {
+    setShowCreateModal(false);
+    if (type === 'project-manager') {
+      navigate("/resume");
+    } else if (type === 'handyman') {
+      const createHandymanPortfolio = async () => {
+        try {
+          const userId = localStorage.getItem('userId');
+          if (!userId) {
+            toast.error("Could not find user ID. Please log in again.");
+            return;
+          }
+        
+          const res = await axios.post(`${backendUrl}/api/handyman-template`, { userId });
+          
+          toast.success("New Handyman portfolio created!");
+          
+          navigate(`/portfolios/handyman/${res.data._id}`);
+        } catch (err) {
+          toast.error(err.response?.data?.message || "Failed to create portfolio.");
+        }
+      };
+      createHandymanPortfolio();
+    }
   };
 
   return (
