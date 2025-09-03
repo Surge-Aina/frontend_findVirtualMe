@@ -12,7 +12,7 @@ import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.js
 import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
-import HandymanShowcasePage from "./pages/portfolios/handyman/HandymanShowcasePage.jsx";
+import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
 import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
 import Occupations from "./components/Occupations";
