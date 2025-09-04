@@ -429,7 +429,7 @@ const Portfolio = () => {
 
   // Fetch portfolio data from backend
   const fetchPortfolio = async (ownerId) => {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${ownerId}`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${ownerId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch portfolio');
     }
@@ -443,7 +443,7 @@ const Portfolio = () => {
     
     try {
       // Update the current portfolio
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${actualOwnerId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${actualOwnerId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -717,7 +717,7 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${portfolio.ownerId}/project-image`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/project-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -777,7 +777,7 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${portfolio.ownerId}/certificate-image`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/certificate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -839,8 +839,8 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-              console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API}/portfolio/${portfolio.ownerId}/project-image`);
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${portfolio.ownerId}/project-image`, {
+              console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/project-image`);
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/project-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -890,8 +890,8 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-      console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API}/portfolio/${portfolio.ownerId}/certificate-image`);
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${portfolio.ownerId}/certificate-image`, {
+      console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/certificate-image`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/certificate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -1058,7 +1058,7 @@ const Portfolio = () => {
       const arrayBuffer = await resumeFile.arrayBuffer();
       const fileBuffer = new Uint8Array(arrayBuffer);
 
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${user.ownerId}/resume`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${user.ownerId}/resume`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/pdf',
@@ -3977,7 +3977,7 @@ const ReadOnlyPortfolio = () => {
   const fetchPortfolio = async (ownerId) => {
     const timestamp = Date.now(); // Add cache busting parameter
     const randomId = Math.random().toString(36).substring(7); // Add random parameter
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/portfolio/${ownerId}?t=${timestamp}&r=${randomId}`, {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${ownerId}?t=${timestamp}&r=${randomId}`, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',

@@ -29,7 +29,8 @@
   padding: 0;
 }
 
-html, body {
+/* Scoped to software engineer portfolio only */
+.software-engineer-isolation-wrapper {
   margin: 0;
   padding: 0;
   padding-top: 100px; /* Increased padding to account for fixed navigation */
@@ -42,8 +43,8 @@ html, body {
   font-size: calc(var(--base-rem, 1.1) * 1rem);
 }
 
-/* CSS Custom Properties for section-specific rem values */
-:root {
+/* CSS Custom Properties for section-specific rem values - scoped to software engineer portfolio */
+.software-engineer-isolation-wrapper {
   --base-rem: 1.1;
   --about-rem: 1.1;
   --skills-rem: 1.1;
@@ -84,7 +85,7 @@ html, body {
 }
 
 /* Ensure all sections are inside the centered wrapper */
-section {
+.software-engineer-isolation-wrapper section {
   margin-bottom: 4rem;
   scroll-margin-top: 100px; /* Account for fixed navigation */
 }
@@ -107,43 +108,43 @@ section {
 }
 
 /* Section-specific font sizing */
-section#welcome {
+.software-engineer-isolation-wrapper section#welcome {
   font-size: calc(var(--about-rem, 1.1) * 1rem) !important;
   border: none;
   position: relative;
 }
 
-section#skills {
+.software-engineer-isolation-wrapper section#skills {
   font-size: calc(var(--skills-rem, 1.1) * 1rem) !important;
   border: none;
   position: relative;
 }
 
-section#projects {
+.software-engineer-isolation-wrapper section#projects {
   font-size: calc(var(--projects-rem, 1.1) * 1rem) !important;
   border: none;
   position: relative;
 }
 
-section#experience {
+.software-engineer-isolation-wrapper section#experience {
   font-size: calc(var(--experience-rem, 1.1) * 1rem);
   border: none;
   position: relative;
 }
 
-section#education {
+.software-engineer-isolation-wrapper section#education {
   font-size: calc(var(--education-rem, 1.1) * 1rem);
   border: none;
   position: relative;
 }
 
-section#certifications {
+.software-engineer-isolation-wrapper section#certifications {
   font-size: calc(var(--certifications-rem, 1.1) * 1rem);
   border: none;
   position: relative;
 }
 
-section#contact {
+.software-engineer-isolation-wrapper section#contact {
   font-size: calc(var(--contact-rem, 1.1) * 1rem);
   border: none;
   position: relative;
@@ -167,8 +168,8 @@ section#contact {
   background: rgba(0, 173, 181, 0.1) !important;
 }
 
-/* Ensure body can't overflow */
-html, body {
+/* Ensure software engineer portfolio can't overflow */
+.software-engineer-isolation-wrapper {
   margin: 0;
   padding: 0;
   max-width: 100vw;
@@ -177,7 +178,11 @@ html, body {
 }
 
 /* Optional: make sections centered if any of them uses flex */
-section, .main-content, .header, .skills, .projects {
+.software-engineer-isolation-wrapper section, 
+.software-engineer-isolation-wrapper .main-content, 
+.software-engineer-isolation-wrapper .header, 
+.software-engineer-isolation-wrapper .skills, 
+.software-engineer-isolation-wrapper .projects {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1518,11 +1523,11 @@ section, .main-content, .header, .skills, .projects {
 }
 
 /* Overflow Prevention - Added at bottom for priority */
-html, body {
+.software-engineer-isolation-wrapper {
   overflow-x: hidden !important;
 }
 
-* {
+.software-engineer-isolation-wrapper * {
   max-width: 100%;
   box-sizing: border-box;
 }
