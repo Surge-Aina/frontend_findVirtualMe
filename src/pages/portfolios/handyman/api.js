@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_BACKEND_API || 'http://localhost:5173';
+const API_URL = import.meta.env.VITE_BACKEND_API;
 
 const handymanAPI = axios.create({
   baseURL: API_URL,

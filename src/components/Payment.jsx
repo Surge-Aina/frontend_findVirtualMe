@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 
 const plans = [
   {
@@ -32,24 +31,6 @@ const plans = [
   },
 ];
 
-const backendUrl = import.meta.env.VITE_BACKEND_API;
-const handleCheckout = async (planID) => {
-  try {
-    const response = await axios.post(
-      `${backendUrl}/checkout/checkout-session`,
-      {
-        plan: planID,
-      }
-    );
-
-    // redirect to Stripe Checkout
-    window.location.href = response.data.checkoutUrl;
-  } catch (err) {
-    console.error("Failed to start checkout", err);
-    alert("Error starting checkout");
-  }
-};
-
 export default function Payment() {
   const [selectedPlan, setSelectedPlan] = useState(null);
 
@@ -57,12 +38,9 @@ export default function Payment() {
   if (!selectedPlan) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f7faff] to-[#f3f6fb] flex flex-col items-center justify-start py-12 px-2">
-        <h1 className="text-3xl md:text-5xl font-bold text-gray-800 text-center mb-3">
-          Choose Your Plan
-        </h1>
+        <h1 className="text-3xl md:text-5xl font-bold text-gray-800 text-center mb-3">Choose Your Plan</h1>
         <p className="text-base md:text-lg text-gray-500 text-center mb-7">
-          Select the perfect subscription tier for your needs. Upgrade or
-          downgrade at any time.
+          Select the perfect subscription tier for your needs. Upgrade or downgrade at any time.
         </p>
         <div className="flex flex-col md:flex-row gap-6 mb-8 items-stretch">
           {plans.map((plan, idx) => (
@@ -70,21 +48,15 @@ export default function Payment() {
               key={plan.id}
               className="bg-white rounded-xl shadow border border-gray-200 w-full max-w-xs p-6 flex flex-col items-center justify-between relative transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-blue-300"
             >
+             
               {plan.popular && (
                 <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold shadow">
                   Most Popular
                 </span>
               )}
-              <div className="text-base font-medium text-gray-700 mb-1 mt-2">
-                {plan.name}
-              </div>
-              <div className="text-3xl font-bold text-gray-900 mb-0.5">
-                {plan.price}
-                <span className="text-base font-normal">{plan.period}</span>
-              </div>
-              <div className="text-gray-500 text-center mb-3 text-sm">
-                {plan.description}
-              </div>
+              <div className="text-base font-medium text-gray-700 mb-1 mt-2">{plan.name}</div>
+              <div className="text-3xl font-bold text-gray-900 mb-0.5">{plan.price}<span className="text-base font-normal">{plan.period}</span></div>
+              <div className="text-gray-500 text-center mb-3 text-sm">{plan.description}</div>
               <ul className="mb-4 w-full text-gray-700 text-left space-y-1 text-sm flex-1">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
@@ -96,8 +68,7 @@ export default function Payment() {
               <div className="w-full flex items-end">
                 <button
                   className="w-full border border-gray-300 rounded-md py-1.5 font-semibold text-gray-700 bg-white transition-all duration-200 text-sm shadow-sm hover:bg-gray-50 hover:shadow-[0_4px_32px_0_rgba(44,62,80,0.12)] hover:scale-[1.03]"
-                  // onClick={() => setSelectedPlan(plan.id)}
-                  onClick={() => handleCheckout(plan.id)}
+                  onClick={() => setSelectedPlan(plan.id)}
                 >
                   Select Plan
                 </button>
@@ -106,9 +77,7 @@ export default function Payment() {
           ))}
         </div>
         <div className="bg-white rounded-2xl shadow border border-gray-100 w-full max-w-2xl mx-auto p-6 mt-2 flex flex-col items-center">
-          <div className="text-blue-600 font-semibold text-center mb-4 text-base">
-            Why Choose Us?
-          </div>
+          <div className="text-blue-600 font-semibold text-center mb-4 text-base">Why Choose Us?</div>
           <div className="w-full flex flex-col md:flex-row items-center md:items-center justify-between gap-6">
             <div className="text-gray-700 text-left md:text-center text-sm flex-1 w-full">
               Secure payments powered by Stripe
@@ -140,12 +109,8 @@ export default function Payment() {
         </button>
       </div>
       {/* headline */}
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-1">
-        Complete Your Subscription
-      </h1>
-      <p className="text-sm md:text-base text-gray-500 text-center mb-5">
-        Secure checkout powered by Stripe
-      </p>
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-1">Complete Your Subscription</h1>
+      <p className="text-sm md:text-base text-gray-500 text-center mb-5">Secure checkout powered by Stripe</p>
       {/* payment Card */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 w-full max-w-md mx-auto p-6">
         <div className="font-semibold text-gray-700 mb-4 flex items-center gap-2 text-base">
@@ -154,18 +119,10 @@ export default function Payment() {
         {/* plan */}
         <div className="bg-gray-50 rounded-md border border-gray-200 p-3 mb-4 flex justify-between items-center">
           <div>
-            <div className="font-medium text-gray-800 text-sm">
-              {planObj.name}
-            </div>
-            <div className="text-gray-500 text-xs">
-              {planObj.price}
-              {planObj.period}
-            </div>
+            <div className="font-medium text-gray-800 text-sm">{planObj.name}</div>
+            <div className="text-gray-500 text-xs">{planObj.price}{planObj.period}</div>
           </div>
-          <button
-            className="text-blue-600 font-medium hover:underline text-xs"
-            onClick={() => setSelectedPlan(null)}
-          >
+          <button className="text-blue-600 font-medium hover:underline text-xs" onClick={() => setSelectedPlan(null)}>
             Change
           </button>
         </div>
@@ -188,9 +145,7 @@ export default function Payment() {
           placeholder="John Doe"
         />
         {/* card Number */}
-        <label className="block text-gray-700 text-xs font-medium mb-1">
-          Card Number
-        </label>
+        <label className="block text-gray-700 text-xs font-medium mb-1">Card Number</label>
         <input
           type="text"
           className="w-full mb-3 px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
@@ -199,9 +154,7 @@ export default function Payment() {
         {/* Expiry & CVV */}
         <div className="flex gap-3 mb-4">
           <div className="flex-1">
-            <label className="block text-gray-700 text-xs font-medium mb-1">
-              Expiry Date
-            </label>
+            <label className="block text-gray-700 text-xs font-medium mb-1">Expiry Date</label>
             <input
               type="text"
               className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"
@@ -209,9 +162,7 @@ export default function Payment() {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-gray-700 text-xs font-medium mb-1">
-              CVV
-            </label>
+            <label className="block text-gray-700 text-xs font-medium mb-1">CVV</label>
             <input
               type="text"
               className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm"

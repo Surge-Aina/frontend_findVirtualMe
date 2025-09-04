@@ -3,7 +3,7 @@ import { useVendor } from "../../../../context/VendorContext";
 
 // Base axios instance
 const API = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_BACKEND_API,
 });
 
 // Hook that wraps vendor-specific endpoints
