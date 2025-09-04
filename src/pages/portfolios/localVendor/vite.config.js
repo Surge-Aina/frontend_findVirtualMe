@@ -8,7 +8,7 @@ export default defineConfig({
   //   server: { historyApiFallback: true },
   server: {
     proxy: {
-      "/vendor": import.meta.env.VITE_BACKEND_API,
+      "/vendor": "http://localhost:5000",
     },
   },
 });

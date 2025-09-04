@@ -17,13 +17,14 @@ import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
 import Occupations from "./components/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
-import SoftwareEngineerApp from "./pages/portfolios/softwareEngineer/SoftwareEngineerApp.jsx";
-import Payment from "./components/Payment"; 
+import Payment from "./components/Payment"; // Add this import
+import SuccessPage from "./components/SuccessPage.jsx";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
 
   const handleGetStarted = () => {
+    if (loggedIn) return;
     // Show tip/suggestion for plus button
   };
 
@@ -33,56 +34,48 @@ export default function App() {
 
   return (
 
-          <Layout>
-            <Routes>
-              <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
-
-              <Route
-                path="/dashboard"
-                element={<Dashboard onRequestAdmin={handleRequestAdmin} />}
-              />
-
-              <Route path={"/signup"} element={<SignUp />} />
-              <Route path="/occupations" element={<Occupations />} />
-
-              <Route path="/resume" element={<ResumeUpload />} />
-
-              <Route path="/portfolios" element={<ExamplePortfolios />} />
-              <Route path="/portfolios/admin" element={<ExamplePortfolios isAdmin={true} />} />
-              
-              <Route path="/portfolios/software-engineer/*" element={<SoftwareEngineerApp />} />
-              
-              <Route
-                path="/portfolios/project-manager/:username/:id"
-                element={<PortfolioPage />}
-              />
-              
-              <Route
-                path="/portfolios/data-scientist/*"
-                element={<DataScientistPage />}
-              />
-              <Route path="/portfolios/cleaning-services" />
-              <Route path="/portfolios/localVendor/*" element={<LocalVendorApp />} />
-              <Route
-                path="/portfolios/photographer/*"
-                element={<PhotographerPage />}
-              />
-
-              <Route path="/portfolios/handyman" element={<HandymanPage />} />
-              
-              {/* Route 2: The dynamic, data-driven page for a specific user's portfolio */}
-              <Route path="/portfolios/handyman/:id" element={<HandymanPage />} />
-
-              {/* Route 3: The page where a logged-in user can edit their portfolio */}
-              <Route path="/portfolios/handyman/:id/edit" element={<EditHandymanPortfolio />} />
-              
-              <Route path="/payment" element={<Payment />} />
-            </Routes>
-            {adminRequested && (
-              <Tip message="Request received! Our admin team will contact you shortly." />
-            )}
-            <Footer />
-          </Layout>
-
+    <Layout>
+      <Routes>
+        <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
+        <Route
+          path="/dashboard"
+          element={<Dashboard onRequestAdmin={handleRequestAdmin} />}
+        />
+        <Route path={"/signup"} element={<SignUp />} />
+        <Route path="/occupations" element={<Occupations />} />
+        <Route path="/resume" element={<ResumeUpload />} />
+        <Route path="/portfolios" element={<ExamplePortfolios />} />
+        <Route
+          path="/portfolios/project-manager/:username/:id"
+          element={<PortfolioPage />}
+        />
+        <Route path="/portfolios/software-engineer" />
+        <Route
+          path="/portfolios/data-scientist/*"
+          element={<DataScientistPage />}
+        />
+        <Route path="/portfolios/cleaning-services" />
+        <Route path="/portfolios/localVendor/*" element={<LocalVendorApp />} />
+        <Route
+          path="/portfolios/photographer/*"
+          element={<PhotographerPage />}
+        />
+        <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
+        {/* Route 2: The dynamic, data-driven page for a specific user's portfolio */}
+        <Route path="/portfolios/handyman/:id" element={<HandymanPage />} />
+        {/* Route 3: The page where a logged-in user can edit their portfolio */}
+        <Route
+          path="/portfolios/handyman/:id/edit"
+          element={<EditHandymanPortfolio />}
+        />
+        <Route path="/payment" element={<Payment />} /> {/* Add this line */}
+        <Route path={"/success"} element={<SuccessPage />} />
+        {/*successfull subscription page} */}
+      </Routes>
+      {adminRequested && (
+        <Tip message="Request received! Our admin team will contact you shortly." />
+      )}
+      <Footer />
+    </Layout>
   );
 }

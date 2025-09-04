@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function ExamplePortfolios({ isAdmin = false }) {
+export default function ExamplePortfolios() {
   const location = useLocation();
   const portfolios = [
     {
@@ -12,8 +12,7 @@ export default function ExamplePortfolios({ isAdmin = false }) {
 
     {
       title: "Software Engineer",
-      summary: "Portfolio showcasing Software Engineer's Resume",
-      location: isAdmin ? "/portfolios/software-engineer/admin" : "/portfolios/software-engineer/example",
+      summary: "Porftolio showcasing Sofware Engineer's Resume",
     },
 
     {

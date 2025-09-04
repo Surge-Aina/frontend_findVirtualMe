@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_BACKEND_API;
+const API_URL = import.meta.env.VITE_BACKEND_API || 'http://localhost:5100';
 
 // Create axios instance
 const api = axios.create({

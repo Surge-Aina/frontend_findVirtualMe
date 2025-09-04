@@ -14,7 +14,7 @@ const Portfolio = () => {
 useEffect(() => {
   const fetchProjects = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/handyman/portfolio`);
+      const response = await axios.get('http://localhost:5173/api/handyman/portfolio');
       setProjects(response.data.projects || []); 
     } catch (error) {
       console.error("Error fetching projects:", error);
