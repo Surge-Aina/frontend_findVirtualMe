@@ -7,10 +7,13 @@ export default function VendorSelector() {
   const [vendors, setVendors] = useState([]);
   const [open, setOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
   const [form, setForm] = useState({ name: "", email: "" });
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Fetch all vendor
+  // Fetch all vendors
   useEffect(() => {
     API.get("/vendor")
       .then((res) => setVendors(res.data || []))
@@ -22,12 +25,15 @@ export default function VendorSelector() {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false);
+        setShowForm(false);
+        setShowUpload(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Create vendor manually
   const handleCreateVendor = async (e) => {
     e.preventDefault();
     try {
@@ -47,6 +53,32 @@ export default function VendorSelector() {
     }
   };
 
+  // Inject vendor via PDF/DOC
+  const handleInjectVendor = async () => {
+    if (!file) return alert("Please select a file");
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await API.post("/vendor/inject", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const { vendor } = res.data;
+      setVendors((prev) => [...prev, vendor]);
+      setVendorId(vendor._id);
+      setFile(null);
+      setShowUpload(false);
+      setOpen(false);
+    } catch (err) {
+      console.error("Failed to inject vendor", err);
+      alert("Error creating vendor from document");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Trigger Button */}
@@ -62,7 +94,7 @@ export default function VendorSelector() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-56 bg-white border rounded-md shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-white border rounded-md shadow-lg z-50">
           <div className="py-1 max-h-64 overflow-y-auto">
             {vendors.map((v) => (
               <button
@@ -81,6 +113,7 @@ export default function VendorSelector() {
 
             <hr className="my-1" />
 
+            {/* Manual Form */}
             {showForm ? (
               <form
                 onSubmit={handleCreateVendor}
@@ -118,13 +151,47 @@ export default function VendorSelector() {
                   </button>
                 </div>
               </form>
+            ) : showUpload ? (
+              // Upload Doc Form
+              <div className="p-3 flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept=".pdf,.docx"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="border p-2 rounded text-sm"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleInjectVendor}
+                    disabled={loading}
+                    className="flex-1 bg-emerald-600 text-white px-3 py-1 rounded text-sm"
+                  >
+                    {loading ? "Creating..." : "Upload"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowUpload(false)}
+                    className="flex-1 bg-gray-300 px-3 py-1 rounded text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button
-                onClick={() => setShowForm(true)}
-                className="block w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50"
-              >
-                + New Vendor
-              </button>
+              <>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="block w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50"
+                >
+                  + New Vendor (Manual)
+                </button>
+                <button
+                  onClick={() => setShowUpload(true)}
+                  className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                >
+                  + New Vendor (Upload Doc)
+                </button>
+              </>
             )}
           </div>
         </div>
