@@ -18,14 +18,15 @@ import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortf
 import Occupations from "./components/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
 import SoftwareEngineerApp from "./pages/portfolios/softwareEngineer/SoftwareEngineerApp.jsx";
-import Payment from "./components/Payment"; // Add this import
-
+import Payment from "./components/Payment";
+import SuccessPage from "./components/SuccessPage.jsx";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
 
   const handleGetStarted = () => {
-    // Show tip/suggestion for plus button
+    if (loggedIn) return;
+     // Show tip/suggestion for plus button
   };
 
   const handleRequestAdmin = () => {
@@ -73,7 +74,7 @@ export default function App() {
           element={<EditHandymanPortfolio />}
         />
         <Route path="/payment" element={<Payment />} /> {/* Add this line */}
-    
+        <Route path={"/success"} element={<SuccessPage />} />
         {/*successfull subscription page} */}
       </Routes>
       {adminRequested && (
