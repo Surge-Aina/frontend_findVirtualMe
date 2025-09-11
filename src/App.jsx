@@ -18,8 +18,15 @@ import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortf
 import Occupations from "./components/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
 import SoftwareEngineerApp from "./pages/portfolios/softwareEngineer/SoftwareEngineerApp.jsx";
+import CookieConsent from "./components/CookieConsent";
+import CookieSettings from "./components/CookieSettings";
+import TelemetryVisit from "./components/TelemetryVisit";
 import Payment from "./components/Payment";
 import SuccessPage from "./components/SuccessPage.jsx";
+import FloatingHelpButton from "./components/FloatingHelpButton";
+import ITForm from "./components/ITForm"; // Make sure this import is present
+import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
+
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -76,11 +83,17 @@ export default function App() {
         <Route path="/payment" element={<Payment />} /> {/* Add this line */}
         <Route path={"/success"} element={<SuccessPage />} />
         {/*successfull subscription page} */}
+       <Route path="/support" element={<ITForm />} />
+       <Route path="/onboarding" element={<OnboardingFlow />} />
       </Routes>
+       <FloatingHelpButton />
       {adminRequested && (
         <Tip message="Request received! Our admin team will contact you shortly." />
       )}
       <Footer />
+      <CookieConsent />
+      <CookieSettings />
+      <TelemetryVisit />
     </Layout>
 
   );

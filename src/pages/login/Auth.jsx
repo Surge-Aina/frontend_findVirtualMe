@@ -183,7 +183,7 @@ const Auth = ({ onClose }) => {
             className="relative w-full px-6 py-3 mt-2 bg-slate-200 border border-slate-600 text-slate-700 rounded-xl font-semibold hover:bg-slate-300 hover:border-slate-700 transition-all duration-300 overflow-hidden group"
             onClick={() => {
               onClose();
-              navigate("/signup");
+              navigate("/onboarding");
             }}
           >
             <span className="relative z-10">Sign Up</span>

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext.jsx"; // adjust path if needed
 
 const features = [
   {
@@ -39,9 +41,17 @@ const features = [
 
 export default function About() {
   const navigate = useNavigate();
+  const { contextLoggedIn } = useContext(AuthContext);
+
+  // if user logged in, go to resume, else go to onboarding
   const handleGetStarted = () => {
-    navigate("/resume");
+    if (contextLoggedIn || localStorage.getItem("token")) {
+      navigate("/resume");
+    } else {
+      navigate("/onboarding");
+    }
   };
+
   return (
     <>
       {/* Hero Section */}
