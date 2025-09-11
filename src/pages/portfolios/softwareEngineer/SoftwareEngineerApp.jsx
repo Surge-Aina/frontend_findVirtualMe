@@ -1459,24 +1459,26 @@ const Portfolio = () => {
             <p style={{ margin: '0 0 1rem 0', color: '#cccccc', fontSize: '0.9rem' }}>
               Upload your resume (PDF) to automatically extract and update your portfolio information
             </p>
-            <button
-              onClick={openResumeUpload}
-              style={{
-                background: '#00adb5',
-                border: 'none',
-                color: 'white',
-                padding: '0.8rem 1.5rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: 'bold',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => e.target.style.background = '#00848a'}
-              onMouseOut={(e) => e.target.style.background = '#00adb5'}
-            >
-              📄 Upload Resume
-            </button>
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={openResumeUpload}
+                style={{
+                  background: '#00adb5',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.8rem 1.5rem',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => e.target.style.background = '#00848a'}
+                onMouseOut={(e) => e.target.style.background = '#00adb5'}
+              >
+                📄 Upload Resume
+              </button>
+            </div>
           </div>
         )}
 
