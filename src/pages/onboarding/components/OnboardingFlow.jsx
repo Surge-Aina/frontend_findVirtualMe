@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProgressBar from "./ProgressBar";
 import GoalSelection from "./GoalSelection";
 import IndustrySelection from "./IndustrySelection";
 import ExperienceSelection from "./ExperienceSelection";
 import SkillsSelection from "./SkillsSelection";
 import UserInfoForm from "./UserInfoForm";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 // main onboarding flow component
 // NOT CONNECTED TO BACKEND YET
+const backendUrl = import.meta.env.VITE_BACKEND_API;
 export default function OnboardingFlow() {
+  const navigate = useNavigate();
   // track which step the user is on
   const [currentStep, setCurrentStep] = useState("goal");
 
@@ -110,14 +115,52 @@ export default function OnboardingFlow() {
     return stepIndex;
   };
 
+  //send data to backend when they finish onboarding
+
+  useEffect(() => {
+    if (data.goal !== "grow-business" && currentStep === "complete") {
+      //send data to backend
+      const sendData = async () => {
+        let userId;
+        try {
+          const res = await axios.post(`${backendUrl}/onboarding/addUser`, {
+            data,
+          });
+          console.log("Created user:", res.data);
+          userId = res.data.user._id;
+        } catch (error) {
+          toast.error("Error setting up profile");
+          console.error(error);
+        }
+        // wait before redirect
+        const timer = setTimeout(() => {
+          navigate(`/onboarding_info/${userId}`);
+        }, 4000);
+        return () => clearTimeout(timer);
+      };
+
+      sendData();
+    }
+  }, [currentStep]);
+
   // show completion screen if onboarding is done
   if (currentStep === "complete") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="text-center max-w-2xl">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
           <h1 className="mb-4 text-gray-900">Welcome to FindVirtual.me!</h1>
@@ -167,14 +210,22 @@ export default function OnboardingFlow() {
         />
         <div className="mt-12">
           {/* show goal selection step */}
-          {currentStep === "goal" && <GoalSelection onSelect={handleGoalSelect} />}
+          {currentStep === "goal" && (
+            <GoalSelection onSelect={handleGoalSelect} />
+          )}
           {/* show industry selection step */}
           {currentStep === "industry" && (
-            <IndustrySelection onSelect={handleIndustrySelect} onBack={goBack} />
+            <IndustrySelection
+              onSelect={handleIndustrySelect}
+              onBack={goBack}
+            />
           )}
           {/* show experience selection step */}
           {currentStep === "experience" && (
-            <ExperienceSelection onSelect={handleExperienceSelect} onBack={goBack} />
+            <ExperienceSelection
+              onSelect={handleExperienceSelect}
+              onBack={goBack}
+            />
           )}
           {/* show skills selection step */}
           {currentStep === "skills" && (

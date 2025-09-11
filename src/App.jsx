@@ -26,7 +26,7 @@ import SuccessPage from "./components/SuccessPage.jsx";
 import FloatingHelpButton from "./components/FloatingHelpButton";
 import ITForm from "./components/ITForm"; // Make sure this import is present
 import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
-
+import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -83,10 +83,11 @@ export default function App() {
         <Route path="/payment" element={<Payment />} /> {/* Add this line */}
         <Route path={"/success"} element={<SuccessPage />} />
         {/*successfull subscription page} */}
-       <Route path="/support" element={<ITForm />} />
-       <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route path="/support" element={<ITForm />} />
+        <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route path="/onboarding_info/:id" element={<OnboardingInfoPage />} />
       </Routes>
-       <FloatingHelpButton />
+      <FloatingHelpButton />
       {adminRequested && (
         <Tip message="Request received! Our admin team will contact you shortly." />
       )}

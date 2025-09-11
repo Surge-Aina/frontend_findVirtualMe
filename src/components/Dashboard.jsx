@@ -27,6 +27,9 @@ export default function Dashboard() {
 
       const mine = all.filter((p) => p.email === loggedInEmail);
       const others = all.filter((p) => p.email !== loggedInEmail);
+      console.log(
+        `my portfolio count: ${mine.length} others porftolio count: ${others.length}`
+      );
 
       if (mine.length === 0 && others.length === 0) {
         toast.info("No portfolios found");
