@@ -9,7 +9,8 @@ import Layout from '../../../components/Layout';
 const getFullUploadUrl = (relativePath) => {
   if (!relativePath) return '';
   if (relativePath.startsWith('http')) return relativePath;
-  return `${import.meta.env.VITE_BACKEND_API}${relativePath}`;
+  const backendApi = import.meta.env.VITE_BACKEND_API || 'http://localhost:5000' || 'http://localhost:5000';
+  return `${backendApi}${relativePath}`;
 };
 
 // CSS Isolation Wrapper Component
@@ -429,7 +430,8 @@ const Portfolio = () => {
 
   // Fetch portfolio data from backend
   const fetchPortfolio = async (ownerId) => {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${ownerId}`);
+    const backendApi = import.meta.env.VITE_BACKEND_API || 'http://localhost:5000' || 'http://localhost:5000';
+    const response = await fetch(`${backendApi}/softwareeng/${ownerId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch portfolio');
     }
@@ -443,7 +445,8 @@ const Portfolio = () => {
     
     try {
       // Update the current portfolio
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${actualOwnerId}`, {
+      const backendApi = import.meta.env.VITE_BACKEND_API || 'http://localhost:5000' || 'http://localhost:5000';
+      const response = await fetch(`${backendApi}/softwareeng/${actualOwnerId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -717,7 +720,7 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/project-image`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${portfolio.ownerId}/project-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -777,7 +780,7 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/certificate-image`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${portfolio.ownerId}/certificate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -839,8 +842,8 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-              console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/project-image`);
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/project-image`, {
+              console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${portfolio.ownerId}/project-image`);
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${portfolio.ownerId}/project-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -890,8 +893,8 @@ const Portfolio = () => {
     const fileBuffer = new Uint8Array(arrayBuffer);
 
     try {
-      console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/certificate-image`);
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${portfolio.ownerId}/certificate-image`, {
+      console.log('Sending request to:', `${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${portfolio.ownerId}/certificate-image`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${portfolio.ownerId}/certificate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': file.type,
@@ -1058,7 +1061,7 @@ const Portfolio = () => {
       const arrayBuffer = await resumeFile.arrayBuffer();
       const fileBuffer = new Uint8Array(arrayBuffer);
 
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${user.ownerId}/resume`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${user.ownerId}/resume`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/pdf',
@@ -3979,7 +3982,7 @@ const ReadOnlyPortfolio = () => {
   const fetchPortfolio = async (ownerId) => {
     const timestamp = Date.now(); // Add cache busting parameter
     const randomId = Math.random().toString(36).substring(7); // Add random parameter
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/softwareeng/${ownerId}?t=${timestamp}&r=${randomId}`, {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API || 'http://localhost:5000'}/softwareeng/${ownerId}?t=${timestamp}&r=${randomId}`, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -4121,7 +4124,7 @@ const ReadOnlyPortfolio = () => {
       }
 
       try {
-        socket = io(import.meta.env.VITE_BACKEND_API, {
+        socket = io(import.meta.env.VITE_BACKEND_API || 'http://localhost:5000', {
           transports: ['websocket', 'polling'],
           timeout: 5000
         });

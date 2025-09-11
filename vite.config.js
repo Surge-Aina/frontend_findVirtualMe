@@ -42,5 +42,18 @@ export default defineConfig({
             '/settings': 'http://localhost:5000',
             '/uploads': 'http://localhost:5000'
         }
+    },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom'],
+                    router: ['react-router-dom'],
+                    ui: ['framer-motion', 'lucide-react'],
+                    utils: ['axios', 'socket.io-client']
+                }
+            }
+        },
+        chunkSizeWarningLimit: 1000
     }
 })
