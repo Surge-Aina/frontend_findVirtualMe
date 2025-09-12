@@ -5,7 +5,17 @@ const VendorContext = createContext();
 export const useVendor = () => useContext(VendorContext);
 
 export function VendorProvider({ children }) {
-  const [vendorId, setVendorId] = useState(null);
+  const [vendorId, setVendorId] = useState(() => {
+    // try to restore from localStorage first
+    return localStorage.getItem("vendorId") || null;
+  });
+
+  useEffect(() => {
+    // Persist to localStorage whenever vendorId changes
+    if (vendorId) {
+      localStorage.setItem("vendorId", vendorId);
+    }
+  }, [vendorId]);
 
   useEffect(() => {
     // If no vendor selected and not logged in → default to demo vendor
