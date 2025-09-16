@@ -60,21 +60,21 @@ describe('Sidebar Component', () => {
     render(<Sidebar />)
 
     const toggleButton = screen.getByLabelText('Toggle sidebar')
-    const homeLabel = screen.getByText('Home')
+    const homeLink = screen.getByText('Home').closest('a')
 
     // Initially expanded - labels should be visible
-    expect(homeLabel).toHaveClass('opacity-100')
-    expect(homeLabel).toHaveClass('w-auto')
+    expect(homeLink).toHaveClass('opacity-100')
+    expect(homeLink).toHaveClass('w-auto')
 
     // Collapse sidebar
     await user.click(toggleButton)
-    expect(homeLabel).toHaveClass('opacity-0')
-    expect(homeLabel).toHaveClass('w-0')
+    expect(homeLink).toHaveClass('opacity-0')
+    expect(homeLink).toHaveClass('w-0')
 
     // Expand sidebar again
     await user.click(toggleButton)
-    expect(homeLabel).toHaveClass('opacity-100')
-    expect(homeLabel).toHaveClass('w-auto')
+    expect(homeLink).toHaveClass('opacity-100')
+    expect(homeLink).toHaveClass('w-auto')
   })
 
   it('has correct href attributes for navigation links', () => {

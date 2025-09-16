@@ -256,3 +256,5 @@ export const expectElementToHaveClass = (element, className) => {
 export const expectElementToHaveAttribute = (element, attribute, value) => {
   expect(element).toHaveAttribute(attribute, value)
 }
+
+
