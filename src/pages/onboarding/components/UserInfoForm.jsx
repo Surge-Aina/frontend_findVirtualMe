@@ -8,6 +8,8 @@ export default function UserInfoForm({ onComplete, onBack }) {
     phone: "",
     location: "",
     bio: "",
+    password: "",
+    username: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -28,6 +30,8 @@ export default function UserInfoForm({ onComplete, onBack }) {
     } else if (!/\S+@\S+\.\S+/.test(userInfo.email)) {
       newErrors.email = "Please enter a valid email";
     }
+    if (!userInfo.password.trim()) newErrors.password = "Password is required";
+    if (!userInfo.username.trim()) newErrors.username = "Username is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -101,6 +105,41 @@ export default function UserInfoForm({ onComplete, onBack }) {
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+          )}
+        </div>
+
+        {/* Password */}
+        <div>
+          <label htmlFor="password" className="block mb-1 font-medium text-gray-700">
+            Password *
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={userInfo.password}
+            onChange={(e) => handleInputChange("password", e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md ${errors.password ? "border-red-500" : "border-gray-300"}`}
+            placeholder="Enter a password"
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
+        </div>
+
+        {/* Username */}
+        <div>
+          <label htmlFor="username" className="block mb-1 font-medium text-gray-700">
+            Username *
+          </label>
+          <input
+            id="username"
+            value={userInfo.username}
+            onChange={(e) => handleInputChange("username", e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md ${errors.username ? "border-red-500" : "border-gray-300"}`}
+            placeholder="Choose a username"
+          />
+          {errors.username && (
+            <p className="text-red-500 text-sm mt-1">{errors.username}</p>
           )}
         </div>
 

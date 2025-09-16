@@ -123,6 +123,7 @@ export default function OnboardingFlow() {
       const sendData = async () => {
         let userId;
         try {
+          console.log("Sending onboarding data:", data);
           const res = await axios.post(`${backendUrl}/onboarding/addUser`, {
             data,
           });
