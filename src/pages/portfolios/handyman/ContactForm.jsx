@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './ContactForm.css';
 import handymanAPI from './api';
 
-const ContactForm = () => {
+const ContactForm = ({ title, subtitle }) => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,8 +37,8 @@ const ContactForm = () => {
     <>
       <ToastContainer position="bottom-center" />
       <section id="contact" className="contact-section">
-        <h2>Contact Us</h2>
-        <p>Ready to get started? Send us a message!</p>
+        <h2>{title || 'Contact Us'}</h2>
+        <p>{subtitle || 'Ready to get started? Send us a message!'}</p>
         <form onSubmit={handleSubmit} className="contact-form">
           <input
             type="text"

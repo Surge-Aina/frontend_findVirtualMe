@@ -1,71 +1,71 @@
+// Portfolio.jsx
 import React, { useState, useEffect } from 'react';
-// import handymanAPI from './api'; 
-import axios from 'axios';
+import handymanAPI from './api';
 import Slider from 'react-slick';
-
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import './Portfolio.css';
 
-const Portfolio = () => {
+const Portfolio = ({ templateId, title, allLabel }) => {   // 👈 accept title + allLabel
   const [projects, setProjects] = useState([]);
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState('__ALL__');
 
-useEffect(() => {
-  const fetchProjects = async () => {
-    try {
-      const response = await axios.get('http://localhost:5173/api/handyman/portfolio');
-      setProjects(response.data.projects || []); 
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      setProjects([]); 
-    }
-  };
-  fetchProjects();
-}, []);
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data } = await handymanAPI.get('/api/handyman/portfolio', { params: { templateId } });
+        setProjects(Array.isArray(data) ? data : (data?.projects ?? []));
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+        setProjects([]);
+      }
+    };
+    if (templateId) fetchProjects();
+  }, [templateId]);
 
-  const filteredProjects = filter === 'All' ? projects : projects.filter(p => p.category === filter);
-  const categories = ['All', ...new Set(projects.map(p => p.category))];
+  const categories = [...new Set(projects.map(p => p.category).filter(Boolean))];
+  const visible = filter === '__ALL__' ? projects : projects.filter(p => p.category === filter);
 
   const settings = {
-    className: "center",
+    className: 'center',
     centerMode: true,
     infinite: true,
-    centerPadding: "60px",
+    centerPadding: '60px',
     slidesToShow: 3,
     speed: 500,
     adaptiveHeight: true,
-    responsive: [
-        {
-          breakpoint: 768, 
-          settings: {
-            slidesToShow: 1, 
-            centerPadding: "40px",
-          }
-        }
-      ]
+    responsive: [{ breakpoint: 768, settings: { slidesToShow: 1, centerPadding: '40px' } }],
   };
 
   return (
     <section id="portfolio" className="portfolio-section">
-      <h2>Quality Craftsmanship You Can See</h2>
+      {/* 👇 editable title */}
+      <h2>{title || 'Quality Craftsmanship You Can See'}</h2>
 
       <div className="portfolio-filters">
-        {categories.map(category => (
+        {/* 👇 editable ALL label */}
+        <button
+          className={filter === '__ALL__' ? 'active' : ''}
+          onClick={() => setFilter('__ALL__')}
+        >
+          {allLabel || 'All'}
+        </button>
+
+        {categories.map(cat => (
           <button
-            key={category}
-            className={filter === category ? 'active' : ''}
-            onClick={() => setFilter(category)}
+            key={cat}
+            className={filter === cat ? 'active' : ''}
+            onClick={() => setFilter(cat)}
           >
-            {category}
+            {cat}
           </button>
         ))}
       </div>
 
       <div className="portfolio-slider">
-        {filteredProjects.length > 0 ? (
+        {visible.length > 0 ? (
           <Slider {...settings}>
-            {filteredProjects.map(project => (
+            {visible.map(project => (
               <div key={project._id} className="project-slide">
                 <div className="project-card">
                   <h3>{project.title}</h3>
@@ -84,7 +84,7 @@ useEffect(() => {
             ))}
           </Slider>
         ) : (
-          <p>Loading projects...</p>
+          <p>No projects yet.</p>
         )}
       </div>
     </section>

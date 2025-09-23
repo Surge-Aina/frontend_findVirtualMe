@@ -1,10 +1,10 @@
 import React from 'react';
 import './ProcessTimeline.css';
 
-const ProcessTimeline = ({ steps = [] }) => {
+const ProcessTimeline = ({ steps = [], title }) => {
   return (
     <section id="process" className="process-section">
-      <h2>Our Simple {steps.length}-Step Process</h2>
+      <h2>{title || `Our Simple ${steps.length}-Step Process`}</h2>
       <div className="timeline-container">
         {steps.map((step, index) => (
           <div key={step.number} className="timeline-item">

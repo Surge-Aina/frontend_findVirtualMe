@@ -2,13 +2,38 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 const backendUrl = import.meta.env.VITE_BACKEND_API;
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 export default function OnboardingInfoPage() {
+<<<<<<< HEAD
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+=======
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get(`${backendUrl}/onboarding/getUser/${id}`);
+        setUser(res.data.user);
+        console.log("user: ", res.data.user);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+>>>>>>> 20e9cf4 (Initial commit for feature one)
 
   const handleCardClick = async (index) => {
     switch (index) {
@@ -25,6 +50,21 @@ export default function OnboardingInfoPage() {
           console.log("error creating portfolio: ", error);
         }
         break;
+
+        case 5:
+        try {
+          const handyman_portfolio = user;
+          const res = await axios.post(`${backendUrl}/api/handyman-template`, {
+            handyman_portfolio,
+          });
+          console.log("response: ", res.data);
+          const id = res.data._id;
+          navigate(`/portfolios/handyman/${id}`)
+        } catch (error) {
+          console.log("error creating portfolio: ", error);
+        }
+        break;
+
       default:
         toast.info("Template comming soon!");
     }
