@@ -1,32 +1,48 @@
     // pages/portfolios/handyman/EditHandymanPortfolio.jsx
-    import React, { useEffect, useState, useRef } from 'react';
+    import React, { useEffect, useState, useRef, useContext } from 'react';
     import { useParams, useNavigate } from 'react-router-dom';
     import { toast } from 'react-toastify';
     import handymanAPI from './api.js';
+    import { AuthContext } from '../../../context/AuthContext';
 
     const EditHandymanPortfolio = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
 
-    // main template document
     const [formData, setFormData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // projects (before/after pairs)
     const [projects, setProjects] = useState([]);
     const [projectsLoading, setProjectsLoading] = useState(false);
 
-    // refs for the Add Project form + file inputs
     const addFormRef = useRef(null);
     const beforeRef = useRef(null);
     const afterRef = useRef(null);
 
-    // ----------------------- data loads -----------------------
     useEffect(() => {
         const fetchTemplate = async () => {
         try {
             const { data } = await handymanAPI.get(`/api/handyman-template/${id}`);
             setFormData(data);
+
+            // ----- ownership check -----
+            let currentUserId = user?.id || user?._id;
+            if (!currentUserId && localStorage.getItem('token')) {
+            try {
+                const me = await handymanAPI.get('/api/user/me');
+                currentUserId = me?.data?.id || me?.data?._id;
+            } catch (_) {}
+            }
+            const ownerId = data?.userId;
+            const isOwner =
+            currentUserId && ownerId && String(currentUserId) === String(ownerId);
+
+            if (!isOwner) {
+            toast.error('You do not have permission to edit this portfolio.');
+            navigate(`/portfolios/handyman/${id}`);
+            return;
+            }
         } catch (e) {
             console.error(e);
             toast.error('Failed to load portfolio');
@@ -35,7 +51,7 @@
         }
         };
         fetchTemplate();
-    }, [id]);
+    }, [id, user, navigate]);
 
     const loadProjects = async () => {
         setProjectsLoading(true);
@@ -56,7 +72,6 @@
         loadProjects();
     }, [id]);
 
-    // ----------------------- form helpers -----------------------
     const setNested = (path, value) => {
         const keys = path.split('.');
         setFormData(prev => {
@@ -77,7 +92,6 @@
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // services
     const handleServiceChange = (index, e) => {
         const { name, value } = e.target;
         const next = [...formData.services];
@@ -89,7 +103,6 @@
     const removeService = (i) =>
         setFormData(p => ({ ...p, services: p.services.filter((_, idx) => idx !== i) }));
 
-    // process steps
     const handleStepChange = (index, field, value) => {
         const next = [...formData.processSteps];
         next[index] = {
@@ -108,7 +121,6 @@
     const removeStep = (i) =>
         setFormData(p => ({ ...p, processSteps: p.processSteps.filter((_, idx) => idx !== i) }));
 
-    // testimonials
     const handleTestimonialChange = (index, field, value) => {
         const next = [...formData.testimonials];
         next[index] = { ...next[index], [field]: value };
@@ -119,7 +131,6 @@
     const removeTestimonial = (i) =>
         setFormData(p => ({ ...p, testimonials: p.testimonials.filter((_, idx) => idx !== i) }));
 
-    // ----------------------- save template -----------------------
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -132,23 +143,18 @@
         }
     };
 
-    // ----------------------- projects: add / update / delete -----------------------
     const handleAddProject = async (e) => {
         e.preventDefault();
-
         const before = beforeRef.current?.files?.[0];
         const after = afterRef.current?.files?.[0];
         if (!before || !after) {
         toast.error('Both before and after images are required');
         return;
         }
-
-        // Build FormData from the real form element
         const fd = new FormData(addFormRef.current);
         fd.set('templateId', id);
-
         try {
-        await handymanAPI.post('/api/handyman/portfolio', fd); // do NOT set Content-Type manually
+        await handymanAPI.post('/api/handyman/portfolio', fd);
         toast.success('Project added');
         addFormRef.current.reset();
         loadProjects();
@@ -185,13 +191,13 @@
 
     if (loading || !formData) return <div className="p-10 text-center">Loading editor...</div>;
 
-    // ----------------------- UI -----------------------
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-6">
         <h1 className="text-3xl font-bold mb-6 text-center">Edit Your Handyman Portfolio</h1>
 
         {/* ========== TEMPLATE FIELDS ========== */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* 👇 add an id so we can submit from a button placed later */}
+        <form id="templateForm" onSubmit={handleSubmit} className="space-y-6">
             {/* Hero */}
             <div className="p-4 border rounded">
             <h2 className="text-xl font-semibold mb-4">Hero Section</h2>
@@ -236,7 +242,6 @@
                 value={formData.servicesSectionIntro || ''}
                 onChange={handleInputChange}
             />
-
             {formData.services.map((service, index) => (
                 <div key={index} className="flex items-center gap-2">
                 <input
@@ -275,7 +280,6 @@
                 value={formData.processSectionTitle || ''}
                 onChange={handleInputChange}
             />
-
             {formData.processSteps.map((step, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                 <input
@@ -320,7 +324,6 @@
                 value={formData.testimonialsSectionTitle || ''}
                 onChange={handleInputChange}
             />
-
             {formData.testimonials.map((t, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                 <input
@@ -344,11 +347,7 @@
                 </button>
                 </div>
             ))}
-            <button
-                type="button"
-                className="bg-blue-500 text-white p-2 rounded"
-                onClick={addTestimonial}
-            >
+            <button type="button" className="bg-blue-500 text-white p-2 rounded" onClick={addTestimonial}>
                 Add Testimonial
             </button>
             </div>
@@ -372,9 +371,7 @@
             />
             </div>
 
-            <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold">
-            Save Changes
-            </button>
+            {/* ⛔️ Removed the in-form Save button here */}
         </form>
 
         {/* ========== PROJECTS (Before/After) ========== */}
@@ -429,7 +426,6 @@
                 />
             </div>
 
-            {/* ensures templateId is in the FormData as well */}
             <input type="hidden" name="templateId" value={id} />
 
             <div className="md:col-span-2">
@@ -466,35 +462,17 @@
 
                     <div>
                         <label className="block text-sm mb-1">Replace “Before” Image (optional)</label>
-                        <input
-                        type="file"
-                        name="beforeImage"
-                        accept="image/*"
-                        className="w-full p-2 border rounded"
-                        />
+                        <input type="file" name="beforeImage" accept="image/*" className="w-full p-2 border rounded" />
                         {p.beforeImageUrl && (
-                        <img
-                            src={p.beforeImageUrl}
-                            alt="before"
-                            className="h-24 mt-2 object-cover rounded"
-                        />
+                        <img src={p.beforeImageUrl} alt="before" className="h-24 mt-2 object-cover rounded" />
                         )}
                     </div>
 
                     <div>
                         <label className="block text-sm mb-1">Replace “After” Image (optional)</label>
-                        <input
-                        type="file"
-                        name="afterImage"
-                        accept="image/*"
-                        className="w-full p-2 border rounded"
-                        />
+                        <input type="file" name="afterImage" accept="image/*" className="w-full p-2 border rounded" />
                         {p.afterImageUrl && (
-                        <img
-                            src={p.afterImageUrl}
-                            alt="after"
-                            className="h-24 mt-2 object-cover rounded"
-                        />
+                        <img src={p.afterImageUrl} alt="after" className="h-24 mt-2 object-cover rounded" />
                         )}
                     </div>
 
@@ -517,6 +495,17 @@
             ) : (
             <p>No projects yet.</p>
             )}
+        </div>
+
+        {/* ✅ Bottom Save button that submits the top form */}
+        <div className="pt-2">
+            <button
+            form="templateForm"
+            type="submit"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold"
+            >
+            Save Changes
+            </button>
         </div>
         </div>
     );
