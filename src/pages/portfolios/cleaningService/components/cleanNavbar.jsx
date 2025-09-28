@@ -2,6 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { MdAccountCircle } from "react-icons/md";
+
+function ProfileIcon() {
+  return <MdAccountCircle size={40} color="#5b3cd9" />;
+}
 
 const BASE = '/portfolios/cleaningService';
 
@@ -27,14 +32,23 @@ export default function Navbar() {
   return (
     <div className="navbar">
       <div className="nav-left">
-        <NavLink to={`${BASE}/about`}>About</NavLink>
-        <NavLink to={`${BASE}/services`}>Services</NavLink>
-        <NavLink to={`${BASE}/charges`}>Charges</NavLink>
-      </div>
-      <div className="nav-right">
-        <div className="initials-circle" onClick={() => setShowDropdown(!showDropdown)} title="Account">
+         <div className="initials-circle"> 
           {initials}
         </div>
+      </div>
+      <div className="nav-center">
+        <NavLink to={`${BASE}/about`}>About</NavLink>
+        <NavLink to={`${BASE}/services`}>Services</NavLink>
+        <NavLink to={`${BASE}/charges`}>Pricing</NavLink>
+      </div>
+      <div className="nav-right">
+        <div 
+  className="account-icon" 
+  onClick={() => setShowDropdown(!showDropdown)} 
+  title="Account"
+>
+  <MdAccountCircle size={40} color="#5b3cd9" />
+</div>
         {showDropdown && (
           <div className="dropdown-menu">
             <button className="close-btn" onClick={() => setShowDropdown(false)}>×</button>

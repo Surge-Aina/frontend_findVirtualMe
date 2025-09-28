@@ -99,14 +99,20 @@ button{
   display: flex;
   justify-content: space-between;
   align-items: center;
-}.cleaning-app .nav-left a{
+}
+.cleaning-app .nav-center{
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+.cleaning-app .nav-center a{
   margin-right: 20px;
   text-decoration: none;
   color: #5a2ea6;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 1.5rem;
   transition: color 0.25s ease;
-}.cleaning-app .nav-left a:hover{
+}.cleaning-app .nav-center a:hover{
   color: #7b5cff;
   text-decoration: underline;
 }.cleaning-app .initials-circle{
@@ -124,7 +130,9 @@ button{
 }.cleaning-app .initials-circle:hover{
   box-shadow: 0 6px 20px rgba(90, 46, 166, 0.5);
   transform: translateY(-2px);
-}.cleaning-app /* ===== Services Page ===== */
+}
+
+.cleaning-app /* ===== Services Page ===== */
 .services-page{
   padding: 20px;
   max-width: 960px;
@@ -259,6 +267,28 @@ input[type="text"], .cleaning-app textarea{
 }.cleaning-app /*about page*/
 
 /* === ABOUT PAGE STYLES === */
+/* CTA Button styling */
+.cta-container {
+  
+  left: 5%;           
+  top: 70%;          
+  z-index: 6;  
+  margin-top: 20px;       
+}
+
+.cta-button {
+  background: #6c2bd9;
+  color: #fff;
+  border: none;
+  top: 70vh;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.cta-button:hover { background: #5a21b6; }
 
 .about-container{
   width: 100%;
@@ -351,6 +381,9 @@ input[type="text"], .cleaning-app textarea{
 }.cleaning-app /* Overlay Text Styling */
 .about-overlay-text{
   position: absolute;
+  flex-direction: column;
+  gap: 1.5rem;
+  pointer-events: auto;
   top: 50%;                 
   left: 5%;             
   transform: translateY(-50%); 

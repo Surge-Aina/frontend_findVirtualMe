@@ -6,15 +6,18 @@ import { motion } from 'framer-motion';
 import CleaningLady from '../models/CleaningLady';
 import HouseModel from '../models/HouseModel';
 import FamilyModel from '../models/FamilyModel';
-
+import { useNavigate } from 'react-router-dom';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const easeInOut = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+
+const BASE = '/portfolios/cleaningService';
 
 const models = [
   { key: 'cleaningLady', component: CleaningLady },
   { key: 'house', component: HouseModel },
   { key: 'family', component: FamilyModel },
 ];
+
 
 const degToRad = (deg) => (deg * Math.PI) / 180;
 const scrollSensitivity = 0.0005;
@@ -27,6 +30,7 @@ const modelZ = [2, -2, 2];
 const normalize = (a) => ((a % 360) + 360) % 360;
 
 export default function CleanAbout() {
+  const navigate = useNavigate();
   const rotation = useRef(0);
   const velocity = useRef(0);
   const [activeTextIndex, setActiveTextIndex] = useState(0);
@@ -157,7 +161,17 @@ export default function CleanAbout() {
         {["DOM's Cleaning – We bring sparkle to your space.",
           'From roof to floor – Every detail matters.',
           'For those I love – My purpose in every sweep.'][activeTextIndex]}
+           <div className="cta-container">
+    <button
+      className="cta-button"
+      onClick={() => navigate('/portfolios/cleaningService/services')}
+    >
+      Get Started
+    </button>
+  </div>
       </div>
+      
+      
     </section>
   );
 }
