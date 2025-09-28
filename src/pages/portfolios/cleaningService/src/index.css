@@ -395,7 +395,7 @@ input[type="text"], .cleaning-app textarea{
   border-radius: 18px;
   backdrop-filter: blur(10px);
   text-align: left;
-  z-index: 5;
+  z-index: 10;
   pointer-events: none;
   box-sizing: border-box;
   overflow-wrap: break-word;
@@ -786,7 +786,7 @@ input[type="text"], .cleaning-app textarea{
   background: #faf9ff;
   user-select: none;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }.cleaning-app .chip-checkbox:hover{
   background: #f3f0ff;
   border-color: #d8d0fb;
@@ -805,7 +805,7 @@ input[type="text"], .cleaning-app textarea{
   padding: 10px 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.2s ease;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.2s ease;
 }.cleaning-app .btn:hover{
   transform: translateY(1px);
   box-shadow: 0 3px 10px rgba(20, 16, 41, 0.08);
@@ -915,7 +915,7 @@ html, .cleaning-app{
   position: absolute; inset: 0; z-index: 2;
   touch-action: none;           
   cursor: grab;
-}.cleaning-app .about-gesture-layer:active{ cursor: grabbing; }.cleaning-app .about-overlay-text{ z-index: 3; pointer-events: none; }.cleaning-app .about-overlay-text.mobile{
+}.cleaning-app .about-gesture-layer:active{ cursor: grabbing; }.cleaning-app .about-overlay-text{ z-index: 3; pointer-events: auto; }.cleaning-app .about-overlay-text.mobile{
   left: 50%;
   transform: translateX(-50%);
   bottom: 80px;

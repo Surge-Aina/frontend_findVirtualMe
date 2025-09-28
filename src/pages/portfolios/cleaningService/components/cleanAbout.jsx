@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const easeInOut = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
 
-const BASE = '/portfolios/cleaningService';
 
 const models = [
   { key: 'cleaningLady', component: CleaningLady },
