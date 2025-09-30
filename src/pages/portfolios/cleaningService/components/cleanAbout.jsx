@@ -28,6 +28,9 @@ const modelZ = [2, -2, 2];
 
 const normalize = (a) => ((a % 360) + 360) % 360;
 
+const AUTO_ROTATE_INTERVAL = 4000; // 4 seconds per model
+const AUTO_ROTATE_SPEED = 0.8; // Speed of automatic rotation
+
 export default function CleanAbout() {
   const navigate = useNavigate();
   const rotation = useRef(0);
@@ -36,6 +39,7 @@ export default function CleanAbout() {
   const activeIdxRef = useRef(0);
   const [, setTick] = useState(0);
   const [mounted, setMounted] = useState(false);
+ 
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -46,6 +50,8 @@ export default function CleanAbout() {
     return () => mq.removeEventListener?.('change', apply);
   }, []);
 
+
+  
   // Scope wheel to the about section; DO NOT lock body or preventDefault
   const wrapRef = useRef(null);
   useEffect(() => {
@@ -54,6 +60,8 @@ export default function CleanAbout() {
     if (!el) return;
     const onWheel = (e) => {
       if (Math.abs(e.deltaY) < 10) return;
+      setUserInteracted(true);
+lastInteractionTime.current = Date.now();
       velocity.current = clamp(velocity.current + e.deltaY * scrollSensitivity, -maxVelocity, maxVelocity);
       // no preventDefault → outer page can still scroll
     };
@@ -75,6 +83,7 @@ export default function CleanAbout() {
     velocity.current = clamp(-dx * 0.02, -maxVelocity, maxVelocity);
   };
   const onPointerUp = (e) => {
+  
     drag.current.active = false;
     e.currentTarget.releasePointerCapture?.(e.pointerId);
   };
