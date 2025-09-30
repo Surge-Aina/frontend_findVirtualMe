@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
-
 import CleaningLady from '../models/CleaningLady';
 import HouseModel from '../models/HouseModel';
 import FamilyModel from '../models/FamilyModel';
@@ -39,7 +38,6 @@ export default function CleanAbout() {
   const activeIdxRef = useRef(0);
   const [, setTick] = useState(0);
   const [mounted, setMounted] = useState(false);
- 
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -51,7 +49,6 @@ export default function CleanAbout() {
   }, []);
 
 
-  
   // Scope wheel to the about section; DO NOT lock body or preventDefault
   const wrapRef = useRef(null);
   useEffect(() => {
@@ -142,6 +139,7 @@ lastInteractionTime.current = Date.now();
   const cameraProps = isMobile
     ? { position: [-1.2, 1.5, 9.2], fov: 55 }
     : { position: [-2, 1.5, 10], fov: 50 };
+ 
 
   return (
     <section className="clean-about-container">
@@ -178,7 +176,7 @@ lastInteractionTime.current = Date.now();
     </button>
   </div>
       </div>
-      
+        
       
     </section>
   );
