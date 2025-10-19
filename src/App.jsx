@@ -1,136 +1,46 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import "./App.css";
-import About from "./components/About";
-import AdminRoute from "./components/AdminRoute.jsx";
-import CookieConsent from "./components/CookieConsent";
-import CookieSettings from "./components/CookieSettings";
-import Dashboard from "./components/Dashboard";
-import ExamplePortfolios from "./components/examplePortfolios";
-import FloatingHelpButton from "./components/FloatingHelpButton";
-import Footer from "./components/Footer";
-import ITAdminPage from "./components/ITAdminPage.jsx";
-import ITForm from "./components/ITForm"; // Make sure this import is present
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Occupations from "./components/Occupations";
-import Payment from "./components/Payment";
-import ResumeUpload from "./components/ResumeUpload";
-import Farmers from "./components/Solutions/Farmers";
-import Property from "./components/Solutions/Property";
-import Restaurant from "./components/Solutions/Restaurant";
-import Solutions from "./components/Solutions/Solutions.jsx";
-import Vendors from "./components/Solutions/Vendors";
-import SuccessPage from "./components/SuccessPage.jsx";
-import TelemetryVisit from "./components/TelemetryVisit";
+import About from "./components/About";
+import Dashboard from "./components/Dashboard";
 import Tip from "./components/Tip";
-import UserProfile from "./components/UserProfile/UserProfile.jsx";
-import { VendorProvider } from "./context/VendorContext.jsx";
+import Footer from "./components/Footer";
+import "./App.css";
+import ResumeUpload from "./components/ResumeUpload";
+import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
+
+import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
+import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx";
+import ExamplePortfolios from "./components/examplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
-import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
-import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
-import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
-import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
+import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
+import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
+import Occupations from "./components/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
-import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx";
-import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
+import CookieConsent from "./components/CookieConsent";
+import CookieSettings from "./components/CookieSettings";
+import TelemetryVisit from "./components/TelemetryVisit";
+import Payment from "./components/Payment";
+import SuccessPage from "./components/SuccessPage.jsx";
+import FloatingHelpButton from "./components/FloatingHelpButton";
+import ITForm from "./components/ITForm"; // Make sure this import is present
+import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
+import UserProfile from "./components/UserProfile/UserProfile.jsx";
+import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
+import ITAdminPage from "./components/ITAdminPage.jsx";
 import TicketingPage from "./pages/ticketing/TicketingPage.jsx";
+import { VendorProvider } from "./context/VendorContext.jsx";
+import Solutions from "./components/Solutions/Solutions.jsx";
+import Vendors from "./components/Solutions/Vendors";
+import Restaurant from "./components/Solutions/Restaurant";
+import Property from "./components/Solutions/Property";
+import Farmers from "./components/Solutions/Farmers";
+import AdminRoute from "./components/AdminRoute.jsx";
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
-  const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
-
-  const primaryHostList = useMemo(() => {
-    const envHosts = import.meta.env.VITE_PRIMARY_HOSTS;
-    const defaults = [
-      "localhost",
-      "127.0.0.1",
-      "findvirtualme.com",
-      "www.findvirtualme.com",
-      "findvirtual.me",
-      "www.findvirtual.me",
-    ];
-    if (!envHosts) {
-      return defaults;
-    }
-    return [
-      ...defaults,
-      ...envHosts
-        .split(",")
-        .map((host) => host.trim())
-        .filter(Boolean),
-    ];
-  }, []);
-  const domainLookupAttemptedRef = useRef(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !backendUrl) {
-      return;
-    }
-
-    if (domainLookupAttemptedRef.current) {
-      return;
-    }
-
-    const hostname = window.location.hostname.toLowerCase();
-    if (
-      hostname.endsWith(".vercel.app") ||
-      primaryHostList.some((host) => host.toLowerCase() === hostname)
-    ) {
-      return;
-    }
-
-    domainLookupAttemptedRef.current = true;
-    const controller = new AbortController();
-    const encodedHost = encodeURIComponent(hostname);
-
-    fetch(`${backendUrl}/api/domains/lookup/${encodedHost}`, {
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          if (response.status === 404) {
-            return null;
-          }
-          const message = await response.text();
-          throw new Error(
-            `Domain lookup failed: ${response.status} ${message}`
-          );
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (!data || !data.success || !data.portfolioId) {
-          return;
-        }
-
-        const targetPath =
-          data.portfolioPath ||
-          buildPortfolioPath({
-            portfolioId: data.portfolioId,
-            user: data.user,
-          });
-
-        const currentPath = window.location.pathname;
-
-        if (targetPath && targetPath !== currentPath) {
-          navigate(targetPath, { replace: true });
-          if (currentPath === "/") {
-            window.history.replaceState(null, "", "/");
-          }
-        }
-      })
-      .catch((error) => {
-        console.warn("[custom-domain] lookup failed:", error.message);
-      });
-
-    return () => {
-      domainLookupAttemptedRef.current = false;
-      controller.abort();
-    };
-  }, [backendUrl, navigate, primaryHostList]);
 
   const handleGetStarted = () => {
     if (loggedIn) return;
@@ -232,35 +142,4 @@ export default function App() {
       <TelemetryVisit />
     </Layout>
   );
-}
-
-function buildPortfolioPath({ portfolioId, user }) {
-  if (!portfolioId) {
-    return null;
-  }
-
-  const industry = (user?.industry || "").toLowerCase();
-  const username = user?.username;
-
-  switch (industry) {
-    case "handyman":
-      return `/portfolios/handyman/${portfolioId}`;
-    case "photographer":
-      return `/portfolios/photographer/${portfolioId}`;
-    case "local_vendor":
-    case "local-vendor":
-    case "vendor":
-      if (username) {
-        return `/portfolios/vendor/${username}/${portfolioId}`;
-      }
-      return `/portfolios/localVendor`;
-    case "project_manager":
-    case "project-manager":
-    case "project manager":
-    default:
-      if (username) {
-        return `/portfolios/project-manager/${username}/${portfolioId}`;
-      }
-      return null;
-  }
 }

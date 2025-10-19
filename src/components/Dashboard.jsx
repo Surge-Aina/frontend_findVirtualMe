@@ -1,9 +1,10 @@
-import axios from "axios";
-import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
-import KebabMenu from "./KebabMenu.jsx";
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_API;
@@ -143,13 +144,9 @@ export default function Dashboard() {
                 {myPortfolios.map((p) => (
                   <div
                     key={p._id}
-                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
+                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
                     onClick={() => handleCardClick(p)}
                   >
-                    <div className="absolute top-3  right-2">
-                      <KebabMenu portfolio={p} />
-                    </div>
-                    <div className="font-semibold text-slate-800 mb-2">{p.title}</div>
                     <div className="font-semibold text-slate-800 mb-2">
                       {p.title}
                     </div>
@@ -179,7 +176,7 @@ export default function Dashboard() {
                 .map((p) => (
                   <div
                     key={p._id}
-                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
+                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
                     onClick={() => handleCardClick(p)}
                   >
                     <div className="font-semibold text-slate-800 mb-2">
