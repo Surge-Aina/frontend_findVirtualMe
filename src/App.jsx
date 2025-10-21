@@ -29,6 +29,7 @@ import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
 import SignUp from "./pages/login/SignUp";
 import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
 import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
+import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
 import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
 import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
