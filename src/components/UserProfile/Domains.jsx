@@ -425,7 +425,7 @@ export default function Domains({ getAuthHeaders }) {
     <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
       <section className="w-full max-w-4xl space-y-8">
         <div className="bg-white rounded-2xl shadow border border-gray-200 p-8">
-          <div className="flex it ems-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-4">
             <Globe className="w-6 h-6 text-blue-600" />
             <h2 className="text-2xl font-semibold text-gray-900">
               Domain Management
