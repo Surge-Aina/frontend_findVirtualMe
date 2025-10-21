@@ -1,11 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
+
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
+
+import { AuthContext } from "../../context/AuthContext";
 import handymanAPI from "../../pages/portfolios/handyman/api.js";
 import { useVendor } from "../../context/VendorContext.jsx";
 const backendUrl = import.meta.env.VITE_BACKEND_API;
-import { AuthContext } from "../../context/AuthContext";
+
 
 export default function OnboardingInfoPage() {
   const navigate = useNavigate();

@@ -1,7 +1,18 @@
-import { User, Edit2, KeyRound, ChevronRight, Bell, Shield, CreditCard, HelpCircle, Settings } from "lucide-react";
-import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import {
+  Bell,
+  ChevronRight,
+  CreditCard,
+  Edit2,
+  Globe,
+  HelpCircle,
+  KeyRound,
+  Settings,
+  Shield,
+  User,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import Domains from "./Domains";
 import ManageBillingComponent from "./ManageBillingComponent";
 
 export default function UserProfile() {
@@ -13,17 +24,23 @@ export default function UserProfile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [currentTab, setCurrentTab] = useState("Profile Information");
 
+  const [currentTab, setCurrentTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tab") || "Profile Information";
+  });
+
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+  });
   // Fetch user data on mount
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
       setError("");
       try {
-        const token = localStorage.getItem("token");
         const res = await axios.get(`${apiUrl}/user/me`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: getAuthHeaders(),
         });
         setProfile(res.data);
         setEditData(res.data);
@@ -48,8 +65,9 @@ export default function UserProfile() {
     setError("");
     setSuccess("");
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(`${apiUrl}/user/me`, editData, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.put(`${apiUrl}/user/me`, editData, {
+        headers: getAuthHeaders(),
+      });
       setProfile(res.data);
       setEditMode(false);
       setSuccess("Profile updated!");
@@ -84,7 +102,9 @@ export default function UserProfile() {
           <div className="bg-blue-100 rounded-full p-4 mb-3">
             <User className="w-10 h-10 text-blue-500" />
           </div>
-          <div className="text-xl font-semibold text-gray-800">{(profile.firstName || "") + " " + (profile.lastName || "")}</div>
+          <div className="text-xl font-semibold text-gray-800">
+            {(profile.firstName || "") + " " + (profile.lastName || "")}
+          </div>
           <div className="text-gray-500 text-sm">{profile.email || "—"}</div>
           <div className="flex items-center mt-2">
             <span className="h-2 w-2 rounded-full bg-green-500 mr-2"></span>
@@ -92,12 +112,48 @@ export default function UserProfile() {
           </div>
         </div>
         <nav className="flex-1 px-2 py-6 space-y-1">
-          <SidebarItem icon={<User className="w-5 h-5" />} label="Profile Information" currentTab={currentTab} setCurrentTab={setCurrentTab} />
-          <SidebarItem icon={<Settings className="w-5 h-5" />} label="Account Settings" currentTab={currentTab} setCurrentTab={setCurrentTab} />
-          <SidebarItem icon={<Shield className="w-5 h-5" />} label="Security" currentTab={currentTab} setCurrentTab={setCurrentTab} />
-          <SidebarItem icon={<CreditCard className="w-5 h-5" />} label="Billing" currentTab={currentTab} setCurrentTab={setCurrentTab} />
-          <SidebarItem icon={<Bell className="w-5 h-5" />} label="Notifications" currentTab={currentTab} setCurrentTab={setCurrentTab} />
-          <SidebarItem icon={<HelpCircle className="w-5 h-5" />} label="Help & Support" currentTab={currentTab} setCurrentTab={setCurrentTab} />
+          <SidebarItem
+            icon={<User className="w-5 h-5" />}
+            label="Profile Information"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
+          <SidebarItem
+            icon={<Settings className="w-5 h-5" />}
+            label="Account Settings"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
+          <SidebarItem
+            icon={<Shield className="w-5 h-5" />}
+            label="Security"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
+          <SidebarItem
+            icon={<Globe className="w-5 h-5" />}
+            label="Domains"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
+          <SidebarItem
+            icon={<CreditCard className="w-5 h-5" />}
+            label="Billing"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
+          <SidebarItem
+            icon={<Bell className="w-5 h-5" />}
+            label="Notifications"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
+          <SidebarItem
+            icon={<HelpCircle className="w-5 h-5" />}
+            label="Help & Support"
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+          />
         </nav>
         <div className="px-6 pb-6">
           <button className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-gray-700 hover:bg-gray-100 transition">
@@ -112,7 +168,9 @@ export default function UserProfile() {
         <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
           <section className="w-full max-w-3xl bg-white rounded-2xl shadow border border-gray-200 p-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Personal Information
+              </h2>
               <button
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
                 onClick={() => {
@@ -128,32 +186,88 @@ export default function UserProfile() {
             </div>
             <form className="space-y-6" onSubmit={handleSave}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProfileField label="First Name" name="firstName" value={editMode ? editData.firstName : profile.firstName} editable={editMode} onChange={handleChange} />
-                <ProfileField label="Last Name" name="lastName" value={editMode ? editData.lastName : profile.lastName} editable={editMode} onChange={handleChange} />
+                <ProfileField
+                  label="First Name"
+                  name="firstName"
+                  value={editMode ? editData.firstName : profile.firstName}
+                  editable={editMode}
+                  onChange={handleChange}
+                />
+                <ProfileField
+                  label="Last Name"
+                  name="lastName"
+                  value={editMode ? editData.lastName : profile.lastName}
+                  editable={editMode}
+                  onChange={handleChange}
+                />
               </div>
-              <ProfileField label="Username" name="username" value={editMode ? editData.username : profile.username} editable={editMode} onChange={handleChange} />
-              <ProfileField label="Email" name="email" value={editMode ? editData.email : profile.email} editable={editMode} onChange={handleChange} />
-              <ProfileField label="Bio" name="bio" value={editMode ? editData.bio : profile.bio} editable={editMode} onChange={handleChange} />
+              <ProfileField
+                label="Username"
+                name="username"
+                value={editMode ? editData.username : profile.username}
+                editable={editMode}
+                onChange={handleChange}
+              />
+              <ProfileField
+                label="Email"
+                name="email"
+                value={editMode ? editData.email : profile.email}
+                editable={editMode}
+                onChange={handleChange}
+              />
+              <ProfileField
+                label="Bio"
+                name="bio"
+                value={editMode ? editData.bio : profile.bio}
+                editable={editMode}
+                onChange={handleChange}
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProfileField label="Location" name="location" value={editMode ? editData.location : profile.location} editable={editMode} onChange={handleChange} />
-                <ProfileField label="Website" name="website" value={editMode ? editData.website : profile.website} editable={editMode} onChange={handleChange} />
+                <ProfileField
+                  label="Location"
+                  name="location"
+                  value={editMode ? editData.location : profile.location}
+                  editable={editMode}
+                  onChange={handleChange}
+                />
+                <ProfileField
+                  label="Website"
+                  name="website"
+                  value={editMode ? editData.website : profile.website}
+                  editable={editMode}
+                  onChange={handleChange}
+                />
               </div>
               {editMode && (
                 <div className="flex gap-3 justify-end pt-4">
-                  <button type="button" className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition" onClick={() => setEditMode(false)} disabled={saving}>
+                  <button
+                    type="button"
+                    className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+                    onClick={() => setEditMode(false)}
+                    disabled={saving}
+                  >
                     Cancel
                   </button>
-                  <button type="submit" className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition" disabled={saving}>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+                    disabled={saving}
+                  >
                     {saving ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
               )}
-              {success && <div className="text-green-600 text-center">{success}</div>}
+              {success && (
+                <div className="text-green-600 text-center">{success}</div>
+              )}
               {error && <div className="text-red-500 text-center">{error}</div>}
             </form>
           </section>
         </main>
       )}
+
+      {/* Domains */}
+      {currentTab === "Domains" && <Domains getAuthHeaders={getAuthHeaders} />}
 
       {/* Billing */}
       {currentTab === "Billing" && <ManageBillingComponent />}
@@ -164,7 +278,15 @@ export default function UserProfile() {
 // Sidebar item component
 function SidebarItem({ icon, label, currentTab, setCurrentTab }) {
   return (
-    <button onClick={() => setCurrentTab(label)} className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition ${label === currentTab ? "bg-gray-100 text-blue-700 font-semibold" : "text-gray-700 hover:bg-gray-50"}`} type="button">
+    <button
+      onClick={() => setCurrentTab(label)}
+      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition ${
+        label === currentTab
+          ? "bg-gray-100 text-blue-700 font-semibold"
+          : "text-gray-700 hover:bg-gray-50"
+      }`}
+      type="button"
+    >
       <span className="flex items-center gap-3">
         {icon} {label}
       </span>
@@ -175,11 +297,25 @@ function SidebarItem({ icon, label, currentTab, setCurrentTab }) {
 
 // Profile field component
 function ProfileField({ label, name, value, editable, onChange }) {
-  const displayValue = value !== undefined && value !== null && value !== "" ? value : "—";
+  const displayValue =
+    value !== undefined && value !== null && value !== "" ? value : "—";
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      {editable ? <input className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200" name={name} value={value ?? ""} onChange={onChange} /> : <div className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900">{displayValue}</div>}
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+      {editable ? (
+        <input
+          className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          name={name}
+          value={value ?? ""}
+          onChange={onChange}
+        />
+      ) : (
+        <div className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900">
+          {displayValue}
+        </div>
+      )}
     </div>
   );
 }

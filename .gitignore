@@ -25,3 +25,4 @@ dist-ssr
 
 .env
 .prettierrc.json
+CUSTOM_DOMAIN_PLAN.md
