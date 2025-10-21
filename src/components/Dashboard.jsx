@@ -150,9 +150,6 @@ export default function Dashboard() {
                       <KebabMenu portfolio={p} />
                     </div>
                     <div className="font-semibold text-slate-800 mb-2">{p.title}</div>
-                    <div className="font-semibold text-slate-800 mb-2">
-                      {p.title}
-                    </div>
                     <div className="text-slate-600">{p.name}</div>
                   </div>
                 ))}
