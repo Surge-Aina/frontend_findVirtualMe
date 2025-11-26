@@ -47,7 +47,7 @@
   "devDependencies": {
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",
-    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-react": "^7.28.5",
     "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -57,7 +57,10 @@
     "@vitejs/plugin-react": "^4.7.0",
     "babel-jest": "^30.2.0",
     "babel-plugin-transform-vite-meta-env": "^1.0.3",
+<<<<<<< HEAD
     "cypress": "^15.7.0",
+=======
+>>>>>>> f612df8 (cleaning lady test)
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
