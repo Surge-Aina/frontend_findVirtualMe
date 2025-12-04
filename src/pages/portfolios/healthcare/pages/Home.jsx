@@ -102,22 +102,22 @@ export default function Home() {
     <p className="text-xl md:text-2xl mb-8 opacity-95 max-w-3xl mx-auto">
       {userData?.practice?.description || 'Providing quality healthcare services.'}
     </p>
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-      <Link 
-        to={`/portfolios/healthcare/${practiceId}/contact`}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg inline-block transition-all hover:scale-105"
-      >
-        {userData?.ui?.hero?.primaryButtonText || 'Get Started'} {/* ✅ Using custom text */}
-      </Link>
-      <div className="text-center mt-12">
+    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+  <Link 
+    to={`/portfolios/healthcare/${practiceId}/contact`}
+    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
+  >
+    {userData?.ui?.hero?.primaryButtonText || 'Get Started'}
+  </Link>
+
   <Link 
     to={`/portfolios/healthcare/${practiceId}/services`}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg inline-block transition-all hover:scale-105"
+    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
   >
-    {userData?.ui?.services?.viewAllText || 'View All Services'} {/* ✅ Using custom text */}
+    {userData?.ui?.services?.viewAllText || 'View All Services'}
   </Link>
 </div>
-    </div>
+
   </div>
 </section>
 
