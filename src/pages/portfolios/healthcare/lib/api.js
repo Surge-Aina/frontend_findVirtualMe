@@ -1,9 +1,24 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// Safe helper for Vite + Jest
+function safeImportMetaEnv() {
+  try {
+    // Only works in Vite
+    return typeof import.meta !== "undefined" && import.meta.env
+      ? import.meta.env
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+const env = safeImportMetaEnv();
+
+export const API_BASE_URL =
+  env.VITE_API_BASE_URL ||
+  process.env.VITE_API_BASE_URL ||
+  "http://localhost:5000";
+
 
 export const api = {
-  // ==========================================
-  // PUBLIC APIs
-  // ==========================================
   
   async getPracticeData(practiceId) {
     const res = await fetch(`${API_BASE_URL}/healthcare/practice/${practiceId}`, {
