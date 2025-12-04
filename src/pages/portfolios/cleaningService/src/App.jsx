@@ -1,27 +1,26 @@
-
-import React from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import axios from 'axios';
-import Navbar from '../components/cleanNavbar.jsx';
-import Services from '../components/cleanServices.jsx';
-import Charges from '../components/cleanCharges.jsx';
-import About from '../components/cleanAbout.jsx';
-import './index.css';
-import { AuthProvider } from '../context/AuthContext.jsx';
+import React from "react";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import axios from "axios";
+import Navbar from "../components/cleanNavbar.jsx";
+import Services from "../components/cleanServices.jsx";
+import Charges from "../components/cleanCharges.jsx";
+import About from "../components/cleanAbout.jsx";
+import "./index.css";
+import { AuthProvider } from "../context/AuthContext.jsx";
 
 function Shell() {
   return (
     <div className="cleaning-app">
       <Navbar />
       <Outlet />
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
     </div>
   );
 }
 
 export default function CleaningRoutes() {
-  const t = localStorage.getItem('token');
+  const t = localStorage.getItem("token");
   if (t) axios.defaults.headers.common.Authorization = `Bearer ${t}`;
 
   return (
@@ -34,7 +33,7 @@ export default function CleaningRoutes() {
           <Route path="services" element={<Services />} />
           <Route path="charges" element={<Charges />} />
         </Route>
-        
+
         {/* User's actual portfolio - with portfolioId */}
         <Route path=":portfolioId" element={<Shell />}>
           <Route index element={<Navigate to="about" replace />} />
