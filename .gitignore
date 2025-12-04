@@ -23,9 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-HEAD
+.envcoverage/
 .env
-.env
-.prettierrc.jsoncoverage/
-coverage/
-bc2de08 (Updated healthcare frontend tests)
