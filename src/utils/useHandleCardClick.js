@@ -8,12 +8,21 @@ export function useHandleCardClick() {
   const { user } = useContext(AuthContext);
 
   const handleCardClick = (p) => {
-    const userPortfoliosArray = user.portfolios;
-    console.log("user in handleCard click: ", user);
+    if (!user) {
+      toast.error("You must be logged in to manage portfolios.");
+      return;
+    }
+
+    const userPortfoliosArray = user.portfolios || [];
+
     const portfolio = userPortfoliosArray.find((portfolios) => portfolios.portfolioId === p._id);
 
-    console.log("p in useHandleCardClick() ", p);
-    console.log("portfolio Type: ", portfolio.portfolioType);
+    if (!portfolio) {
+      console.error(`User does not own portfolio with ID: ${p._id}. Cannot determine type.`);
+      toast.error("Portfolio match not found in user account.");
+      return;
+    }
+
     if (portfolio.portfolioType === "Handyman") {
       navigate(`/portfolios/handyman/${p._id}`);
     } else if (portfolio.portfolioType === "CleaningLady") {

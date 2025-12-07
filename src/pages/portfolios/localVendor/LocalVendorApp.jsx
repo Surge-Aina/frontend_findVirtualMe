@@ -34,7 +34,7 @@ function LocalVendorApp() {
       <div className="min-h-screen flex flex-col">
         <Navbar user={user} />
         <main className="flex-grow">
-          <ToastContainer />
+          {/* <ToastContainer /> */}
           <Routes>
             <Route path="" element={<Home />} />
             <Route path="admin/tagged" element={<TaggedImage />} />
