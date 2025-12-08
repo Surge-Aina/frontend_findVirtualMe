@@ -1,5 +1,6 @@
     // cypress/support/commands.js
 
+    // 🔁 Clear app-specific auth state
     Cypress.Commands.add("resetAppState", () => {
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("email");
@@ -10,7 +11,20 @@
     // get backend URL from Cypress env (configured in cypress.config.js)
     const getBackendUrl = () => Cypress.env("backendUrl");
 
-    // 🔐 API-based signup helper
+    // ✅ Stubbed login helper (no backend) for FE E2E tests
+    Cypress.Commands.add("fakeLogin", () => {
+    // Set the minimal auth state your app expects
+    cy.window().then((win) => {
+        win.localStorage.setItem("token", "dummy-token");
+        win.localStorage.setItem("email", "vendor@example.com");
+        win.localStorage.setItem("userId", "test-user-id");
+    });
+
+    // Go straight to dashboard as a "logged-in" user
+    cy.visit("/dashboard");
+    });
+
+    // 🔐 API-based signup helper (keep for future real E2E / smoke tests)
     Cypress.Commands.add("signup", (overrides = {}) => {
     const backendUrl = getBackendUrl();
 
@@ -30,6 +44,7 @@
 
         window.localStorage.setItem("token", token);
         window.localStorage.setItem("email", email);
+
         // optional: fetch /user/me or read user id if backend returns it
         if (res.body.user && (res.body.user._id || res.body.user.id)) {
             window.localStorage.setItem(
@@ -42,7 +57,7 @@
         });
     });
 
-    // 🔐 API-based login helper
+    // 🔐 API-based login helper (keep for future real E2E / smoke tests)
     Cypress.Commands.add("login", (email, password = "Password123!") => {
     const backendUrl = getBackendUrl();
 
