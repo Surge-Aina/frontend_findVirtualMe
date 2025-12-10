@@ -31,7 +31,6 @@ export default function OnboardingFlow() {
     file: null,
   });
 
-
   /* 
   ** Version that was skipping to user info from file upload:
   **
@@ -61,18 +60,15 @@ export default function OnboardingFlow() {
     setCurrentStep("userInfo"); // skip straight ahead
   };
   */
- const handleGoalSelect = (goal) => {
+  const handleGoalSelect = (goal) => {
     setData((prev) => ({ ...prev, goal }));
     // if user is a business, skip to complete
     if (goal === "grow-business") {
-
       setCurrentStep("userInfo");
     } else {
       setCurrentStep("industry");
     }
   };
-
- 
 
   // handle selection of industry
   const handleIndustrySelect = (industry) => {
@@ -233,18 +229,8 @@ export default function OnboardingFlow() {
           <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
             <div className="text-center max-w-2xl">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div className="flex justify-center items-center h-64">
@@ -255,8 +241,7 @@ export default function OnboardingFlow() {
                 {/* {data.goal === "grow-business"
                   ? "Redirecting you to the business dashboard..."
                   : "Your profile is all set up! You can now start building your presence and connecting with opportunities."} */}
-                Your profile is all set up! You can now start building your
-                presence and connecting with opportunities.
+                Your profile is all set up! You can now start building your presence and connecting with opportunities.
               </p>
               {/* show profile summary if not a business user */}
 
@@ -290,7 +275,7 @@ export default function OnboardingFlow() {
 
   // render onboarding steps and progress bar
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6" data-cy="onboarding-container">
       <div className="max-w-6xl mx-auto">
         {/* show progress bar at the top */}
         <ProgressBar
@@ -301,35 +286,40 @@ export default function OnboardingFlow() {
         <div className="mt-12">
           {/* show goal selection step */}
           {currentStep === "goal" && (
-            <GoalSelection
-              onSelect={handleGoalSelect}
-            />
+            <div data-cy="step-goal">
+              <GoalSelection onSelect={handleGoalSelect} />
+            </div>
           )}
           {/* show industry selection step */}
           {currentStep === "industry" && (
-            <IndustrySelection
-              onSelect={handleIndustrySelect}
-              onBack={goBack}
-            />
+            <div data-cy="step-industry">
+              {" "}
+              <IndustrySelection onSelect={handleIndustrySelect} onBack={goBack} />
+            </div>
           )}
           {/* show experience selection step */}
           {currentStep === "experience" && (
-            <ExperienceSelection
-              onSelect={handleExperienceSelect}
-              onBack={goBack}
-            />
+            <div data-cy="step-experience">
+              {" "}
+              <ExperienceSelection onSelect={handleExperienceSelect} onBack={goBack} />{" "}
+            </div>
           )}
           {/* show skills selection step */}
           {currentStep === "skills" && (
-            <SkillsSelection
-              onComplete={handleSkillsComplete}
-              onBack={goBack}
-              industry={data.industry || undefined}
-            />
+            <div data-cy="step-skills">
+              <SkillsSelection
+                onComplete={handleSkillsComplete}
+                onBack={goBack}
+                industry={data.industry || undefined}
+              />
+            </div>
           )}
           {/* show user info form step */}
           {currentStep === "userInfo" && (
-            <UserInfoForm onComplete={handleUserInfoComplete} onBack={goBack} />
+            <div data-cy="step-userInfo">
+              {" "}
+              <UserInfoForm onComplete={handleUserInfoComplete} onBack={goBack} />{" "}
+            </div>
           )}
         </div>
       </div>
