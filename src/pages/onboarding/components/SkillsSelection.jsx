@@ -83,9 +83,7 @@ export default function SkillsSelection({ onComplete, onBack, industry = "other"
   const suggestions = skillSuggestions[industry] || skillSuggestions.other;
 
   const toggleSkill = (skill) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
-    );
+    setSelectedSkills((prev) => (prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]));
   };
 
   const addCustomSkill = () => {
@@ -107,9 +105,7 @@ export default function SkillsSelection({ onComplete, onBack, industry = "other"
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-12">
         <h1 className="mb-4 text-gray-900">What are your skills?</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Select from the suggestions below or add your own skills
-        </p>
+        <p className="text-gray-600 max-w-2xl mx-auto">Select from the suggestions below or add your own skills</p>
       </div>
 
       {/* selected skills */}
@@ -144,6 +140,7 @@ export default function SkillsSelection({ onComplete, onBack, industry = "other"
             <button
               type="button"
               key={skill}
+              data-cy={`skill-${skill.replace(/\s+/g, "-").toLowerCase()}`}
               onClick={() => toggleSkill(skill)}
               className={`p-3 rounded-lg border text-sm transition-all ${
                 selectedSkills.includes(skill)
@@ -190,6 +187,7 @@ export default function SkillsSelection({ onComplete, onBack, industry = "other"
         </button>
         <button
           type="button"
+          data-cy="skills-continue"
           onClick={handleContinue}
           disabled={selectedSkills.length === 0}
           className="px-8 py-2 bg-blue-600 text-white rounded-md font-semibold shadow hover:bg-blue-700 transition-all disabled:opacity-50"
