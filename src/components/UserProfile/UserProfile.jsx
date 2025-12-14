@@ -557,8 +557,8 @@ function ToggleSwitch({ enabled, onChange }) {
 
 // domain card component
 function DomainCard({ domain, onRemove, onVerify }) {
-  const getStatusColor = (domain) => {
-    switch (domain.status?.toLowerCase()) {
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
       case "active":
         return "bg-green-100 text-green-800";
       case "pending_verification":
@@ -570,8 +570,8 @@ function DomainCard({ domain, onRemove, onVerify }) {
     }
   };
 
-  const getStatusIcon = (domain) => {
-    switch (domain.status?.toLowerCase()) {
+  const getStatusIcon = (status) => {
+    switch (status?.toLowerCase()) {
       case "active":
         return "✓";
       case "pending_verification":
