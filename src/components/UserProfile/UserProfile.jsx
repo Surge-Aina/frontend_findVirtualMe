@@ -18,6 +18,7 @@ import { AuthContext } from "../../context/AuthContext";
 import axiosAuth from "../../utils/axiosAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHandleCardClick } from "../../utils/useHandleCardClick";
+import DomainLookup from "./DomainLookup";
 
 export default function UserProfile() {
   const { handleCardClick } = useHandleCardClick();
@@ -34,14 +35,12 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const [domains, setDomains] = useState([]);
   const [loadingDomains, setLoadingDomains] = useState(false);
-  const [newDomain, setNewDomain] = useState('');
+  const [newDomain, setNewDomain] = useState("");
   const [addingDomain, setAddingDomain] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Get tab from URL or default to "Profile Information"
-  const [currentTab, setCurrentTab] = useState(
-    searchParams.get('tab') || "Profile Information"
-  );
+  const [currentTab, setCurrentTab] = useState(searchParams.get("tab") || "Profile Information");
 
   // Update URL when tab changes
   const handleTabChange = (newTab) => {
@@ -80,70 +79,71 @@ export default function UserProfile() {
       const domainsData = response.data?.domains || response.data || [];
       setDomains(Array.isArray(domainsData) ? domainsData : []);
     } catch (error) {
-      console.error('Failed to load domains:', error);
+      console.error("Failed to load domains:", error);
       if (error.response?.status === 404) {
         setDomains([]);
-        console.log('Domain endpoint not implemented yet');
+        console.log("Domain endpoint not implemented yet");
       } else {
-        toast.error('Failed to load domains');
+        toast.error("Failed to load domains");
       }
       setDomains([]); // Always set to empty array on error
     } finally {
+      console.log("domains", domains);
       setLoadingDomains(false);
     }
   };
 
   const handleAddDomain = async () => {
     if (!newDomain.trim()) return;
-    
+
     setAddingDomain(true);
     try {
       const response = await axiosAuth.post(`${apiUrl}/api/domains/custom`, {
-        domain: newDomain.trim()
+        domain: newDomain.trim(),
       });
-      
+
       // Reload domains to get the updated list
       await loadDomains();
-      setNewDomain('');
-      toast.success('Domain added successfully!');
+      setNewDomain("");
+      toast.success("Domain added successfully!");
     } catch (error) {
-      console.error('Failed to add domain:', error);
-      toast.error(error.response?.data?.message || 'Failed to add domain');
+      console.error("Failed to add domain:", error);
+      toast.error(error.response?.data?.message || "Failed to add domain");
     } finally {
       setAddingDomain(false);
     }
   };
 
   const handleRemoveDomain = async (domainId) => {
-    if (!window.confirm('Are you sure you want to remove this domain?')) return;
-    
+    if (!window.confirm("Are you sure you want to remove this domain?")) return;
+
     try {
       await axiosAuth.delete(`${apiUrl}/api/domains/${domainId}`);
-      setDomains(prev => prev.filter(domain => domain._id !== domainId));
-      toast.success('Domain removed successfully!');
+      setDomains((prev) => prev.filter((domain) => domain._id !== domainId));
+      toast.success("Domain removed successfully!");
     } catch (error) {
-      console.error('Failed to remove domain:', error);
-      toast.error('Failed to remove domain');
+      console.error("Failed to remove domain:", error);
+      toast.error("Failed to remove domain");
     }
   };
 
   const handleVerifyDomain = async (domainId) => {
     try {
       // Find the domain to get its domain name
-      const domain = domains.find(d => d._id === domainId);
+      const domain = domains.find((d) => d._id === domainId);
       if (!domain) {
-        toast.error('Domain not found');
+        toast.error("Domain not found");
         return;
       }
 
       const response = await axiosAuth.post(`${apiUrl}/api/domains/verify/${domain.domain}`);
-      
+
       // Reload domains to get updated status
       await loadDomains();
-      toast.success('Domain verification completed!');
+      toast.success("Domain verification completed!");
     } catch (error) {
-      console.error('Failed to verify domain:', error);
-      toast.error(error.response?.data?.message || 'Failed to verify domain');
+      console.error("Failed to verify domain:", error);
+      toast.error(error.response?.data?.message || "Failed to verify domain");
     }
   };
 
@@ -388,7 +388,6 @@ export default function UserProfile() {
                 </div>
               </div>
 
-            
               <div className="pt-4">
                 <div className="text-sm text-gray-500 italic">More account settings will be available soon...</div>
               </div>
@@ -400,7 +399,12 @@ export default function UserProfile() {
       {currentTab === "Billing" && <ManageBillingComponent />}
       {/* Domain Management */}
       {currentTab === "Domain Management" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+        <main className="flex  flex-col justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+          {/* Domain lookup */}
+          <section>
+            <DomainLookup />
+          </section>
+
           <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Domain Management</h2>
@@ -417,14 +421,14 @@ export default function UserProfile() {
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddDomain()}
+                  onKeyPress={(e) => e.key === "Enter" && handleAddDomain()}
                 />
                 <button
                   onClick={handleAddDomain}
                   disabled={!newDomain.trim() || addingDomain}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
                 >
-                  {addingDomain ? 'Adding...' : 'Add Domain'}
+                  {addingDomain ? "Adding..." : "Add Domain"}
                 </button>
               </div>
               <p className="text-sm text-gray-500 mt-2">
@@ -435,7 +439,7 @@ export default function UserProfile() {
             {/* Existing Domains */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Your Domains</h3>
-              
+
               {loadingDomains ? (
                 <div className="text-center py-12">
                   <div className="text-gray-500">Loading domains...</div>
@@ -449,9 +453,9 @@ export default function UserProfile() {
               ) : (
                 <div className="space-y-3">
                   {domains.map((domain) => (
-                    <DomainCard 
-                      key={domain._id || domain.id || Math.random()} 
-                      domain={domain} 
+                    <DomainCard
+                      key={domain._id || domain.id || Math.random()}
+                      domain={domain}
                       onRemove={handleRemoveDomain}
                       onVerify={handleVerifyDomain}
                     />
@@ -478,7 +482,8 @@ export default function UserProfile() {
                     </div>
                   </div>
                   <p className="text-blue-700 mt-3">
-                    DNS changes may take up to 24 hours to propagate. Click "Verify" to check if your domain is configured correctly.
+                    DNS changes may take up to 24 hours to propagate. Click "Verify" to check if your domain is
+                    configured correctly.
                   </p>
                 </div>
               </div>
@@ -554,19 +559,27 @@ function ToggleSwitch({ enabled, onChange }) {
 function DomainCard({ domain, onRemove, onVerify }) {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case 'verified': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "pending_verification":
+        return "bg-yellow-100 text-yellow-800";
+      case "failed_registration":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
-      case 'verified': return '✓';
-      case 'pending': return '⏳';
-      case 'failed': return '⚠';
-      default: return '○';
+      case "active":
+        return "✓";
+      case "pending_verification":
+        return "⏳";
+      case "failed_registration":
+        return "⚠";
+      default:
+        return "○";
     }
   };
 
@@ -576,19 +589,19 @@ function DomainCard({ domain, onRemove, onVerify }) {
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <h4 className="font-medium text-gray-900">{domain.domain}</h4>
-            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(domain.status)}`}>
+            <span
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                domain.status
+              )}`}
+            >
               {getStatusIcon(domain.status)}
-              {domain.status ? domain.status.charAt(0).toUpperCase() + domain.status.slice(1) : 'Unknown'}
+              {domain.status ? domain.status.charAt(0).toUpperCase() + domain.status.slice(1) : "Unknown"}
             </span>
           </div>
           <div className="text-sm text-gray-600 space-y-1">
             <p>Added: {new Date(domain.createdAt).toLocaleDateString()}</p>
-            {domain.lastVerified && (
-              <p>Last verified: {new Date(domain.lastVerified).toLocaleDateString()}</p>
-            )}
-            {domain.connectedProject && (
-              <p>Connected to: {domain.connectedProject}</p>
-            )}
+            {domain.lastVerified && <p>Last verified: {new Date(domain.lastVerified).toLocaleDateString()}</p>}
+            {domain.connectedProject && <p>Connected to: {domain.connectedProject}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2 ml-4">
