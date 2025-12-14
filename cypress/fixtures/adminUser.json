@@ -1,7 +1,8 @@
     {
+    "_id": "admin-1",
     "name": "Admin User",
     "username": "admin_user",
     "email": "admin@example.com",
     "password": "Password123!",
-    "role": "admin"
+    "role": "ADMIN"
     }

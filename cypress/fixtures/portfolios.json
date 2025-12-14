@@ -13,14 +13,59 @@
         "description": "My test vendor portfolio"
     },
     "handyman": {
+        "templateId": "handyman-fixture-id",
+        "ownerId": "vendor-hm-1",          
         "hero": {
-        "phoneNumber": "555-111-2222"
+        "title": "Fixture Handyman Portfolio",
+        "subtitle": "Fixture-based handyman template",
+        "phoneNumber": "555-111-2222",
+        "badge1Text": "Licensed & Insured",
+        "badge2Text": "Local & Trusted",
+        "badge3Text": "Fast Response",
+        "ctaText": "Book a Free Estimate"
         },
+        "servicesSectionTitle": "Our Services",
+        "servicesSectionIntro": "From small fixes to big projects, we handle it all.",
+        "services": [
+        {
+            "title": "General Repairs",
+            "description": "Fixture based general repair service",
+            "bullets": ["Doors & locks", "Minor carpentry"]
+        }
+        ],
+        "portfolioTitle": "Recent Projects",
+        "portfolioSubtitle": "Before & after transformations",
+        "portfolioAllLabel": "All Projects",
+        "processSteps": [
+        {
+            "number": 1,
+            "title": "Request a quote",
+            "description": "Tell us what needs fixing."
+        },
+        {
+            "number": 2,
+            "title": "We visit",
+            "description": "We come prepared with tools and parts."
+        }
+        ],
+        "testimonials": [
+        {
+            "name": "Fixture Client",
+            "quote": "Great work from our handyman fixture.",
+            "location": "San Jose, CA"
+        }
+        ],
         "contact": {
+        "title": "Ready to fix it?",
+        "subtitle": "Get in touch using the fixture details.",
+        "formTitle": "Tell us about your project",
         "phone": "555-111-2222",
-        "email": "handyman@example.com"
+        "email": "handyman@example.com",
+        "hours": "Mon–Sat: 8AM–6PM",
+        "note": "Emergency calls available"
         }
     },
+
     "cleaningService": {
         "slug": "fixture-cleaning-service",
         "templateType": "cleaning-service",
