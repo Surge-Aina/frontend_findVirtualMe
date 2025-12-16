@@ -7,7 +7,7 @@ import Tip from "./components/Tip";
 import Footer from "./components/Footer";
 import "./App.css";
 import ResumeUpload from "./components/ResumeUpload";
-
+import ErrorBoundary from "./components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
 import VisitorLogin from "./components/GuestAuth/VisitorLogin.jsx";
 import VisitorSignup from "./components/GuestAuth/VisitorSignup.jsx";
@@ -74,6 +74,7 @@ export default function App() {
 
   return (
     <Layout>
+      <ErrorBoundary>
       <Routes>
         <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
         <Route path="/dashboard" element={<Dashboard onRequestAdmin={handleRequestAdmin} />} />
@@ -182,6 +183,7 @@ export default function App() {
         <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
         <Route path="/testPage" element={<FullStackEditor />} />
       </Routes>
+      </ErrorBoundary>
       <FloatingHelpButton />
       {adminRequested && <Tip message="Request received! Our admin team will contact you shortly." />}
       <Footer />

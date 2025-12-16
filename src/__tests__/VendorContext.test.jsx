@@ -2,7 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import { VendorProvider, useVendor } from "../context/VendorContext";
 import { useParams } from "react-router-dom";
 import { canEditPortfolio } from "../pages/portfolios/localVendor/services/auth";
-
+import { AuthContext } from "../context/AuthContext";
 // ---- MOCKS ----
 jest.mock("react-router-dom", () => ({
   useParams: jest.fn(),
@@ -11,6 +11,10 @@ jest.mock("react-router-dom", () => ({
 jest.mock("../pages/portfolios/localVendor/services/auth", () => ({
   canEditPortfolio: jest.fn(),
 }));
+
+const mockAuthContextValue = {
+  user: { role: "customer", portfolios: [] },
+};
 
 // Helper component to extract values from context
 function TestConsumer({ callback }) {
@@ -30,9 +34,11 @@ describe("VendorContext", () => {
 
   const renderContext = (props = {}) =>
     render(
-      <VendorProvider {...props}>
-        <TestConsumer callback={(v) => (contextValue = v)} />
-      </VendorProvider>
+      <AuthContext.Provider value={mockAuthContextValue}>
+        <VendorProvider {...props}>
+          <TestConsumer callback={(v) => (contextValue = v)} />
+        </VendorProvider>
+      </AuthContext.Provider>
     );
 
   test("uses forceDefault vendorId when forceDefault = true", () => {
@@ -64,10 +70,14 @@ describe("VendorContext", () => {
     let mockId = "first123";
     useParams.mockImplementation(() => ({ id: mockId }));
 
+    const wrapper = (children) => <AuthContext.Provider value={mockAuthContextValue}>{children}</AuthContext.Provider>;
+
     const { rerender } = render(
-      <VendorProvider>
-        <TestConsumer callback={(v) => (contextValue = v)} />
-      </VendorProvider>
+      wrapper(
+        <VendorProvider>
+          <TestConsumer callback={(v) => (contextValue = v)} />
+        </VendorProvider>
+      )
     );
 
     // Initial load
@@ -76,9 +86,11 @@ describe("VendorContext", () => {
     // Change URL param
     mockId = "second789";
     rerender(
-      <VendorProvider>
-        <TestConsumer callback={(v) => (contextValue = v)} />
-      </VendorProvider>
+      wrapper(
+        <VendorProvider>
+          <TestConsumer callback={(v) => (contextValue = v)} />
+        </VendorProvider>
+      )
     );
 
     await waitFor(() => expect(contextValue.vendorId).toBe("second789"));

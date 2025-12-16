@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './ContactForm.css';
-import handymanAPI from './api';
+import React, { useEffect, useRef, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./ContactForm.css";
+import handymanAPI from "./api";
 
 // Lightweight inline MultiSelect (checkbox dropdown)
-function ServicesMultiSelect({ options = [], value = [], onChange, label = 'Service(s)' }) {
+function ServicesMultiSelect({ options = [], value = [], onChange, label = "Service(s)" }) {
   const [open, setOpen] = useState(false);
   const boxRef = useRef(null);
 
@@ -15,8 +15,8 @@ function ServicesMultiSelect({ options = [], value = [], onChange, label = 'Serv
       if (!boxRef.current) return;
       if (!boxRef.current.contains(e.target)) setOpen(false);
     };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
   const toggle = () => setOpen((s) => !s);
@@ -27,9 +27,9 @@ function ServicesMultiSelect({ options = [], value = [], onChange, label = 'Serv
   };
 
   const summary = (() => {
-    if (!value || value.length === 0) return 'Select services';
-    if (value.length <= 2) return value.join(', ');
-    return `${value.slice(0, 2).join(', ')} +${value.length - 2} more`;
+    if (!value || value.length === 0) return "Select services";
+    if (value.length <= 2) return value.join(", ");
+    return `${value.slice(0, 2).join(", ")} +${value.length - 2} more`;
   })();
 
   return (
@@ -38,14 +38,12 @@ function ServicesMultiSelect({ options = [], value = [], onChange, label = 'Serv
 
       <button
         type="button"
-        className={`ms-trigger ${open ? 'open' : ''}`}
+        className={`ms-trigger ${open ? "open" : ""}`}
         onClick={toggle}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className={`ms-placeholder ${value?.length ? 'has-value' : ''}`}>
-          {summary}
-        </span>
+        <span className={`ms-placeholder ${value?.length ? "has-value" : ""}`}>{summary}</span>
         <span className="ms-caret">▾</span>
       </button>
 
@@ -57,7 +55,7 @@ function ServicesMultiSelect({ options = [], value = [], onChange, label = 'Serv
           <ul className="ms-list">
             {options.map((opt, i) => {
               const title = opt.title || opt.name || `Service ${i + 1}`;
-              const id = `ms-${i}-${title.replace(/\s+/g, '-').toLowerCase()}`;
+              const id = `ms-${i}-${title.replace(/\s+/g, "-").toLowerCase()}`;
               const checked = (value || []).includes(title);
               return (
                 <li key={id} className="ms-item">
@@ -83,21 +81,21 @@ function ServicesMultiSelect({ options = [], value = [], onChange, label = 'Serv
 // Reads from a single `contact` prop; also accepts `services` list
 const ContactForm = ({ contact = {}, templateId, services = [] }) => {
   const {
-    title = 'Get Your Free Estimate',
-    subtitle = 'Ready to get started? Contact us today for a free, no-obligation estimate. We respond to all inquiries within 24 hours.',
-    formTitle = 'Ready to get started? Send us a message!',
-    phone = '(112) 233-4455',
-    email = 'contact@prohandy.com',
-    hours = 'Mon–Fri: 7AM–7PM',
-    note = 'Weekend & emergency calls available'
+    title = "Get Your Free Estimate",
+    subtitle = "Ready to get started? Contact us today for a free, no-obligation estimate. We respond to all inquiries within 24 hours.",
+    formTitle = "Ready to get started? Send us a message!",
+    phone = "(112) 233-4455",
+    email = "contact@prohandy.com",
+    hours = "Mon–Fri: 7AM–7PM",
+    note = "Weekend & emergency calls available",
   } = contact;
 
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    message: '',
-    selectedServiceTitles: []
+    name: "",
+    phone: "",
+    email: "",
+    message: "",
+    selectedServiceTitles: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -119,20 +117,20 @@ const ContactForm = ({ contact = {}, templateId, services = [] }) => {
     setIsSubmitting(true);
 
     try {
-      await handymanAPI.post('/api/handyman/inquiries', {
+      await handymanAPI.post("/api/handyman/inquiries", {
         ...formData, // includes selectedServiceTitles: [...]
-        templateId
+        templateId,
       });
-      toast.success('Message sent successfully! We will get back to you soon.');
+      toast.success("Message sent successfully! We will get back to you soon.");
       setFormData({
-        name: '',
-        phone: '',
-        email: '',
-        message: '',
-        selectedServiceTitles: []
+        name: "",
+        phone: "",
+        email: "",
+        message: "",
+        selectedServiceTitles: [],
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send message. Please try again.');
+      toast.error(error.response?.data?.message || "Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -140,7 +138,7 @@ const ContactForm = ({ contact = {}, templateId, services = [] }) => {
 
   return (
     <>
-      <ToastContainer position="bottom-center" />
+      {/* <ToastContainer position="bottom-center" /> */}
       <section id="contact" className="contact-section">
         <h2>{title}</h2>
         <p className="contact-subtitle">{subtitle}</p>
@@ -226,9 +224,9 @@ const ContactForm = ({ contact = {}, templateId, services = [] }) => {
                   type="submit"
                   disabled={isSubmitting || isDemo}
                   className="contact-submit"
-                  title={isDemo ? 'Demo preview only on Showcase page' : undefined}
+                  title={isDemo ? "Demo preview only on Showcase page" : undefined}
                 >
-                  {isDemo ? 'Request Free Estimate' : isSubmitting ? 'Sending…' : 'Request Free Estimate'}
+                  {isDemo ? "Request Free Estimate" : isSubmitting ? "Sending…" : "Request Free Estimate"}
                 </button>
               </div>
             </form>
