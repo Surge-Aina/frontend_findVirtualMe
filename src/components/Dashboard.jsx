@@ -14,7 +14,7 @@ export default function Dashboard() {
   const { user, token, refreshUser } = useContext(AuthContext);
 
   const [myPortfolios, setMyPortfolios] = useState([]);
-  const [otherPortfolios, setOtherPortfolios] = useState([]);
+  const [otherPortfolios, setOtherPortfolios] = useState([]); // ✅ Initialize as empty array
   const [myProjects, setMyProjects] = useState([]);
   const [publicProjects, setPublicProjects] = useState([]);
   const [viewMode, setViewMode] = useState("other");
@@ -74,9 +74,15 @@ export default function Dashboard() {
   };
 
   const fetchPublicPotfolios = async () => {
-    const pubPortfs = await axiosAuth.get("/publicPortfolios/public");
-    setOtherPortfolios(pubPortfs.data.portfolios);
-    console.log("ohter portfolios+++++++++: ", otherPortfolios);
+    try {
+      const pubPortfs = await axiosAuth.get("/publicPortfolios/public");
+      const portfolios = pubPortfs.data?.portfolios || [];
+      setOtherPortfolios(Array.isArray(portfolios) ? portfolios : []);
+      console.log("other portfolios: ", portfolios);
+    } catch (error) {
+      console.error("Error fetching public portfolios:", error);
+      setOtherPortfolios([]); // ✅ Keep as empty array on error
+    }
   };
 
   const fetchMyPortfolios = async () => {
@@ -87,7 +93,7 @@ export default function Dashboard() {
       );
 
       const fullPortfolios = await Promise.all(promises);
-      console.log("full portfolios 21412412412412412: ", fullPortfolios);
+      console.log("full portfolios: ", fullPortfolios);
       setMyPortfolios(fullPortfolios);
     } catch (err) {
       console.error("Error fetching full portfolios:", err);
@@ -260,6 +266,11 @@ export default function Dashboard() {
                       {user.portfolios.find((portfolio) => p._id === portfolio.portfolioId)?.portfolioType || "Unknown"}
                     </div>
 
+                    {/* ✅ Show Healthcare practice name or other portfolio names */}
+                    <div className="text-slate-600 mb-2">
+                      {p.practice?.name || p.businessName || p.title || p.portfolioTitle || 'Untitled Portfolio'}
+                    </div>
+
                     <div className="text-slate-600">{p._id}</div>
 
                     <button
@@ -346,22 +357,32 @@ export default function Dashboard() {
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Portfolios</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
-                {otherPortfolios.map((p) => (
-                  <div
-                    key={p._id}
-                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
-                    onClick={() => handleCardClick(p)}
-                  >
-                    {/* portfolioType for future use */}
-                    <div className="font-semibold text-slate-800 mb-2">{p.portfolioType}</div>
-                    <div className="font-semibold text-slate-800 mb-2">{p.title}</div>
-                    <div className="font-semibold text-slate-800 mb-2">{p.portfolioTitle}</div>
-                    <div className="font-semibold text-slate-800 mb-2">{p.businessName}</div>
-                    <div className="text-slate-600">{p.name}</div>
-                    <div className="text-slate-600">{p.email}</div>
-                    <div className="text-slate-600">{p._id}</div>
+                {/* ✅ Safe check before mapping */}
+                {otherPortfolios && otherPortfolios.length > 0 ? (
+                  otherPortfolios.map((p) => (
+                    <div
+                      key={p._id}
+                      className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
+                      onClick={() => handleCardClick(p)}
+                    >
+                      {/* portfolioType for future use */}
+                      <div className="font-semibold text-slate-800 mb-2">{p.portfolioType}</div>
+                      
+                      {/* ✅ Show Healthcare practice name or other portfolio names */}
+                      <div className="font-semibold text-slate-800 mb-2">
+                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || 'Untitled'}
+                      </div>
+                      
+                      <div className="text-slate-600">{p.name}</div>
+                      <div className="text-slate-600">{p.email}</div>
+                      <div className="text-slate-600">{p._id}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12 text-slate-500">
+                    No public portfolios available yet
                   </div>
-                ))}
+                )}
               </div>
             </section>
           ) : (

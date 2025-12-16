@@ -227,6 +227,77 @@ export default function PortfolioTemplateOptions() {
           toast.error(error.response?.data?.message || "Could not create portfolio");
         }
         break;
+      case 7: // Healthcare Professional
+  try {
+    const token = localStorage.getItem("token");
+    
+    // Create healthcare practice via backend
+    const createResponse = await axios.post(
+      `${backendUrl}/healthcare/auth/register`,
+      {
+        firstName: user.firstName || 'Doctor',
+        lastName: user.lastName || 'Name',
+        practiceName: `${user.firstName || 'Your'} Medical Practice`,
+        email: user.email || 'doctor@example.com',
+        password: 'temporaryPassword123', // Will be changed by user
+        confirmPassword: 'temporaryPassword123'
+      },
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+
+    const { practiceId, token: adminToken } = createResponse.data;
+    
+    // Store tokens
+    if (adminToken) {
+      localStorage.setItem('adminToken', adminToken);
+    }
+    if (practiceId) {
+      localStorage.setItem('practiceId', practiceId);
+    }
+
+    // Add portfolio to user
+    const response = await axiosAuth.patch("/user/addPortfolioId", {
+      portfolioId: practiceId,
+      portfolioType: "Healthcare",
+      isPublic: false,
+    });
+
+    if (response.status === 200) {
+      toast.success("Healthcare portfolio successfully created!");
+    } else {
+      toast.error("Portfolio created but couldn't link to user");
+      console.log(response.message);
+    }
+
+    // Log portfolio creation
+    try {
+      const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
+      await logPortfolioAction("created", {
+        sessionId: sessionId,
+        userId: user?.id || user?._id || "anonymous",
+        portfolioID: practiceId,
+        portfolioType: "healthcare",
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+      });
+    } catch (logError) {
+      console.log("Could not log action:", logError);
+    }
+    // Navigate to healthcare portfolio
+    navigate(`/portfolios/healthcare/${practiceId}`);
+    toast.success("Your healthcare practice website has been created!");
+    
+  } catch (error) {
+    console.error("Error creating healthcare portfolio:", error);
+    toast.error(error.response?.data?.error || "Could not create healthcare portfolio");
+  }
+  break;
+
 
       default:
         toast.info("Template comming soon!");
@@ -264,6 +335,10 @@ export default function PortfolioTemplateOptions() {
       name: "Cleaning Lady Portfolio",
       description: "Demonstrate your services, skils and expand .",
     },
+    {
+      name: "Healthcare Professional",
+      description: "Showcase your qualifications, specialties, and patient testimonials.",
+    }
   ];
 
   // const borderColors = ["border-blue-400 bg-blue-100", "border-green-400 bg-green-100", "border-purple-400 bg-purple-100", "border-orange-400 bg-orange-100"];
