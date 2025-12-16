@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard";
 import Tip from "./components/Tip";
 import Footer from "./components/Footer";
 import "./App.css";
+import EmailMvpApp from './emailmvp/App';
 import ResumeUpload from "./components/ResumeUpload";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
@@ -13,7 +14,7 @@ import VisitorLogin from "./components/GuestAuth/VisitorLogin.jsx";
 import VisitorSignup from "./components/GuestAuth/VisitorSignup.jsx";
 import VisitorProfile from "./components/GuestAuth/VisitorProfile.jsx";
 import VisitorData from "./pages/portfolios/cleaningService/components/VisitorData";
-
+// import EmailLogin from './components/email/EmailLogin.jsx';
 import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
 import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx";
 import ExamplePortfolios from "./components/examplePortfolios";
@@ -102,6 +103,9 @@ export default function App() {
             </VendorProvider>
           }
         />
+        //email mvp 
+         {/* <Route path="/email/login" element={<EmailLogin />} /> */}
+         <Route path="/mvp/*" element={<EmailMvpApp />} />
         <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
         <Route path="/portfolios/cleaningService/*" element={<CleaningPage />} />
         <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
