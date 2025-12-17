@@ -32,9 +32,15 @@ export function VendorProvider({ children, forceDefault = false }) {
   }, [vendorId]);
 
   // Default to demo vendor if not logged in
+  // useEffect(() => {
+  //   const safeCanEditPortfolio = (vendorId) => canEditPortfolio(user, vendorId);
+  //   if (!vendorId && !safeCanEditPortfolio(vendorId)) {
+  //     setVendorId("68af9176f5115d59643841d9");
+  //   }
+  // }, [vendorId]);
+
   useEffect(() => {
-    const safeCanEditPortfolio = (vendorId) => canEditPortfolio(user, vendorId);
-    if (!vendorId && !safeCanEditPortfolio(vendorId)) {
+    if (!vendorId) {
       setVendorId("68af9176f5115d59643841d9");
     }
   }, [vendorId]);
