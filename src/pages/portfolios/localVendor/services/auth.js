@@ -7,18 +7,32 @@ import { AuthContext } from "../../../../context/AuthContext";
  *  - an admin (user.role === "admin"), OR
  *  - the portfolio ID exists in user.portfolios.
  */
-export const canEditPortfolio = (user, vendorId) => {
-  //const { user } = useContext(AuthContext);
+export const canEditPortfolio = (vendorId) => {
+  const { user } = useContext(AuthContext);
+  // console.trace("canEditPortfolio called from");
 
-  if (!user) return false;
+  if (!user) {
+    console.warn(" No user provided");
+    return false;
+  }
+
+  // console.log("user.role:", user.role);
+  // console.log("user.portfolios:", user.portfolios);
 
   // Normalize values
   const loggedInRole = user.role?.toLowerCase() || "customer";
   const ownedPortfolios = user.portfolios || [];
 
+  // console.log("normalized role:", loggedInRole);
+  // console.log("ownedPortfolios (normalized):", ownedPortfolios);
+
   // Check permissions
   const isAdmin = loggedInRole === "admin";
-  const isOwner = vendorId && ownedPortfolios.includes(vendorId);
+  const isOwner = !!vendorId && ownedPortfolios.some((p) => p.portfolioId === vendorId);
+
+  // console.log("isAdmin:", isAdmin);
+  // console.log("isOwner:", isOwner);
+  console.log("FINAL canEdit:", isAdmin || isOwner);
 
   return isAdmin || isOwner;
 };
