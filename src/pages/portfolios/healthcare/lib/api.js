@@ -10,7 +10,10 @@ function safeImportMetaEnv() {
 
 const env = safeImportMetaEnv();
 
-export const API_BASE_URL = env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+export const API_BASE_URL =
+
+  import.meta.env.VITE_API_BASE_URL || 
+  "http://localhost:5000";
 
 export const api = {
   async getPracticeData(practiceId) {
