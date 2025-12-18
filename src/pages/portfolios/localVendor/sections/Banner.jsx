@@ -56,9 +56,7 @@ const Banner = () => {
     if (img instanceof File) payload.append("image", img);
 
     // 🔹 vendor-aware save: create or update
-    const req = banner?._id
-      ? api.updateBanner(banner._id, payload)
-      : api.createBanner(payload);
+    const req = banner?._id ? api.updateBanner(banner._id, payload) : api.createBanner(payload);
 
     req
       .then((res) => {
@@ -80,22 +78,12 @@ const Banner = () => {
 
   return (
     <section id="home" className="relative">
-      <div
-        className={`relative w-full ${
-          banner.shape === "fullscreen" ? "h-screen" : "h-[70vh]"
-        } overflow-hidden`}
-      >
+      <div className={`relative w-full ${banner.shape === "fullscreen" ? "h-screen" : "h-[70vh]"} overflow-hidden`}>
         {banner?.image && (
           <img
-            src={
-              banner.image.startsWith("http")
-                ? banner.image
-                : `${import.meta.env.VITE_BACKEND_API}${banner.image}`
-            }
+            src={banner.image.startsWith("http") ? banner.image : `${import.meta.env.VITE_BACKEND_API}${banner.image}`}
             alt={banner.title || "Hero image"}
-            className={`absolute inset-0 h-full w-full object-cover ${
-              SHAPE_CLASS[banner.shape] || ""
-            }`}
+            className={`absolute inset-0 h-full w-full object-cover ${SHAPE_CLASS[banner.shape] || ""}`}
           />
         )}
 
@@ -107,8 +95,9 @@ const Banner = () => {
               setEditing(true);
               setEditData({ ...banner, image: null });
             }}
-            className="absolute right-4 top-4 z-20 rounded-full bg-white/90 p-2 text-black shadow hover:bg-white"
+            className="absolute right-4 top-4 z-[100] pointer-events-auto rounded-full bg-white/90 p-2 text-black shadow hover:bg-white"
             title="Edit Banner"
+            data-cy="banner-edit-btn"
           >
             <FiEdit className="text-xl" />
           </button>
@@ -120,25 +109,22 @@ const Banner = () => {
               <input
                 className="mb-2 w-full max-w-3xl rounded-lg bg-white/90 px-3 py-2 text-3xl font-bold md:text-5xl"
                 value={editData?.title || ""}
-                onChange={(e) =>
-                  setEditData({ ...editData, title: e.target.value })
-                }
+                onChange={(e) => setEditData({ ...editData, title: e.target.value })}
                 placeholder="Brand Name"
+                data-cy="banner-title-input"
               />
               <input
                 className="mb-3 w-full max-w-3xl rounded-lg bg-white/90 px-3 py-2"
                 value={editData?.description || ""}
-                onChange={(e) =>
-                  setEditData({ ...editData, description: e.target.value })
-                }
+                onChange={(e) => setEditData({ ...editData, description: e.target.value })}
                 placeholder="Short tagline/description"
+                data-cy="banner-description-input"
               />
               <select
                 className="mb-3 rounded-lg bg-white/90 px-3 py-2"
                 value={editData?.shape || "fullscreen"}
-                onChange={(e) =>
-                  setEditData({ ...editData, shape: e.target.value })
-                }
+                data-cy="banner-shape-select"
+                onChange={(e) => setEditData({ ...editData, shape: e.target.value })}
               >
                 <option value="fullscreen">Fullscreen</option>
                 <option value="blob">Blob</option>
@@ -147,9 +133,7 @@ const Banner = () => {
               </select>
 
               <FileUploader
-                onFileAccepted={(file) =>
-                  setEditData({ ...editData, image: file })
-                }
+                onFileAccepted={(file) => setEditData({ ...editData, image: file })}
                 className="mb-2 text-white"
               />
 
@@ -157,11 +141,13 @@ const Banner = () => {
                 <button
                   className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                   onClick={handleSave}
+                  data-cy="banner-save-btn"
                 >
                   Save
                 </button>
                 <button
                   className="rounded px-4 py-2 text-white underline"
+                  data-cy="banner-cancel-btn"
                   onClick={() => {
                     setEditing(false);
                     setEditData(null);
