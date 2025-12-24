@@ -10,9 +10,7 @@ const MAX_IMAGES = 4;
 
 // stable id for React keys when Mongo _id is absent
 const genId = () =>
-  typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random()}`;
+  typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
 
 const AboutSection = () => {
   const [leftBlocks, setLeftBlocks] = useState([]);
@@ -46,9 +44,7 @@ const AboutSection = () => {
         setRightBlocks(withIds(blocks.slice(midpoint)));
         setBottomImages((data.gridImages || []).slice(0, MAX_IMAGES));
       })
-      .catch((err) =>
-        console.error("Failed to fetch or create about data", err)
-      );
+      .catch((err) => console.error("Failed to fetch or create about data", err));
   }, [vendorId]);
 
   // ----- text blocks -----
@@ -59,8 +55,7 @@ const AboutSection = () => {
       isEditing: true,
       clientId: genId(),
     };
-    const updated =
-      side === "left" ? [...leftBlocks, newBlock] : [...rightBlocks, newBlock];
+    const updated = side === "left" ? [...leftBlocks, newBlock] : [...rightBlocks, newBlock];
     saveBlocks(side, updated);
   };
 
@@ -83,10 +78,7 @@ const AboutSection = () => {
   };
 
   const saveBlocks = (side, updatedBlocks) => {
-    const mergedBlocks =
-      side === "left"
-        ? [...updatedBlocks, ...rightBlocks]
-        : [...leftBlocks, ...updatedBlocks];
+    const mergedBlocks = side === "left" ? [...updatedBlocks, ...rightBlocks] : [...leftBlocks, ...updatedBlocks];
 
     // vendor-aware updateAbout
     api
@@ -95,9 +87,7 @@ const AboutSection = () => {
         gridImages: bottomImages,
       })
       .then(() => {
-        side === "left"
-          ? setLeftBlocks(updatedBlocks)
-          : setRightBlocks(updatedBlocks);
+        side === "left" ? setLeftBlocks(updatedBlocks) : setRightBlocks(updatedBlocks);
       })
       .catch((err) => console.error("Failed to save content blocks", err));
   };
@@ -157,10 +147,7 @@ const AboutSection = () => {
   };
 
   return (
-    <section
-      id="about"
-      className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
-    >
+    <section id="about" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10" data-cy="about-section">
       {/* Two-column content */}
       <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-10">
         {/* Column A */}
@@ -174,6 +161,7 @@ const AboutSection = () => {
             <div
               key={block._id || block.clientId}
               className="group relative p-4 mb-4 rounded-xl bg-slate-50/60"
+              data-cy={`about-block-left-${idx}`}
               draggable={canEdit}
               onDragStart={() => onDragStart("left", idx)}
               onDragOver={onDragOver}
@@ -183,12 +171,14 @@ const AboutSection = () => {
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex gap-3 text-sm">
                   <button
                     onClick={() => handleEditToggle("left", idx)}
+                    data-cy={`about-edit-left-${idx}`}
                     className="text-blue-700 hover:underline"
                   >
                     {block.isEditing ? "Save" : "Edit"}
                   </button>
                   <button
                     onClick={() => handleDelete("left", idx)}
+                    data-cy={`about-delete-left-${idx}`}
                     className="text-red-600 hover:underline"
                   >
                     Delete
@@ -201,31 +191,21 @@ const AboutSection = () => {
                   <input
                     type="text"
                     value={block.heading}
-                    onChange={(e) =>
-                      handleChange("left", idx, "heading", e.target.value)
-                    }
+                    onChange={(e) => handleChange("left", idx, "heading", e.target.value)}
                     placeholder="Heading"
                     className="p-2 w-full mb-2 rounded-lg bg-white shadow-inner outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   <textarea
                     value={block.subheading}
-                    onChange={(e) =>
-                      handleChange("left", idx, "subheading", e.target.value)
-                    }
+                    onChange={(e) => handleChange("left", idx, "subheading", e.target.value)}
                     placeholder="Subheading"
                     className="p-2 w-full mb-2 rounded-lg bg-white shadow-inner outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </>
               ) : (
                 <>
-                  {block.heading && (
-                    <h4 className="text-lg font-semibold text-slate-900">
-                      {block.heading}
-                    </h4>
-                  )}
-                  <p className="text-slate-700 whitespace-pre-line leading-7 max-w-prose">
-                    {block.subheading}
-                  </p>
+                  {block.heading && <h4 className="text-lg font-semibold text-slate-900">{block.heading}</h4>}
+                  <p className="text-slate-700 whitespace-pre-line leading-7 max-w-prose">{block.subheading}</p>
                 </>
               )}
             </div>
@@ -235,6 +215,7 @@ const AboutSection = () => {
             <button
               className="mt-2 bg-emerald-600 text-white px-4 py-2 rounded-lg shadow hover:brightness-105 transition"
               onClick={() => handleAddTextBlock("left")}
+              data-cy="about-add-left"
             >
               + Add Block
             </button>
@@ -252,6 +233,7 @@ const AboutSection = () => {
             <div
               key={block._id || block.clientId}
               className="group relative p-4 mb-4 rounded-xl bg-slate-50/60"
+              data-cy={`about-block-right-${idx}`}
               draggable={canEdit}
               onDragStart={() => onDragStart("right", idx)}
               onDragOver={onDragOver}
@@ -261,12 +243,14 @@ const AboutSection = () => {
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex gap-3 text-sm">
                   <button
                     onClick={() => handleEditToggle("right", idx)}
+                    data-cy={`about-edit-right-${idx}`}
                     className="text-blue-700 hover:underline"
                   >
                     {block.isEditing ? "Save" : "Edit"}
                   </button>
                   <button
                     onClick={() => handleDelete("right", idx)}
+                    data-cy={`about-delete-right-${idx}`}
                     className="text-red-600 hover:underline"
                   >
                     Delete
@@ -279,31 +263,23 @@ const AboutSection = () => {
                   <input
                     type="text"
                     value={block.heading}
-                    onChange={(e) =>
-                      handleChange("right", idx, "heading", e.target.value)
-                    }
+                    data-cy="about-heading-input"
+                    onChange={(e) => handleChange("right", idx, "heading", e.target.value)}
                     placeholder="Heading"
                     className="p-2 w-full mb-2 rounded-lg bg-white shadow-inner outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   <textarea
                     value={block.subheading}
-                    onChange={(e) =>
-                      handleChange("right", idx, "subheading", e.target.value)
-                    }
+                    onChange={(e) => handleChange("right", idx, "subheading", e.target.value)}
                     placeholder="Subheading"
+                    data-cy="about-subheading-input"
                     className="p-2 w-full mb-2 rounded-lg bg-white shadow-inner outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </>
               ) : (
                 <>
-                  {block.heading && (
-                    <h4 className="text-lg font-semibold text-slate-900">
-                      {block.heading}
-                    </h4>
-                  )}
-                  <p className="text-slate-700 whitespace-pre-line leading-7 max-w-prose">
-                    {block.subheading}
-                  </p>
+                  {block.heading && <h4 className="text-lg font-semibold text-slate-900">{block.heading}</h4>}
+                  <p className="text-slate-700 whitespace-pre-line leading-7 max-w-prose">{block.subheading}</p>
                 </>
               )}
             </div>
@@ -313,6 +289,7 @@ const AboutSection = () => {
             <button
               className="mt-2 bg-emerald-600 text-white px-4 py-2 rounded-lg shadow hover:brightness-105 transition"
               onClick={() => handleAddTextBlock("right")}
+              data-cy="about-add-right"
             >
               + Add Block
             </button>
@@ -331,6 +308,7 @@ const AboutSection = () => {
           <div className="mb-4 flex items-center justify-between">
             <input
               type="file"
+              data-cy="about-image-upload"
               accept="image/*"
               multiple
               onChange={handleAddImage}
@@ -348,11 +326,7 @@ const AboutSection = () => {
           {bottomImages.map((src) => (
             <div key={src} className="relative mb-4 break-inside-avoid">
               <img
-                src={
-                  src.startsWith("http")
-                    ? src
-                    : `${import.meta.env.VITE_BACKEND_API}${src}`
-                }
+                src={src.startsWith("http") ? src : `${import.meta.env.VITE_BACKEND_API}${src}`}
                 alt=""
                 loading="lazy"
                 className="block w-full h-auto ..."
@@ -362,6 +336,7 @@ const AboutSection = () => {
                   onClick={() => handleDeleteImage(src)}
                   className="absolute top-2 right-2 px-2.5 py-1.5 rounded-md text-xs font-medium bg-white/80 backdrop-blur hover:bg-white shadow transition"
                   title="Remove image"
+                  data-cy="about-image-delete"
                 >
                   Delete
                 </button>
