@@ -8,10 +8,10 @@ export function useHandleCardClick() {
   const { user } = useContext(AuthContext);
 
   const handleCardClick = (p) => {
-    if (!user) {
-      toast.error("You must be logged in to manage portfolios.");
-      return;
-    }
+    // if (!user) {
+    //   toast.error("You must be logged in to manage portfolios.");
+    //   return;
+    // }
 
     const userPortfoliosArray = user.portfolios || [];
 
@@ -32,17 +32,17 @@ export function useHandleCardClick() {
       navigate(`/portfolios/vendor/${username}/${p._id}`);
     } else if (portfolio.portfolioType === "ProjectManager") {
       navigate(`/portfolios/project-manager/${p.name}/${p._id}`);
-    }else if(portfolio.portfolioType === "Healthcare"){
+    } else if (portfolio.portfolioType === "Healthcare") {
       const practiceId = p.practiceId || p._id;
       navigate(`/portfolios/healthcare/${practiceId}`);
     } else if (portfolio.portfolioType === "Healthcare") {
-  const practiceId = p.practiceId || p._id;
-  console.log("🏥 Navigating to Healthcare portfolio:");
-  console.log("- Portfolio object:", p);
-  console.log("- Practice ID:", practiceId);
-  console.log("- Navigation URL:", `/portfolios/healthcare/${practiceId}`);
-  navigate(`/portfolios/healthcare/${practiceId}`);
-}else {
+      const practiceId = p.practiceId || p._id;
+      console.log("🏥 Navigating to Healthcare portfolio:");
+      console.log("- Portfolio object:", p);
+      console.log("- Practice ID:", practiceId);
+      console.log("- Navigation URL:", `/portfolios/healthcare/${practiceId}`);
+      navigate(`/portfolios/healthcare/${practiceId}`);
+    } else {
       // const username = (p.email || "").split("@")[0];
       // navigate(`/portfolios/project-manager/${username}/${p._id}`);
       toast.error("Portfolio Type not found");
