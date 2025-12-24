@@ -14,7 +14,7 @@ export default function Dashboard() {
   const { user, token, refreshUser } = useContext(AuthContext);
 
   const [myPortfolios, setMyPortfolios] = useState([]);
-  const [otherPortfolios, setOtherPortfolios] = useState([]); // ✅ Initialize as empty array
+  const [otherPortfolios, setOtherPortfolios] = useState([]);
   const [myProjects, setMyProjects] = useState([]);
   const [publicProjects, setPublicProjects] = useState([]);
   const [viewMode, setViewMode] = useState("other");
@@ -81,7 +81,7 @@ export default function Dashboard() {
       console.log("other portfolios: ", portfolios);
     } catch (error) {
       console.error("Error fetching public portfolios:", error);
-      setOtherPortfolios([]); // ✅ Keep as empty array on error
+      setOtherPortfolios([]);
     }
   };
 
@@ -134,13 +134,21 @@ export default function Dashboard() {
 
   const togglePublic = async (portfolio) => {
     try {
-      const res = await axiosAuth.patch(`/publicPortfolios/${portfolio._id}/toggle-public`);
+      // 🏥 FIX 1: Use practiceId for Healthcare, _id for others
+      const portfolioId = portfolio.practiceId || portfolio._id;
+      
+      const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
 
       if (res.data?.success) {
         toast.success("Toggled Public Setting");
 
+        // 🏥 FIX 2: Match by practiceId OR _id
         setMyPortfolios((prev) =>
-          prev.map((p) => (p._id === portfolio._id ? { ...p, isPublic: res.data.portfolio.isPublic } : p))
+          prev.map((p) => {
+            const currentId = p.practiceId || p._id;
+            const matchId = portfolio.practiceId || portfolio._id;
+            return currentId === matchId ? { ...p, isPublic: res.data.portfolio.isPublic } : p;
+          })
         );
         fetchPublicPotfolios();
       } else {
@@ -162,9 +170,10 @@ export default function Dashboard() {
         .join("\n");
     } catch (error) {
       console.error("Error in linesToText:", error);
-      return "<!DOCTYPE html>"; // Fallback to a default value
+      return "<!DOCTYPE html>";
     }
   };
+  
   const handlePublicProjectPreview = (projectId) => {
     const p = publicProjects.find((proj) => proj.projectId === projectId);
     if (!p) return;
@@ -173,10 +182,8 @@ export default function Dashboard() {
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
 
-    // Open in a new tab safely
     const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 
-    // Revoke the URL after the new tab has loaded
     if (newWindow) {
       newWindow.onload = () => URL.revokeObjectURL(url);
     }
@@ -240,50 +247,56 @@ export default function Dashboard() {
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Portfolios</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
-                {myPortfolios.map((p) => (
-                  <div
-                    key={p._id}
-                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
-                    onClick={() => handleCardClick(p)}
-                  >
+                {myPortfolios.map((p) => {
+                  // 🏥 FIX 3: Get the correct ID to match with user.portfolios
+                  const portfolioId = p.practiceId || p._id;
+                  
+                  return (
                     <div
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent card click
-                        togglePublic(p);
-                      }}
-                      className={`absolute top-3 right-3 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center
-      ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
+                      key={portfolioId}
+                      className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
+                      onClick={() => handleCardClick(p)}
                     >
                       <div
-                        className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600
-        ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePublic(p);
+                        }}
+                        className={`absolute top-3 right-3 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center
+      ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
                       >
-                        {Boolean(p.isPublic) ? "public" : "private"}
+                        <div
+                          className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600
+        ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
+                        >
+                          {Boolean(p.isPublic) ? "public" : "private"}
+                        </div>
                       </div>
+
+                      <div className="mt-8 font-semibold text-slate-800 mb-2">
+                        {user.portfolios.find((portfolio) => portfolio.portfolioId === portfolioId)?.portfolioType || "Unknown"}
+                      </div>
+
+                      {/* ✅ Show Healthcare practice name or other portfolio names */}
+                      <div className="text-slate-600 mb-2">
+                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || 'Untitled Portfolio'}
+                      </div>
+
+                      <div className="text-slate-600 text-xs">{portfolioId}</div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // 🏥 FIX 4: Use practiceId for Healthcare when deleting
+                          handleDeletePortfolio(portfolioId);
+                        }}
+                        className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
+                      >
+                        Delete
+                      </button>
                     </div>
-
-                    <div className="mt-8 font-semibold text-slate-800 mb-2">
-                      {user.portfolios.find((portfolio) => p._id === portfolio.portfolioId)?.portfolioType || "Unknown"}
-                    </div>
-
-                    {/* ✅ Show Healthcare practice name or other portfolio names */}
-                    <div className="text-slate-600 mb-2">
-                      {p.practice?.name || p.businessName || p.title || p.portfolioTitle || 'Untitled Portfolio'}
-                    </div>
-
-                    <div className="text-slate-600">{p._id}</div>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent card click
-                        handleDeletePortfolio(p._id);
-                      }}
-                      className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
 
                 <button
                   onClick={handleAddPortfolio}
@@ -357,11 +370,10 @@ export default function Dashboard() {
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Portfolios</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
-                {/* ✅ Safe check before mapping */}
                 {otherPortfolios && otherPortfolios.length > 0 ? (
                   otherPortfolios.map((p) => (
                     <div
-                      key={p._id}
+                      key={p.practiceId || p._id}
                       className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
                       onClick={() => handleCardClick(p)}
                     >
@@ -375,7 +387,7 @@ export default function Dashboard() {
                       
                       <div className="text-slate-600">{p.name}</div>
                       <div className="text-slate-600">{p.email}</div>
-                      <div className="text-slate-600">{p._id}</div>
+                      <div className="text-slate-600 text-xs">{p.practiceId || p._id}</div>
                     </div>
                   ))
                 ) : (
