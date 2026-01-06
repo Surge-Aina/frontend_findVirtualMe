@@ -136,7 +136,7 @@ export default function Dashboard() {
     try {
       // 🏥 FIX 1: Use practiceId for Healthcare, _id for others
       const portfolioId = portfolio.practiceId || portfolio._id;
-      
+
       const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
 
       if (res.data?.success) {
@@ -173,7 +173,7 @@ export default function Dashboard() {
       return "<!DOCTYPE html>";
     }
   };
-  
+
   const handlePublicProjectPreview = (projectId) => {
     const p = publicProjects.find((proj) => proj.projectId === projectId);
     if (!p) return;
@@ -250,7 +250,7 @@ export default function Dashboard() {
                 {myPortfolios.map((p) => {
                   // 🏥 FIX 3: Get the correct ID to match with user.portfolios
                   const portfolioId = p.practiceId || p._id;
-                  
+
                   return (
                     <div
                       key={portfolioId}
@@ -274,12 +274,13 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mt-8 font-semibold text-slate-800 mb-2">
-                        {user.portfolios.find((portfolio) => portfolio.portfolioId === portfolioId)?.portfolioType || "Unknown"}
+                        {user.portfolios.find((portfolio) => portfolio.portfolioId === portfolioId)?.portfolioType ||
+                          "Unknown"}
                       </div>
 
                       {/* ✅ Show Healthcare practice name or other portfolio names */}
                       <div className="text-slate-600 mb-2">
-                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || 'Untitled Portfolio'}
+                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || "Untitled Portfolio"}
                       </div>
 
                       <div className="text-slate-600 text-xs">{portfolioId}</div>
@@ -369,7 +370,7 @@ export default function Dashboard() {
             //public portfolios
             <section>
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Portfolios</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 mb-6">
                 {otherPortfolios && otherPortfolios.length > 0 ? (
                   otherPortfolios.map((p) => (
                     <div
@@ -377,17 +378,15 @@ export default function Dashboard() {
                       className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
                       onClick={() => handleCardClick(p)}
                     >
-                      {/* portfolioType for future use */}
-                      <div className="font-semibold text-slate-800 mb-2">{p.portfolioType}</div>
-                      
+                      <div className="font-semibold mb-2 bg-slate-600 rounded-2xl text-white">{p.portfolioType}</div>
+
                       {/* ✅ Show Healthcare practice name or other portfolio names */}
-                      <div className="font-semibold text-slate-800 mb-2">
-                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || 'Untitled'}
+                      <div className="font-bold text-slate-800 mb-2 text-xl">
+                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || "Untitled"}
                       </div>
-                      
-                      <div className="text-slate-600">{p.name}</div>
-                      <div className="text-slate-600">{p.email}</div>
-                      <div className="text-slate-600 text-xs">{p.practiceId || p._id}</div>
+
+                      <div className="text-slate-600 text-sm">{p.name}</div>
+                      <div className="text-slate-600 text-sm">{p.email}</div>
                     </div>
                   ))
                 ) : (
