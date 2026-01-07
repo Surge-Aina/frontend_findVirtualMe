@@ -245,6 +245,26 @@ export default function PortfolioTemplateOptions() {
             console.log('✅ Practice ID stored:', practiceId);
           }
 
+          // ✅✅✅ THIS IS THE CRITICAL FIX - Add portfolio to user's portfolio list
+          try {
+            const portfolioResponse = await axiosAuth.patch("/user/addPortfolioId", {
+              portfolioId: practiceId,
+              portfolioType: "Healthcare",
+              isPublic: false,
+            });
+
+            if (portfolioResponse.status === 200) {
+              console.log('✅ Healthcare portfolio added to user successfully');
+              toast.success("Healthcare portfolio linked to your account");
+            } else {
+              console.warn('⚠️ Unexpected response when adding portfolio:', portfolioResponse.status);
+              toast.warning("Portfolio created but linking had issues");
+            }
+          } catch (linkError) {
+            console.error('❌ Error linking healthcare portfolio to user:', linkError);
+            toast.error("Portfolio created but could not link to your account");
+          }
+
           // ✅ Refresh user to get updated portfolios
           await refreshUser();
           
@@ -259,7 +279,7 @@ export default function PortfolioTemplateOptions() {
               sessionId: sessionId,
               userId: user?.id || user?._id || "anonymous",
               portfolioID: practiceId,
-              portfolioType: "healthcare",
+              portfolioType: "Healthcare",
               name: `${user.firstName} ${user.lastName}`,
               email: user.email,
             });

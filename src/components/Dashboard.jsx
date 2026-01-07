@@ -147,7 +147,9 @@ export default function Dashboard() {
           prev.map((p) => {
             const currentId = p.practiceId || p._id;
             const matchId = portfolio.practiceId || portfolio._id;
-            return currentId === matchId ? { ...p, isPublic: res.data.portfolio.isPublic } : p;
+            return String(currentId) === String(matchId) 
+              ? { ...p, isPublic: res.data.portfolio.isPublic } 
+              : p;
           })
         );
         fetchPublicPotfolios();
@@ -248,8 +250,14 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Portfolios</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
                 {myPortfolios.map((p) => {
-                  // 🏥 FIX 3: Get the correct ID to match with user.portfolios
+                  // 🏥 FIX 3: Get the correct ID - practiceId for Healthcare, _id for others
                   const portfolioId = p.practiceId || p._id;
+                  
+                  // 🏥 FIX 4: Find matching portfolio entry to get the type
+                  // Convert both to strings for reliable comparison
+                  const userPortfolioEntry = user.portfolios.find(
+                    (portfolio) => String(portfolio.portfolioId) === String(portfolioId)
+                  );
 
                   return (
                     <div
@@ -257,38 +265,44 @@ export default function Dashboard() {
                       className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
                       onClick={() => handleCardClick(p)}
                     >
+                      {/* Public/Private Toggle */}
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
                           togglePublic(p);
                         }}
                         className={`absolute top-3 right-3 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center
-      ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
+                          ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
                       >
                         <div
                           className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600
-        ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
+                            ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
                         >
                           {Boolean(p.isPublic) ? "public" : "private"}
                         </div>
                       </div>
 
+                      {/* 🏥 FIX 5: Portfolio Type Display */}
                       <div className="mt-8 font-semibold text-slate-800 mb-2">
-                        {user.portfolios.find((portfolio) => portfolio.portfolioId === portfolioId)?.portfolioType ||
-                          "Unknown"}
+                        {userPortfolioEntry?.portfolioType || "Unknown"}
                       </div>
 
-                      {/* ✅ Show Healthcare practice name or other portfolio names */}
+                      {/* 🏥 FIX 6: Portfolio Name - Healthcare uses practice.name */}
                       <div className="text-slate-600 mb-2">
-                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || "Untitled Portfolio"}
+                        {p.practice?.name || 
+                         p.businessName || 
+                         p.title || 
+                         p.portfolioTitle || 
+                         p.portfolioName ||
+                         "Untitled Portfolio"}
                       </div>
 
                       <div className="text-slate-600 text-xs">{portfolioId}</div>
 
+                      {/* Delete Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          // 🏥 FIX 4: Use practiceId for Healthcare when deleting
                           handleDeletePortfolio(portfolioId);
                         }}
                         className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
@@ -375,14 +389,22 @@ export default function Dashboard() {
                   otherPortfolios.map((p) => (
                     <div
                       key={p.practiceId || p._id}
-                      className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
+                      className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
                       onClick={() => handleCardClick(p)}
                     >
-                      <div className="font-semibold mb-2 bg-slate-600 rounded-2xl text-white">{p.portfolioType}</div>
+                      {/* 🏥 FIX 7: Show portfolio type from the document */}
+                      <div className="font-semibold mb-2 bg-slate-600 rounded-2xl text-white px-3 py-1 inline-block text-sm">
+                        {p.portfolioType || "Portfolio"}
+                      </div>
 
-                      {/* ✅ Show Healthcare practice name or other portfolio names */}
+                      {/* 🏥 FIX 8: Healthcare uses practice.name */}
                       <div className="font-bold text-slate-800 mb-2 text-xl">
-                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || "Untitled"}
+                        {p.practice?.name || 
+                         p.businessName || 
+                         p.title || 
+                         p.portfolioTitle || 
+                         p.portfolioName ||
+                         "Untitled"}
                       </div>
 
                       <div className="text-slate-600 text-sm">{p.name}</div>
