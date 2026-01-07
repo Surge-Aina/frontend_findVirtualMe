@@ -1,8 +1,10 @@
     {
+    "_id": "vendor-hm-1",              
     "name": "Vendor User",
     "username": "test_vendor",
     "email": "vendor@example.com",
     "password": "Password123!",
+    "role": "VENDOR",                  
     "goal": "grow-business",
     "industry": "local-business"
     }

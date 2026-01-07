@@ -1,6 +1,8 @@
-{
-  "name": "Guest User",
-  "username": "guest_user",
-  "email": "guest@example.com",
-  "password": "Password123!"
-}
+  {
+    "_id": "guest-1",            
+    "name": "Guest User",
+    "username": "guest_user",
+    "email": "guest@example.com",
+    "password": "Password123!",
+    "role": "GUEST"
+  }

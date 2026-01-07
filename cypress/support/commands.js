@@ -1,95 +1,94 @@
     // cypress/support/commands.js
 
-    // 🔁 Clear app-specific auth state
-    Cypress.Commands.add("resetAppState", () => {
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("email");
-    window.localStorage.removeItem("userId");
-    window.localStorage.removeItem("portfolioId");
-    });
-
-    // get backend URL from Cypress env (configured in cypress.config.js)
     const getBackendUrl = () => Cypress.env("backendUrl");
 
-    // ✅ Stubbed login helper (no backend) for FE E2E tests
-    Cypress.Commands.add("fakeLogin", () => {
-    // Set the minimal auth state your app expects
-    cy.window().then((win) => {
-        win.localStorage.setItem("token", "dummy-token");
-        win.localStorage.setItem("email", "vendor@example.com");
-        win.localStorage.setItem("userId", "test-user-id");
+    /**
+     * Clears app auth/session state in a safe way
+     */
+    Cypress.Commands.add("resetAppState", () => {
+    cy.window({ log: false }).then((win) => {
+        win.localStorage.removeItem("token");
+        win.localStorage.removeItem("email");
+        win.localStorage.removeItem("userId");
+        win.localStorage.removeItem("portfolioId");
+        win.localStorage.removeItem("onboardingSessionId");
+    });
     });
 
-    // Go straight to dashboard as a "logged-in" user
-    cy.visit("/dashboard");
-    });
-
-    // 🔐 API-based signup helper (keep for future real E2E / smoke tests)
-    Cypress.Commands.add("signup", (overrides = {}) => {
+    /**
+     * API login helper (real backend).
+     * - Does NOT auto-visit /dashboard (dashboard currently causes 404 Axios errors in your env).
+     * - Stores token/email/userId in localStorage in the same browser context as the test.
+     */
+    Cypress.Commands.add("apiLogin", (email, password = "Password123!") => {
     const backendUrl = getBackendUrl();
 
+    return cy
+        .request({
+        method: "POST",
+        url: `${backendUrl}/user/login`,
+        body: { email, password },
+        failOnStatusCode: false,
+        })
+        .then((res) => {
+        // Make failures obvious + readable
+        expect(
+            [200, 201],
+            `Login should succeed (POST ${backendUrl}/user/login). Got status=${res.status} body=${JSON.stringify(res.body)}`
+        ).to.include(res.status);
+
+        const token = res.body?.token;
+        const user = res.body?.user;
+
+        expect(token, "token from login").to.be.a("string").and.not.be.empty;
+
+        return cy.window().then((win) => {
+            win.localStorage.setItem("token", token);
+            win.localStorage.setItem("email", user?.email || email);
+            if (user?._id || user?.id) {
+            win.localStorage.setItem("userId", user._id || user.id);
+            }
+            return res.body;
+        });
+        });
+    });
+
+    /**
+     * API signup helper (optional; not used by this sprint test because UI signup happens inside onboarding flow)
+     */
+    Cypress.Commands.add("apiSignup", (overrides = {}) => {
+    const backendUrl = getBackendUrl();
     const unique = Date.now();
-    const user = {
-        name: overrides.name || "Test User",
-        username: overrides.username || `testuser_${unique}`,
-        email: overrides.email || `test_${unique}@example.com`,
+
+    const payload = {
+        name: overrides.name || `E2E User ${unique}`,
+        username: overrides.username || `e2e_${unique}`,
+        email: overrides.email || `e2e_${unique}@example.com`,
         password: overrides.password || "Password123!",
     };
 
     return cy
-        .request("POST", `${backendUrl}/user/signup`, user)
-        .then((res) => {
-        // backend returns { token, email } in SignUp.jsx usage
-        const { token, email } = res.body;
-
-        window.localStorage.setItem("token", token);
-        window.localStorage.setItem("email", email);
-
-        // optional: fetch /user/me or read user id if backend returns it
-        if (res.body.user && (res.body.user._id || res.body.user.id)) {
-            window.localStorage.setItem(
-            "userId",
-            res.body.user._id || res.body.user.id
-            );
-        }
-
-        return { user, token };
-        });
-    });
-
-    // 🔐 API-based login helper (keep for future real E2E / smoke tests)
-    Cypress.Commands.add("login", (email, password = "Password123!") => {
-    const backendUrl = getBackendUrl();
-
-    return cy
-        .request("POST", `${backendUrl}/user/login`, {
-        email,
-        password,
+        .request({
+        method: "POST",
+        url: `${backendUrl}/user/signup`,
+        body: payload,
+        failOnStatusCode: false,
         })
         .then((res) => {
-        const { token, user } = res.body;
+        expect(
+            [200, 201],
+            `Signup should succeed (POST ${backendUrl}/user/signup). Got status=${res.status} body=${JSON.stringify(res.body)}`
+        ).to.include(res.status);
 
-        window.localStorage.setItem("token", token);
-        window.localStorage.setItem("email", user.email);
-        if (user._id || user.id) {
-            window.localStorage.setItem("userId", user._id || user.id);
-        }
+        const token = res.body?.token;
+        const email = res.body?.email || payload.email;
 
-        // After setting tokens, visit the app (you can override in tests if needed)
-        cy.visit("/dashboard");
+        expect(token, "token from signup").to.be.a("string").and.not.be.empty;
 
-        return res.body;
+        return cy.window().then((win) => {
+            win.localStorage.setItem("token", token);
+            win.localStorage.setItem("email", email);
+            return { payload, token };
         });
-    });
-
-    // 🔓 logout helper
-    Cypress.Commands.add("logout", () => {
-    // mirror AuthContext.logout side-effects: clear token/email/userId
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("email");
-    window.localStorage.removeItem("userId");
-    window.localStorage.removeItem("portfolioId");
-
-    // ensure we're on a public page
-    cy.visit("/");
+        });
     });
