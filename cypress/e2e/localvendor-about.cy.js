@@ -26,7 +26,7 @@ const startVendorAsOwner = () => {
     statusCode: 200,
     body: [
       {
-        _id: "banner123",
+        _id: vendorId,
         title: "Fusion Flavors",
         description: "Fresh & Local Street Food",
         shape: "fullscreen",
