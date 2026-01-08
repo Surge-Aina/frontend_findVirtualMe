@@ -274,9 +274,8 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mt-8 font-semibold text-slate-800 mb-2">
-                        {user.portfolios.find((portfolio) => portfolio.portfolioId === portfolioId)?.portfolioType ||
-                          "Unknown"}
-                      </div>
+                      {user.portfolios.find((portfolio) => String(portfolio.portfolioId) === String(portfolioId))?.portfolioType ||
+  "Unknown"}                      </div>
 
                       {/* ✅ Show Healthcare practice name or other portfolio names */}
                       <div className="text-slate-600 mb-2">
