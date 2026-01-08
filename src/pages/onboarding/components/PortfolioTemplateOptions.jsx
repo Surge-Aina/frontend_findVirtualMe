@@ -205,100 +205,140 @@ export default function PortfolioTemplateOptions() {
         break;
 
       case 7: // Healthcare Professional - ALLOWS MULTIPLE
-        try {
-          setCreatingHealthcare(true);
-          const token = localStorage.getItem("token");
+  try {
+    setCreatingHealthcare(true);
 
-          const currentCount = getHealthcarePortfolioCount();
-          console.log("🏥 Creating healthcare portfolio for user:", user.email);
-          console.log("📊 User currently has", currentCount, "healthcare portfolio(s)");
+    // ✅ FIX 1: Check if user is logged in
+    if (!user) {
+      toast.error("Please login first to create a healthcare portfolio");
+      navigate("/login");
+      return;
+    }
 
-          // ✅ Always create a new portfolio (no duplicate check)
-          const createResponse = await axiosAuth.post(`/healthcare/auth/register`, {
-            firstName: user.firstName || "Doctor",
-            lastName: user.lastName || "Name",
-            practiceName: `${user.firstName || "Your"} Medical Practice ${
-              currentCount > 0 ? `#${currentCount + 1}` : ""
-            }`,
-            email: user.email || "doctor@example.com",
-            password: "temporaryPassword123",
-            confirmPassword: "temporaryPassword123",
-          });
+    // ✅ FIX 2: Get authentication token
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Authentication required. Please login.");
+      navigate("/login");
+      return;
+    }
 
-          console.log("✅ Healthcare registration response:", createResponse.data);
+    const currentCount = getHealthcarePortfolioCount();
+    console.log("🏥 Creating healthcare portfolio for user:", user.email);
+    console.log("📊 User currently has", currentCount, "healthcare portfolio(s)");
 
-          const { practiceId, token: adminToken, portfolio } = createResponse.data;
+    // ✅ FIX 3: Prepare data and send with auth token
+    const healthcareData = {
+      email: user.email,
+      password: "temporary-not-used-by-backend",
+      firstName: user.firstName || "Healthcare",
+      lastName: user.lastName || "Professional",
+      practiceName: `${user.firstName || "Your"} Medical Practice${
+        currentCount > 0 ? ` #${currentCount + 1}` : ""
+      }`,
+    };
 
-          if (adminToken) {
-            localStorage.setItem("adminToken", adminToken);
-            console.log("✅ Admin token stored");
-          }
-          if (practiceId) {
-            localStorage.setItem("practiceId", practiceId);
-            console.log("✅ Practice ID stored:", practiceId);
-          }
-          //----------------------------------------------------
-          try {
-            const portfolioResponse = await axiosAuth.patch("/user/addPortfolioId", {
-              portfolioId: portfolio._id,
-              portfolioType: "Healthcare",
-              isPublic: false,
-            });
+    console.log("Sending healthcare registration with auth token");
 
-            if (portfolioResponse.status === 200) {
-              console.log("✅ Healthcare portfolio added to user successfully");
-              toast.success("Healthcare portfolio linked to your account");
-            } else {
-              console.warn("⚠️ Unexpected response when adding portfolio:", portfolioResponse.status);
-              toast.warning("Portfolio created but linking had issues");
-            }
-          } catch (linkError) {
-            console.error("❌ Error linking healthcare portfolio to user:", linkError);
-            toast.error("Portfolio created but could not link to your account");
-          }
-          //-----------------------------------------------------
-          // ✅ Refresh user to get updated portfolios
-          await refreshUser();
+    // ✅ FIX 4: Send authenticated request
+    const createResponse = await axiosAuth.post(
+      `/api/healthcare/auth/register`,
+      healthcareData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-          const newCount = getHealthcarePortfolioCount();
-          console.log("📊 User now has", newCount, "healthcare portfolio(s)");
+    console.log("✅ Healthcare registration response:", createResponse.data);
 
-          toast.success(`Healthcare portfolio #${newCount} created successfully!`);
+    const { practiceId, portfolio } = createResponse.data;
 
-          try {
-            const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
-            await logPortfolioAction("created", {
-              sessionId: sessionId,
-              userId: user?.id || user?._id || "anonymous",
-              portfolioID: practiceId,
-              portfolioType: "Healthcare",
-              name: `${user.firstName} ${user.lastName}`,
-              email: user.email,
-            });
-            console.log("✅ Portfolio action logged");
-          } catch (logError) {
-            console.log("⚠️ Could not log action:", logError);
-          }
+    if (!practiceId) {
+      throw new Error("No practiceId returned from backend");
+    }
 
-          navigate(`/portfolios/healthcare/${practiceId}`);
-          toast.success("Your healthcare practice website has been created!");
-        } catch (error) {
-          console.error("❌ Error creating healthcare portfolio:", error);
-          console.error("Error details:", error.response?.data);
+    // ✅ FIX 5: Use portfolio._id (MongoDB ObjectId) for linking
+    const portfolioId = portfolio?._id || practiceId;
 
-          const errorMessage =
-            error.response?.data?.error || error.response?.data?.message || "Could not create healthcare portfolio";
+    console.log("Linking portfolio to user:", {
+      portfolioId,
+      portfolioType: "Healthcare",
+    });
 
-          toast.error(errorMessage);
+    // Link portfolio to user account
+    try {
+      const portfolioResponse = await axiosAuth.patch("/user/addPortfolioId", {
+        portfolioId: portfolioId, // Use MongoDB ObjectId from portfolio document
+        portfolioType: "Healthcare",
+        isPublic: false,
+      });
 
-          if (errorMessage.includes("already registered")) {
-            toast.info("Please login to create additional healthcare portfolios");
-          }
-        } finally {
-          setCreatingHealthcare(false);
-        }
-        break;
+      if (portfolioResponse.status === 200) {
+        console.log("✅ Healthcare portfolio linked successfully");
+        toast.success("Healthcare portfolio linked to your account");
+      } else {
+        console.warn("⚠️ Unexpected response:", portfolioResponse.status);
+        toast.warning("Portfolio created but linking had issues");
+      }
+    } catch (linkError) {
+      console.error("❌ Error linking portfolio:", linkError);
+      toast.error("Portfolio created but could not link to account");
+    }
 
+    // ✅ Refresh user to get updated portfolios
+    await refreshUser();
+
+    const newCount = getHealthcarePortfolioCount();
+    console.log("📊 User now has", newCount, "healthcare portfolio(s)");
+
+    toast.success(`Healthcare portfolio #${newCount} created successfully!`);
+
+    // Log action
+    try {
+      const sessionId =
+        localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
+      await logPortfolioAction("created", {
+        sessionId: sessionId,
+        userId: user?.id || user?._id || "anonymous",
+        portfolioID: practiceId,
+        portfolioType: "Healthcare",
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+      });
+      console.log("✅ Portfolio action logged");
+    } catch (logError) {
+      console.log("⚠️ Could not log action:", logError);
+    }
+
+    // Navigate to the healthcare portfolio
+    navigate(`/portfolios/healthcare/${practiceId}`);
+  } catch (error) {
+    console.error("❌ Error creating healthcare portfolio:", error);
+    console.error("Error response:", error.response?.data);
+
+    let errorMessage = "Could not create healthcare portfolio";
+
+    if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    toast.error(errorMessage);
+
+    // Handle specific error cases
+    if (errorMessage.includes("login") || errorMessage.includes("auth")) {
+      toast.info("Please login to create a healthcare portfolio");
+      navigate("/login");
+    }
+  } finally {
+    setCreatingHealthcare(false);
+  }
+  break;
       default:
         toast.info("Template coming soon!");
     }
@@ -340,8 +380,6 @@ export default function PortfolioTemplateOptions() {
       name: "Healthcare Professional",
       description:
         "Showcase your qualifications, specialties, and patient testimonials. You can create multiple practices!",
-      // ✅ Show count if user has healthcare portfolios
-      badge: getHealthcarePortfolioCount() > 0 ? `${getHealthcarePortfolioCount()} Created` : null,
     },
   ];
 
