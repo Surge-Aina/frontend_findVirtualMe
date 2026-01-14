@@ -56,6 +56,24 @@ export function AuthProvider({ children }) {
   // useEffect(() => {
   //   console.log("User++++++++++++++++++++", user);
   // }, [user]);
+
+  function setUserAfterLogin(responseData) {
+    console.log("response data: ", responseData);
+    setUser((prev) => ({ ...prev, ...responseData.user }));
+    setToken(responseData.token);
+    localStorage.setItem("email", responseData.user.email);
+    localStorage.setItem("userId", responseData.user._id || responseData.user.id);
+    localStorage.setItem("token", responseData.token);
+
+    // STORE PORTFOLIO IDs - ADD THESE LINES
+    if (responseData.portfolioIds) {
+      localStorage.setItem("userPortfolios", JSON.stringify(responseData.portfolioIds));
+      console.log("📁 Stored portfolio IDs (from login()):", responseData.portfolioIds);
+    } else {
+      console.log("⚠️ No portfolioIds received from backend");
+    }
+  }
+
   const login = async (email, password) => {
     try {
       const res = await axios.post(`${backendUrl}/user/login`, {
@@ -63,19 +81,21 @@ export function AuthProvider({ children }) {
         password,
       });
 
-      setUser((prev) => ({ ...prev, ...res.data.user }));
-      setToken(res.data.token);
-      localStorage.setItem("email", res.data.user.email);
-      localStorage.setItem("userId", res.data.user._id || res.data.user.id);
-      localStorage.setItem("token", res.data.token);
+      setUserAfterLogin(res.data);
 
-      // STORE PORTFOLIO IDs - ADD THESE LINES
-      if (res.data.portfolioIds) {
-        localStorage.setItem("userPortfolios", JSON.stringify(res.data.portfolioIds));
-        console.log("📁 Stored portfolio IDs (from login()):", res.data.portfolioIds);
-      } else {
-        console.log("⚠️ No portfolioIds received from backend");
-      }
+      // setUser((prev) => ({ ...prev, ...res.data.user }));
+      // setToken(res.data.token);
+      // localStorage.setItem("email", res.data.user.email);
+      // localStorage.setItem("userId", res.data.user._id || res.data.user.id);
+      // localStorage.setItem("token", res.data.token);
+
+      // // STORE PORTFOLIO IDs - ADD THESE LINES
+      // if (res.data.portfolioIds) {
+      //   localStorage.setItem("userPortfolios", JSON.stringify(res.data.portfolioIds));
+      //   console.log("📁 Stored portfolio IDs (from login()):", res.data.portfolioIds);
+      // } else {
+      //   console.log("⚠️ No portfolioIds received from backend");
+      // }
 
       console.log("logged In");
       toast.success("Logged In!");
@@ -117,6 +137,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         setUser,
+        setUserAfterLogin,
         token,
         login,
         logout,
