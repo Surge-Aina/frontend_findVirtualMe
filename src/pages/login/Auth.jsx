@@ -127,9 +127,12 @@ const Auth = ({ onClose }) => {
             <span className="absolute inset-0 w-1/3 h-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
           </button>
 
-          <div onClick={() => onClose()}>
-            <GoogleLoginButton />
-          </div>
+          <GoogleLoginButton
+            onClose={() => {
+              if (onClose) onClose();
+              navigate("/profile");
+            }}
+          />
 
           {user && (
             <button
