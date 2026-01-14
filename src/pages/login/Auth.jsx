@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import SignUp from "./SignUp";
+import GoogleLoginButton from "../../components/GoogleLoginButton";
 
 const Auth = ({ onClose }) => {
   const apiUrl = import.meta.env.VITE_BACKEND_API;
@@ -125,6 +126,8 @@ const Auth = ({ onClose }) => {
             <span className="relative z-10">{loading ? "Processing..." : "Sign In"}</span>
             <span className="absolute inset-0 w-1/3 h-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
           </button>
+
+          {/* <GoogleLoginButton /> */}
 
           {user && (
             <button
