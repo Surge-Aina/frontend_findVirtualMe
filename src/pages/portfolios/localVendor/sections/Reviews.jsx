@@ -9,11 +9,7 @@ const FiveStar = ({ value = 0, onChange }) => {
   const [hover, setHover] = useState(0);
   const active = hover || value;
   return (
-    <div
-      className="flex items-center gap-1"
-      role="radiogroup"
-      aria-label="Rating"
-    >
+    <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
       {[1, 2, 3, 4, 5].map((i) => (
         <button
           key={i}
@@ -76,7 +72,17 @@ const Reviews = () => {
 
   const handleAddReview = () => {
     setForm({ name: "", feedback: "", rating: 1 });
-    setEditingIndex(reviews.length); // new-card slot
+    setEditingIndex(reviews.length);
+
+    // Ensure the editor is visible
+    requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({
+          left: scrollRef.current.scrollWidth,
+          behavior: "smooth",
+        });
+      }
+    });
   };
 
   const handleSaveReview = () => {
@@ -135,17 +141,11 @@ const Reviews = () => {
   const avg = total ? (sum / total).toFixed(1) : "0.0";
 
   const applyFilter = (list) =>
-    filterRating === "All"
-      ? list
-      : list.filter((r) => Number(r.rating) === Number(filterRating));
+    filterRating === "All" ? list : list.filter((r) => Number(r.rating) === Number(filterRating));
 
   const sorters = {
-    Newest: (a, b) =>
-      new Date(b.date || b.createdAt || 0) -
-      new Date(a.date || a.createdAt || 0),
-    Oldest: (a, b) =>
-      new Date(a.date || a.createdAt || 0) -
-      new Date(b.date || b.createdAt || 0),
+    Newest: (a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0),
+    Oldest: (a, b) => new Date(a.date || a.createdAt || 0) - new Date(b.date || b.createdAt || 0),
     Highest: (a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0),
     Lowest: (a, b) => (Number(a.rating) || 0) - (Number(b.rating) || 0),
   };
@@ -153,10 +153,7 @@ const Reviews = () => {
   const displayed = applyFilter([...reviews]).sort(sorters[sortBy]);
 
   // Which card is in "edit" mode if editing existing?
-  const editingExistingId =
-    editingIndex != null && editingIndex < reviews.length
-      ? reviews[editingIndex]._id
-      : null;
+  const editingExistingId = editingIndex != null && editingIndex < reviews.length ? reviews[editingIndex]._id : null;
 
   // scroll state
   const updateScrollState = () => {
@@ -247,10 +244,7 @@ const Reviews = () => {
               <div key={r} className="flex items-center gap-3 mb-2">
                 <span className="w-8 text-sm text-gray-600">{r}★</span>
                 <div className="h-2 flex-1 rounded bg-gray-100 overflow-hidden">
-                  <div
-                    className="h-full bg-amber-400"
-                    style={{ width: `${pct}%` }}
-                  />
+                  <div className="h-full bg-amber-400" style={{ width: `${pct}%` }} />
                 </div>
                 <span className="w-10 text-xs text-gray-500">{pct}%</span>
               </div>
@@ -294,22 +288,16 @@ const Reviews = () => {
           onMouseDown={() => startGlide(-1)}
           onMouseUp={stopGlide}
           onMouseLeave={stopGlide}
-          onClick={() =>
-            scrollRef.current?.scrollBy({ left: -320, behavior: "smooth" })
-          }
+          onClick={() => scrollRef.current?.scrollBy({ left: -320, behavior: "smooth" })}
           className={`absolute -left-5 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-md bg-white flex items-center justify-center hover:bg-gray-50 transition
  ${canLeft ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         >
           ←
         </button>
 
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide"
-        >
+        <div ref={scrollRef} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
           {displayed.map((review) => {
-            const isEditingThis =
-              editingExistingId && review._id === editingExistingId;
+            const isEditingThis = editingExistingId && review._id === editingExistingId;
             return (
               <motion.div
                 key={review._id}
@@ -321,9 +309,7 @@ const Reviews = () => {
                 {isEditingThis ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
-                        Your name
-                      </label>
+                      <label className="mb-1 block text-sm font-medium">Your name</label>
                       <input
                         type="text"
                         placeholder="Jane Doe"
@@ -334,25 +320,16 @@ const Reviews = () => {
                     </div>
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
-                        Rating
-                      </label>
-                      <FiveStar
-                        value={Number(form.rating) || 0}
-                        onChange={(r) => handleChange("rating", r)}
-                      />
+                      <label className="mb-1 block text-sm font-medium">Rating</label>
+                      <FiveStar value={Number(form.rating) || 0} onChange={(r) => handleChange("rating", r)} />
                     </div>
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
-                        Review
-                      </label>
+                      <label className="mb-1 block text-sm font-medium">Review</label>
                       <textarea
                         placeholder="What did you think?"
                         value={form.feedback}
-                        onChange={(e) =>
-                          handleChange("feedback", e.target.value)
-                        }
+                        onChange={(e) => handleChange("feedback", e.target.value)}
                         rows={4}
                         className="p-2 w-full rounded-md resize-y bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
                       />
@@ -366,11 +343,7 @@ const Reviews = () => {
                       >
                         Save
                       </button>
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="text-gray-600 hover:underline px-3 py-2"
-                      >
+                      <button type="button" onClick={handleCancel} className="text-gray-600 hover:underline px-3 py-2">
                         Cancel
                       </button>
                     </div>
@@ -379,9 +352,7 @@ const Reviews = () => {
                   <>
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-semibold text-lg">
-                          {review.name}
-                        </div>
+                        <div className="font-semibold text-lg">{review.name}</div>
                         <div className="mt-1">
                           <StarsReadOnly rating={review.rating} />
                         </div>
@@ -393,9 +364,7 @@ const Reviews = () => {
                             type="button"
                             title="Edit review"
                             onClick={() => {
-                              const baseIndex = reviews.findIndex(
-                                (r) => r._id === review._id
-                              );
+                              const baseIndex = reviews.findIndex((r) => r._id === review._id);
                               setEditingIndex(baseIndex);
                               setForm({
                                 name: review.name,
@@ -411,9 +380,7 @@ const Reviews = () => {
                             type="button"
                             title="Delete review"
                             onClick={() => {
-                              const baseIndex = reviews.findIndex(
-                                (r) => r._id === review._id
-                              );
+                              const baseIndex = reviews.findIndex((r) => r._id === review._id);
                               handleDeleteReview(baseIndex);
                             }}
                             className="rounded px-2 py-1 text-sm bg-red-100 text-red-700 hover:bg-red-200"
@@ -450,9 +417,7 @@ const Reviews = () => {
             >
               <div className="space-y-3">
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
-                    Your name
-                  </label>
+                  <label className="mb-1 block text-sm font-medium">Your name</label>
                   <input
                     type="text"
                     placeholder="Jane Doe"
@@ -463,19 +428,12 @@ const Reviews = () => {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
-                    Rating
-                  </label>
-                  <FiveStar
-                    value={Number(form.rating) || 0}
-                    onChange={(r) => handleChange("rating", r)}
-                  />
+                  <label className="mb-1 block text-sm font-medium">Rating</label>
+                  <FiveStar value={Number(form.rating) || 0} onChange={(r) => handleChange("rating", r)} />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">
-                    Review
-                  </label>
+                  <label className="mb-1 block text-sm font-medium">Review</label>
                   <textarea
                     placeholder="What did you think?"
                     value={form.feedback}
@@ -493,11 +451,7 @@ const Reviews = () => {
                   >
                     Save
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="text-gray-600 hover:underline px-3 py-2"
-                  >
+                  <button type="button" onClick={handleCancel} className="text-gray-600 hover:underline px-3 py-2">
                     Cancel
                   </button>
                 </div>
@@ -514,9 +468,7 @@ const Reviews = () => {
           onMouseDown={() => startGlide(1)}
           onMouseUp={stopGlide}
           onMouseLeave={stopGlide}
-          onClick={() =>
-            scrollRef.current?.scrollBy({ left: 320, behavior: "smooth" })
-          }
+          onClick={() => scrollRef.current?.scrollBy({ left: 320, behavior: "smooth" })}
           className={`absolute -right-5 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg bg-white flex items-center justify-center hover:scale-105 hover:bg-gray-50 transition ${
             canRight ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}

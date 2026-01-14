@@ -20,7 +20,7 @@ export default function PortfolioTemplateOptions() {
   // ✅ Helper to count healthcare portfolios
   const getHealthcarePortfolioCount = () => {
     if (!user || !user.portfolios) return 0;
-    return user.portfolios.filter(p => p.portfolioType === 'Healthcare').length;
+    return user.portfolios.filter((p) => p.portfolioType === "Healthcare").length;
   };
 
   const handleCardClick = async (index) => {
@@ -158,7 +158,7 @@ export default function PortfolioTemplateOptions() {
           console.log("error creating portfolio: ", error);
         }
         break;
-        
+
       case 6: // Cleaning Lady Portfolio
         try {
           const token = localStorage.getItem("token");
@@ -203,54 +203,66 @@ export default function PortfolioTemplateOptions() {
           toast.error(error.response?.data?.message || "Could not create portfolio");
         }
         break;
-        
+
       case 7: // Healthcare Professional - ALLOWS MULTIPLE
         try {
           setCreatingHealthcare(true);
           const token = localStorage.getItem("token");
-          
+
           const currentCount = getHealthcarePortfolioCount();
-          console.log('🏥 Creating healthcare portfolio for user:', user.email);
-          console.log('📊 User currently has', currentCount, 'healthcare portfolio(s)');
-          
+          console.log("🏥 Creating healthcare portfolio for user:", user.email);
+          console.log("📊 User currently has", currentCount, "healthcare portfolio(s)");
+
           // ✅ Always create a new portfolio (no duplicate check)
-          const createResponse = await axios.post(
-            `${backendUrl}/healthcare/auth/register`,
-            {
-              firstName: user.firstName || 'Doctor',
-              lastName: user.lastName || 'Name',
-              practiceName: `${user.firstName || 'Your'} Medical Practice ${currentCount > 0 ? `#${currentCount + 1}` : ''}`,
-              email: user.email || 'doctor@example.com',
-              password: 'temporaryPassword123',
-              confirmPassword: 'temporaryPassword123'
-            },
-            { 
-              headers: { 
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              } 
-            }
-          );
+          const createResponse = await axiosAuth.post(`/healthcare/auth/register`, {
+            firstName: user.firstName || "Doctor",
+            lastName: user.lastName || "Name",
+            practiceName: `${user.firstName || "Your"} Medical Practice ${
+              currentCount > 0 ? `#${currentCount + 1}` : ""
+            }`,
+            email: user.email || "doctor@example.com",
+            password: "temporaryPassword123",
+            confirmPassword: "temporaryPassword123",
+          });
 
-          console.log('✅ Healthcare registration response:', createResponse.data);
+          console.log("✅ Healthcare registration response:", createResponse.data);
 
-          const { practiceId, token: adminToken } = createResponse.data;
-          
+          const { practiceId, token: adminToken, portfolio } = createResponse.data;
+
           if (adminToken) {
-            localStorage.setItem('adminToken', adminToken);
-            console.log('✅ Admin token stored');
+            localStorage.setItem("adminToken", adminToken);
+            console.log("✅ Admin token stored");
           }
           if (practiceId) {
-            localStorage.setItem('practiceId', practiceId);
-            console.log('✅ Practice ID stored:', practiceId);
+            localStorage.setItem("practiceId", practiceId);
+            console.log("✅ Practice ID stored:", practiceId);
           }
+          //----------------------------------------------------
+          try {
+            const portfolioResponse = await axiosAuth.patch("/user/addPortfolioId", {
+              portfolioId: portfolio._id,
+              portfolioType: "Healthcare",
+              isPublic: false,
+            });
 
+            if (portfolioResponse.status === 200) {
+              console.log("✅ Healthcare portfolio added to user successfully");
+              toast.success("Healthcare portfolio linked to your account");
+            } else {
+              console.warn("⚠️ Unexpected response when adding portfolio:", portfolioResponse.status);
+              toast.warning("Portfolio created but linking had issues");
+            }
+          } catch (linkError) {
+            console.error("❌ Error linking healthcare portfolio to user:", linkError);
+            toast.error("Portfolio created but could not link to your account");
+          }
+          //-----------------------------------------------------
           // ✅ Refresh user to get updated portfolios
           await refreshUser();
-          
+
           const newCount = getHealthcarePortfolioCount();
-          console.log('📊 User now has', newCount, 'healthcare portfolio(s)');
-          
+          console.log("📊 User now has", newCount, "healthcare portfolio(s)");
+
           toast.success(`Healthcare portfolio #${newCount} created successfully!`);
 
           try {
@@ -259,29 +271,27 @@ export default function PortfolioTemplateOptions() {
               sessionId: sessionId,
               userId: user?.id || user?._id || "anonymous",
               portfolioID: practiceId,
-              portfolioType: "healthcare",
+              portfolioType: "Healthcare",
               name: `${user.firstName} ${user.lastName}`,
               email: user.email,
             });
-            console.log('✅ Portfolio action logged');
+            console.log("✅ Portfolio action logged");
           } catch (logError) {
             console.log("⚠️ Could not log action:", logError);
           }
-          
+
           navigate(`/portfolios/healthcare/${practiceId}`);
           toast.success("Your healthcare practice website has been created!");
-          
         } catch (error) {
           console.error("❌ Error creating healthcare portfolio:", error);
           console.error("Error details:", error.response?.data);
-          
-          const errorMessage = error.response?.data?.error || 
-                              error.response?.data?.message || 
-                              "Could not create healthcare portfolio";
-          
+
+          const errorMessage =
+            error.response?.data?.error || error.response?.data?.message || "Could not create healthcare portfolio";
+
           toast.error(errorMessage);
-          
-          if (errorMessage.includes('already registered')) {
+
+          if (errorMessage.includes("already registered")) {
             toast.info("Please login to create additional healthcare portfolios");
           }
         } finally {
@@ -328,10 +338,11 @@ export default function PortfolioTemplateOptions() {
     },
     {
       name: "Healthcare Professional",
-      description: "Showcase your qualifications, specialties, and patient testimonials. You can create multiple practices!",
+      description:
+        "Showcase your qualifications, specialties, and patient testimonials. You can create multiple practices!",
       // ✅ Show count if user has healthcare portfolios
       badge: getHealthcarePortfolioCount() > 0 ? `${getHealthcarePortfolioCount()} Created` : null,
-    }
+    },
   ];
 
   const cards = [
@@ -348,12 +359,12 @@ export default function PortfolioTemplateOptions() {
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
         <h2 className="text-lg font-semibold text-slate-700 animate-pulse">
-          {creatingVendor ? 'Creating your vendor site...' : 'Creating your healthcare practice...'}
+          {creatingVendor ? "Creating your vendor site..." : "Creating your healthcare practice..."}
         </h2>
         <p className="text-slate-500 text-sm mt-2">
-          {creatingVendor 
-            ? 'This may take up to a minute as we process your file.' 
-            : 'Setting up your professional healthcare website...'}
+          {creatingVendor
+            ? "This may take up to a minute as we process your file."
+            : "Setting up your professional healthcare website..."}
         </p>
       </div>
     );
@@ -374,9 +385,7 @@ export default function PortfolioTemplateOptions() {
               {template.name}
               {/* ✅ Show badge with count if multiple portfolios exist */}
               {template.badge && (
-                <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
-                  {template.badge}
-                </span>
+                <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded-full">{template.badge}</span>
               )}
             </div>
             <div className={`${style.text} text-opacity-70`}>{template.description}</div>
