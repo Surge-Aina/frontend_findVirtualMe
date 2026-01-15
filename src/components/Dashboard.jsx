@@ -62,7 +62,7 @@ export default function Dashboard() {
   const fetchPortfolios = async () => {
     try {
       //get public portfolios
-      fetchPublicPotfolios();
+      fetchPublicPortfolios();
       //get your own portfolios if signed in
       if (user) {
         fetchMyPortfolios();
@@ -73,7 +73,7 @@ export default function Dashboard() {
     }
   };
 
-  const fetchPublicPotfolios = async () => {
+  const fetchPublicPortfolios = async () => {
     try {
       const pubPortfs = await axiosAuth.get("/publicPortfolios/public");
       const portfolios = pubPortfs.data?.portfolios || [];
@@ -133,32 +133,30 @@ export default function Dashboard() {
   };
 
   const togglePublic = async (portfolio) => {
-    try {
-      // 🏥 FIX 1: Use practiceId for Healthcare, _id for others
-      const portfolioId = portfolio.practiceId || portfolio._id;
+  try {
+    const portfolioId = portfolio._id;
+    
+    const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
 
-      const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
+    if (res.data?.success) {
+      toast.success("Toggled Public Setting");
 
-      if (res.data?.success) {
-        toast.success("Toggled Public Setting");
-
-        // 🏥 FIX 2: Match by practiceId OR _id
-        setMyPortfolios((prev) =>
-          prev.map((p) => {
-            const currentId = p.practiceId || p._id;
-            const matchId = portfolio.practiceId || portfolio._id;
-            return currentId === matchId ? { ...p, isPublic: res.data.portfolio.isPublic } : p;
-          })
-        );
-        fetchPublicPotfolios();
-      } else {
-        toast.error("Could not toggle public");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error toggling public setting");
+      // Update the local state
+      setMyPortfolios((prev) =>
+        prev.map((p) => 
+          p._id === portfolioId ? { ...p, isPublic: res.data.portfolio.isPublic } : p
+        )
+      );
+      
+      fetchPublicPortfolios();
+    } else {
+      toast.error("Could not toggle public");
     }
-  };
+  } catch (error) {
+    console.error("Toggle error:", error);
+    toast.error("Error toggling public setting");
+  }
+};
 
   // Helper functions
   const linesToText = (linesObj = {}) => {
@@ -192,23 +190,23 @@ export default function Dashboard() {
   const handleAddPortfolio = () => navigate("/resume");
 
   const handleDeletePortfolio = async (portfolioId) => {
-    try {
-      const res = await axiosAuth.delete(`/publicPortfolios/${portfolioId}`);
+  try {
+    const res = await axiosAuth.delete(`/publicPortfolios/${portfolioId}`);
 
-      const { data } = res;
+    const { data } = res;
 
-      if (data.success) {
-        toast.success(`Deleted portfolio: ${data.portfolio._id}`);
-        console.log("Successfully deleted portfolio", data);
-        refreshUser();
-      } else {
-        toast.error(data.message || "Could not delete portfolio");
-      }
-    } catch (error) {
-      toast.error("There was an error deleting portfolio");
-      console.error(error);
+    if (data.success) {
+      toast.success(`Deleted portfolio: ${portfolioId}`);
+      console.log("Successfully deleted portfolio", data);
+      refreshUser();
+    } else {
+      toast.error(data.message || "Could not delete portfolio");
     }
-  };
+  } catch (err) {
+    console.error("Delete error:", err);
+    toast.error("Failed to delete portfolio");
+  }
+};
 
   const handleProjectClick = (projectId) => {
     navigate(`/editor?project=${projectId}`);
@@ -248,8 +246,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Portfolios</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
                 {myPortfolios.map((p) => {
-                  // 🏥 FIX 3: Get the correct ID to match with user.portfolios
-                  const portfolioId = p.practiceId || p._id;
+                  const portfolioId = p._id;
 
                   return (
                     <div
@@ -274,8 +271,10 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mt-8 font-semibold text-slate-800 mb-2">
-                        {user.portfolios.find((portfolio) => portfolio.portfolioId === portfolioId)?.portfolioType ||
-                          "Unknown"}
+                        {user.portfolios.find((portfolio) => 
+  portfolio.portfolioId === portfolioId || 
+  portfolio.portfolioId === p.practiceId
+)?.portfolioType || "Unknown"}
                       </div>
 
                       {/* ✅ Show Healthcare practice name or other portfolio names */}
@@ -288,7 +287,6 @@ export default function Dashboard() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          // 🏥 FIX 4: Use practiceId for Healthcare when deleting
                           handleDeletePortfolio(portfolioId);
                         }}
                         className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
@@ -374,7 +372,7 @@ export default function Dashboard() {
                 {otherPortfolios && otherPortfolios.length > 0 ? (
                   otherPortfolios.map((p) => (
                     <div
-                      key={p.practiceId || p._id}
+                      key={p._id}
                       className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
                       onClick={() => handleCardClick(p)}
                     >
