@@ -280,7 +280,7 @@ export default function PortfolioTemplateOptions() {
             console.log("⚠️ Could not log action:", logError);
           }
 
-          navigate(`/portfolios/healthcare/${practiceId}`);
+          navigate(`/portfolios/healthcare/${portfolio._id}`);
           toast.success("Your healthcare practice website has been created!");
         } catch (error) {
           console.error("❌ Error creating healthcare portfolio:", error);

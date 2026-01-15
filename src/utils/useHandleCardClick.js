@@ -28,7 +28,7 @@ export function useHandleCardClick() {
       console.log("- Portfolio object:", p);
       console.log("- Practice ID:", practiceId);
       console.log("- Navigation URL:", `/portfolios/healthcare/${practiceId}`);
-      navigate(`/portfolios/healthcare/${practiceId}`);
+      navigate(`/portfolios/healthcare/${portfolio._id}`);
     } else {
       toast.error("Portfolio Type not found");
     }
