@@ -6,7 +6,7 @@ import Dashboard from "./components/Dashboard";
 import Tip from "./components/Tip";
 import Footer from "./components/Footer";
 import "./App.css";
-import EmailMvpApp from './emailmvp/App';
+import EmailMvpApp from "./emailmvp/App";
 import ResumeUpload from "./components/ResumeUpload";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
@@ -59,6 +59,7 @@ import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
+import TestPage from "./pages/testPage.jsx";
 
 // ✅ NEW: Protected Route Component for Healthcare
 function ProtectedHealthcareRoute({ children }) {
@@ -277,10 +278,27 @@ export default function App() {
           <Route path="/solutions/restaurant" element={<Restaurant />} />
           <Route path="/solutions/property" element={<Property />} />
           <Route path="/solutions/farmers" element={<Farmers />} />
-          
-          {/* Online Editor */}
-          <Route path="/editor/*" element={<OnlineEditor />} />
-          <Route path="/testPage" element={<FullStackEditor />} />
+          <Route path="/portfolios/healthcare/auth/register" element={<HealthcareRegister />} />
+          <Route path="/portfolios/healthcare/:practiceId" element={<HealthcareHome />} />
+          <Route path="/portfolios/healthcare" element={<Landing />} />
+          <Route path="/portfolios/healthcare/:practiceId/services" element={<HealthcareServices />} />
+          <Route path="/portfolios/healthcare/:practiceId/blog" element={<HealthcareBlog />} />
+          <Route path="/portfolios/healthcare/:practiceId/blog/:id" element={<HealthcareBlogPost />} />
+          <Route path="/portfolios/healthcare/:practiceId/gallery" element={<HealthcareGallery />} />
+          <Route path="/portfolios/healthcare/:practiceId/contact" element={<HealthcareContact />} />
+          \ <Route path="/portfolios/healthcare/search" element={<HealthcareSearch />} />
+          <Route path="/portfolios/healthcare/auth/login" element={<HealthcareLogin />} />
+          <Route path="/portfolios/healthcare/:practiceId/admin/dashboard" element={<HealthcareAdminDashboard />} />
+          <Route path="/editor/*" element={<OnlineEditor />} />{" "}
+          <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
+          <Route path="/portfolios/cleaningService/visitor-login" element={<VisitorLogin />} />
+          <Route path="/portfolios/cleaningService/:portfolioId/visitor-signup" element={<VisitorSignup />} />
+          <Route path="/portfolios/cleaningService/visitor-signup" element={<VisitorSignup />} />
+          <Route path="/portfolios/cleaningService/:portfolioId/visitor-profile" element={<VisitorProfile />} />
+          <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
+          <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
+          {/* <Route path="/testPage" element={<FullStackEditor />} /> */}
+          <Route path="/testPage" element={<TestPage />} />
         </Routes>
       </ErrorBoundary>
       

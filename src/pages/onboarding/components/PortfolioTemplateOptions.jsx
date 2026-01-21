@@ -278,9 +278,8 @@ export default function PortfolioTemplateOptions() {
             console.log("⚠️ Could not log action:", logError);
           }
 
-          // ✅ Navigate to admin dashboard
-          navigate(`/portfolios/healthcare/${practiceId}/admin/dashboard`);
-          
+          navigate(`/portfolios/healthcare/${portfolio._id}`);
+          toast.success("Your healthcare practice website has been created!");
         } catch (error) {
           console.error("❌ Error creating healthcare portfolio:", error);
           console.error("Error details:", error.response?.data || error.message);

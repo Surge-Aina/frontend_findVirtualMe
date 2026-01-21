@@ -70,85 +70,85 @@ const PortfolioPage = () => {
   const [contactLoading, setContactLoading] = useState(false);
 
   //  EMAILJS FUNCTION
-//   const sendContactEmails = async (formData) => {
-//     const { name, email: visitorEmail, message } = formData;
+  //   const sendContactEmails = async (formData) => {
+  //     const { name, email: visitorEmail, message } = formData;
 
-//     // Get owner email from portfolio data
-//     const ownerEmail = portfolio?.email || "owner@example.com";
+  //     // Get owner email from portfolio data
+  //     const ownerEmail = portfolio?.email || "owner@example.com";
 
-//     // Email configurations for all three recipients
-//     const emailConfigs = [
-//       {
-//         // Email 1: To Portfolio Owner
-//         to_email: ownerEmail,
-//         to_name: ownerEmail,
-//         email_subject: `${name} has contacted you`,
-//         email_body: `Hi ${ownerEmail},
+  //     // Email configurations for all three recipients
+  //     const emailConfigs = [
+  //       {
+  //         // Email 1: To Portfolio Owner
+  //         to_email: ownerEmail,
+  //         to_name: ownerEmail,
+  //         email_subject: `${name} has contacted you`,
+  //         email_body: `Hi ${ownerEmail},
 
-// ${name} has reached out to you through your Project Manager portfolio:
+  // ${name} has reached out to you through your Project Manager portfolio:
 
-// Name: ${name}
-// Email: ${visitorEmail}
-// Message: ${message}
+  // Name: ${name}
+  // Email: ${visitorEmail}
+  // Message: ${message}
 
-// Please respond to them directly at ${visitorEmail}.
+  // Please respond to them directly at ${visitorEmail}.
 
-// Best regards,
-// Surge Aina Team`,
-//       },
-//       {
-//         // Email 2: To Visitor
-//         to_email: visitorEmail,
-//         to_name: name,
-//         email_subject: `Thank you for contacting ${ownerEmail}`,
-//         email_body: `Hello ${name},
+  // Best regards,
+  // Surge Aina Team`,
+  //       },
+  //       {
+  //         // Email 2: To Visitor
+  //         to_email: visitorEmail,
+  //         to_name: name,
+  //         email_subject: `Thank you for contacting ${ownerEmail}`,
+  //         email_body: `Hello ${name},
 
-// ${ownerEmail} will contact you soon.
+  // ${ownerEmail} will contact you soon.
 
-// Your submitted information:
-// Name: ${name}
-// Email: ${visitorEmail}
-// Message: ${message}
+  // Your submitted information:
+  // Name: ${name}
+  // Email: ${visitorEmail}
+  // Message: ${message}
 
-// You can reach them directly at ${ownerEmail}
+  // You can reach them directly at ${ownerEmail}
 
-// Best regards,
-// Surge Aina Team`,
-//       },
-//       {
-//         // Email 3: To Admin (Surge Aina)
-//         to_email: "surgeaina@gmail.com",
-//         to_name: "Surge Aina",
-//         email_subject: `New contact: ${name} contacted ${ownerEmail}`,
-//         email_body: `New contact form submission:
+  // Best regards,
+  // Surge Aina Team`,
+  //       },
+  //       {
+  //         // Email 3: To Admin (Surge Aina)
+  //         to_email: "surgeaina@gmail.com",
+  //         to_name: "Surge Aina",
+  //         email_subject: `New contact: ${name} contacted ${ownerEmail}`,
+  //         email_body: `New contact form submission:
 
-// Visitor: ${name} (${visitorEmail})
-// Portfolio Owner: ${ownerEmail}
-// Portfolio Type: Project Manager
-// Portfolio ID: ${id}
-// Message: ${message}
+  // Visitor: ${name} (${visitorEmail})
+  // Portfolio Owner: ${ownerEmail}
+  // Portfolio Type: Project Manager
+  // Portfolio ID: ${id}
+  // Message: ${message}
 
-// Submitted at: ${new Date().toLocaleString()}`,
-//       },
-//     ];
+  // Submitted at: ${new Date().toLocaleString()}`,
+  //       },
+  //     ];
 
-//     // Send all emails
-//     const emailPromises = emailConfigs.map((config, index) =>
-//       emailjs
-//         .send(
-//           import.meta.env.VITE_FORM_SERVICE_ID,
-//           import.meta.env.VITE_ALLPORTFOLIO_TID,
-//           config,
-//           import.meta.env.VITE_FORM_PUBLIC_KEY
-//         )
-//         .catch((err) => {
-//           console.error(`Email ${index + 1} failed:`, err);
-//           throw err;
-//         })
-//     );
+  //     // Send all emails
+  //     const emailPromises = emailConfigs.map((config, index) =>
+  //       emailjs
+  //         .send(
+  //           import.meta.env.VITE_FORM_SERVICE_ID,
+  //           import.meta.env.VITE_ALLPORTFOLIO_TID,
+  //           config,
+  //           import.meta.env.VITE_FORM_PUBLIC_KEY
+  //         )
+  //         .catch((err) => {
+  //           console.error(`Email ${index + 1} failed:`, err);
+  //           throw err;
+  //         })
+  //     );
 
-//     return Promise.all(emailPromises);
-//   };
+  //     return Promise.all(emailPromises);
+  //   };
   // const handleContactSubmit = (e) => {
   //   e.preventDefault();
   //   setContactSuccess("");
@@ -176,14 +176,15 @@ const PortfolioPage = () => {
         name: contactName,
         email: contactEmail,
         message: contactMessage,
-        portfolioId: id 
+        portfolioId: id,
+        ownerEmail: portfolio.email,
+        ownerName: portfolio.name,
       };
 
-          // Send to backend API
-    const response = await axios.post(`${apiUrl}/portfolio/contact`, formData);
+      // Send to backend API
+      const response = await axios.post(`${apiUrl}/portfolio/contact`, formData);
       // Send emails using EmailJS
       // await sendContactEmails(formData);
-
 
       setContactSuccess("Your message has been sent successfully!");
       setContactName("");
