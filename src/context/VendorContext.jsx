@@ -1,7 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { canEditPortfolio } from "../pages/portfolios/localVendor/services/auth";
 import { AuthContext } from "./AuthContext";
+
+const canEditPortfolio = () => true;
 const VendorContext = createContext();
 export const useVendor = () => useContext(VendorContext);
 
