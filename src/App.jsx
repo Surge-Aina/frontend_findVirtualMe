@@ -6,7 +6,7 @@ import Dashboard from "./components/Dashboard";
 import Tip from "./components/Tip";
 import Footer from "./components/Footer";
 import "./App.css";
-import EmailMvpApp from './emailmvp/App';
+import EmailMvpApp from "./emailmvp/App";
 import ResumeUpload from "./components/ResumeUpload";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
@@ -60,6 +60,7 @@ import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
+import TestPage from "./pages/testPage.jsx";
 
 // ✅ HEALTHCARE CHANGE 2: Added Protected Route Component
 function ProtectedHealthcareRoute({ children }) {
