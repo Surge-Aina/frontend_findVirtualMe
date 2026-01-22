@@ -1,7 +1,7 @@
     {
-    "_id": "vendor-hm-1",              
-    "name": "Vendor User",
-    "username": "test_vendor",
+    "_id": "6970124025d8c08c5c136ae0",              
+    "name": "vendor JK",
+    "username": "vendor",
     "email": "vendor@example.com",
     "password": "Password123!",
     "role": "VENDOR",                  

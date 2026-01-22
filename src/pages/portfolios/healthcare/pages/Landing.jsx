@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../../../../context/AuthContext';
 import { useEffect } from 'react';
 import { 
   FaHospital, 
@@ -14,7 +16,10 @@ import {
   FaEnvelope,  // Used in the features array
   FaSearch     // Used in the features array
 } from 'react-icons/fa';
+
 export default function Landing() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   useEffect(() => {
     document.title = 'Healthcare Platform - Build Your Practice Website';
   }, []);
@@ -44,22 +49,38 @@ export default function Landing() {
               Build Your Practice Website <span className="block text-blue-200">The Easy Way</span>
             </h1>
             <p className="text-xl opacity-90 mb-10 max-w-3xl mx-auto">
-              The all-in-one platform designed for medical professionals to launch and manage a world-class online presence in minutes.
+              The all-in-one platform designed for medical professionals.
             </p>
+            
+            {/* ✅ UPDATED: Auth-aware buttons */}
             <div className="flex gap-4 justify-center">
-              <Link
-                to="/portfolios/healthcare/auth/register"
-                className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-lg inline-flex items-center transform hover:scale-105"
-              >
-                <FaRocket className="mr-2" />
-                Get Started Free
-              </Link>
-              <Link
-                to="/portfolios/healthcare/auth/login"
-                className="border-2 border-white text-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition-all"
-              >
-                Sign In
-              </Link>
+              {user ? (
+                // User is logged in - show dashboard link
+                <Link
+                  to="/dashboard"
+                  className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-lg inline-flex items-center transform hover:scale-105"
+                >
+                  <FaRocket className="mr-2" />
+                  Go to Dashboard
+                </Link>
+              ) : (
+                // User not logged in - show sign up and login
+                <>
+                  <Link
+                    to="/onboarding"
+                    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-lg inline-flex items-center transform hover:scale-105"
+                  >
+                    <FaRocket className="mr-2" />
+                    Get Started Free
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="border-2 border-white text-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition-all"
+                  >
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -119,18 +140,27 @@ export default function Landing() {
               Start building your professional website today or view our fully featured demo.
             </p>
             <div className="flex gap-6 justify-center">
+              {user ? (
                 <Link
-                    to="/portfolios/healthcare/auth/register"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-md transform hover:scale-105"
+                  to="/dashboard"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-md transform hover:scale-105"
                 >
-                    Create My Website Now
+                  Access Dashboard
                 </Link>
+              ) : (
                 <Link
-                    to="/portfolios/healthcare/practice_demo"
-                    className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-lg font-bold text-lg transition-all"
+                  to="/onboarding"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-md transform hover:scale-105"
                 >
-                    View Live Demo
+                  Create My Website Now
                 </Link>
+              )}
+              <Link
+                to="/portfolios/healthcare/demo"
+                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-lg font-bold text-lg transition-all"
+              >
+                View Live Demo
+              </Link>
             </div>
           </div>
         </div>
