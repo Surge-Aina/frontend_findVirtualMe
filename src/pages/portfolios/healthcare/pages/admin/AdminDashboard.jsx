@@ -1,5 +1,5 @@
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { useNavigate, Link, useParams } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { 
   FaHome, FaCog, FaFileAlt, FaUsers, FaImages, 
@@ -7,12 +7,12 @@ import {
   FaPlus, FaTrash, FaTimes, FaEye, FaSearch, FaArrowLeft 
 } from 'react-icons/fa'
 
-const checkAuth = () => {
-  const token = localStorage.getItem('adminToken');
-  const practiceId = localStorage.getItem('practiceId');
+  const checkAuth = () => {
+  const token = localStorage.getItem('token'); // Main platform token
+  const { practiceId } = useParams();
   
-  if (!token || !practiceId) {
-    navigate('/portfolios/healthcare/auth/login');
+  if (!token) {
+    navigate('/login'); // Main platform login
     return false;
   }
   return true;
@@ -32,116 +32,79 @@ const tabs = [
 ]
 
 export default function AdminDashboard() {
-  const { practiceId: urlPracticeId } = useParams() // ✅ Get from URL
-  const [userData, setUserData] = useState(null)
-  const [practiceId, setPracticeId] = useState(urlPracticeId || null) // ✅ Store practiceId
-  const [activeTab, setActiveTab] = useState('practice')
-  const [saving, setSaving] = useState(false)
-  const [saveStatus, setSaveStatus] = useState('')
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const { practiceId } = useParams();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [activeTab, setActiveTab] = useState('practice');
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'Admin Dashboard - Website Management';
+    checkAuth();
+    loadUserData();
   }, []);
 
-  useEffect(() => {
-    checkAuth()
-    loadUserData()
-  }, [])
-
+  // ✅ UPDATED: Check main platform auth
   const checkAuth = () => {
-    const token = localStorage.getItem('adminToken')
-    console.log('🔑 Auth token:', token ? 'Present' : 'Missing')
+    const token = localStorage.getItem('token'); // Main platform token
     if (!token) {
-      navigate('/portfolios/healthcare/auth/login')
-      return false
+      navigate('/login'); // Navigate to main login
+      return false;
     }
-    return true
-  }
+    return true;
+  };
+
+  // ✅ UPDATED: Load using main platform auth
   const loadUserData = async () => {
-  try {
-    const token = localStorage.getItem('adminToken');
-    const data = await api.getAdminData(token);
-    console.log('✅ Loaded admin data:', data);
-    
-    setUserData(data);
-    setPracticeId(data.practiceId); // ✅ Store practiceId
-    localStorage.setItem('practiceId', data.practiceId)
-
-    
-  }  catch (error) {
-      console.error('Error loading admin data:', error)
-      setUserData({
-        practice: {
-          name: 'Your Practice Name',
-          tagline: 'Your Tagline Here',
-          description: 'Your practice description goes here.'
-        },
-        contact: {
-          phone: '+1 (555) 123-4567',
-          whatsapp: '+1 (555) 123-4567',
-          email: 'info@yourpractice.com',
-          address: {
-            street: '123 Your Street, Suite 100',
-            city: 'Your City',
-            state: 'ST',
-            zip: '12345'
-          }
-        },
-        hours: {
-          weekdays: 'Mon-Fri: 8:00 AM - 6:00 PM',
-          saturday: 'Sat: 9:00 AM - 2:00 PM',
-          sunday: 'Sun: Closed'
-        },
-        stats: {
-          yearsExperience: '15',
-          patientsServed: '5,000',
-          successRate: '98',
-          doctorsCount: '8'
-        },
-        services: [],
-        blogPosts: [],
-        gallery: { facilityImages: [], beforeAfterCases: [] },
-        seo: {
-          siteTitle: 'Your Practice Name - Quality Healthcare Services',
-          metaDescription: 'Leading medical practice providing comprehensive healthcare services.',
-          keywords: 'healthcare, medical practice, doctors'
-        },
-        ui: {}
-      })
+    try {
+      setLoading(true);
+      const data = await api.getAdminData(); // Uses main platform token
+      console.log('✅ Loaded admin data:', data);
+      setUserData(data);
+    } catch (error) {
+      console.error('Error loading admin data:', error);
+      // If portfolio doesn't exist, redirect to create one
+      if (error.message.includes('not found')) {
+        navigate('/dashboard'); // Back to main dashboard
+      } else {
+        navigate('/login');
+      }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
+  // ✅ UPDATED: Save using main platform auth
   const saveData = async () => {
-    setSaving(true)
-    setSaveStatus('Saving...')
-    
-    console.log('=== SAVING DATA ===')
+    setSaving(true);
+    setSaveStatus('Saving...');
     
     try {
-      const token = localStorage.getItem('adminToken')
-      const result = await api.saveAdminData(userData, token)
+      const result = await api.saveAdminData(userData); // Uses main platform token
 
       if (result.success) {
-        console.log('✅ Saved successfully')
-        setSaveStatus('✅ Changes saved successfully!')
-        setTimeout(() => setSaveStatus(''), 3000)
+        setSaveStatus('✅ Changes saved successfully!');
+        setTimeout(() => setSaveStatus(''), 3000);
       } else {
-        console.error('❌ Save failed:', result)
-        setSaveStatus('❌ Error: ' + (result.error || 'Save failed'))
-        setTimeout(() => setSaveStatus(''), 5000)
+        setSaveStatus('❌ Error: ' + (result.error || 'Save failed'));
+        setTimeout(() => setSaveStatus(''), 5000);
       }
     } catch (error) {
-      console.error('❌ Save error:', error)
-      setSaveStatus('❌ Error: ' + error.message)
-      setTimeout(() => setSaveStatus(''), 5000)
+      console.error('❌ Save error:', error);
+      setSaveStatus('❌ Error: ' + error.message);
+      setTimeout(() => setSaveStatus(''), 5000);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
+
+  // ✅ UPDATED: Logout goes to dashboard, not login
+  const logout = () => {
+    // Don't remove main platform token!
+    // Just navigate back to dashboard
+    navigate('/dashboard');
+  };
 
   const updateField = (section, field, value) => {
     setUserData(prev => ({
@@ -166,13 +129,9 @@ export default function AdminDashboard() {
     }))
   }
  
-  const logout = () => {
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('userData') 
-    navigate('/portfolios/healthcare/auth/login')
-  }
 
-  if (loading) {
+
+   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center">
@@ -180,7 +139,7 @@ export default function AdminDashboard() {
           <p className="text-gray-600">Loading admin dashboard...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -192,10 +151,10 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900">Website Management</h1>
               
-              {/* ✅ FIXED: View Site Button */}
-              {practiceId && (
+              {/* ✅ UPDATED: View Site Button */}
+              {userData?._id && (
                 <Link 
-                  to={`/portfolios/healthcare/${practiceId}`}
+                  to={`/portfolios/healthcare/${userData._id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 text-sm flex items-center transition-colors"
@@ -209,8 +168,8 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-4">
               {saveStatus && (
                 <span className={`text-sm px-3 py-1 rounded-full ${
-                  saveStatus.includes('Error') || saveStatus.includes('⚠️') 
-                    ? 'bg-yellow-100 text-yellow-800' 
+                  saveStatus.includes('Error') || saveStatus.includes('❌') 
+                    ? 'bg-red-100 text-red-800' 
                     : 'bg-green-100 text-green-800'
                 }`}>
                   {saveStatus}
@@ -227,9 +186,9 @@ export default function AdminDashboard() {
               <button
                 onClick={logout}
                 className="text-gray-600 hover:text-gray-900 p-2 transition-colors"
-                title="Logout"
+                title="Back to Dashboard"
               >
-                <FaSignOutAlt />
+                <FaArrowLeft />
               </button>
             </div>
           </div>
