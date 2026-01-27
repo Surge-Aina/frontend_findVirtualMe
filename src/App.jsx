@@ -102,7 +102,7 @@ export default function App() {
           }
         />
         <Route path="/portfolios" element={<ExamplePortfolios />} />
-        <Route path="/portfolios/project-manager/:username/:id" element={<PortfolioPage />} />
+        <Route path="/portfolios/ProjectManager/:id" element={<PortfolioPage />} />
         <Route path="/portfolios/software-engineer" />
         <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
         {/* <Route path="/portfolios/localVendor/*" element={<LocalVendorApp />} /> */}

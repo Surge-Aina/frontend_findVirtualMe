@@ -5,12 +5,16 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
 
-  server: {
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-      "Cross-Origin-Embedder-Policy": "unsafe-none",
-      "Cross-Origin-Resource-Policy": "cross-origin",
+   server: {
+    host: true,        // allows access from local network / custom hosts
+    port: 5173,
+    strictPort: true,
+    fs: {
+      allow: ["."],    // allow serving files from project root
     },
+    allowedHosts: [
+      "mytestdomain.local",
+    ],
   },
 
   test: {
