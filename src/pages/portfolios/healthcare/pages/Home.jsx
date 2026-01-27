@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
 import { 
   FaUserMd, FaHeartbeat, FaMicroscope, 
   FaShieldAlt, FaProcedures, FaTooth,
@@ -7,29 +8,41 @@ import {
 } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 import ScrollToTop from '../components/ScrollToTop';
-import { api } from '../lib/api';
 
 export default function Home() {
-  const { practiceId } = useParams(); // Get practiceId from URL
+  const { practiceId } = useParams();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!practiceId) {
-      navigate('/portfolios/healthcare/auth/login');
-      return;
+    // Handle demo vs user portfolio
+    if (practiceId === 'demo') {
+      loadDemoData();
+    } else {
+      // ✅ Check auth for non-demo portfolios
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      loadData();
     }
-    
-    loadData();
   }, [practiceId]);
 
-  useEffect(() => {
-    if (userData) {
-      document.title = `${userData.practice?.name || 'Healthcare'} - Home`;
+  const loadDemoData = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getDemoData(); // No auth required
+      setUserData(data);
+    } catch (error) {
+      console.error('Error loading demo data:', error);
+      setError('Demo not available');
+    } finally {
+      setLoading(false);
     }
-  }, [userData]);
+  };
 
   const loadData = async () => {
     try {
@@ -42,18 +55,6 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getServiceIcon = (iconName) => {
-    const icons = {
-      'tooth': FaTooth,
-      'user-md': FaUserMd,
-      'heartbeat': FaHeartbeat,
-      'microscope': FaMicroscope,
-      'shield-alt': FaShieldAlt,
-      'procedures': FaProcedures
-    };
-    return icons[iconName] || FaUserMd;
   };
 
   if (loading) {
@@ -70,18 +71,17 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Practice Not Found</h1>
-          <p className="text-gray-600 mb-8">The practice you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-8">{error || "The practice you're looking for doesn't exist."}</p>
           <Link 
-            to="/portfolios/healthcare/auth/login"
+            to="/portfolios/healthcare"
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-block"
           >
-            Go to Login
+            Back to Healthcare Home
           </Link>
         </div>
       </div>
     );
   }
-
   const statsData = [
     { icon: FaCalendarCheck, value: userData?.stats?.yearsExperience || '0', label: 'Years Experience' },
     { icon: FaUsers, value: userData?.stats?.patientsServed || '0', label: 'Patients Served' },
@@ -93,33 +93,31 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <Navbar userData={userData} practiceId={practiceId} />
       
-      {/* Hero Section */}
+      {/* ✅ Hero Section - Use UI customization */}
       <section className="bg-gradient-to-br from-blue-700 to-blue-900 text-white pt-36 pb-20">
-  <div className="max-w-7xl mx-auto px-4 text-center">
-    <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-      {userData?.practice?.tagline || 'Your Health, Our Priority'}
-    </h1>
-    <p className="text-xl md:text-2xl mb-8 opacity-95 max-w-3xl mx-auto">
-      {userData?.practice?.description || 'Providing quality healthcare services.'}
-    </p>
-    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-  <Link 
-    to={`/portfolios/healthcare/${practiceId}/contact`}
-    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
-  >
-    {userData?.ui?.hero?.primaryButtonText || 'Get Started'}
-  </Link>
-
-  <Link 
-    to={`/portfolios/healthcare/${practiceId}/services`}
-    className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
-  >
-    {userData?.ui?.services?.viewAllText || 'View All Services'}
-  </Link>
-</div>
-
-  </div>
-</section>
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+            {userData?.practice?.tagline || 'Your Health, Our Priority'}
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 opacity-95 max-w-3xl mx-auto">
+            {userData?.practice?.description || 'Providing quality healthcare services.'}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link 
+              to={`/portfolios/healthcare/${practiceId}/contact`}
+              className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
+            >
+              {userData?.ui?.hero?.primaryButtonText || 'Get Started'}
+            </Link>
+            <Link 
+              to={`/portfolios/healthcare/${practiceId}/services`}
+              className="border-2 border-white text-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition-all"
+            >
+              {userData?.ui?.hero?.secondaryButtonText || 'Learn More'}
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Stats Section */}
       <section className="bg-white py-20">
@@ -145,13 +143,17 @@ export default function Home() {
 
 
       
-      {/* Admin Access Link */}
-      <Link
-        to={`/portfolios/healthcare/${practiceId}/admin/dashboard`}
-        className="admin-link"
-      >
-        Admin
-      </Link>
+      {/* ✅ UPDATED: Admin Access Link - only show for portfolio owner */}
+      {practiceId !== 'demo' && (
+        <Link
+          to={`/portfolios/healthcare/${practiceId}/admin/dashboard`}
+          className="fixed bottom-4 left-4 z-50 bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 opacity-20 hover:opacity-100"
+        >
+          Admin
+        </Link>
+      )}
+
+      <ScrollToTop />
     </div>
   );
 }

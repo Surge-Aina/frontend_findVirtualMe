@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
 import Dashboard from "./components/Dashboard";
 import Tip from "./components/Tip";
 import Footer from "./components/Footer";
 import "./App.css";
-import EmailMvpApp from './emailmvp/App';
+import EmailMvpApp from "./emailmvp/App";
 import ResumeUpload from "./components/ResumeUpload";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
@@ -46,20 +46,32 @@ import Property from "./components/Solutions/Property";
 import Farmers from "./components/Solutions/Farmers";
 import AdminRoute from "./components/AdminRoute.jsx";
 
+// ✅ HEALTHCARE CHANGE 1: Removed HealthcareRegister and HealthcareLogin imports
 import HealthcareHome from "./pages/portfolios/healthcare/pages/Home.jsx";
 import HealthcareServices from "./pages/portfolios/healthcare/pages/Services.jsx";
 import HealthcareBlog from "./pages/portfolios/healthcare/pages/blog/Blog.jsx";
 import HealthcareBlogPost from "./pages/portfolios/healthcare/pages/blog/BlogPost.jsx";
 import HealthcareContact from "./pages/portfolios/healthcare/pages/Contact.jsx";
 import HealthcareGallery from "./pages/portfolios/healthcare/pages/Gallery.jsx";
-import HealthcareRegister from "./pages/portfolios/healthcare/pages/auth/Register.jsx";
 import HealthcareSearch from "./pages/portfolios/healthcare/pages/SearchResults.jsx";
-import HealthcareLogin from "./pages/portfolios/healthcare/pages/auth/Login.jsx";
 import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
 import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
+
 import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
+import TestPage from "./pages/testPage.jsx";
+
+// ✅ HEALTHCARE CHANGE 2: Added Protected Route Component
+function ProtectedHealthcareRoute({ children }) {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    return <Navigate to="/signup" replace />;
+  }
+  
+  return children;
+}
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
@@ -166,17 +178,84 @@ export default function App() {
         <Route path="/solutions/restaurant" element={<Restaurant />} />
         <Route path="/solutions/property" element={<Property />} />
         <Route path="/solutions/farmers" element={<Farmers />} />
-        <Route path="/portfolios/healthcare/auth/register" element={<HealthcareRegister />} />
-        <Route path="/portfolios/healthcare/:practiceId" element={<HealthcareHome />} />
+        
+        {/* ✅ HEALTHCARE CHANGE 3: Updated healthcare routes */}
+        
+        {/* Public Routes - No Auth */}
         <Route path="/portfolios/healthcare" element={<Landing />} />
-        <Route path="/portfolios/healthcare/:practiceId/services" element={<HealthcareServices />} />
-        <Route path="/portfolios/healthcare/:practiceId/blog" element={<HealthcareBlog />} />
-        <Route path="/portfolios/healthcare/:practiceId/blog/:id" element={<HealthcareBlogPost />} />
-        <Route path="/portfolios/healthcare/:practiceId/gallery" element={<HealthcareGallery />} />
-        <Route path="/portfolios/healthcare/:practiceId/contact" element={<HealthcareContact />} />
-        \ <Route path="/portfolios/healthcare/search" element={<HealthcareSearch />} />
+        <Route path="/portfolios/healthcare/search" element={<HealthcareSearch />} />
+        
+        {/* Demo Routes - No Auth */}
+        <Route path="/portfolios/healthcare/demo" element={<HealthcareHome />} />
+        <Route path="/portfolios/healthcare/demo/services" element={<HealthcareServices />} />
+        <Route path="/portfolios/healthcare/demo/blog" element={<HealthcareBlog />} />
+        <Route path="/portfolios/healthcare/demo/blog/:id" element={<HealthcareBlogPost />} />
+        <Route path="/portfolios/healthcare/demo/gallery" element={<HealthcareGallery />} />
+        <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
+        
+        {/* User Portfolio Routes - Protected */}
+        <Route 
+          path="/portfolios/healthcare/:practiceId" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareHome />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        <Route 
+          path="/portfolios/healthcare/:practiceId/services" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareServices />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        <Route 
+          path="/portfolios/healthcare/:practiceId/blog" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareBlog />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        <Route 
+          path="/portfolios/healthcare/:practiceId/blog/:id" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareBlogPost />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        <Route 
+          path="/portfolios/healthcare/:practiceId/gallery" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareGallery />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        <Route 
+          path="/portfolios/healthcare/:practiceId/contact" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareContact />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        <Route 
+          path="/portfolios/healthcare/:practiceId/admin/dashboard" 
+          element={
+            <ProtectedHealthcareRoute>
+              <HealthcareAdminDashboard />
+            </ProtectedHealthcareRoute>
+          } 
+        />
+        
+        {/* ❌ REMOVED: These old healthcare auth routes
+        <Route path="/portfolios/healthcare/auth/register" element={<HealthcareRegister />} />
         <Route path="/portfolios/healthcare/auth/login" element={<HealthcareLogin />} />
-        <Route path="/portfolios/healthcare/:practiceId/admin/dashboard" element={<HealthcareAdminDashboard />} />
+        */}
+        
         <Route path="/editor/*" element={<OnlineEditor />} />{" "}
         <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
         <Route path="/portfolios/cleaningService/visitor-login" element={<VisitorLogin />} />
