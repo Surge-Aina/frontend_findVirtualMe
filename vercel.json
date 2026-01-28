@@ -9,7 +9,7 @@
           "value": "text/html.*"
         }
       ],
-      "destination": "/domainRouter/routing-proxy?host=$host&path=$1"
+      "destination": "$BACKEND_ORIGIN/domainRouter/routing-proxy?host=$host&path=$1"
     }
   ]
 }
