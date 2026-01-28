@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import DomainRouter from "./utils/DomainRouter.jsx";
 
 const queryClient = new QueryClient();
 
@@ -16,8 +17,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <BrowserRouter>
-            <ToastContainer position="top-right" autoClose={3000} />
-            <App />
+            <DomainRouter>
+              <ToastContainer position="top-right" autoClose={3000} />
+              <App />
+            </DomainRouter>
           </BrowserRouter>
         </AuthProvider>
       </QueryClientProvider>

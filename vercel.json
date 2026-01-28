@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "https://backend-findvirtualme.onrender.com/domainRouter/routing-proxy?host=$host&path=$1"
+      "destination": "/index.html"
     }
   ]
 }
