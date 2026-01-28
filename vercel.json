@@ -9,7 +9,7 @@
           "value": "text/html.*"
         }
       ],
-      "destination": "$BACKEND_ORIGIN/domainRouter/routing-proxy?host=$host&path=$1"
+      "destination": "https://backend-findvirtualme.onrender.com/domainRouter/routing-proxy?host=$host&path=$1"
     }
   ]
 }
