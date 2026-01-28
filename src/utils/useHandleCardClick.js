@@ -21,7 +21,7 @@ export function useHandleCardClick() {
       const username = (p.name || p.email || "vendor").toLowerCase().replace(/\s+/g, "-");
       navigate(`/portfolios/vendor/${username}/${p._id}`);
     } else if (portfolio.portfolioType === "ProjectManager") {
-      navigate(`/portfolios/project-manager/${p.name}/${p._id}`);
+      navigate(`/portfolios/ProjectManager/${p._id}`);
     } else if (portfolio.portfolioType === "Healthcare") {
       const practiceId = p.practiceId || p._id;
       console.log("🏥 Navigating to Healthcare portfolio:");

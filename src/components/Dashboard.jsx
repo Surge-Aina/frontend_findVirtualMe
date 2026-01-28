@@ -86,19 +86,31 @@ export default function Dashboard() {
   };
 
   const fetchMyPortfolios = async () => {
-    if (!user) return;
-    try {
-      const promises = user.portfolios.map(({ portfolioId, portfolioType }) =>
-        axiosAuth.get(`/publicPortfolios/${portfolioType}/${portfolioId}`).then((res) => res.data)
-      );
-
-      const fullPortfolios = await Promise.all(promises);
-      console.log("full portfolios: ", fullPortfolios);
-      setMyPortfolios(fullPortfolios);
-    } catch (err) {
-      console.error("Error fetching full portfolios:", err);
-    }
-  };
+  if (!user) return;
+  try {
+    const promises = user.portfolios.map(({ portfolioId, portfolioType }) =>
+      axiosAuth.get(`/publicPortfolios/${portfolioType}/${portfolioId}`).then((res) => res.data)
+    );
+    
+    const results = await Promise.allSettled(promises);
+    
+    // Filter out successful responses and log failures
+    const fullPortfolios = results
+      .filter((result) => {
+        if (result.status === 'rejected') {
+          console.warn('Failed to fetch portfolio:', result.reason);
+          return false;
+        }
+        return true;
+      })
+      .map((result) => result.value);
+    
+    console.log("full portfolios: ", fullPortfolios);
+    setMyPortfolios(fullPortfolios);
+  } catch (err) {
+    console.error("Error fetching full portfolios:", err);
+  }
+};
 
   const fetchProjects = async () => {
     try {
