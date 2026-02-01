@@ -1,50 +1,56 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import PortfolioPage from '../pages/portfolios/projectManager/pages/PortfolioPage';
 
 function DomainRouter({ children }) {
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+    const [domainRoute, setDomainRoute] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkDomain = async () => {
-      const hostname = window.location.hostname;
-      
-      // Don't redirect for your main domain
-      if (hostname === 'findvirtual.me') {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // Call backend to get portfolio info for this domain
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_API}/domainRouter/domainLookup?domain=${hostname}`
-        );
-
-        if (response.data.portfolioId) {
-          const targetPath = `/portfolios/${response.data.portfolioType}/${response.data.portfolioId}`;
-          
-          // Only navigate if we're not already there
-          if (window.location.pathname !== targetPath) {
-            navigate(targetPath, { replace: true });
-          }
+    useEffect(() => {
+        const checkDomain = async () => {
+        const hostname = window.location.hostname;
+        
+        // Don't redirect for your main domain
+        if (hostname === 'findvirtual.me' || hostname === 'localhost') {
+            setLoading(false);
+            return;
         }
-      } catch (err) {
-        console.error('Domain lookup failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    checkDomain();
-  }, [navigate]);
+        try {
+            // Call backend to get portfolio info for this domain
+            const response = await axios.get(
+            `${import.meta.env.VITE_BACKEND_API}/domainRouter/domainLookup?domain=${hostname}`
+            );
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+            if (response.data.portfolioId) {
+                setDomainRoute(response.data);
+            
+            }
+        } catch (err) {
+            console.error('Domain lookup failed:', err);
+        } finally {
+            setLoading(false);
+        }
+        };
 
-  return children;
+        checkDomain();
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    // If custom domain, render the portfolio directly
+    if (domainRoute) {
+        return <PortfolioPage 
+        portfolioId={domainRoute.portfolioId} 
+        portfolioType={domainRoute.portfolioType} 
+        />;
+    }
+
+     // Otherwise, render normal app with routing
+    return children;
 }
 
 export default DomainRouter;
