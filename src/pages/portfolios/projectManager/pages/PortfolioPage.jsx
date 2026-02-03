@@ -14,7 +14,7 @@ import { useParams } from "react-router-dom";
 import "../style.css";
 // import emailjs from "@emailjs/browser";
 
-const PortfolioPage = () => {
+const PortfolioPage = ({portfolioId, portfolioType}) => {
   const [activeSection, setActiveSection] = useState("summary");
   const [animating, setAnimating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
@@ -22,17 +22,15 @@ const PortfolioPage = () => {
   const apiUrl = import.meta.env.VITE_BACKEND_API;
   const userPortfolioId = localStorage.getItem("portfolioId");
 
-  const fetchPortfolio = async (id) => {
-    // const res = await axios.get(
-    //   `${apiUrl}/portfolio/me?email=janedoe@example.com`
-    // );
-    const res = await axios.get(`${apiUrl}/portfolio/id/${id}`);
+  const fetchPortfolio = async (targetId) => {
+    const res = await axios.get(`${apiUrl}/portfolio/id/${targetId}`);
     return res.data;
   };
 
   //get portfolio id from the url parameters
   //const id = "689b833c90c7ecc042b7b2ac"; //useParams();
-  const { id } = useParams();
+  const { id: urlId } = useParams();
+  const id = portfolioId || urlId;
 
   const {
     data: portfolio,
