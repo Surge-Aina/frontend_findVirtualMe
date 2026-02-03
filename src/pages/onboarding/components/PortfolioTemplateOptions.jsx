@@ -45,80 +45,80 @@ export default function PortfolioTemplateOptions() {
           } else {
             toast.error("could not add potfolioID to User:", response.message);
           }
-          navigate(`/portfolios/project-manager/${username}/${id}`);
+          navigate(`/portfolios/ProjectManager/${id}`);
         } catch (error) {
           console.log("error creating portfolio: ", error);
         }
         break;
 
-      case 3: // Local Food Vendor
-        try {
-          setCreatingVendor(true);
-          let res;
-          const fileToSend = user?.file || pendingFile;
-          if (fileToSend) {
-            console.log("Injecting vendor file:", fileToSend.name);
-            const formData = new FormData();
-            formData.append("file", fileToSend);
+      // case 3: // Local Food Vendor
+      //   try {
+      //     setCreatingVendor(true);
+      //     let res;
+      //     const fileToSend = user?.file || pendingFile;
+      //     if (fileToSend) {
+      //       console.log("Injecting vendor file:", fileToSend.name);
+      //       const formData = new FormData();
+      //       formData.append("file", fileToSend);
 
-            formData.append("name", `${user.firstName} ${user.lastName}`);
-            formData.append("email", user.email);
-            formData.append("phone", user.phone || "");
-            formData.append("description", user.bio || "My business portfolio");
+      //       formData.append("name", `${user.firstName} ${user.lastName}`);
+      //       formData.append("email", user.email);
+      //       formData.append("phone", user.phone || "");
+      //       formData.append("description", user.bio || "My business portfolio");
 
-            toast.info("We're generating your site using your uploaded file. This may take a few moments...");
+      //       toast.info("We're generating your site using your uploaded file. This may take a few moments...");
 
-            res = await axios.post(`${backendUrl}/vendor/inject`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            });
-            if (res.status === 201 || res.status === 200) {
-              toast.success("Vendor portfolio created successfully!");
-            }
+      //       res = await axios.post(`${backendUrl}/vendor/inject`, formData, {
+      //         headers: { "Content-Type": "multipart/form-data" },
+      //       });
+      //       if (res.status === 201 || res.status === 200) {
+      //         toast.success("Vendor portfolio created successfully!");
+      //       }
 
-            console.log("inject response:", res.data);
-          } else {
-            const vendorData = {
-              name: `${user.firstName} ${user.lastName}`,
-              email: user.email,
-              phone: user.phone || "",
-              description: user.bio || "My business portfolio",
-            };
-            res = await axios.post(`${backendUrl}/vendor`, vendorData);
-            toast.info("Vendor created without uploaded file.");
-          }
+      //       console.log("inject response:", res.data);
+      //     } else {
+      //       const vendorData = {
+      //         name: `${user.firstName} ${user.lastName}`,
+      //         email: user.email,
+      //         phone: user.phone || "",
+      //         description: user.bio || "My business portfolio",
+      //       };
+      //       res = await axios.post(`${backendUrl}/vendor`, vendorData);
+      //       toast.info("Vendor created without uploaded file.");
+      //     }
 
-          if (res.status === 200 || res.status === 201) {
-            const vendor = res.data.vendor || res.data;
-            const username = vendor.username || vendor.name.toLowerCase().replace(/\s+/g, "-");
+        //   if (res.status === 200 || res.status === 201) {
+        //     const vendor = res.data.vendor || res.data;
+        //     const username = vendor.username || vendor.name.toLowerCase().replace(/\s+/g, "-");
 
-            setVendorId(vendor._id);
-            setPendingFile(null);
+        //     setVendorId(vendor._id);
+        //     setPendingFile(null);
 
-            toast.success("Vendor portfolio created successfully!");
-            navigate(`/portfolios/vendor/${username}/${vendor._id}`);
+        //     toast.success("Vendor portfolio created successfully!");
+        //     navigate(`/portfolios/vendor/${username}/${vendor._id}`);
 
-            const response = await axiosAuth.patch("/user/addPortfolioId", {
-              portfolioId: vendor._id,
-              portfolioType: "LocalVendor",
-              isPublic: false,
-            });
+        //     const response = await axiosAuth.patch("/user/addPortfolioId", {
+        //       portfolioId: vendor._id,
+        //       portfolioType: "LocalVendor",
+        //       isPublic: false,
+        //     });
 
-            if (response.status === 200) {
-              toast.success("Portfolio successfully linked to user");
-            } else {
-              toast.error("Unexpected response from server");
-              console.log(response.message);
-            }
-          }
-        } catch (err) {
-          console.error("Vendor portfolio creation failed:", err);
-          toast.error("Could not create vendor portfolio");
-        } finally {
-          setCreatingVendor(false);
-        }
-        break;
+        //     if (response.status === 200) {
+        //       toast.success("Portfolio successfully linked to user");
+        //     } else {
+        //       toast.error("Unexpected response from server");
+        //       console.log(response.message);
+        //     }
+        //   }
+        // } catch (err) {
+        //   console.error("Vendor portfolio creation failed:", err);
+        //   toast.error("Could not create vendor portfolio");
+        // } finally {
+        //   setCreatingVendor(false);
+        // }
+        // break;
 
-      case 5:
+      case 2:
         try {
           const handyman_portfolio = user;
           const res = await handymanAPI.post(`/api/handyman-template`, {
@@ -160,52 +160,52 @@ export default function PortfolioTemplateOptions() {
         }
         break;
 
-      case 6: // Cleaning Lady Portfolio
-        try {
-          const token = localStorage.getItem("token");
+      // case 6: // Cleaning Lady Portfolio
+      //   try {
+      //     const token = localStorage.getItem("token");
 
-          const createResponse = await axios.post(
-            `${backendUrl}/api/portfolios/new-portfolio`,
-            {
-              slug: `${user.firstName?.toLowerCase() || "user"}-cleaning-${Date.now()}`,
-              templateType: "cleaning-service",
-              businessName: `${user.firstName || "My"} Cleaning Service`,
-              contactInfo: {
-                phone: user.phone || "",
-                email: user.email || "",
-              },
-              roomPricing: [
-                { roomType: "bedroom", price: 50 },
-                { roomType: "kitchen", price: 70 },
-                { roomType: "bathroom", price: 40 },
-                { roomType: "livingRoom", price: 60 },
-              ],
-            },
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+      //     const createResponse = await axios.post(
+      //       `${backendUrl}/api/portfolios/new-portfolio`,
+      //       {
+      //         slug: `${user.firstName?.toLowerCase() || "user"}-cleaning-${Date.now()}`,
+      //         templateType: "cleaning-service",
+      //         businessName: `${user.firstName || "My"} Cleaning Service`,
+      //         contactInfo: {
+      //           phone: user.phone || "",
+      //           email: user.email || "",
+      //         },
+      //         roomPricing: [
+      //           { roomType: "bedroom", price: 50 },
+      //           { roomType: "kitchen", price: 70 },
+      //           { roomType: "bathroom", price: 40 },
+      //           { roomType: "livingRoom", price: 60 },
+      //         ],
+      //       },
+      //       { headers: { Authorization: `Bearer ${token}` } }
+      //     );
 
-          const newPortfolioId = createResponse.data.portfolio._id;
-          const response = await axiosAuth.patch("/user/addPortfolioId", {
-            portfolioId: newPortfolioId,
-            portfolioType: "CleaningLady",
-            isPublic: false,
-          });
+      //     const newPortfolioId = createResponse.data.portfolio._id;
+      //     const response = await axiosAuth.patch("/user/addPortfolioId", {
+      //       portfolioId: newPortfolioId,
+      //       portfolioType: "CleaningLady",
+      //       isPublic: false,
+      //     });
 
-          if (response.status === 200) {
-            toast.success("Portfolio successfully linked to user");
-          } else {
-            toast.error("Unexpected response from server");
-            console.log(response.message);
-          }
-          navigate(`/portfolios/cleaningService/${newPortfolioId}/about`);
-          toast.success("Your cleaning portfolio has been created!");
-        } catch (error) {
-          console.error("Error creating cleaning portfolio:", error);
-          toast.error(error.response?.data?.message || "Could not create portfolio");
-        }
-        break;
+      //     if (response.status === 200) {
+      //       toast.success("Portfolio successfully linked to user");
+      //     } else {
+      //       toast.error("Unexpected response from server");
+      //       console.log(response.message);
+      //     }
+      //     navigate(`/portfolios/cleaningService/${newPortfolioId}/about`);
+      //     toast.success("Your cleaning portfolio has been created!");
+      //   } catch (error) {
+      //     console.error("Error creating cleaning portfolio:", error);
+      //     toast.error(error.response?.data?.message || "Could not create portfolio");
+      //   }
+      //   break;
 
-      case 7: // ✅ Healthcare Professional - UPDATED
+      case 1: // ✅ Healthcare Professional - UPDATED
         try {
           setCreatingHealthcare(true);
           const token = localStorage.getItem("token");
@@ -317,35 +317,37 @@ export default function PortfolioTemplateOptions() {
       description: "Showcase your product management skills, roadmaps, and project successes.",
     },
     {
-      name: "Data Scientist",
-      description: "Highlight your data projects, analyses, and machine learning experience.",
-    },
-    {
-      name: "Software Engineer",
-      description: "Display your coding projects, apps, and technical expertise.",
-    },
-    {
-      name: "Local Food Vendor",
-      description: "Share your menu, business story, and customer favorites.",
-    },
-    {
-      name: "Photographer",
-      description: "Showcase your portfolio, shoots, and artistic style.",
-    },
-    {
-      name: "Handyman / Local Repair Services",
-      description: "Demonstrate your skills, previous jobs, and customer testimonials.",
-    },
-    {
-      name: "Cleaning Lady Portfolio",
-      description: "Demonstrate your services, skills and expand your business.",
-    },
-    {
       name: "Healthcare Professional",
       description:
         "Showcase your qualifications, specialties, and patient testimonials. You can create multiple practices!",
       badge: getHealthcarePortfolioCount() > 0 ? `${getHealthcarePortfolioCount()} Created` : null,
     },
+    {
+      name: "Handyman / Local Repair Services",
+      description: "Demonstrate your skills, previous jobs, and customer testimonials.",
+    },
+    // {
+    //   name: "Data Scientist",
+    //   description: "Highlight your data projects, analyses, and machine learning experience.",
+    // },
+    // {
+    //   name: "Software Engineer",
+    //   description: "Display your coding projects, apps, and technical expertise.",
+    // },
+    // {
+    //   name: "Local Food Vendor",
+    //   description: "Share your menu, business story, and customer favorites.",
+    // },
+    // {
+    //   name: "Photographer",
+    //   description: "Showcase your portfolio, shoots, and artistic style.",
+    // },
+    
+    // {
+    //   name: "Cleaning Lady Portfolio",
+    //   description: "Demonstrate your services, skills and expand your business.",
+    // },
+    
   ];
 
   const cards = [

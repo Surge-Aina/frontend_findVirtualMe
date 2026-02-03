@@ -15,14 +15,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <BrowserRouter>
+        <BrowserRouter> {/* Wrap everything in ONE router */}
+          <AuthProvider>
+            <ToastContainer position="top-right" autoClose={3000} />
             <DomainRouter>
-              <ToastContainer position="top-right" autoClose={3000} />
-              <App />
+                <App />
             </DomainRouter>
-          </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </QueryClientProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>

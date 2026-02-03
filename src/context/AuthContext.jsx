@@ -24,29 +24,36 @@ export function AuthProvider({ children }) {
   const backendUrl = import.meta.env.VITE_BACKEND_API;
   const queryClient = useQueryClient();
   const [pendingFile, setPendingFile] = useState(null);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    if (!token) return;
-    if (token) {
-      axios
-        .get(`${backendUrl}/user/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setUser(res.data.user);
-          console.log("res.data in auth context: ", res.data);
-
-          // ✅ ADD THIS CODE:
-          if (res.data.portfolioIds) {
-            localStorage.setItem("userPortfolios", JSON.stringify(res.data.portfolioIds));
-            console.log("📁 Stored portfolio IDs (from getMe useEffect()):", res.data.portfolioIds);
-          }
-        })
-        .catch(() => {
-          setToken(null);
-          setUser(null);
-          localStorage.removeItem("token");
-        });
+    if (!token) {
+      setLoading(false);
+      return;
     }
+
+    axios
+      .get(`${backendUrl}/user/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setUser(res.data.user);
+        console.log("res.data in auth context: ", res.data);
+
+        // ✅ ADD THIS CODE:
+        if (res.data.portfolioIds) {
+          localStorage.setItem("userPortfolios", JSON.stringify(res.data.portfolioIds));
+          console.log("📁 Stored portfolio IDs (from getMe useEffect()):", res.data.portfolioIds);
+        }
+      })
+      .catch(() => {
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem("token");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    
   }, [token]);
 
   useEffect(() => {
@@ -141,6 +148,7 @@ export function AuthProvider({ children }) {
         token,
         login,
         logout,
+        loading,
         refreshUser,
         pendingFile, //  new
         setPendingFile, // new
