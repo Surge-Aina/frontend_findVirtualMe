@@ -4,10 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { AuthContext } from "../../context/AuthContext";
 import axiosAuth from "../../utils/axiosAuth";
 
-// We're assuming you have a way to determine the user's portfolio ID.
-// For this example, we'll use a placeholder or assume it's available on the user object.
-const PORTFOLIO_ID_PLACEHOLDER = "651234567890abcdef123456";
-
 const DomainLookup = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_API;
 
@@ -16,9 +12,7 @@ const DomainLookup = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const { user } = useContext(AuthContext); // user should contain id and email
 
-  // --- 1. UPDATE: New Fetch Endpoint for Price Check ---
   const fetchDomain = async () => {
-    // Updated endpoint: calls the new microservice for availability and pricing
     const url = `${backendUrl}/api/domainPayment/pricecheck/${submittedDomain}`;
     console.log("Making request to:", url);
 
@@ -54,16 +48,14 @@ const DomainLookup = () => {
     e.preventDefault();
     if (!domain.trim()) return;
     setSubmittedDomain(domain.trim());
-    // refetch is not strictly needed here because useQuery handles the state change on submittedDomain
   };
 
   const handlePurchaseClick = () => {
     setShowPurchaseModal(true);
   };
 
-  // --- 2. UPDATE: Implement Payment Processing (Stripe Checkout) ---
   const handleConfirmPurchase = async () => {
-    setShowPurchaseModal(false); // Close modal immediately
+    setShowPurchaseModal(false); // Close modal
 
     if (!data || !user?._id) {
       console.log("data: ", data);
@@ -80,8 +72,6 @@ const DomainLookup = () => {
         domain: data.domain,
         // Use the totalPrice calculated and returned by the backend
         totalPrice: data.totalPrice,
-        // Placeholder/Actual ID required by the fulfillment service
-        //portfolioId: PORTFOLIO_ID_PLACEHOLDER,
       };
 
       const url = `${backendUrl}/api/domainPayment/checkout`;
@@ -111,11 +101,11 @@ const DomainLookup = () => {
   // Safely interpret availability
   const isAvailable = data?.available === true;
 
-  // --- 3. PRICE UPDATE: Use the totalPrice directly from the backend response ---
-  const totalPrice = data?.totalPrice || "0.00";
-  const basePrice = data?.basePrice || "0.00";
-  const icannFee = data?.icannFee || "0.00";
-  const platformFee = data?.platformFee || "0.00"; // Will be 0 if not applied
+  // totalPrice from the backend response 
+  const totalPrice = data?.totalPrice || "Error";
+  const basePrice = data?.basePrice || "Error";
+  const icannFee = data?.icannFee || "Error";
+  const platformFee = data?.platformFee || "Error";
 
   return (
     <div className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8 mb-8">
