@@ -53,6 +53,7 @@ export default function UserProfile() {
       navigate("/");
       return;
     }
+    console.log("user from context", user);
 
     setProfile(user);
     setEditData(user);
@@ -612,15 +613,24 @@ function DomainCard({ domain, onRemove, onVerify }) {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h4 className="font-medium text-gray-900">{domain.domain}</h4>
-            <span
+            <h4 className="font-medium text-gray-900">
+              <a 
+                href={`http://${domain.domain}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 hover:underline"
+              >
+                {domain.domain}
+              </a>
+            </h4>
+            {/* <span
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                 domain.status
               )}`}
             >
               {getStatusIcon(domain.status)}
               {domain.status ? domain.status.charAt(0).toUpperCase() + domain.status.slice(1) : "Unknown"}
-            </span>
+            </span> */}
           </div>
           <div className="text-sm text-gray-600 space-y-1">
             <p>Added: {new Date(domain.createdAt).toLocaleDateString()}</p>
@@ -648,7 +658,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
                 Select portfolio
               </option>
 
-              {user.portfolios.map((portfolio) => (
+              {user.portfolios.map((portfolio) => (portfolio.portfolioId &&
                 <option key={portfolio._id} value={portfolio.portfolioId}>
                   {portfolio.portfolioType}
                 </option>
