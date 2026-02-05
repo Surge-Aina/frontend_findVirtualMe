@@ -284,4 +284,22 @@ export const api = {
 
     return res.json();
   },
+
+  // form data requires: name, email, message, portfolioId, ownerEmail, ownerName
+  async contactMe(formData){
+    const res = await fetch(`${API_BASE_URL}/contactMe/contactMeForm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || `Failed to contact me: ${res.status}`);
+    }
+
+    return res.json();
+  }
 };

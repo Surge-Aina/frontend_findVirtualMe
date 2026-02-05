@@ -23,9 +23,12 @@ import './Testimonials.css';
 import './ContactForm.css';
 import './Footer.css';
 
-const HandymanPage = () => {
-  const { id } = useParams();
+const HandymanPage = ({ portfolioId }) => {
+  const { id: urlId } = useParams();
+  const id = portfolioId || urlId;
+
   const { user } = useContext(AuthContext);
+  console.log("User from context:", user);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

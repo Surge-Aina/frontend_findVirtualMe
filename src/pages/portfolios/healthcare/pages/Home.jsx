@@ -9,8 +9,9 @@ import {
 import Navbar from '../components/Navbar';
 import ScrollToTop from '../components/ScrollToTop';
 
-export default function Home() {
-  const { practiceId } = useParams();
+export default function Home({portfolioId}) {
+  const { practiceId: urlId } = useParams();
+  const practiceId = portfolioId || urlId;
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,10 +24,10 @@ export default function Home() {
     } else {
       // ✅ Check auth for non-demo portfolios
       const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
+      // if (!token) {
+      //   navigate('/login');
+      //   return;
+      // }
       loadData();
     }
   }, [practiceId]);

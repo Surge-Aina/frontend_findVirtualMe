@@ -53,6 +53,7 @@ export default function UserProfile() {
       navigate("/");
       return;
     }
+    console.log("user from context", user);
 
     setProfile(user);
     setEditData(user);
@@ -74,9 +75,11 @@ export default function UserProfile() {
   const loadDomains = async () => {
     setLoadingDomains(true);
     try {
-      const response = await axiosAuth.get(`${apiUrl}/api/domains/myDomains`);
-      // always set an array, even if the response structure is different
-      const domainsData = response.data?.domains || response.data || [];
+      // const response = await axiosAuth.get(`${apiUrl}/api/domains/myDomains`);
+      // // always set an array, even if the response structure is different
+      // const domainsData = response.data?.domains || response.data || [];
+      const response = await axiosAuth.get(`/domainRouter`);
+      const domainsData = response.data;
       setDomains(Array.isArray(domainsData) ? domainsData : []);
     } catch (error) {
       console.error("Failed to load domains:", error);
@@ -411,8 +414,10 @@ export default function UserProfile() {
               <p className="text-gray-600">Connect custom domains to your portfolios and manage DNS settings.</p>
             </div>
 
+
+            {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* Add New Domain */}
-            <div className="border border-gray-200 rounded-lg p-6 mb-6">
+            {/* <div className="border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Domain</h3>
               <div className="flex gap-3">
                 <input
@@ -434,7 +439,7 @@ export default function UserProfile() {
               <p className="text-sm text-gray-500 mt-2">
                 Make sure you own this domain and can configure its DNS settings.
               </p>
-            </div>
+            </div> */}
 
             {/* Existing Domains */}
             <div className="space-y-4">
@@ -464,8 +469,9 @@ export default function UserProfile() {
               )}
             </div>
 
+            {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* DNS Instructions */}
-            {domains.length > 0 && (
+            {/* {domains.length > 0 && (
               <div className="mt-8 border border-blue-200 bg-blue-50 rounded-lg p-6">
                 <h3 className="text-lg font-medium text-blue-900 mb-3">DNS Configuration Instructions</h3>
                 <div className="space-y-3 text-sm">
@@ -487,7 +493,7 @@ export default function UserProfile() {
                   </p>
                 </div>
               </div>
-            )}
+            )} */}
           </section>
         </main>
       )}
@@ -557,6 +563,9 @@ function ToggleSwitch({ enabled, onChange }) {
 
 // domain card component
 function DomainCard({ domain, onRemove, onVerify }) {
+  const { user } = useContext(AuthContext);
+  // const [domains, setDomains] = useState([]);
+  const [selectedPortfolio, setSelectedPortfolio] = useState(domain.portfolioId || "");
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "active":
@@ -583,20 +592,45 @@ function DomainCard({ domain, onRemove, onVerify }) {
     }
   };
 
+  const onConnectProject = async (domainName, portfolioId) => {
+    // Implement the logic to connect the domain to the selected portfolio type
+    const res = await axiosAuth
+      .patch(`/domainRouter/${domain._id}`, {
+        domain: domain.domain,
+        portfolioId: portfolioId,
+        //optional: notes(String)
+      })
+      console.log("connecting domain to portfolio", domainName, portfolioId);
+    console.log("domain connect response", res);
+    console.log("user data", user);
+    setSelectedPortfolio(res.data.portfolioId);
+  }
+
+  // const selectedPortfolio = user?.portfolios?.find(p => p.portfolioId === domain.portfolioId);
+
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h4 className="font-medium text-gray-900">{domain.domain}</h4>
-            <span
+            <h4 className="font-medium text-gray-900">
+              <a 
+                href={`http://${domain.domain}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 hover:underline"
+              >
+                {domain.domain}
+              </a>
+            </h4>
+            {/* <span
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                 domain.status
               )}`}
             >
               {getStatusIcon(domain.status)}
               {domain.status ? domain.status.charAt(0).toUpperCase() + domain.status.slice(1) : "Unknown"}
-            </span>
+            </span> */}
           </div>
           <div className="text-sm text-gray-600 space-y-1">
             <p>Added: {new Date(domain.createdAt).toLocaleDateString()}</p>
@@ -605,12 +639,37 @@ function DomainCard({ domain, onRemove, onVerify }) {
           </div>
         </div>
         <div className="flex items-center gap-2 ml-4">
-          <button
+        
+        {/* =============== removed for now -- possible addition later on -carlosG==============*/}
+          {/* <button
             onClick={() => onVerify(domain._id)}
             className="px-3 py-1 text-sm border border-blue-300 text-blue-600 rounded hover:bg-blue-50 transition"
           >
             Verify
-          </button>
+          </button> */}
+          {/* Domain Portfolio */}
+          {user.portfolios?.length > 0 && (
+            <select
+              className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:border-gray-400 transition"
+              value={ selectedPortfolio}
+              onChange={(e) => onConnectProject(domain.domain, e.target.value)}
+            >
+              <option value="" disabled>
+                Select portfolio
+              </option>
+
+              {user.portfolios.map((portfolio) => (portfolio.portfolioId &&
+                <option key={portfolio._id} value={portfolio.portfolioId}>
+                  {portfolio.portfolioType}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <div>
+            
+          </div>
+
           <button
             onClick={() => onRemove(domain._id)}
             className="px-3 py-1 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50 transition"

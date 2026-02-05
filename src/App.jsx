@@ -66,9 +66,9 @@ import TestPage from "./pages/testPage.jsx";
 function ProtectedHealthcareRoute({ children }) {
   const token = localStorage.getItem('token');
   
-  if (!token) {
-    return <Navigate to="/signup" replace />;
-  }
+  // if (!token) {
+  //   return <Navigate to="/signup" replace />;
+  // }
   
   return children;
 }

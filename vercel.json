@@ -2,14 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept",
-          "value": "text/html.*"
-        }
-      ],
-      "destination": "https://backend-findvirtualme.onrender.com/domainRouter/routing-proxy?host=$host&path=$1"
+      "destination": "/index.html"
     }
   ]
 }

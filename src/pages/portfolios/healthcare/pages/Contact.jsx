@@ -17,7 +17,7 @@ export default function Contact() {
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    message: '',
   });
   const [submitStatus, setSubmitStatus] = useState('');
 
@@ -42,13 +42,29 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus('sending');
-    
-    // Simulate form submission (replace with actual API call)
-    setTimeout(() => {
+    //call contactMe route
+    try {
+
+      const formattedMesage = `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nSubject: ${formData.subject}\n\nMessage:\n${formData.message}`;
+
+      const formDataToSend = {
+        name: formData.name,
+        email: formData.email,
+        message: formattedMesage,
+        portfolioId: practiceId,
+        ownerEmail: userData.contact.email,
+        ownerName: userData.practiceName || 'Healthcare Practice',
+      };
+      // console.log("formDataToSend:", formDataToSend);
+      await api.contactMe(formDataToSend);
       setSubmitStatus('success');
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       setTimeout(() => setSubmitStatus(''), 3000);
-    }, 1000);
+    } catch (error) {
+        console.error('Error submitting contact form:', error);
+        setSubmitStatus('error');
+        return;
+      }
   };
 
   const handleChange = (e) => {
