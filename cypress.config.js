@@ -7,7 +7,7 @@ module.exports = defineConfig({
     supportFile: "cypress/support/e2e.js",
     env: {
       // 👇 keep this in sync with your .env/.env.local
-      backendUrl: process.env.VITE_BACKEND_API || "http://localhost:5001",
+      backendUrl: process.env.VITE_BACKEND_API || "http://localhost:5000",
     },
   },
 });
