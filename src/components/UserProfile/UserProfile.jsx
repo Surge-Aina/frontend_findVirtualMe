@@ -49,16 +49,19 @@ export default function UserProfile() {
   };
 
   useEffect(() => {
-    if (!user) {
+    if (!token) {
       navigate("/");
       return;
     }
     console.log("user from context", user);
 
+    // Logged in but user still loading
+    if (!user) return;
+
     setProfile(user);
     setEditData(user);
     setLoading(false);
-  }, [user]);
+  }, [user, token]);
 
   useEffect(() => {
     console.log("current profile state", profile);
@@ -625,7 +628,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
             </h4>
             {/* <span
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                domain.status
+                domain.status,
               )}`}
             >
               {getStatusIcon(domain.status)}

@@ -13,6 +13,8 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+const PROMO_END = '03/31/2026';
+
 const plans = [
   {
     id: 'free',
@@ -29,8 +31,19 @@ const plans = [
     price: '$10',
     period: '/mo',
     regPrice: '$50',
-    description: 'Perfect for individuals and businesses getting started',
-    features: ['Up to 5 projects', 'Basic analytics', 'Email support', 'Standard templates'],
+    description: 'Perfect for individuals getting started.',
+    features: [
+      'Up to 2 projects',
+      'Unlimited project edits',
+      '1 free domain (first year)',
+      'Domain hosting included',
+      'Standard templates',
+      'Basic analytics',
+      'Email support',
+      'Limited watermark',
+      'Changes deployed by next business day',
+      'Multi-user access',
+    ],
     promo: true,
   },
   {
@@ -39,8 +52,19 @@ const plans = [
     price: '$20',
     period: '/mo',
     regPrice: '$99',
-    description: 'Best for growing individuals and businesses',
-    features: ['Unlimited projects', 'Advanced analytics', 'Priority support', 'Premium templates', 'Custom integrations'],
+    description: 'Best for growing professionals and businesses.',
+    features: [
+      'Unlimited projects',
+      'Unlimited project edits',
+      'No watermark',
+      'Premium templates',
+      'Advanced + AI-powered analytics',
+      'Priority human support',
+      'Monthly performance reports',
+      'Custom integrations',
+      'Two expert consultation sessions per year',
+      'On-demand SEO services (additional cost)',
+    ],
     promo: true,
     popular: true,
   },
@@ -97,7 +121,7 @@ export default function Payment() {
           }}
         >
           <span className="px-4 py-1 rounded-full bg-pink-600 text-white text-xs font-semibold shadow absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-            Promotional Offer ends 12/31/2025
+            Promotional Offer ends {PROMO_END}
           </span>
           <div className="text-2xl font-bold mb-1">{plans[1].name}</div>
           <div className="flex items-center gap-2 mb-1">
@@ -121,7 +145,7 @@ export default function Payment() {
             Get Started
           </button>
           <div className="text-xs text-pink-600 mt-3 font-medium text-center">
-            Regular price <span className="line-through">{plans[1].regPrice}</span> now <span className="font-bold">{plans[1].price}</span>! Offer ends 12/31/2025.
+            Regular price <span className="line-through">{plans[1].regPrice}</span> now <span className="font-bold">{plans[1].price}</span>! Offer ends {PROMO_END}.
           </div>
         </div>
         {/* Pro Plan */}
@@ -148,7 +172,7 @@ export default function Payment() {
             Get Started
           </button>
           <div className="text-xs text-pink-600 mt-3 font-medium text-center">
-            Regular price <span className="line-through">{plans[2].regPrice}</span> now <span className="font-bold">{plans[2].price}</span>! Offer ends 12/31/2025.
+            Regular price <span className="line-through">{plans[2].regPrice}</span> now <span className="font-bold">{plans[2].price}</span>! Offer ends {PROMO_END}.
           </div>
         </div>
       </div>
