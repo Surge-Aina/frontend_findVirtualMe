@@ -4,7 +4,7 @@ import { api } from '../../lib/api';
 import { 
   FaHome, FaCog, FaFileAlt, FaImages, 
   FaEnvelope, FaSave, FaEdit, 
-  FaEye, FaSearch, FaArrowLeft 
+  FaEye, FaSearch, FaArrowLeft , FaTrash
 } from 'react-icons/fa';
 
 const ServicesEditor = lazy(() => import('../../components/admin/ServicesEditor'));
@@ -122,10 +122,10 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center min-h-20 h-auto">
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900">
-                {userData?.portfolioName || userData?.practice?.name || 'Website Management'}
+                {userData?.practice?.name || userData?.portfolioName || 'Website Management'}
               </h1>
               
               {userData?._id && (
@@ -224,6 +224,47 @@ export default function AdminDashboard() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+
+                  {/* Hero background Image */}
+                  <div className="bg-white rounded-lg shadow p-6 mb-8">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Hero Background Image
+                    </h3>
+
+                    <input
+                      type="text"
+                      placeholder="https://example.com/image.jpg"
+                      value={userData?.ui?.hero?.backgroundImage || ''}
+                      onChange={(e) =>
+                        updateNestedField('ui', 'hero', 'backgroundImage', e.target.value)
+                      }
+                      className="w-full border rounded-md px-4 py-2 mb-4"
+                    />
+
+                    {userData?.ui?.hero?.backgroundImage && (
+                      <div className="rounded-lg overflow-hidden border">
+                        <img
+                          src={userData.ui.hero.backgroundImage}
+                          alt="Hero background preview"
+                          className="w-full h-48 object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {userData?.ui?.hero?.backgroundImage && (
+                      <button
+                        onClick={() =>
+                          updateNestedField('ui', 'hero', 'backgroundImage', '')
+                        }
+                        className="mt-3 px-4 py-2 border rounded-4xl shadow hover:text-red-600 hover:cursor-pointer "
+                      >
+                        <FaTrash className="inline mr-2 text-red-600" /> Remove Image
+                      </button>
+                    )}
+                  </div>
+
+
+
 
                   <div className="border-t pt-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
