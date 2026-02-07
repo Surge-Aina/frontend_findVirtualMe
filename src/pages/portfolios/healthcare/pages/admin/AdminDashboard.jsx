@@ -107,6 +107,20 @@ export default function AdminDashboard() {
     }));
   };
 
+  // Upload image to S3 and update the hero background image URL
+  const uploadHeroImage = async (file) => {
+    try {
+      // Get public url
+      const publicUrl = await api.uploadImageToS3(file);
+      // Save URL to state
+      updateNestedField('ui', 'hero', 'backgroundImage', publicUrl);
+    } catch (err) {
+      console.error('Hero Image Upload Error:', err);
+      alert('Image upload failed');
+    }
+  };
+
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -225,7 +239,7 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  {/* Hero background Image */}
+                  {/* Hero background Image URL */}
                   <div className="bg-white rounded-lg shadow p-6 mb-8">
                     <h3 className="text-lg font-semibold mb-4">
                       Hero Background Image
@@ -262,6 +276,28 @@ export default function AdminDashboard() {
                       </button>
                     )}
                   </div>
+
+                  {/* Upload Image */}
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Upload Hero Image
+                    </label>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadHeroImage(file);
+                      }}
+                      className="block w-full text-sm"
+                    />
+
+                    <p className="text-xs text-gray-500">
+                      JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
+                    </p>
+                  </div>
+
 
 
 

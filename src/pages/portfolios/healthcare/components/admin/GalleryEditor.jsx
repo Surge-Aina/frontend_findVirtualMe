@@ -1,6 +1,7 @@
 // components/admin/GalleryEditor.js
 import { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaImages, FaCamera } from 'react-icons/fa'
+import {api} from "../../lib/api";
 
 export default function GalleryEditor({ gallery, onUpdate }) {
   const [editingFacilityImage, setEditingFacilityImage] = useState(null)
@@ -79,6 +80,30 @@ export default function GalleryEditor({ gallery, onUpdate }) {
     }
   }
 
+  const uploadGalleryImage = async (file, imageIndex) => {
+      try {
+        //get public URL
+        const publicUrl = await api.uploadImageToS3(file);
+        // Save final public URL
+        updateFacilityImage(imageIndex, 'url', publicUrl)
+      } catch (err) {
+        console.error('Gallery Image Upload Error:', err)
+        alert('Image upload failed')
+      }
+    }
+
+  const uploadCaseImage = async (file, caseIndex, type) => {
+    try {
+      //get public URL
+      const publicUrl = await api.uploadImageToS3(file);
+      // Save final public URL
+      updateBeforeAfterCase(caseIndex, type, publicUrl)
+    } catch (err) {
+      console.error('Case Image Upload Error:', err)
+      alert('Image upload failed')
+    } 
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -115,6 +140,23 @@ export default function GalleryEditor({ gallery, onUpdate }) {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="https://example.com/image.jpg"
                     />
+
+                    {/* Upload Image */}
+                    <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                      <FaCamera className="mr-2" />
+                      Upload
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            uploadGalleryImage(e.target.files[0], index)
+                          }
+                        }}
+                      />
+                    </label>
+
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Caption</label>
@@ -193,8 +235,9 @@ export default function GalleryEditor({ gallery, onUpdate }) {
           ))}
         </div>
 
+
         {safeGallery.facilityImages.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
             <FaCamera className="mx-auto text-4xl mb-4" />
             <p>No facility images added yet.</p>
             <p className="text-sm">Click "Add Facility Image" to get started.</p>
@@ -268,26 +311,59 @@ export default function GalleryEditor({ gallery, onUpdate }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Before Image URL</label>
-                      <input
-                        type="url"
-                        value={case_.beforeImage}
-                        onChange={(e) => updateBeforeAfterCase(index, 'beforeImage', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="https://example.com/before.jpg"
-                      />
+                      <div className="flex flex-col gap-3 items-center">
+                        <input
+                          type="url"
+                          value={case_.beforeImage}
+                          onChange={(e) => updateBeforeAfterCase(index, 'beforeImage', e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="https://example.com/before.jpg"
+                        />
+
+                        <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                          <FaCamera className="mr-2" />
+                          Upload
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                uploadCaseImage(e.target.files[0], index, 'beforeImage')
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">After Image URL</label>
-                      <input
-                        type="url"
-                        value={case_.afterImage}
-                        onChange={(e) => updateBeforeAfterCase(index, 'afterImage', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="https://example.com/after.jpg"
-                      />
-                    </div>
-                  </div>
+                      <div className="flex flex-col gap-3 items-center">
+                        <input
+                          type="url"
+                          value={case_.afterImage}
+                          onChange={(e) => updateBeforeAfterCase(index, 'afterImage', e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="https://example.com/after.jpg"
+                        />
 
+                        <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                          <FaCamera className="mr-2" />
+                          Upload
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                uploadCaseImage(e.target.files[0], index, 'afterImage')
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                </div>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => {
@@ -371,7 +447,7 @@ export default function GalleryEditor({ gallery, onUpdate }) {
         </div>
 
         {safeGallery.beforeAfterCases.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
             <FaCamera className="mx-auto text-4xl mb-4" />
             <p>No before/after cases added yet.</p>
             <p className="text-sm">Click "Add Before/After Case" to get started.</p>

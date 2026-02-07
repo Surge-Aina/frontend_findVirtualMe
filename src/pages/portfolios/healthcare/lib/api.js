@@ -235,5 +235,47 @@ export const api = {
     }
 
     return res.json();
-  }
-};
+  },
+
+  async getS3UploadUrl({ fileType }) {
+    const res = await fetch(`${API_BASE_URL}/s3-upload-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileType }),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to get upload URL');
+    }
+
+    return res.json();
+  },
+
+  async uploadImageToS3(file) {
+    try {
+      // Get signed URL from backend
+      const { uploadUrl, publicUrl } = await this.getS3UploadUrl({
+        fileType: file.type,
+      });
+
+      // Upload directly to S3
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+
+      // Return the public URL of the uploaded image
+      return publicUrl; 
+
+    } catch (err) {
+      console.error('Upload failed', err);
+      throw new Error('Image upload failed');
+    }
+  },
+
+}

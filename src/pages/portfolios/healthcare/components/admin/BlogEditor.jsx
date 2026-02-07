@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaEye, FaImage, FaCamera } from 'react-icons/fa'
+import { api } from '../../lib/api'
 
 export default function BlogEditor({ blogPosts, onUpdate }) {
   const [editingPost, setEditingPost] = useState(null)
@@ -74,6 +75,19 @@ export default function BlogEditor({ blogPosts, onUpdate }) {
     setEditingPost(null)
   }
 
+  const uploadBlogImage = async (file, postIndex) => {
+    try {
+      // Get public URL from S3
+      const publicUrl = await api.uploadImageToS3(file);
+      // Save final public URL
+      updatePost(postIndex, 'image', publicUrl)
+    } catch (err) {
+      console.error('Blog Image Upload Error:', err)
+      alert('Image upload failed')
+    }
+  }
+
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -119,10 +133,28 @@ export default function BlogEditor({ blogPosts, onUpdate }) {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="https://example.com/blog-image.jpg"
                       />
+
+                      {/* Upload option */}
+                      <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                        <FaImage />
+                        Upload image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files[0]
+                            if (file) uploadBlogImage(file, index)
+                          }}
+                        />
+                      </label>
+
                       <p className="text-xs text-gray-500 mt-1">
-                        Enter an image URL for the blog post featured image
+                        Paste an image URL or upload directly (recommended: 1200x630px)
                       </p>
                     </div>
+
+                    {/* Preview */}
                     {post.image && (
                       <div className="w-32 h-24 border rounded-lg overflow-hidden flex-shrink-0">
                         <img 
@@ -342,6 +374,7 @@ export default function BlogEditor({ blogPosts, onUpdate }) {
         <h4 className="text-blue-800 font-semibold mb-2">💡 Blog Post Tips:</h4>
         <ul className="text-blue-700 text-sm space-y-1">
           <li>• Use high-quality featured images (recommended: 1200x630px)</li>
+          <li>• Upload images directly or paste image URLs from hosting services</li>
           <li>• Write engaging titles that capture attention</li>
           <li>• Keep excerpts concise (1-2 sentences)</li>
           <li>• Use HTML tags in content for formatting: &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, etc.</li>
