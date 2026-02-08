@@ -95,30 +95,51 @@ export default function Home({portfolioId}) {
       <Navbar userData={userData} practiceId={practiceId} />
       
       {/* ✅ Hero Section - Use UI customization */}
-      <section className="bg-gradient-to-br from-blue-700 to-blue-900 text-white pt-36 pb-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            {userData?.practice?.tagline || 'Your Health, Our Priority'}
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 opacity-95 max-w-3xl mx-auto">
-            {userData?.practice?.description || 'Providing quality healthcare services.'}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              to={`/portfolios/healthcare/${practiceId}/contact`}
-              className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
-            >
-              {userData?.ui?.hero?.primaryButtonText || 'Get Started'}
-            </Link>
-            <Link 
-              to={`/portfolios/healthcare/${practiceId}/services`}
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition-all"
-            >
-              {userData?.ui?.hero?.secondaryButtonText || 'Learn More'}
-            </Link>
-          </div>
-        </div>
-      </section>
+      <section
+  className="relative text-white pt-36 pb-20 bg-gradient-to-br from-blue-700 to-blue-900"
+  style={
+    userData?.ui?.hero?.backgroundImage
+      ? {
+          backgroundImage: `url(${userData.ui.hero.backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }
+      : undefined
+  }
+>
+  {/* Optional overlay for readability */}
+  {userData?.ui?.hero?.backgroundImage && (
+    <div className="absolute inset-0 bg-black/40"></div>
+  )}
+
+  <div className="relative max-w-7xl mx-auto px-4 text-center">
+    <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+      {userData?.practice?.tagline || 'Your Health, Our Priority'}
+    </h1>
+
+    <p className="text-xl md:text-2xl mb-8 opacity-95 max-w-3xl mx-auto">
+      {userData?.practice?.description || 'Providing quality healthcare services.'}
+    </p>
+
+    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <Link
+        to={`/portfolios/healthcare/${practiceId}/contact`}
+        className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
+      >
+        {userData?.ui?.hero?.primaryButtonText || 'Get Started'}
+      </Link>
+
+      <Link
+        to={`/portfolios/healthcare/${practiceId}/services`}
+        className="border-2 border-white text-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition-all"
+      >
+        {userData?.ui?.hero?.secondaryButtonText || 'Learn More'}
+      </Link>
+    </div>
+  </div>
+</section>
+
 
       {/* Stats Section */}
       <section className="bg-white py-20">

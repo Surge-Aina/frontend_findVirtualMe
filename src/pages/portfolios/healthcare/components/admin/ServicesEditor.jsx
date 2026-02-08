@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaImage, FaCamera } from 'react-icons/fa'
+import { api } from '../../lib/api'
 
 export default function ServicesEditor({ services, onUpdate }) {
   const [editingService, setEditingService] = useState(null)
@@ -55,6 +56,19 @@ export default function ServicesEditor({ services, onUpdate }) {
     onUpdate(updatedServices)
   }
 
+  const uploadServiceImage = async (file, serviceIndex) => {
+    try {
+      //get public URL
+      const publicUrl = await api.uploadImageToS3(file);
+      // Save final public URL
+      updateService(serviceIndex, 'image', publicUrl)
+    } catch (err) {
+      console.error('Service Image Upload Error:', err)
+      alert('Image upload failed')
+    }
+  }
+
+
   return (
     <div className="lg:col-span-3">
       <div className="bg-white rounded-lg shadow p-6">
@@ -89,23 +103,38 @@ export default function ServicesEditor({ services, onUpdate }) {
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="https://example.com/image.jpg"
                           />
+
+                          {/* Upload option */}
+                          <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                            <FaImage />
+                            Upload image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files[0]
+                                if (file) uploadServiceImage(file, index)
+                              }}
+                            />
+                          </label>
+
                           <p className="text-xs text-gray-500 mt-1">
-                            Enter an image URL or upload to a service like Imgur, Cloudinary, etc.
+                            Paste an image URL or upload directly
                           </p>
                         </div>
-                        {service.image && service.image.startsWith('http') && (
-  <div className="w-24 h-24 border rounded-lg overflow-hidden flex-shrink-0">
-    <img 
-      src={service.image} 
-      alt="Preview" 
-      className="w-full h-full object-cover"
-      onError={(e) => {
-        e.target.style.display = 'none'
-      }}
-    />
-  </div>
-)}
-                        {!service.image && (
+
+
+                        {/* Preview */}
+                        {service.image ? (
+                          <div className="w-24 h-24 border rounded-lg overflow-hidden flex-shrink-0">
+                            <img
+                              src={service.image}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
                           <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center flex-shrink-0">
                             <FaCamera className="text-gray-400 text-2xl" />
                           </div>

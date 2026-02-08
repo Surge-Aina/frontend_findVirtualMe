@@ -9,6 +9,7 @@
 }
 
 body {
+    padding-top: 40px;
     margin: 0;
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
     background: #ffffff;
@@ -153,7 +154,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 80px;
+    min-height: 80px;
+    height: auto;
+    align-items: center;
     padding: 0 2rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -178,6 +181,13 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.logo span {
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
+}
+
 
 .nav-links {
     display: flex;

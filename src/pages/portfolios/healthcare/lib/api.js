@@ -1,14 +1,11 @@
 // Safe helper for Vite + Jest
 function safeImportMetaEnv() {
   try {
-    // Only works in Vite
     return typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
   } catch {
     return {};
   }
 }
-
-const env = safeImportMetaEnv();
 
 export const API_BASE_URL =
   import.meta.env.VITE_BACKEND_API || 
@@ -16,86 +13,52 @@ export const API_BASE_URL =
 
 export const api = {
   // ==========================================
-  // PUBLIC PRACTICE DATA APIs (No Auth Required)
+  // PUBLIC APIs (No Auth Required)
   // ==========================================
 
-  /**
-   * Get practice data by practiceId (supports both _id and legacy practiceId)
-   * @param {string} practiceId - Practice ID or MongoDB _id
-   * @returns {Promise<Object>} Practice data
-   */
-  async getPracticeData(practiceId) {
-    const res = await fetch(`${API_BASE_URL}/healthcare/practice/${practiceId}`, {
+  async getPracticeData(id) {
+    const res = await fetch(`${API_BASE_URL}/healthcare/practice/${id}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
-  /**
-   * Get practice data by subdomain
-   * @param {string} subdomain - Unique subdomain identifier
-   * @returns {Promise<Object>} Practice data
-   */
   async getPracticeBySubdomain(subdomain) {
     const res = await fetch(`${API_BASE_URL}/healthcare/subdomain/${subdomain}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
-  /**
-   * Get demo practice data (no auth required)
-   * @returns {Promise<Object>} Demo practice data
-   */
   async getDemoData() {
     const res = await fetch(`${API_BASE_URL}/healthcare/demo`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
-  /**
-   * Get all public healthcare portfolios
-   * @returns {Promise<Object>} List of public portfolios
-   */
   async getPublicPortfolios() {
     const res = await fetch(`${API_BASE_URL}/healthcare/public/all`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
   // ==========================================
-  // HEALTHCARE PORTFOLIO MANAGEMENT (Main Platform Auth Required)
+  // PROTECTED APIs (Auth Required)
   // ==========================================
 
-  /**
-   * Create new healthcare portfolio for authenticated user
-   * Uses main platform JWT token from localStorage
-   * @returns {Promise<Object>} Created portfolio data with practiceId
-   */
   async createHealthcarePortfolio() {
-    const token = localStorage.getItem("token"); // Main platform token
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
 
     const res = await fetch(`${API_BASE_URL}/healthcare/create`, {
       method: "POST",
@@ -113,16 +76,9 @@ export const api = {
     return res.json();
   },
 
-  /**
-   * Get all healthcare portfolios owned by authenticated user
-   * @returns {Promise<Object>} User's portfolios
-   */
   async getMyPortfolios() {
     const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+    if (!token) throw new Error("Authentication required. Please log in.");
 
     const res = await fetch(`${API_BASE_URL}/healthcare/my-portfolios`, {
       method: "GET",
@@ -132,30 +88,21 @@ export const api = {
       },
     });
 
-    if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
-    }
-
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
-  // ==========================================
-  // ADMIN APIs (Main Platform Auth Required)
-  // ==========================================
+  // ✅ Get admin data by _id (like other portfolios)
+  async getAdminData(portfolioId) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-  /**
-   * Get admin data for authenticated user's healthcare portfolio
-   * Uses main platform JWT token
-   * @returns {Promise<Object>} Admin data including practiceId
-   */
-  async getAdminData() {
-    const token = localStorage.getItem("token"); // Main platform token (NOT adminToken)
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+    // Use _id-specific endpoint if provided
+    const endpoint = portfolioId 
+      ? `${API_BASE_URL}/healthcare/admin/data/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/data`;
 
-    const response = await fetch(`${API_BASE_URL}/healthcare/admin/data`, {
+    const res = await fetch(endpoint, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -163,27 +110,25 @@ export const api = {
       },
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `API error: ${response.status}`);
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || `API error: ${res.status}`);
     }
 
-    return response.json();
+    return res.json();
   },
 
-  /**
-   * Save/update healthcare portfolio data
-   * @param {Object} data - Portfolio data to save
-   * @returns {Promise<Object>} Save result
-   */
-  async saveAdminData(data) {
-    const token = localStorage.getItem("token"); // Main platform token
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+  // ✅ Save admin data by _id
+  async saveAdminData(data, portfolioId = null) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-    const res = await fetch(`${API_BASE_URL}/healthcare/admin/data`, {
+    const id = portfolioId || data._id;
+    const endpoint = id
+      ? `${API_BASE_URL}/healthcare/admin/data/${id}`
+      : `${API_BASE_URL}/healthcare/admin/data`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -200,19 +145,15 @@ export const api = {
     return res.json();
   },
 
-  /**
-   * Update practice subdomain
-   * @param {string} subdomain - New subdomain (lowercase, alphanumeric + hyphens)
-   * @returns {Promise<Object>} Update result
-   */
-  async updateSubdomain(subdomain) {
+  async updateSubdomain(subdomain, portfolioId = null) {
     const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-    const res = await fetch(`${API_BASE_URL}/healthcare/admin/subdomain`, {
+    const endpoint = portfolioId
+      ? `${API_BASE_URL}/healthcare/admin/subdomain/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/subdomain`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -229,19 +170,15 @@ export const api = {
     return res.json();
   },
 
-  /**
-   * Toggle portfolio public/private status
-   * @param {boolean} isPublic - Whether portfolio should be public
-   * @returns {Promise<Object>} Update result
-   */
-  async togglePublicStatus(isPublic) {
+  async togglePublicStatus(isPublic, portfolioId = null) {
     const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-    const res = await fetch(`${API_BASE_URL}/healthcare/admin/toggle-public`, {
+    const endpoint = portfolioId
+      ? `${API_BASE_URL}/healthcare/admin/toggle-public/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/toggle-public`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -258,18 +195,15 @@ export const api = {
     return res.json();
   },
 
-  /**
-   * Delete healthcare portfolio
-   * @returns {Promise<Object>} Delete result
-   */
-  async deletePortfolio() {
+  async deletePortfolio(portfolioId = null) {
     const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("Authentication required. Please log in.");
-    }
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-    const res = await fetch(`${API_BASE_URL}/healthcare/admin/delete`, {
+    const endpoint = portfolioId
+      ? `${API_BASE_URL}/healthcare/admin/delete/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/delete`;
+
+    const res = await fetch(endpoint, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -301,5 +235,47 @@ export const api = {
     }
 
     return res.json();
-  }
-};
+  },
+
+  async getS3UploadUrl({ fileType }) {
+    const res = await fetch(`${API_BASE_URL}/s3-upload-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileType }),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to get upload URL');
+    }
+
+    return res.json();
+  },
+
+  async uploadImageToS3(file) {
+    try {
+      // Get signed URL from backend
+      const { uploadUrl, publicUrl } = await this.getS3UploadUrl({
+        fileType: file.type,
+      });
+
+      // Upload directly to S3
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+
+      // Return the public URL of the uploaded image
+      return publicUrl; 
+
+    } catch (err) {
+      console.error('Upload failed', err);
+      throw new Error('Image upload failed');
+    }
+  },
+
+}
