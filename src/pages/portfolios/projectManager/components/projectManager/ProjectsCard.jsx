@@ -20,6 +20,7 @@ axios.interceptors.request.use(
 const ProjectsCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
   const projects = portfolio.projects;
+  const portfolioId = portfolio?._id;
   const [editIdx, setEditIdx] = useState(null);
   const [editProject, setEditProject] = useState({});
   const [projectList, setProjectList] = useState(projects);
@@ -36,21 +37,39 @@ const ProjectsCard = ({ portfolio }) => {
 
   // Update local state when projects prop changes
   useEffect(() => {
-    setProjectList(projects);
+    setProjectList(projects || []);
   }, [projects]);
 
   // Mutation for saving projects data
   const saveProjectsMutation = useMutation({
     mutationFn: async (projectsData) => {
+      // build updated portfolio with new projects array
+      const updatedPortfolio = {
+        ...portfolio,
+        projects: projectsData,
+      };
+
       const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-        portfolio: { projects: projectsData },
+        portfolio: updatedPortfolio,
       });
+
       return response.data;
     },
     onSuccess: (data) => {
       console.log("Save successful:", data);
+
+      // sync local state with what backend actually saved
+      setProjectList(data.projects || []);
+
       toast.success("Project saved successfully!");
-      queryClient.invalidateQueries(["portfolio"]);
+
+      // update the same query key used in PortfolioPage
+      if (portfolioId) {
+        queryClient.setQueryData(["portfolio", portfolioId], data);
+      } else {
+        // fallback: invalidate any 'portfolio' queries
+        queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      }
     },
     onError: (error) => {
       console.error("Save failed:", error);
