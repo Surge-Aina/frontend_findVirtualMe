@@ -464,7 +464,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                     {portfolio?.summary || "Summary of your professional experience and goals"}
                   </p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="flex justify-center">
                     <div>
                       <h3 className="text-heading-blue flex items-center mb-4">
                         <span className="section-icon-container">
@@ -495,7 +495,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                       </ul>
                     </div>
 
-                    <div>
+                    {/*<div>
                       <h3 className="text-heading-blue flex items-center mb-4">
                         <span className="section-icon-container">
                           <svg className="section-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -521,7 +521,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                           </span>
                         )}
                       </div>
-                    </div>
+                    </div>*/}
                   </div>
                 </div>
               </div>
