@@ -50,6 +50,7 @@ export default function Home({portfolioId}) {
       setLoading(true);
       const data = await api.getPracticeData(practiceId);
       setUserData(data);
+      console.log('Loaded practice data:', data);
     } catch (error) {
       console.error('Error loading practice data:', error);
       setError('Practice not found');
@@ -96,7 +97,7 @@ export default function Home({portfolioId}) {
       
       {/* ✅ Hero Section - Use UI customization */}
       <section
-  className="relative text-white pt-36 pb-20 bg-gradient-to-br from-blue-700 to-blue-900"
+  className="relative text-white pt-30 pb-20 bg-gradient-to-br from-blue-700 to-blue-900"
   style={
     userData?.ui?.hero?.backgroundImage
       ? {

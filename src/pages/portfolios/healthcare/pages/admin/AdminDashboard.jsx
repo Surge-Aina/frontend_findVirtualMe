@@ -4,8 +4,13 @@ import { api } from '../../lib/api';
 import { 
   FaHome, FaCog, FaFileAlt, FaImages, 
   FaEnvelope, FaSave, FaEdit, 
-  FaEye, FaSearch, FaArrowLeft , FaTrash
+  FaEye, FaSearch, FaArrowLeft , FaTrash,
+  FaHospital, FaTooth
 } from 'react-icons/fa';
+import { FaHospitalUser } from "react-icons/fa6";
+import { MdHealthAndSafety } from "react-icons/md";
+import { GiHealthNormal } from "react-icons/gi";
+import { RiMentalHealthFill } from "react-icons/ri"
 
 const ServicesEditor = lazy(() => import('../../components/admin/ServicesEditor'));
 const BlogEditor = lazy(() => import('../../components/admin/BlogEditor'));
@@ -107,18 +112,63 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Upload image to S3 and update the hero background image URL
-  const uploadHeroImage = async (file) => {
+  // Generic image upload + save function
+  const uploadAndSaveImage = async ({ file, section, subsection, field }) => {
     try {
-      // Get public url
       const publicUrl = await api.uploadImageToS3(file);
-      // Save URL to state
-      updateNestedField('ui', 'hero', 'backgroundImage', publicUrl);
+      if (!publicUrl) throw new Error('No URL returned from S3');
+      
+      // Build updatedData depending on whether subsection is provided
+      let updatedData;
+      if (subsection) {
+        updatedData = {
+          ...userData,
+          [section]: {
+            ...userData[section],
+            [subsection]: {
+              ...userData[section]?.[subsection],
+              [field]: publicUrl
+            }
+          }
+        };
+      } else {
+        updatedData = {
+          ...userData,
+          [section]: {
+            ...userData[section],
+            [field]: publicUrl
+          }
+        };
+      }
+      
+      // Update state
+      setUserData(updatedData);
+      
+      // Save immediately
+      const result = await api.saveAdminData(updatedData, practiceId);
+      
+      if (result.success) {
+        setSaveStatus('✅ Saved!');
+        setTimeout(() => setSaveStatus(''), 3000);
+      } else {
+        setSaveStatus('❌ Error');
+        setTimeout(() => setSaveStatus(''), 5000);
+      }
+      
     } catch (err) {
-      console.error('Hero Image Upload Error:', err);
+      console.error('Image Upload Error:', err);
       alert('Image upload failed');
     }
   };
+  
+const uploadLogoImage = (file) => {
+  uploadAndSaveImage({ file, section: 'practice', field: 'logoImage' });
+};
+
+const uploadHeroImage = (file) => {
+  uploadAndSaveImage({ file, section: 'ui', subsection: 'hero', field: 'backgroundImage' });
+};
+
 
 
   if (loading) {
@@ -146,9 +196,9 @@ export default function AdminDashboard() {
                 <Link 
                   to={`/portfolios/healthcare/${userData._id}`}
                   target="_blank"
-                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center mr-2"
                 >
-                  <FaEye className="mr-1" /> View Site
+                  <FaEye className=" h-8 w-8" /> View Site
                 </Link>
               )}
             </div>
@@ -239,6 +289,86 @@ export default function AdminDashboard() {
                     />
                   </div>
 
+                  <div className="border-t pt-6"></div>
+
+                  {/* Logo*/}
+                  <div className="flex flex-col align-middle pt-6 shadow-sm rounded-lg p-4">
+                      <h3 className="text-lg font-semibold mb-4">Logo Image</h3>
+
+                    {/* Select from default logos */}
+                    <div className="my-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Choose from Default Logo</label>
+                      <div className="flex justify-center gap-2 overflow-auto">
+                        {[//if adding more make sure to also add to Navbar.jsx iconMap
+                          { icon: FaTooth, name: 'FaTooth' },
+                          { icon: FaHospital, name: 'FaHospital' },
+                          { icon: MdHealthAndSafety, name: 'MdHealthAndSafety' },
+                          { icon: GiHealthNormal, name: 'GiHealthNormal' },
+                          { icon: FaHospitalUser, name: 'FaHospitalUser' },
+                          { icon: RiMentalHealthFill, name: 'RiMentalHealthFill' }
+                        ].map((defaultLogo) => (
+                          <button
+                            key={defaultLogo.name}
+                            onClick={() => updateField('practice', 'icon', defaultLogo.name)}
+                            className={`flex items-center justify-center w-14 h-14  rounded-full border ${
+                              userData?.practice?.icon === defaultLogo.name
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-300'
+                            }`}
+                          >
+                            <defaultLogo.icon className="text-gray-700" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="text-center my-4 text-gray-500">OR</div>
+                    
+                    {/* URL logo */}
+                    <input
+                      type="text"
+                      placeholder="https://example.com/logo.png"
+                      value={userData?.practice?.logoImage || ''}
+                      onChange={(e) => updateField('practice', 'logoImage', e.target.value)}
+                      className="w-full border rounded-md px-4 py-2 mb-4"
+                    />
+                    {userData?.practice?.logoImage && (
+                      <div className="rounded-lg overflow-hidden border w-32 h-32 flex items-center justify-center mx-auto">
+                        <img
+                          src={userData.practice.logoImage}
+                          alt="Logo preview"
+                          className="w-32 h-32 object-contain "
+                        />
+                      </div>
+                    )}
+                    {userData?.practice?.logoImage && (
+                      <button
+                        onClick={() => updateField('practice', 'logoImage', '')}
+                        className="mt-3 px-4 py-2 border rounded-4xl shadow hover:text-red-600 hover:cursor-pointer "
+                      >
+                        <FaTrash className="inline mr-2 text-red-600" /> Remove Logo
+                      </button>
+                    )}
+
+                    {/* Upload Logo Image */}
+                    <div className="space-y-4">
+                      <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                        Upload Logo
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadLogoImage(file);
+                          }}
+                          className="hidden"
+                          />
+                      </label>
+                    </div>
+                  </div>
+
+
                   {/* Hero background Image URL */}
                   <div className="bg-white rounded-lg shadow p-6 mb-8">
                     <h3 className="text-lg font-semibold mb-4">
@@ -275,27 +405,27 @@ export default function AdminDashboard() {
                         <FaTrash className="inline mr-2 text-red-600" /> Remove Image
                       </button>
                     )}
-                  </div>
 
-                  {/* Upload Image */}
-                  <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Upload Hero Image
-                    </label>
+                    {/* Upload Hero Image */}
+                    <div className="space-y-4">
+                      <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                        Upload Hero Image
 
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) uploadHeroImage(file);
-                      }}
-                      className="block w-full text-sm"
-                    />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadHeroImage(file);
+                          }}
+                          className="hidden"
+                          />
+                      </label>
 
-                    <p className="text-xs text-gray-500">
-                      JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
-                    </p>
+                      <p className="text-xs text-gray-500">
+                        JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
+                      </p>
+                    </div>
                   </div>
 
 
