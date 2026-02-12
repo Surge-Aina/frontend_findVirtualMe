@@ -1,12 +1,24 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { FaGithub, FaLinkedin, FaGlobe, FaPen, FaSave, FaTimes, FaCamera } from "react-icons/fa";
+import {
+  FaGithub,
+  FaLinkedin,
+  FaGlobe,
+  FaPen,
+  FaSave,
+  FaTimes,
+  FaCamera,
+} from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../../../../context/AuthContext";
 import axios from "axios";
-import { startTracking, stopTracking, logPortfolioAction } from "../../../../../utils/portfolioEditLogger";
+import {
+  startTracking,
+  stopTracking,
+  logPortfolioAction,
+} from "../../../../../utils/portfolioEditLogger";
 
-//attach token to each axios request
+// attach token to each axios request
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -18,35 +30,49 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// helper: ensure links are real URLs
+const normalizeUrl = (url) => {
+  if (!url) return "";
+  if (!/^https?:\/\//i.test(url)) {
+    return `https://${url}`;
+  }
+  return url;
+};
+
 const SummaryCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(portfolio || {});
+  const [savedData, setSavedData] = useState(portfolio || {}); // last saved snapshot
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
 
-  // Update local state when portfolio prop changes
+  // keep local state in sync with latest portfolio from server
   useEffect(() => {
-    setEditData(portfolio || {});
+    const baseData = portfolio || {};
+    setEditData(baseData);
+    setSavedData(baseData);
   }, [portfolio]);
 
-  // Start tracking when editing starts
+  // tracking when editing
   useEffect(() => {
     if (isEditing && portfolio) {
-      const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
+      const sessionId =
+        localStorage.getItem("onboardingSessionId") ||
+        `session_${Date.now()}`;
       startTracking({
-        sessionId: sessionId,
-        userId: user?.id || user?._id || 'anonymous',
+        sessionId,
+        userId: user?.id || user?._id || "anonymous",
         portfolioID: portfolio._id || portfolio.id || null,
-        portfolioType: 'projectManager',
+        portfolioType: "projectManager",
         name: portfolio.name,
         email: portfolio.email || user?.email,
       });
     }
-    
+
     return () => {
       if (isEditing) {
         stopTracking();
@@ -54,30 +80,43 @@ const SummaryCard = ({ portfolio }) => {
     };
   }, [isEditing, portfolio, user]);
 
-  // Mutation for saving summary data
+  // mutation for saving summary + profile info
   const saveSummaryMutation = useMutation({
-    mutationFn: async (summaryData) => {
+    mutationFn: async (updatedFields) => {
       const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-        portfolio: { summary: summaryData },
+        portfolio: updatedFields,
       });
       return response.data;
     },
     onSuccess: async (data) => {
       console.log("Save successful:", data);
       toast.success("Summary saved successfully!");
-      
-      // Log portfolio update action
-      const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
-      await logPortfolioAction('updated', {
-        sessionId: sessionId,
-        userId: user?.id || user?._id || 'anonymous',
+
+      // update local state & exit edit mode
+      setEditData(data);
+      setSavedData(data);
+      setIsEditing(false);
+
+      // log portfolio update action
+      const sessionId =
+        localStorage.getItem("onboardingSessionId") ||
+        `session_${Date.now()}`;
+
+      await logPortfolioAction("updated", {
+        sessionId,
+        userId: user?.id || user?._id || "anonymous",
         portfolioID: portfolio?._id || portfolio?.id || null,
-        portfolioType: 'projectManager',
+        portfolioType: "projectManager",
         name: portfolio?.name || user?.name,
         email: portfolio?.email || user?.email,
       });
-      
-      queryClient.invalidateQueries(["portfolio"]);
+
+      // invalidate the specific portfolio query so the page refetches
+      const portfolioId =
+        data?._id || data?.id || portfolio?._id || portfolio?.id;
+      if (portfolioId) {
+        queryClient.invalidateQueries({ queryKey: ["portfolio", portfolioId] });
+      }
     },
     onError: (error) => {
       console.error("Save failed:", error);
@@ -85,7 +124,18 @@ const SummaryCard = ({ portfolio }) => {
     },
   });
 
-  const { name, summary, email, phone, location, socialLinks } = isEditing ? editData : portfolio || {};
+  // base object for reading values
+  const base =
+    (editData && Object.keys(editData).length ? editData : portfolio) || {};
+
+  const { name, bio, summary, email, phone, location } = base;
+
+  // read social links from BOTH nested + top-level
+  const socialLinks = {
+    github: base.socialLinks?.github || base.github || "",
+    linkedin: base.socialLinks?.linkedin || base.linkedin || "",
+    website: base.socialLinks?.website || base.website || "",
+  };
 
   const handleChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
@@ -95,23 +145,55 @@ const SummaryCard = ({ portfolio }) => {
     setEditData({
       ...editData,
       socialLinks: {
-        ...editData.socialLinks,
+        ...(editData.socialLinks || {}),
         [platform]: value,
       },
+      // keep possible top-level fields in sync too
+      [platform]: value,
     });
   };
 
+  // normalize & send both nested + top-level fields
   const handleSave = () => {
-    // Include the image in the saved data
-    saveSummaryMutation.mutate({
-      ...editData,
-      profileImage: imagePreview, // This will be handled by your backend later
-    });
+    const social = editData.socialLinks || {};
+    const githubUrl = normalizeUrl(social.github || editData.github);
+    const linkedinUrl = normalizeUrl(social.linkedin || editData.linkedin);
+    const websiteUrl = normalizeUrl(social.website || editData.website);
+
+    const updatedFields = {
+      name: editData.name,
+      bio: editData.bio,
+      summary: editData.summary,
+      email: editData.email,
+      phone: editData.phone,
+      location: editData.location,
+      socialLinks: {
+        github: githubUrl,
+        linkedin: linkedinUrl,
+        website: websiteUrl,
+      },
+      // also send top-level, in case backend uses that shape
+      github: githubUrl,
+      linkedin: linkedinUrl,
+      website: websiteUrl,
+      // keep this so avatar changes persist once backend supports it
+      profileImage: imagePreview,
+    };
+
+    // include portfolio id so backend updates THIS portfolio
+    const portfolioId =
+      editData._id || editData.id || portfolio?._id || portfolio?.id;
+    if (portfolioId) {
+      updatedFields._id = portfolioId;
+    }
+
+    saveSummaryMutation.mutate(updatedFields);
   };
 
   const handleCancel = () => {
-    setEditData(portfolio || {});
-    setImagePreview(portfolio?.profileImage || null);
+    const baseData = savedData || portfolio || {};
+    setEditData(baseData);
+    setImagePreview(baseData?.profileImage || null);
     setIsEditing(false);
   };
 
@@ -137,7 +219,11 @@ const SummaryCard = ({ portfolio }) => {
               {/* Profile Image or Fallback */}
               <div className="w-full h-full rounded-full overflow-hidden border border-blue-400/30 shadow-lg">
                 {imagePreview ? (
-                  <img src={imagePreview} alt={name || "Profile"} className="w-full h-full object-cover" />
+                  <img
+                    src={imagePreview}
+                    alt={name || "Profile"}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full bg-blue-500/20 flex items-center justify-center text-blue-200 font-bold text-4xl">
                     {name?.[0]?.toUpperCase() || "U"}
@@ -197,41 +283,69 @@ const SummaryCard = ({ portfolio }) => {
                   <h2 className="text-3xl font-bold text-white tracking-tight drop-shadow-sm mb-2">
                     {name || "Your Name"}
                   </h2>
-                  <p className="text-slate-300 drop-shadow-sm">📍 {location || "Location"}</p>
+                  <p className="text-slate-300 drop-shadow-sm">
+                    📍 {location || "Location"}
+                  </p>
                 </>
               )}
             </div>
           </div>
 
+          {/* About */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">About</h3>
+            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">
+              About
+            </h3>
+            {isEditing ? (
+              <textarea
+                name="bio"
+                value={bio || ""}
+                onChange={handleChange}
+                className="w-full bg-slate-700 border border-white/30 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3 resize-none"
+                placeholder="Professional bio and description..."
+                rows={4}
+              />
+            ) : (
+              <p className="text-slate-200 leading-relaxed drop-shadow-sm">
+                {bio || "Professional bio and description"}
+              </p>
+            )}
+          </div>
+
+          {/* Summary */}
+          <div className="mb-6 pt-6 border-t border-blue-400/30">
+            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">
+              Summary
+            </h3>
             {isEditing ? (
               <textarea
                 name="summary"
                 value={summary || ""}
                 onChange={handleChange}
-                className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3 resize-none"
-                placeholder="Write a brief summary about yourself..."
+                className="w-full bg-slate-700 border border-white/30 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3 resize-none"
+                placeholder="Summary of your professional experience and goals..."
                 rows={4}
               />
             ) : (
-              <p className="text-slate-200 leading-relaxed drop-shadow-sm">{summary || "No summary provided yet."}</p>
+              <p className="text-slate-200 leading-relaxed drop-shadow-sm whitespace-pre-line">
+                {summary ||
+                  "Summary of your professional experience and goals"}
+              </p>
             )}
           </div>
 
+          {/* Contact – email not editable in edit mode */}
           <div className="mb-6 pt-6 border-t border-blue-400/30">
-            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">Contact</h3>
+            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">
+              Contact
+            </h3>
             <div className="space-y-3">
               {isEditing ? (
                 <>
-                  <input
-                    name="email"
-                    value={email || ""}
-                    onChange={handleChange}
-                    className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
-                    placeholder="Email address"
-                    type="email"
-                  />
+                  {/*<p className="text-slate-200 drop-shadow-sm">
+                    <span className="text-white font-medium">Email:</span>{" "}
+                    {email || "Not provided"}
+                  </p>*/}
                   <input
                     name="phone"
                     value={phone || ""}
@@ -242,43 +356,52 @@ const SummaryCard = ({ portfolio }) => {
                 </>
               ) : (
                 <>
+                  {/*<p className="text-slate-200 drop-shadow-sm">
+                    <span className="text-white font-medium">Email:</span>{" "}
+                    {email || "Not provided"}
+                  </p></div>*/}
                   <p className="text-slate-200 drop-shadow-sm">
-                    <span className="text-white font-medium">Email:</span> {email || "Not provided"}
-                  </p>
-                  <p className="text-slate-200 drop-shadow-sm">
-                    <span className="text-white font-medium">Phone:</span> {phone || "Not provided"}
+                    <span className="text-white font-medium">Phone:</span>{" "}
+                    {phone || "Not provided"}
                   </p>
                 </>
               )}
             </div>
           </div>
 
+          {/* Social Links */}
           <div className="mb-6 pt-6 border-t border-blue-400/30">
-            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">Social Links</h3>
+            <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">
+              Social Links
+            </h3>
             {isEditing ? (
               <div className="space-y-3">
                 <input
-                  value={socialLinks?.github || ""}
+                  value={socialLinks.github || ""}
                   onChange={(e) => handleSocialChange("github", e.target.value)}
                   className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
                   placeholder="GitHub URL"
                 />
                 <input
-                  value={socialLinks?.linkedin || ""}
-                  onChange={(e) => handleSocialChange("linkedin", e.target.value)}
+                  value={socialLinks.linkedin || ""}
+                  onChange={(e) =>
+                    handleSocialChange("linkedin", e.target.value)
+                  }
                   className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
                   placeholder="LinkedIn URL"
                 />
                 <input
-                  value={socialLinks?.website || ""}
-                  onChange={(e) => handleSocialChange("website", e.target.value)}
+                  value={socialLinks.website || ""}
+                  onChange={(e) =>
+                    handleSocialChange("website", e.target.value)
+                  }
                   className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
                   placeholder="Website URL"
                 />
               </div>
             ) : (
               <div className="flex gap-4">
-                {socialLinks?.github && (
+                {socialLinks.github && (
                   <a
                     href={socialLinks.github}
                     target="_blank"
@@ -289,7 +412,7 @@ const SummaryCard = ({ portfolio }) => {
                     <FaGithub />
                   </a>
                 )}
-                {socialLinks?.linkedin && (
+                {socialLinks.linkedin && (
                   <a
                     href={socialLinks.linkedin}
                     target="_blank"
@@ -300,7 +423,7 @@ const SummaryCard = ({ portfolio }) => {
                     <FaLinkedin />
                   </a>
                 )}
-                {socialLinks?.website && (
+                {socialLinks.website && (
                   <a
                     href={socialLinks.website}
                     target="_blank"
@@ -311,13 +434,18 @@ const SummaryCard = ({ portfolio }) => {
                     <FaGlobe />
                   </a>
                 )}
-                {!socialLinks?.github && !socialLinks?.linkedin && !socialLinks?.website && (
-                  <p className="text-slate-400">No social links added yet</p>
-                )}
+                {!socialLinks.github &&
+                  !socialLinks.linkedin &&
+                  !socialLinks.website && (
+                    <p className="text-slate-400">
+                      No social links added yet
+                    </p>
+                  )}
               </div>
             )}
           </div>
 
+          {/* Actions */}
           {isEditing && (
             <div className="flex gap-3 pt-4 border-t border-white/20">
               <button
@@ -330,7 +458,7 @@ const SummaryCard = ({ portfolio }) => {
               </button>
               <button
                 onClick={handleCancel}
-                className="flex items-center gap-2 px-6 py-3 text-slate-300 hover:text-white rounded-lg hover:bg-slate-700/50 transition-colors"
+                className="flex items-center gap-2 px-6 py-3 text-slate-300 hover:text:white rounded-lg hover:bg-slate-700/50 transition-colors"
               >
                 <FaTimes className="w-4 h-4" />
                 Cancel
