@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaTooth, FaBars, FaTimes, FaSearch } from 'react-icons/fa';
+import { FaTooth, FaBars, FaTimes, FaSearch, FaHospital } from 'react-icons/fa';
+import { MdHealthAndSafety } from "react-icons/md";
+import { GiHealthNormal } from "react-icons/gi";
+import { FaHospitalUser } from "react-icons/fa6";
+import { RiMentalHealthFill } from "react-icons/ri"
 
 export default function Navbar({ userData, practiceId }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -21,14 +25,36 @@ export default function Navbar({ userData, practiceId }) {
     { href: `/portfolios/healthcare/${practiceId}/contact`, label: 'Contact' }
   ];
 
+  const iconMap = {
+    FaTooth,
+    FaHospital,
+    MdHealthAndSafety,
+    GiHealthNormal,
+    FaHospitalUser,
+    RiMentalHealthFill
+  }
+  const SelectedIcon = iconMap[userData?.practice?.icon] || FaTooth;
+
   return (
-    <header className={`healthcare-navbar ${isScrolled ? 'scrolled' : ''}`}>
-      <nav className="nav-content">
-        <Link to={`/portfolios/healthcare/${practiceId}`} className="logo">
-          <div className="logo-icon">
-            <FaTooth />
-          </div>
-          <span>{userData?.practice?.name || 'Healthcare Practice'}</span>
+    <header className={`fixed top-0 left-0 right-0 bg-white shadow-md z-[1000] transition-all duration-300 px-0.5 ${isScrolled ? 'scrolled' : ''}`}>
+      <nav className="flex items-center justify-between max-w-7xl mx-auto py-3">
+        <Link
+          to={`/portfolios/healthcare/${practiceId}`}
+          className="flex items-center no-underline text-blue-800 font-bold text-xl md:text-2xl gap-3" // Added gap and responsive text
+        >
+          {userData?.practice?.logoImage ? (
+            <img
+              src={userData.practice.logoImage}
+              alt="Practice Logo"
+              className="w-16 h-16 md:w-32 md:h-32 object-contain rounded-md" 
+            />
+          ) : (
+            <div className="w-16 h-16 bg-blue-800 rounded-md flex items-center justify-center shrink-0">
+              <SelectedIcon className="text-white text-5xl" />
+            </div>
+          )}
+
+          <span className="">{userData?.practice?.name}</span>
         </Link>
         
         <div className="nav-links desktop">
@@ -45,7 +71,7 @@ export default function Navbar({ userData, practiceId }) {
         
         <Link
           to={`/portfolios/healthcare/${practiceId}/contact`}
-          className="btn-contact desktop"
+          className="btn-contact desktop md:block hidden"
         >
           Contact Us
         </Link>
