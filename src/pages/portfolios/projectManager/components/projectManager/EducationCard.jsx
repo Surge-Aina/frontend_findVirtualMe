@@ -20,6 +20,7 @@ axios.interceptors.request.use(
 const EducationCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
   const education = portfolio.education;
+  const portfolioId = portfolio?._id;
   const [editIdx, setEditIdx] = useState(null);
   const [editEdu, setEditEdu] = useState({});
   const [eduList, setEduList] = useState(education);
@@ -34,6 +35,15 @@ const EducationCard = ({ portfolio }) => {
     awards: "",
   });
 
+    const formatDateForInput = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
 
@@ -43,32 +53,54 @@ const EducationCard = ({ portfolio }) => {
   }, [education]);
 
   // Mutation for saving education data
-  const saveEducationMutation = useMutation({
-    mutationFn: async (educationData) => {
-      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-        portfolio: { education: educationData },
-      });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      console.log("Save successful:", data);
-      toast.success("Education saved successfully!");
-      queryClient.invalidateQueries(["portfolio"]);
-    },
-    onError: (error) => {
-      console.error("Save failed:", error);
-      toast.error("Failed to save education");
-    },
-  });
+  // Mutation for saving education data
+const saveEducationMutation = useMutation({
+  mutationFn: async (educationData) => {
+    // send the full portfolio, with updated education
+    const updatedPortfolio = {
+      ...portfolio,
+      education: educationData,
+    };
 
-  const handleEdit = (idx) => {
+    const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+      portfolio: updatedPortfolio,
+    });
+
+    return response.data;
+  },
+  onSuccess: (data) => {
+    console.log("Save successful:", data);
+    // keep local list in sync with what the backend actually saved
+    setEduList(data.education || []);
+    toast.success("Education saved successfully!");
+
+    // update the same query key used in PortfolioPage.jsx
+    if (portfolioId) {
+      queryClient.setQueryData(["portfolio", portfolioId], data);
+    } else {
+      // fallback: still invalidate any portfolio queries
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+    }
+  },
+  onError: (error) => {
+    console.error("Save failed:", error);
+    toast.error("Failed to save education");
+  },
+});
+
+
+    const handleEdit = (idx) => {
+    const current = eduList[idx] || {};
     setEditIdx(idx);
     setEditEdu({
-      ...eduList[idx],
-      degrees: eduList[idx].degrees?.join(", ") || "",
-      awards: eduList[idx].awards?.join(", ") || "",
+      ...current,
+      startDate: formatDateForInput(current.startDate),
+      endDate: formatDateForInput(current.endDate),
+      degrees: current.degrees?.join(", ") || "",
+      awards: current.awards?.join(", ") || "",
     });
   };
+
 
   const handleChange = (e) => {
     setEditEdu({ ...editEdu, [e.target.name]: e.target.value });

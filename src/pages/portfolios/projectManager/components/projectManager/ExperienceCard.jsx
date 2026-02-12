@@ -20,6 +20,7 @@ axios.interceptors.request.use(
 const ExperienceCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
   const experiences = portfolio.experiences;
+  const portfolioId = portfolio?._id;
   const [editIdx, setEditIdx] = useState(null);
   const [editExp, setEditExp] = useState({});
   const [expList, setExpList] = useState(experiences);
@@ -33,6 +34,15 @@ const ExperienceCard = ({ portfolio }) => {
     description: "",
   });
 
+    const formatDateForInput = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
 
@@ -41,27 +51,46 @@ const ExperienceCard = ({ portfolio }) => {
   }, [experiences]);
 
   const saveExperienceMutation = useMutation({
-    mutationFn: async (experienceData) => {
-      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-        portfolio: { experience: experienceData },
-      });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      console.log("Save successful:", data);
-      toast.success("Experience saved successfully!");
-      queryClient.invalidateQueries(["portfolio"]);
-    },
-    onError: (error) => {
-      console.error("Save failed:", error);
-      toast.error("Failed to save Experience");
-    },
-  });
+  mutationFn: async (experienceData) => {
+    const updatedPortfolio = {
+      ...portfolio,
+      experiences: experienceData,
+    };
 
-  const handleEdit = (idx) => {
+    const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+      portfolio: updatedPortfolio,
+    });
+
+    return response.data;
+  },
+  onSuccess: (data) => {
+    console.log("Save successful:", data);
+    setExpList(data.experiences || []);
+    toast.success("Experience saved successfully!");
+
+    if (portfolioId) {
+      queryClient.setQueryData(["portfolio", portfolioId], data);
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+    }
+  },
+  onError: (error) => {
+    console.error("Save failed:", error);
+    toast.error("Failed to save Experience");
+  },
+});
+
+
+    const handleEdit = (idx) => {
+    const current = expList[idx] || {};
     setEditIdx(idx);
-    setEditExp(expList[idx]);
+    setEditExp({
+      ...current,
+      startDate: formatDateForInput(current.startDate),
+      endDate: formatDateForInput(current.endDate),
+    });
   };
+
 
   const handleChange = (e) => {
     setEditExp({ ...editExp, [e.target.name]: e.target.value });
