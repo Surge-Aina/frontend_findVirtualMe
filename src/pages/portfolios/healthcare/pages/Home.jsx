@@ -50,6 +50,7 @@ export default function Home({portfolioId}) {
       setLoading(true);
       const data = await api.getPracticeData(practiceId);
       setUserData(data);
+      console.log('Loaded practice data:', data);
     } catch (error) {
       console.error('Error loading practice data:', error);
       setError('Practice not found');
