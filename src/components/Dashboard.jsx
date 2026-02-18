@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
 import { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -19,14 +18,9 @@ export default function Dashboard() {
   const [publicProjects, setPublicProjects] = useState([]);
   const [viewMode, setViewMode] = useState("other");
 
-  // robust identity getters
   const loggedInEmail = (user?.email || localStorage.getItem("email") || "").trim().toLowerCase();
+  const loggedInId = String(user?._id || user?.id || localStorage.getItem("userId") || localStorage.getItem("id") || "");
 
-  const loggedInId = String(
-    user?._id || user?.id || localStorage.getItem("userId") || localStorage.getItem("id") || ""
-  );
-
-  // re-run when login state OR user object changes
   useEffect(() => {
     fetchPortfolios();
     fetchPublicProjects();
@@ -35,7 +29,6 @@ export default function Dashboard() {
     }
   }, [user, token]);
 
-  // read owner email from common places; if handyman lacks email but userId==me → it's mine
   const ownerEmail = (obj, type) => {
     const e = obj?.email || obj?.userEmail || obj?.ownerEmail || obj?.user?.email || obj?.owner?.email || "";
     if (e) return String(e).trim().toLowerCase();
@@ -47,23 +40,9 @@ export default function Dashboard() {
     return "";
   };
 
-  // uniform card
-  const toCard = (obj, type = "general") => {
-    const email = ownerEmail(obj, type);
-    const title = obj?.businessName || obj?.title || obj?.portfolioTitle || obj?.role || "Untitled Portfolio";
-    const name =
-      obj?.name ||
-      [obj?.firstName, obj?.lastName].filter(Boolean).join(" ") ||
-      (email ? email.split("@")[0] : "") ||
-      (type === "cleaningLady" ? "Cleaning Service" : type === "handyman" ? "Handyman" : "User");
-    return { _id: obj?._id, title, name, email, type };
-  };
-
   const fetchPortfolios = async () => {
     try {
-      //get public portfolios
       fetchPublicPortfolios();
-      //get your own portfolios if signed in
       if (user) {
         fetchMyPortfolios();
       }
@@ -78,7 +57,6 @@ export default function Dashboard() {
       const pubPortfs = await axiosAuth.get("/publicPortfolios/public");
       const portfolios = pubPortfs.data?.portfolios || [];
       setOtherPortfolios(Array.isArray(portfolios) ? portfolios : []);
-      console.log("other portfolios: ", portfolios);
     } catch (error) {
       console.error("Error fetching public portfolios:", error);
       setOtherPortfolios([]);
@@ -86,14 +64,26 @@ export default function Dashboard() {
   };
 
   const fetchMyPortfolios = async () => {
-    if (!user) return;
+    if (!user || !user.portfolios) return;
     try {
+      // ✅ portfolioId is the MongoDB _id for all portfolio types
       const promises = user.portfolios.map(({ portfolioId, portfolioType }) =>
         axiosAuth.get(`/publicPortfolios/${portfolioType}/${portfolioId}`).then((res) => res.data)
       );
-
-      const fullPortfolios = await Promise.all(promises);
-      console.log("full portfolios: ", fullPortfolios);
+      
+      const results = await Promise.allSettled(promises);
+      
+      const fullPortfolios = results
+        .filter((result) => {
+          if (result.status === 'rejected') {
+            console.warn('Failed to fetch portfolio:', result.reason);
+            return false;
+          }
+          return true;
+        })
+        .map((result) => result.value);
+      
+      console.log("Full portfolios loaded:", fullPortfolios.length);
       setMyPortfolios(fullPortfolios);
     } catch (err) {
       console.error("Error fetching full portfolios:", err);
@@ -105,7 +95,6 @@ export default function Dashboard() {
       const res = await axios.get(`${backendUrl}/api/projects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const projects = Array.isArray(res.data) ? res.data : [];
       setMyProjects(projects);
     } catch (err) {
@@ -119,46 +108,39 @@ export default function Dashboard() {
       const res = await axios.get(`${backendUrl}/api/publicProjects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (res.data.success) {
         const projects = Array.isArray(res.data.projects) ? res.data.projects : [];
         setPublicProjects(projects);
-      } else {
-        toast.error("Problem fetching Public Projects");
       }
     } catch (error) {
-      toast.error("Error fetching public projects");
-      console.error(error);
+      console.error("Error fetching public projects:", error);
     }
   };
 
   const togglePublic = async (portfolio) => {
-  try {
-    const portfolioId = portfolio._id;
-    
-    const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
-
-    if (res.data?.success) {
-      toast.success("Toggled Public Setting");
-
-      // Update the local state
-      setMyPortfolios((prev) =>
-        prev.map((p) => 
-          p._id === portfolioId ? { ...p, isPublic: res.data.portfolio.isPublic } : p
-        )
-      );
+    try {
+      // ✅ Use _id consistently
+      const portfolioId = portfolio._id;
       
-      fetchPublicPortfolios();
-    } else {
-      toast.error("Could not toggle public");
-    }
-  } catch (error) {
-    console.error("Toggle error:", error);
-    toast.error("Error toggling public setting");
-  }
-};
+      const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
 
-  // Helper functions
+      if (res.data?.success) {
+        toast.success("Toggled Public Setting");
+        setMyPortfolios((prev) =>
+          prev.map((p) => 
+            p._id === portfolioId ? { ...p, isPublic: res.data.portfolio.isPublic } : p
+          )
+        );
+        fetchPublicPortfolios();
+      } else {
+        toast.error("Could not toggle public");
+      }
+    } catch (error) {
+      console.error("Toggle error:", error);
+      toast.error("Error toggling public setting");
+    }
+  };
+
   const linesToText = (linesObj = {}) => {
     try {
       if (!linesObj || Object.keys(linesObj).length === 0) return "<!DOCTYPE html>";
@@ -167,7 +149,6 @@ export default function Dashboard() {
         .map((k) => linesObj[k] ?? "")
         .join("\n");
     } catch (error) {
-      console.error("Error in linesToText:", error);
       return "<!DOCTYPE html>";
     }
   };
@@ -179,9 +160,7 @@ export default function Dashboard() {
     const html = linesToText(p.frontendJson?.lines || {});
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
-
     const newWindow = window.open(url, "_blank", "noopener,noreferrer");
-
     if (newWindow) {
       newWindow.onload = () => URL.revokeObjectURL(url);
     }
@@ -190,23 +169,20 @@ export default function Dashboard() {
   const handleAddPortfolio = () => navigate("/resume");
 
   const handleDeletePortfolio = async (portfolioId) => {
-  try {
-    const res = await axiosAuth.delete(`/publicPortfolios/${portfolioId}`);
+    try {
+      const res = await axiosAuth.delete(`/publicPortfolios/${portfolioId}`);
 
-    const { data } = res;
-
-    if (data.success) {
-      toast.success(`Deleted portfolio: ${portfolioId}`);
-      console.log("Successfully deleted portfolio", data);
-      refreshUser();
-    } else {
-      toast.error(data.message || "Could not delete portfolio");
+      if (res.data.success) {
+        toast.success(`Deleted portfolio`);
+        refreshUser();
+      } else {
+        toast.error("Could not delete portfolio");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Error deleting portfolio");
     }
-  } catch (err) {
-    console.error("Delete error:", err);
-    toast.error("Failed to delete portfolio");
-  }
-};
+  };
 
   const handleProjectClick = (projectId) => {
     navigate(`/editor?project=${projectId}`);
@@ -236,187 +212,186 @@ export default function Dashboard() {
     }
   };
 
+  // ✅ Helper to get display name for any portfolio type
+  const getPortfolioDisplayName = (p) => {
+    // Healthcare portfolios use practice.name
+    if (p.portfolioType === "Healthcare") {
+      return p.practice?.name || p.portfolioName || "Healthcare Portfolio";
+    }
+    // Other portfolios
+    return p.businessName || p.title || p.portfolioTitle || p.name || "Untitled Portfolio";
+  };
+
   return (
-    <>
-      <main className="min-h-screen bg-slate-50 pt-24 px-4">
-        <div className="max-w-4xl mx-auto space-y-12">
-          {/* My Portfolios */}
-          {user && (
-            <section>
-              <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Portfolios</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
-                {myPortfolios.map((p) => {
-                  const portfolioId = p._id;
-
-                  return (
-                    <div
-                      key={portfolioId}
-                      className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
-                      onClick={() => handleCardClick(p)}
-                    >
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          togglePublic(p);
-                        }}
-                        className={`absolute top-3 right-3 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center
-      ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
-                      >
-                        <div
-                          className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600
-        ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
-                        >
-                          {Boolean(p.isPublic) ? "public" : "private"}
-                        </div>
-                      </div>
-
-                      <div className="mt-8 font-semibold text-slate-800 mb-2">
-                        {user.portfolios.find((portfolio) => 
-  portfolio.portfolioId === portfolioId || 
-  portfolio.portfolioId === p.practiceId
-)?.portfolioType || "Unknown"}
-                      </div>
-
-                      {/* ✅ Show Healthcare practice name or other portfolio names */}
-                      <div className="text-slate-600 mb-2">
-                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || "Untitled Portfolio"}
-                      </div>
-
-                      <div className="text-slate-600 text-xs">{portfolioId}</div>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeletePortfolio(portfolioId);
-                        }}
-                        className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  );
-                })}
-
-                <button
-                  onClick={handleAddPortfolio}
-                  className="flex flex-col items-center justify-center bg-white rounded-xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all min-h-[180px] cursor-pointer"
+    <main className="min-h-screen bg-slate-50 pt-24 px-4">
+      <div className="max-w-4xl mx-auto space-y-12">
+        {/* My Portfolios */}
+        {user && (
+          <section>
+            <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Portfolios</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
+              {myPortfolios.map((p) => (
+                <div
+                  key={p._id}
+                  className="bg-white rounded-xl shadow-md p-6 cursor-pointer relative"
+                  onClick={() => handleCardClick(p)}
                 >
-                  <span className="text-5xl text-blue-400 font-bold">+</span>
-                  <span className="mt-2 text-slate-500">Add Portfolio</span>
-                </button>
-              </div>
-            </section>
-          )}
-
-          {/* My Projects */}
-          {user && (
-            <section>
-              <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Projects</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
-                {myProjects.map((project) => (
                   <div
-                    key={project.projectId}
-                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
-                    onClick={() => handleProjectClick(project.projectId)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePublic(p);
+                    }}
+                    className={`absolute top-3 right-3 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center
+                      ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
                   >
-                    <div className="font-semibold text-slate-800 mb-2">{project.name}</div>
-                    <div className="text-sm text-slate-500 mb-2">ID: {project.projectId}</div>
-                    <div className="text-xs text-slate-400">
-                      Updated: {new Date(project.updatedAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
-
-                <button
-                  onClick={handleNewProject}
-                  className="flex flex-col items-center justify-center bg-white rounded-xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-green-400 transition-all min-h-[180px] cursor-pointer"
-                >
-                  <span className="text-5xl text-green-400 font-bold">+</span>
-                  <span className="mt-2 text-slate-500">New Project</span>
-                </button>
-              </div>
-            </section>
-          )}
-
-          {/* Toggle Selector */}
-          <div className="flex justify-center gap-4 mb-6">
-            <button
-              onClick={() => setViewMode("other")}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition ${
-                viewMode === "other"
-                  ? "bg-blue-500 text-white shadow-md"
-                  : "bg-white text-slate-500 border border-slate-300"
-              }`}
-            >
-              Public Portfolios
-            </button>
-
-            <button
-              onClick={() => setViewMode("public")}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition ${
-                viewMode === "public"
-                  ? "bg-blue-500 text-white shadow-md"
-                  : "bg-white text-slate-500 border border-slate-300"
-              }`}
-            >
-              Public Projects
-            </button>
-          </div>
-
-          {/* Public Portfolios and Public Projects conditional */}
-          {viewMode === "other" ? (
-            //public portfolios
-            <section>
-              <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Portfolios</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 mb-6">
-                {otherPortfolios && otherPortfolios.length > 0 ? (
-                  otherPortfolios.map((p) => (
                     <div
-                      key={p._id}
-                      className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
-                      onClick={() => handleCardClick(p)}
+                      className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600
+                        ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
                     >
-                      <div className="font-semibold mb-2 bg-slate-600 rounded-2xl text-white">{p.portfolioType}</div>
-
-                      {/* ✅ Show Healthcare practice name or other portfolio names */}
-                      <div className="font-bold text-slate-800 mb-2 text-xl">
-                        {p.practice?.name || p.businessName || p.title || p.portfolioTitle || "Untitled"}
-                      </div>
-
-                      <div className="text-slate-600 text-sm">{p.name}</div>
-                      <div className="text-slate-600 text-sm">{p.email}</div>
+                      {Boolean(p.isPublic) ? "public" : "private"}
                     </div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12 text-slate-500">
-                    No public portfolios available yet
                   </div>
-                )}
-              </div>
-            </section>
-          ) : (
-            // public projects
-            <section>
-              <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Projects</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
-                {publicProjects.map((project) => (
-                  <div
-                    key={project.projectId}
-                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
-                    onClick={() => handlePublicProjectPreview(project.projectId)}
+
+                  <div className="mt-8 font-semibold text-slate-800 mb-2">
+                    {p.portfolioType || "Unknown"}
+                  </div>
+
+                  <div className="text-slate-600 mb-2">
+                    {getPortfolioDisplayName(p)}
+                  </div>
+
+                  <div className="text-slate-400 text-xs truncate">{p._id}</div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePortfolio(p._id);
+                    }}
+                    className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
                   >
-                    <div className="font-semibold text-slate-800 mb-2">{project.name}</div>
-                    <div className="text-sm text-slate-500 mb-2">ID: {project.projectId}</div>
-                    <div className="text-xs text-slate-400">
-                      Updated: {new Date(project.updatedAt).toLocaleDateString()}
-                    </div>
+                    Delete
+                  </button>
+                </div>
+              ))}
+
+              <button
+                onClick={handleAddPortfolio}
+                className="flex flex-col items-center justify-center bg-white rounded-xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all min-h-[180px] cursor-pointer"
+              >
+                <span className="text-5xl text-blue-400 font-bold">+</span>
+                <span className="mt-2 text-slate-500">Add Portfolio</span>
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* My Projects */}
+        {user && (
+          <section>
+            <h2 className="text-2xl font-semibold mb-6 text-slate-800">My Projects</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
+              {myProjects.map((project) => (
+                <div
+                  key={project.projectId}
+                  className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handleProjectClick(project.projectId)}
+                >
+                  <div className="font-semibold text-slate-800 mb-2">{project.name}</div>
+                  <div className="text-sm text-slate-500 mb-2">ID: {project.projectId}</div>
+                  <div className="text-xs text-slate-400">
+                    Updated: {new Date(project.updatedAt).toLocaleDateString()}
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
+                </div>
+              ))}
+
+              <button
+                onClick={handleNewProject}
+                className="flex flex-col items-center justify-center bg-white rounded-xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-green-400 transition-all min-h-[180px] cursor-pointer"
+              >
+                <span className="text-5xl text-green-400 font-bold">+</span>
+                <span className="mt-2 text-slate-500">New Project</span>
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* Toggle Selector */}
+        <div className="flex justify-center gap-4 mb-6">
+          <button
+            onClick={() => setViewMode("other")}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition ${
+              viewMode === "other"
+                ? "bg-blue-500 text-white shadow-md"
+                : "bg-white text-slate-500 border border-slate-300"
+            }`}
+          >
+            Public Portfolios
+          </button>
+
+          <button
+            onClick={() => setViewMode("public")}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition ${
+              viewMode === "public"
+                ? "bg-blue-500 text-white shadow-md"
+                : "bg-white text-slate-500 border border-slate-300"
+            }`}
+          >
+            Public Projects
+          </button>
         </div>
-      </main>
-    </>
+
+        {/* Public Portfolios and Public Projects */}
+        {viewMode === "other" ? (
+          <section>
+            <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Portfolios</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 mb-6">
+              {otherPortfolios && otherPortfolios.length > 0 ? (
+                otherPortfolios.map((p) => (
+                  <div
+                    key={p._id}
+                    className="bg-white rounded-xl shadow-md p-6 cursor-pointer"
+                    onClick={() => handleCardClick(p)}
+                  >
+                    <div className="font-semibold mb-2 bg-slate-600 rounded-2xl text-white px-2 py-1 inline-block">
+                      {p.portfolioType}
+                    </div>
+
+                    <div className="font-bold text-slate-800 mb-2 text-xl">
+                      {getPortfolioDisplayName(p)}
+                    </div>
+
+                    <div className="text-slate-600 text-sm">{p.name}</div>
+                    <div className="text-slate-600 text-sm">{p.email || p.contact?.email}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12 text-slate-500">
+                  No public portfolios available yet
+                </div>
+              )}
+            </div>
+          </section>
+        ) : (
+          <section>
+            <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Projects</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-6">
+              {publicProjects.map((project) => (
+                <div
+                  key={project.projectId}
+                  className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handlePublicProjectPreview(project.projectId)}
+                >
+                  <div className="font-semibold text-slate-800 mb-2">{project.name}</div>
+                  <div className="text-sm text-slate-500 mb-2">ID: {project.projectId}</div>
+                  <div className="text-xs text-slate-400">
+                    Updated: {new Date(project.updatedAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </main>
   );
 }

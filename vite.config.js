@@ -11,6 +11,9 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "unsafe-none",
       "Cross-Origin-Resource-Policy": "cross-origin",
     },
+    host:true,
+    port:5173,
+    allowedHosts: ["mytestdomain.local", "localhost"],
   },
 
   test: {

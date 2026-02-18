@@ -20,6 +20,7 @@ axios.interceptors.request.use(
 const SkillsCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
   const skills = portfolio.skills;
+  const portfolioId = portfolio?._id;
   const [skillList, setSkillList] = useState(skills);
   const [newSkill, setNewSkill] = useState("");
   const [adding, setAdding] = useState(false);
@@ -29,21 +30,38 @@ const SkillsCard = ({ portfolio }) => {
 
   // Update local state when skills prop changes
   useEffect(() => {
-    setSkillList(skills);
+    setSkillList(skills || []);
   }, [skills]);
 
   // Mutation for saving skills data
   const saveSkillsMutation = useMutation({
     mutationFn: async (skillsData) => {
+      const updatedPortfolio = {
+        ...portfolio,
+        skills: skillsData,
+      };
+
       const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-        portfolio: { skills: skillsData },
+        portfolio: updatedPortfolio,
       });
+
       return response.data;
     },
     onSuccess: (data) => {
       console.log("Save successful:", data);
+
+      // keep local list in sync with backend
+      setSkillList(data.skills || []);
+
       toast.success("Skills saved successfully!");
-      queryClient.invalidateQueries(["portfolio"]);
+
+      // update the same query PortfolioPage uses
+      if (portfolioId) {
+        queryClient.setQueryData(["portfolio", portfolioId], data);
+      } else {
+        // fallback: invalidate all portfolio queries
+        queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      }
     },
     onError: (error) => {
       console.error("Save failed:", error);

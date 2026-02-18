@@ -1,27 +1,25 @@
 // Safe helper for Vite + Jest
 function safeImportMetaEnv() {
   try {
-    // Only works in Vite
     return typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
   } catch {
     return {};
   }
 }
 
-const env = safeImportMetaEnv();
-
 export const API_BASE_URL =
-
-   import.meta.env.VITE_BACKEND_API || 
+  import.meta.env.VITE_BACKEND_API || 
   "http://localhost:5000";
 
 export const api = {
-  async getPracticeData(practiceId) {
-    const res = await fetch(`${API_BASE_URL}/healthcare/practice/${practiceId}`, {
+  // ==========================================
+  // PUBLIC APIs (No Auth Required)
+  // ==========================================
+
+  async getPracticeData(id) {
+    const res = await fetch(`${API_BASE_URL}/healthcare/practice/${id}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
@@ -30,79 +28,107 @@ export const api = {
   async getPracticeBySubdomain(subdomain) {
     const res = await fetch(`${API_BASE_URL}/healthcare/subdomain/${subdomain}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    return res.json();
+  },
+
+  async getDemoData() {
+    const res = await fetch(`${API_BASE_URL}/healthcare/demo`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    return res.json();
+  },
+
+  async getPublicPortfolios() {
+    const res = await fetch(`${API_BASE_URL}/healthcare/public/all`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
   // ==========================================
-  // AUTHENTICATION APIs
+  // PROTECTED APIs (Auth Required)
   // ==========================================
 
-  async register(data) {
-    const res = await fetch(`${API_BASE_URL}/healthcare/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || "Registration failed");
-    }
-    return res.json();
-  },
+  async createHealthcarePortfolio() {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-  async login(credentials) {
-    const res = await fetch(`${API_BASE_URL}/healthcare/auth/login`, {
+    const res = await fetch(`${API_BASE_URL}/healthcare/create`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || "Login failed");
-    }
-    return res.json();
-  },
-
-  async getCurrentUser() {
-    const token = localStorage.getItem("adminToken");
-    const res = await fetch(`${API_BASE_URL}/healthcare/auth/me`, {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Failed to create healthcare portfolio");
+    }
+
+    return res.json();
+  },
+
+  async getMyPortfolios() {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
+
+    const res = await fetch(`${API_BASE_URL}/healthcare/my-portfolios`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
 
-  // ==========================================
-  // ADMIN APIs (Require Auth)
-  // ==========================================
+  // ✅ Get admin data by _id (like other portfolios)
+  async getAdminData(portfolioId) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
 
-  async getAdminData() {
-    const token = localStorage.getItem("adminToken");
-    const response = await fetch(`${API_BASE_URL}/healthcare/admin/data`, {
+    // Use _id-specific endpoint if provided
+    const endpoint = portfolioId 
+      ? `${API_BASE_URL}/healthcare/admin/data/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/data`;
+
+    const res = await fetch(endpoint, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || `API error: ${res.status}`);
     }
 
-    return response.json();
+    return res.json();
   },
 
-  async saveAdminData(data) {
-    const token = localStorage.getItem("adminToken");
-    const res = await fetch(`${API_BASE_URL}/healthcare/admin/data`, {
+  // ✅ Save admin data by _id
+  async saveAdminData(data, portfolioId = null) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
+
+    const id = portfolioId || data._id;
+    const endpoint = id
+      ? `${API_BASE_URL}/healthcare/admin/data/${id}`
+      : `${API_BASE_URL}/healthcare/admin/data`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -110,13 +136,24 @@ export const api = {
       },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || `Save failed: ${res.status}`);
+    }
+
     return res.json();
   },
 
-  async updateSubdomain(subdomain) {
-    const token = localStorage.getItem("adminToken");
-    const res = await fetch(`${API_BASE_URL}/healthcare/admin/subdomain`, {
+  async updateSubdomain(subdomain, portfolioId = null) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
+
+    const endpoint = portfolioId
+      ? `${API_BASE_URL}/healthcare/admin/subdomain/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/subdomain`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -124,10 +161,121 @@ export const api = {
       },
       body: JSON.stringify({ subdomain }),
     });
+
     if (!res.ok) {
       const error = await res.json();
       throw new Error(error.error || "Failed to update subdomain");
     }
+
     return res.json();
   },
-};
+
+  async togglePublicStatus(isPublic, portfolioId = null) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
+
+    const endpoint = portfolioId
+      ? `${API_BASE_URL}/healthcare/admin/toggle-public/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/toggle-public`;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ isPublic }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Failed to update public status");
+    }
+
+    return res.json();
+  },
+
+  async deletePortfolio(portfolioId = null) {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Authentication required. Please log in.");
+
+    const endpoint = portfolioId
+      ? `${API_BASE_URL}/healthcare/admin/delete/${portfolioId}`
+      : `${API_BASE_URL}/healthcare/admin/delete`;
+
+    const res = await fetch(endpoint, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Failed to delete portfolio");
+    }
+
+    return res.json();
+  },
+
+  // form data requires: name, email, message, portfolioId, ownerEmail, ownerName
+  async contactMe(formData){
+    const res = await fetch(`${API_BASE_URL}/contactMe/contactMeForm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || `Failed to contact me: ${res.status}`);
+    }
+
+    return res.json();
+  },
+
+  async getS3UploadUrl({ fileType }) {
+    const res = await fetch(`${API_BASE_URL}/s3-upload-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileType }),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to get upload URL');
+    }
+
+    return res.json();
+  },
+
+  async uploadImageToS3(file) {
+    try {
+      // Get signed URL from backend
+      const { uploadUrl, publicUrl } = await this.getS3UploadUrl({
+        fileType: file.type,
+      });
+
+      // Upload directly to S3
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
+
+      // Return the public URL of the uploaded image
+      return publicUrl; 
+
+    } catch (err) {
+      console.error('Upload failed', err);
+      throw new Error('Image upload failed');
+    }
+  },
+
+}

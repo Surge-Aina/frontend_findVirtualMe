@@ -26,7 +26,10 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="w-full bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
+    <nav
+      data-testid="vendor-navbar"
+      className="w-full bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50"
+    >
       <a href="#home" className="text-xl font-bold">
         Street Vendor
       </a>
@@ -34,38 +37,26 @@ const Navbar = () => {
       {/* Desktop Menu */}
       <div className="space-x-4 hidden sm:flex items-center flex-wrap">
         {navLinks.map((link) => (
-          <a
-            key={link.label}
-            href={link.href}
-            className="text-gray-600 hover:text-black"
-          >
+          <a key={link.label} href={link.href} className="text-gray-600 hover:text-black">
             {link.label}
           </a>
         ))}
 
-        <div className="hidden md:flex items-center gap-3">
-          {user?.role === "admin" && <VendorSelector />}
-        </div>
+        <div className="hidden md:flex items-center gap-3">{user?.role === "admin" && <VendorSelector />}</div>
 
         {canEdit && (
-          <Link
-            to="admin/tagged"
-            className="text-green-600 font-semibold hover:underline"
-          >
+          <Link to="admin/tagged" className="text-green-600 font-semibold hover:underline">
             Manage Tags
           </Link>
         )}
-        <Link
-          to="login"
-          className="text-blue-600 font-semibold hover:underline"
-        >
+        <Link to="login" className="text-blue-600 font-semibold hover:underline">
           Login
         </Link>
       </div>
 
       {/* Mobile Menu Button */}
       <div className="sm:hidden">
-        <button onClick={toggleMenu}>
+        <button data-testid="vendor-mobile-menu-toggle" onClick={toggleMenu}>
           {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
       </div>
@@ -74,12 +65,7 @@ const Navbar = () => {
       {isOpen && (
         <div className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col items-center space-y-4 py-4 sm:hidden z-40 z-40 max-h-[80vh] overflow-y-auto">
           {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={closeMenu}
-              className="text-gray-600 hover:text-black"
-            >
+            <a key={link.label} href={link.href} onClick={closeMenu} className="text-gray-600 hover:text-black">
               {link.label}
             </a>
           ))}
@@ -91,16 +77,13 @@ const Navbar = () => {
             <Link
               to="admin/tagged"
               onClick={closeMenu}
+              data-testid="manage-tags"
               className="text-green-600 font-semibold hover:underline"
             >
               Manage Tags
             </Link>
           )}
-          <Link
-            to="login"
-            onClick={closeMenu}
-            className="text-blue-600 font-semibold hover:underline"
-          >
+          <Link to="login" onClick={closeMenu} className="text-blue-600 font-semibold hover:underline">
             Login
           </Link>
         </div>
