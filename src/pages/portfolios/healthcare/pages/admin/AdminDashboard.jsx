@@ -4,7 +4,7 @@ import { api } from '../../lib/api';
 import { 
   FaHome, FaCog, FaFileAlt, FaImages, 
   FaEnvelope, FaSave, FaEdit, 
-  FaEye, FaSearch, FaArrowLeft , FaTrash,
+  FaEye, FaEyeSlash, FaSearch, FaArrowLeft , FaTrash,
   FaHospital, FaTooth
 } from 'react-icons/fa';
 import { FaHospitalUser } from "react-icons/fa6";
@@ -433,21 +433,82 @@ const uploadHeroImage = (file) => {
 
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {['yearsExperience', 'patientsServed', 'successRate', 'doctorsCount'].map(stat => (
-                        <div key={stat}>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {stat.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
-                          </label>
-                          <input
-                            type="text"
-                            value={userData?.stats?.[stat] || '0'}
-                            onChange={(e) => updateField('stats', stat, e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-                      ))}
+                    {/* Statistics Section Header with Master Toggle */}
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Statistics</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">
+                          {(userData?.statsVisibility?.showStatsSection ?? true) ? 'Visible on homepage' : 'Hidden'}
+                        </span>
+                        <button
+                          onClick={() => setUserData(prev => ({
+                            ...prev,
+                            statsVisibility: {
+                              ...prev.statsVisibility,
+                              showStatsSection: !(prev.statsVisibility?.showStatsSection ?? true)
+                            }
+                          }))}
+                          className={`relative w-12 h-6 rounded-full transition-colors ${
+                            (userData?.statsVisibility?.showStatsSection ?? true) ? 'bg-blue-600' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                            (userData?.statsVisibility?.showStatsSection ?? true) ? 'translate-x-6' : 'translate-x-0'
+                          }`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Stats Grid with Individual Toggles */}
+                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-opacity ${
+                      (userData?.statsVisibility?.showStatsSection ?? true) ? 'opacity-100' : 'opacity-50'
+                    }`}>
+                      {[
+                        { key: 'yearsExperience', label: 'Years Experience', suffix: '+' },
+                        { key: 'patientsServed', label: 'Patients Served', suffix: '+' },
+                        { key: 'successRate', label: 'Success Rate', suffix: '%' },
+                        { key: 'doctorsCount', label: 'Expert Doctors', suffix: '+' }
+                      ].map(stat => {
+                        const isVisible = userData?.statsVisibility?.[stat.key] ?? true;
+                        return (
+                          <div key={stat.key} className={`p-3 rounded-lg border ${isVisible ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 bg-gray-50'}`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <label className={`text-sm font-medium ${isVisible ? 'text-gray-700' : 'text-gray-400'}`}>
+                                {stat.label}
+                              </label>
+                              <button
+                                onClick={() => setUserData(prev => ({
+                                  ...prev,
+                                  statsVisibility: {
+                                    ...prev.statsVisibility,
+                                    [stat.key]: !(prev.statsVisibility?.[stat.key] ?? true)
+                                  }
+                                }))}
+                                disabled={!(userData?.statsVisibility?.showStatsSection ?? true)}
+                                className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                                title={isVisible ? 'Hide this stat' : 'Show this stat'}
+                              >
+                                {isVisible ? <FaEye className="w-4 h-4" /> : <FaEyeSlash className="w-4 h-4" />}
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                value={userData?.stats?.[stat.key] || ''}
+                                onChange={(e) => updateField('stats', stat.key, e.target.value)}
+                                disabled={!(userData?.statsVisibility?.showStatsSection ?? true) || !isVisible}
+                                placeholder="0"
+                                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-lg font-semibold ${
+                                  isVisible ? 'border-gray-300 text-blue-600' : 'border-gray-200 text-gray-400 bg-gray-100'
+                                } disabled:cursor-not-allowed`}
+                              />
+                              <span className={`text-lg font-semibold ${isVisible ? 'text-blue-600' : 'text-gray-400'}`}>
+                                {stat.suffix}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
