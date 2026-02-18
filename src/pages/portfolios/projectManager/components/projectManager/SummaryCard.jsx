@@ -45,8 +45,8 @@ const SummaryCard = ({ portfolio }) => {
   const [editData, setEditData] = useState(portfolio || {});
   const [savedData, setSavedData] = useState(portfolio || {}); // last saved snapshot
   const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useRef(null);
-
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
 
@@ -353,6 +353,51 @@ const SummaryCard = ({ portfolio }) => {
                     className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
                     placeholder="Phone number"
                   />
+                        <div className="mt-4">
+      <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">
+              Resume (PDF)
+            </h3>
+
+      {/* Styled “input” with hidden file element */}
+      <label className="w-full flex items-center justify-between bg-slate-700 border border-white/20 rounded-lg px-4 py-3 text-sm text-slate-200 cursor-pointer hover:border-blue-400/70 hover:bg-slate-700/80">
+        <span className="truncate">
+          {resumeFileName || "No file chosen"}
+        </span>
+        <span className="text-xs font-medium text-blue-300">
+          Choose file
+        </span>
+
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={handleResumeUpload}
+          className="hidden"
+        />
+      </label>
+
+      {resumeUploading && (
+        <p className="text-xs text-slate-400 mt-1">
+          Uploading resume...
+        </p>
+      )}
+
+      {editData?.resumeUrl && !resumeUploading && (
+        <button
+          type="button"
+          className="text-xs text-blue-300 hover:underline mt-2"
+          onClick={() =>
+            window.open(
+              editData.resumeUrl,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          View current resume
+        </button>
+      )}
+    </div>
+
                 </>
               ) : (
                 <>

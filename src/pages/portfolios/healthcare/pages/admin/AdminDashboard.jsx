@@ -457,6 +457,61 @@ const uploadHeroImage = (file) => {
                           }`} />
                         </button>
                       </div>
+                    )}
+
+                    {userData?.ui?.hero?.backgroundImage && (
+                      <button
+                        onClick={() =>
+                          updateNestedField('ui', 'hero', 'backgroundImage', '')
+                        }
+                        className="mt-3 px-4 py-2 border rounded-4xl shadow hover:text-red-600 hover:cursor-pointer "
+                      >
+                        <FaTrash className="inline mr-2 text-red-600" /> Remove Image
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Upload Image */}
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Upload Hero Image
+                    </label>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadHeroImage(file);
+                      }}
+                      className="block w-full text-sm"
+                    />
+
+                    <p className="text-xs text-gray-500">
+                      JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
+                    </p>
+                  </div>
+
+
+
+
+
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {['yearsExperience', 'patientsServed', 'successRate', 'doctorsCount'].map(stat => (
+                        <div key={stat}>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {stat.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+                          </label>
+                          <input
+                            type="text"
+                            value={userData?.stats?.[stat] || '0'}
+                            onChange={(e) => updateField('stats', stat, e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      ))}
                     </div>
 
                     {/* Stats Grid with Individual Toggles */}

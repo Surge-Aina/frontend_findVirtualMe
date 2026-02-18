@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient  } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
@@ -19,6 +19,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
   const [animating, setAnimating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
   const userPortfolioId = localStorage.getItem("portfolioId");
 
@@ -47,17 +48,70 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
     return () => clearTimeout(timer);
   }, [activeSection]);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        // placeholder - we need to handle the actual upload later
-      };
-      reader.readAsDataURL(file);
+  useEffect(() => {
+    if (portfolio?.profileImage) {
+      setImagePreview(portfolio.profileImage);
+    }
+  }, [portfolio]);
+
+    // Handle top nav click (including Resume)
+  const handleNavSelect = (key) => {
+    if (key === "resume") {
+      if (portfolio?.resumeUrl) {
+        window.open(portfolio.resumeUrl, "_blank", "noopener,noreferrer");
+      } else {
+        alert("Resume not uploaded yet.");
+      }
+    } else {
+      setActiveSection(key);
     }
   };
+
+  const handleImageUpload = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  // Optional: instant local preview
+  const localUrl = URL.createObjectURL(file);
+  setImagePreview(localUrl);
+
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const token = localStorage.getItem("token");
+
+    const response = await axios.post(
+      `${apiUrl}/portfolio/profile-image/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+
+    const updatedPortfolio = response.data?.portfolio;
+      const s3Url =
+        response.data?.profileImage ||
+        updatedPortfolio?.profileImage;
+
+      if (s3Url) {
+        setImagePreview(s3Url);
+      }
+
+      // also update the cached portfolio so SummaryCard & others see it
+      if (updatedPortfolio) {
+        queryClient.setQueryData(["portfolio", id], updatedPortfolio);
+      }
+    } catch (err) {
+      console.error("Error uploading profile image:", err);
+      // fallback: you can optionally revert the preview
+      // setImagePreview(portfolio?.profileImage || null);
+    }
+  };
+
 
   // Contact form state
   const [contactName, setContactName] = useState("");
@@ -352,7 +406,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
               </div>
               <span>Portfolio</span>
             </Link>
-            <NavBar onSelect={setActiveSection} />
+            <NavBar onSelect={handleNavSelect} />
           </div>
         </header>
 
