@@ -9,6 +9,7 @@
 }
 
 body {
+    padding-top: 40px;
     margin: 0;
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
     background: #ffffff;

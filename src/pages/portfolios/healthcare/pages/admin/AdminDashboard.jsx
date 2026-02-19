@@ -405,27 +405,27 @@ const uploadHeroImage = (file) => {
                         <FaTrash className="inline mr-2 text-red-600" /> Remove Image
                       </button>
                     )}
+                  </div>
 
-                    {/* Upload Hero Image */}
-                    <div className="space-y-4">
-                      <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
-                        Upload Hero Image
+                  {/* Upload Image */}
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Upload Hero Image
+                    </label>
 
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) uploadHeroImage(file);
-                          }}
-                          className="hidden"
-                          />
-                      </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadHeroImage(file);
+                      }}
+                      className="block w-full text-sm"
+                    />
 
-                      <p className="text-xs text-gray-500">
-                        JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
-                      </p>
-                    </div>
+                    <p className="text-xs text-gray-500">
+                      JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
+                    </p>
                   </div>
 
 
@@ -433,30 +433,21 @@ const uploadHeroImage = (file) => {
 
 
                   <div className="border-t pt-6">
-                    {/* Statistics Section Header with Master Toggle */}
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Statistics</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">
-                          {(userData?.statsVisibility?.showStatsSection ?? true) ? 'Visible on homepage' : 'Hidden'}
-                        </span>
-                        <button
-                          onClick={() => setUserData(prev => ({
-                            ...prev,
-                            statsVisibility: {
-                              ...prev.statsVisibility,
-                              showStatsSection: !(prev.statsVisibility?.showStatsSection ?? true)
-                            }
-                          }))}
-                          className={`relative w-12 h-6 rounded-full transition-colors ${
-                            (userData?.statsVisibility?.showStatsSection ?? true) ? 'bg-blue-600' : 'bg-gray-300'
-                          }`}
-                        >
-                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                            (userData?.statsVisibility?.showStatsSection ?? true) ? 'translate-x-6' : 'translate-x-0'
-                          }`} />
-                        </button>
-                      </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {['yearsExperience', 'patientsServed', 'successRate', 'doctorsCount'].map(stat => (
+                        <div key={stat}>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {stat.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+                          </label>
+                          <input
+                            type="text"
+                            value={userData?.stats?.[stat] || '0'}
+                            onChange={(e) => updateField('stats', stat, e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      ))}
                     </div>
 
                     {/* Stats Grid with Individual Toggles */}
