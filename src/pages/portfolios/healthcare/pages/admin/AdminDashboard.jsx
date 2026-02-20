@@ -405,27 +405,27 @@ const uploadHeroImage = (file) => {
                         <FaTrash className="inline mr-2 text-red-600" /> Remove Image
                       </button>
                     )}
-                  </div>
 
-                  {/* Upload Image */}
-                  <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Upload Hero Image
-                    </label>
+                    {/* Upload Hero Image */}
+                    <div className="space-y-4">
+                      <label className="inline-flex items-center gap-2 text-sm text-blue-600 cursor-pointer border border-blue-600 px-3 py-2 rounded-lg mt-3 hover:bg-blue-50 transition-colors">
+                        Upload Hero Image
 
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) uploadHeroImage(file);
-                      }}
-                      className="block w-full text-sm"
-                    />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadHeroImage(file);
+                          }}
+                          className="hidden"
+                          />
+                      </label>
 
-                    <p className="text-xs text-gray-500">
-                      JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
-                    </p>
+                      <p className="text-xs text-gray-500">
+                        JPG, PNG, or WebP recommended. Large images will be resized automatically by the browser.
+                      </p>
+                    </div>
                   </div>
 
 

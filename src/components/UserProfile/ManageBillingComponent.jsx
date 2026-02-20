@@ -30,21 +30,26 @@ export default function ManageBillingComponent() {
 
   if (!user) return null;
 
-  // If no subscription ID, check with backend once
-  useEffect(() => {
-    if (!user?._id) return;
-    fetchBilling();
-  }, [user?._id]);
+  // // If no subscription ID, check with backend once
+  // useEffect(() => {
+  //   if (!user?._id) return;
+  //   fetchBilling();
+  // }, [user?._id]);\
 
+  
+  
   //useQuery used for caching data
   const { data, error, isLoading } = useQuery({
-    queryKey: ["billing"], //id for this info cache, use this id elsewhere to use cached billing data
+    queryKey: ["billing", user?._id], //id for this info cache, use this id elsewhere to use cached billing data
     queryFn: fetchBilling,
     enabled: !!user, //!! converts value to truthy so wont give error if null/undefined
     staleTime: 1000 * 60 * 10, //10 min before data becomes stale and will refresh
     cacheTime: 1000 * 60 * 30, // 30 minutes that data will stay in memory after becomes unmounted(unused)
   });
-
+  
+  useEffect(() => {
+  if (data) console.log("Billing:", data);
+}, [data]);
   //take user to manage subscription
   const handleManageSubscriptions = async () => {
     try {
