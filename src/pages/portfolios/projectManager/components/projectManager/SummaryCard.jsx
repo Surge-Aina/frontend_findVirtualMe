@@ -45,8 +45,8 @@ const SummaryCard = ({ portfolio }) => {
   const [editData, setEditData] = useState(portfolio || {});
   const [savedData, setSavedData] = useState(portfolio || {}); // last saved snapshot
   const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useRef(null);
-
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
 
@@ -152,6 +152,54 @@ const SummaryCard = ({ portfolio }) => {
       [platform]: value,
     });
   };
+
+    // Upload resume to backend (S3) and update portfolio
+  const handleResumeUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setResumeFileName(file.name);
+
+    const portfolioId = portfolio?._id || portfolio?.id;
+    if (!portfolioId) return;
+
+    setResumeUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await axios.post(
+        `${apiUrl}/portfolio/resume/${portfolioId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const updatedPortfolio = response.data?.portfolio;
+
+      if (updatedPortfolio) {
+        // Update local edit data so the card reflects it
+        setEditData(updatedPortfolio);
+
+        const pid = updatedPortfolio._id || updatedPortfolio.id;
+        if (pid) {
+          // Update React Query cache so PortfolioPage sees it too
+          queryClient.setQueryData(["portfolio", pid], updatedPortfolio);
+        }
+      }
+
+      toast.success("Resume uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      toast.error("Failed to upload resume");
+    } finally {
+      setResumeUploading(false);
+    }
+  };
+
 
   // normalize & send both nested + top-level fields
   const handleSave = () => {
@@ -353,6 +401,51 @@ const SummaryCard = ({ portfolio }) => {
                     className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
                     placeholder="Phone number"
                   />
+                        <div className="mt-4">
+      <h3 className="text-lg font-semibold text-blue-300 mb-3 drop-shadow-sm">
+              Resume (PDF)
+            </h3>
+
+      {/* Styled “input” with hidden file element */}
+      <label className="w-full flex items-center justify-between bg-slate-700 border border-white/20 rounded-lg px-4 py-3 text-sm text-slate-200 cursor-pointer hover:border-blue-400/70 hover:bg-slate-700/80">
+        <span className="truncate">
+          {resumeFileName || "No file chosen"}
+        </span>
+        <span className="text-xs font-medium text-blue-300">
+          Choose file
+        </span>
+
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={handleResumeUpload}
+          className="hidden"
+        />
+      </label>
+
+      {resumeUploading && (
+        <p className="text-xs text-slate-400 mt-1">
+          Uploading resume...
+        </p>
+      )}
+
+      {editData?.resumeUrl && !resumeUploading && (
+        <button
+          type="button"
+          className="text-xs text-blue-300 hover:underline mt-2"
+          onClick={() =>
+            window.open(
+              editData.resumeUrl,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          View current resume
+        </button>
+      )}
+    </div>
+
                 </>
               ) : (
                 <>
