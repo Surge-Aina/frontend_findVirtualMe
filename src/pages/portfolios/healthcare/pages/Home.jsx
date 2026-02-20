@@ -97,7 +97,7 @@ export default function Home({portfolioId}) {
       
       {/* ✅ Hero Section - Use UI customization */}
       <section
-  className="relative text-white pt-30 pb-20 bg-gradient-to-br from-blue-700 to-blue-900"
+  className="relative text-white pt-36 pb-20 bg-gradient-to-br from-blue-700 to-blue-900"
   style={
     userData?.ui?.hero?.backgroundImage
       ? {
