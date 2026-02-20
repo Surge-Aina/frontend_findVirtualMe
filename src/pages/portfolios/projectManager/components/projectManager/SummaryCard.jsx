@@ -6,10 +6,7 @@ import {
   FaPen,
   FaSave,
   FaTimes,
-<<<<<<< feature/toggle
   FaCamera,
-=======
->>>>>>> staging
 } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -156,8 +153,6 @@ const SummaryCard = ({ portfolio }) => {
     });
   };
 
-<<<<<<< feature/toggle
-=======
     // Upload resume to backend (S3) and update portfolio
   const handleResumeUpload = async (event) => {
     const file = event.target.files?.[0];
@@ -206,7 +201,6 @@ const SummaryCard = ({ portfolio }) => {
   };
 
 
->>>>>>> staging
   // normalize & send both nested + top-level fields
   const handleSave = () => {
     const social = editData.socialLinks || {};
@@ -231,11 +225,7 @@ const SummaryCard = ({ portfolio }) => {
       linkedin: linkedinUrl,
       website: websiteUrl,
       // keep this so avatar changes persist once backend supports it
-<<<<<<< feature/toggle
       profileImage: imagePreview,
-=======
-      //profileImage: imagePreview,
->>>>>>> staging
     };
 
     // include portfolio id so backend updates THIS portfolio
@@ -270,7 +260,6 @@ const SummaryCard = ({ portfolio }) => {
           )}
 
           <div className="flex items-center gap-6 mb-6 pr-12">
-<<<<<<< feature/toggle
             <div
               className="relative w-24 h-24 group cursor-pointer"
               onClick={() => isEditing && fileInputRef.current?.click()}
@@ -319,8 +308,6 @@ const SummaryCard = ({ portfolio }) => {
                 }}
               />
             </div>
-=======
->>>>>>> staging
             <div className="flex-1">
               {isEditing ? (
                 <div className="space-y-3">
