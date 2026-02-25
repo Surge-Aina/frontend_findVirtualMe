@@ -49,6 +49,7 @@ const SummaryCard = ({ portfolio }) => {
   const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
+  const fileInputRef = useRef();
 
   // keep local state in sync with latest portfolio from server
   useEffect(() => {
