@@ -14,7 +14,7 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 const EducationCard = ({ portfolio }) => {
@@ -35,7 +35,7 @@ const EducationCard = ({ portfolio }) => {
     awards: "",
   });
 
-    const formatDateForInput = (date) => {
+  const formatDateForInput = (date) => {
     if (!date) return "";
     const d = new Date(date);
     const year = d.getFullYear();
@@ -54,42 +54,41 @@ const EducationCard = ({ portfolio }) => {
 
   // Mutation for saving education data
   // Mutation for saving education data
-const saveEducationMutation = useMutation({
-  mutationFn: async (educationData) => {
-    // send the full portfolio, with updated education
-    const updatedPortfolio = {
-      ...portfolio,
-      education: educationData,
-    };
+  const saveEducationMutation = useMutation({
+    mutationFn: async (educationData) => {
+      // send the full portfolio, with updated education
+      const updatedPortfolio = {
+        ...portfolio,
+        education: educationData,
+      };
 
-    const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-      portfolio: updatedPortfolio,
-    });
+      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+        portfolio: updatedPortfolio,
+      });
 
-    return response.data;
-  },
-  onSuccess: (data) => {
-    console.log("Save successful:", data);
-    // keep local list in sync with what the backend actually saved
-    setEduList(data.education || []);
-    toast.success("Education saved successfully!");
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Save successful:", data);
+      // keep local list in sync with what the backend actually saved
+      setEduList(data.education || []);
+      toast.success("Education saved successfully!");
 
-    // update the same query key used in PortfolioPage.jsx
-    if (portfolioId) {
-      queryClient.setQueryData(["portfolio", portfolioId], data);
-    } else {
-      // fallback: still invalidate any portfolio queries
-      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
-    }
-  },
-  onError: (error) => {
-    console.error("Save failed:", error);
-    toast.error("Failed to save education");
-  },
-});
+      // update the same query key used in PortfolioPage.jsx
+      if (portfolioId) {
+        queryClient.setQueryData(["portfolio", portfolioId], data);
+      } else {
+        // fallback: still invalidate any portfolio queries
+        queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      }
+    },
+    onError: (error) => {
+      console.error("Save failed:", error);
+      toast.error("Failed to save education");
+    },
+  });
 
-
-    const handleEdit = (idx) => {
+  const handleEdit = (idx) => {
     const current = eduList[idx] || {};
     setEditIdx(idx);
     setEditEdu({
@@ -100,7 +99,6 @@ const saveEducationMutation = useMutation({
       awards: current.awards?.join(", ") || "",
     });
   };
-
 
   const handleChange = (e) => {
     setEditEdu({ ...editEdu, [e.target.name]: e.target.value });
@@ -170,12 +168,13 @@ const saveEducationMutation = useMutation({
   };
 
   return (
-    <div className="mt-6">
+    <div className="mt-6" data-testid="education-card">
       {/* Mobile-optimized header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-sm">Education</h2>
         {portfolio.email === user?.email && (
           <button
+            data-testid="add-education-btn"
             onClick={() => setAdding(true)}
             className="self-start sm:self-auto px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg border border-blue-500 text-sm sm:text-base"
             disabled={saveEducationMutation.isPending}
@@ -191,12 +190,14 @@ const saveEducationMutation = useMutation({
         {eduList.map((edu, idx) => (
           <div
             key={idx}
+            data-testid="education-entry"
             className="relative bg-slate-800/70 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg p-4 sm:p-6 transition-all duration-300 hover:shadow-xl hover:border-white/30"
           >
             {editIdx === idx ? (
               <div className="space-y-4">
                 <div className="flex justify-end gap-1 sm:gap-2 mb-4">
                   <button
+                    data-testid="cancel-education-btn"
                     onClick={handleCancel}
                     className="p-1.5 sm:p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/50 transition-colors"
                     aria-label="Cancel"
@@ -204,6 +205,7 @@ const saveEducationMutation = useMutation({
                     <FaTimes className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                   <button
+                    data-testid="save-education-btn"
                     onClick={() => handleSave(idx)}
                     className="p-1.5 sm:p-2 text-green-400 hover:text-green-300 rounded-full hover:bg-green-500/20 transition-colors"
                     aria-label="Save"
@@ -212,6 +214,7 @@ const saveEducationMutation = useMutation({
                     <FaSave className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                   <button
+                    data-testid="delete-education-btn"
                     onClick={() => handleDelete(idx)}
                     className="p-1.5 sm:p-2 text-red-400 hover:text-red-300 rounded-full hover:bg-red-500/20 transition-colors"
                     aria-label="Delete"
@@ -222,6 +225,7 @@ const saveEducationMutation = useMutation({
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-4">
                   <input
+                    data-testid="education-school-input"
                     name="school"
                     value={editEdu.school || ""}
                     onChange={handleChange}
@@ -229,6 +233,7 @@ const saveEducationMutation = useMutation({
                     placeholder="School Name"
                   />
                   <input
+                    data-testid="education-field-input"
                     name="fieldOfStudy"
                     value={editEdu.fieldOfStudy || ""}
                     onChange={handleChange}
@@ -243,6 +248,7 @@ const saveEducationMutation = useMutation({
                       Start Date
                     </label>
                     <input
+                      data-testid="education-start-input"
                       name="startDate"
                       type="date"
                       value={editEdu.startDate || ""}
@@ -253,6 +259,7 @@ const saveEducationMutation = useMutation({
                   <div>
                     <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1 sm:mb-2">End Date</label>
                     <input
+                      data-testid="education-end-input"
                       name="endDate"
                       type="date"
                       value={editEdu.endDate || ""}
@@ -263,6 +270,7 @@ const saveEducationMutation = useMutation({
                 </div>
 
                 <textarea
+                  data-testid="education-description-input"
                   name="description"
                   value={editEdu.description || ""}
                   onChange={handleChange}
@@ -273,6 +281,7 @@ const saveEducationMutation = useMutation({
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-4">
                   <input
+                    data-testid="education-degrees-input"
                     name="degrees"
                     value={editEdu.degrees || ""}
                     onChange={handleChange}
@@ -280,6 +289,7 @@ const saveEducationMutation = useMutation({
                     placeholder="Degrees (comma separated)"
                   />
                   <input
+                    data-testid="education-awards-input"
                     name="awards"
                     value={editEdu.awards || ""}
                     onChange={handleChange}
@@ -292,6 +302,7 @@ const saveEducationMutation = useMutation({
               <>
                 {portfolio.email === user?.email && (
                   <button
+                    data-testid="edit-education-btn"
                     onClick={() => handleEdit(idx)}
                     className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
                     aria-label="Edit"
@@ -368,6 +379,7 @@ const saveEducationMutation = useMutation({
           <div className="relative bg-slate-800/70 backdrop-blur-lg border border-blue-400/50 rounded-xl shadow-lg p-4 sm:p-6">
             <button
               onClick={() => setAdding(false)}
+              data-testid="cancel-add-education-btn"
               className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/50 transition-colors"
               aria-label="Cancel"
             >
@@ -381,6 +393,7 @@ const saveEducationMutation = useMutation({
             <div className="space-y-3 sm:space-y-4">
               <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <input
+                  data-testid="education-school-input"
                   name="school"
                   value={newEdu.school}
                   onChange={handleNewChange}
@@ -388,6 +401,7 @@ const saveEducationMutation = useMutation({
                   placeholder="School Name"
                 />
                 <input
+                  data-testid="education-field-input"
                   name="fieldOfStudy"
                   value={newEdu.fieldOfStudy}
                   onChange={handleNewChange}
@@ -400,6 +414,7 @@ const saveEducationMutation = useMutation({
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1 sm:mb-2">Start Date</label>
                   <input
+                    data-testid="education-start-input"
                     name="startDate"
                     type="date"
                     value={newEdu.startDate}
@@ -410,6 +425,7 @@ const saveEducationMutation = useMutation({
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1 sm:mb-2">End Date</label>
                   <input
+                    data-testid="education-end-input"
                     name="endDate"
                     type="date"
                     value={newEdu.endDate}
@@ -420,6 +436,7 @@ const saveEducationMutation = useMutation({
               </div>
 
               <textarea
+                data-testid="education-description-input"
                 name="description"
                 value={newEdu.description}
                 onChange={handleNewChange}
@@ -430,6 +447,7 @@ const saveEducationMutation = useMutation({
 
               <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <input
+                  data-testid="education-degrees-input"
                   name="degrees"
                   value={newEdu.degrees}
                   onChange={handleNewChange}
@@ -437,6 +455,7 @@ const saveEducationMutation = useMutation({
                   placeholder="Degrees (comma separated)"
                 />
                 <input
+                  data-testid="education-awards-input"
                   name="awards"
                   value={newEdu.awards}
                   onChange={handleNewChange}
@@ -446,6 +465,7 @@ const saveEducationMutation = useMutation({
               </div>
 
               <button
+                data-testid="submit-education-btn"
                 onClick={handleAdd}
                 className="w-full mt-4 sm:mt-6 px-4 py-2.5 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500 disabled:opacity-50 text-sm sm:text-base"
                 disabled={saveEducationMutation.isPending}
@@ -457,10 +477,11 @@ const saveEducationMutation = useMutation({
         )}
       </div>
 
-      {eduList.length === 0 && !adding && (
+      {eduList.length === 0 && !adding && portfolio.email === user?.email && (
         <div className="text-center py-8 sm:py-12">
           <div className="text-slate-400 text-base sm:text-lg mb-4">No education entries yet</div>
           <button
+            data-testid="add-education-btn"
             onClick={() => setAdding(true)}
             className="px-4 py-2.5 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500 text-sm sm:text-base"
           >
