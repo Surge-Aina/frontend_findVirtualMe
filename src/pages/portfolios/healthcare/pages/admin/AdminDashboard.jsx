@@ -10,6 +10,7 @@ import {
   FaSave,
   FaEdit,
   FaEye,
+  FaEyeSlash,
   FaSearch,
   FaArrowLeft,
   FaTrash,
@@ -445,6 +446,69 @@ export default function AdminDashboard() {
                           />
                         </div>
                       ))}
+                    </div>
+
+                    {/* Stats Grid with Individual Toggles */}
+                    <div
+                      className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-opacity ${
+                        (userData?.statsVisibility?.showStatsSection ?? true) ? "opacity-100" : "opacity-50"
+                      }`}
+                    >
+                      {[
+                        { key: "yearsExperience", label: "Years Experience", suffix: "+" },
+                        { key: "patientsServed", label: "Patients Served", suffix: "+" },
+                        { key: "successRate", label: "Success Rate", suffix: "%" },
+                        { key: "doctorsCount", label: "Expert Doctors", suffix: "+" },
+                      ].map((stat) => {
+                        const isVisible = userData?.statsVisibility?.[stat.key] ?? true;
+                        return (
+                          <div
+                            key={stat.key}
+                            className={`p-3 rounded-lg border ${isVisible ? "border-blue-200 bg-blue-50/30" : "border-gray-200 bg-gray-50"}`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <label className={`text-sm font-medium ${isVisible ? "text-gray-700" : "text-gray-400"}`}>
+                                {stat.label}
+                              </label>
+                              <button
+                                onClick={() =>
+                                  setUserData((prev) => ({
+                                    ...prev,
+                                    statsVisibility: {
+                                      ...prev.statsVisibility,
+                                      [stat.key]: !(prev.statsVisibility?.[stat.key] ?? true),
+                                    },
+                                  }))
+                                }
+                                disabled={!(userData?.statsVisibility?.showStatsSection ?? true)}
+                                className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                                title={isVisible ? "Hide this stat" : "Show this stat"}
+                              >
+                                {isVisible ? <FaEye className="w-4 h-4" /> : <FaEyeSlash className="w-4 h-4" />}
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                value={userData?.stats?.[stat.key] || ""}
+                                onChange={(e) => updateField("stats", stat.key, e.target.value)}
+                                disabled={!(userData?.statsVisibility?.showStatsSection ?? true) || !isVisible}
+                                placeholder="0"
+                                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-lg font-semibold ${
+                                  isVisible
+                                    ? "border-gray-300 text-blue-600"
+                                    : "border-gray-200 text-gray-400 bg-gray-100"
+                                } disabled:cursor-not-allowed`}
+                              />
+                              <span
+                                className={`text-lg font-semibold ${isVisible ? "text-blue-600" : "text-gray-400"}`}
+                              >
+                                {stat.suffix}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

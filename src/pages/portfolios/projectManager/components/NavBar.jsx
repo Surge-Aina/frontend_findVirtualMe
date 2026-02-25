@@ -29,6 +29,7 @@ const NavBar = ({ onSelect }) => {
     { key: "projects", label: "Projects" },
     { key: "skills", label: "Skills" },
     { key: "fileUpload", label: "Compare Job Requirements" },
+    { key: "resume", label: "Resume" },  
   ];
 
   return (
