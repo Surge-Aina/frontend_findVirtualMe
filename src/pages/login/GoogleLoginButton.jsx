@@ -17,16 +17,16 @@ export default function GoogleLoginButton({ onClose }) {
       });
       if (onClose) onClose();
       setUserAfterLogin(res.data);
+      if(res.data.isNewUser) {
+        toast.success("Created profile with Google!");
+      }else{
+        toast.success("Logged In with Google!");
+      }
       navigate("/profile");
-      toast.success("Logged In!");
       console.log("Logged in user with Google:", res.data.user);
     } catch (err) {
       console.error("Backend auth failed", err);
-      if (err.response.data.message === "Create a user first") {
-        if (onClose) onClose();
-        navigate("/onboarding");
-        toast.error("Create a user first");
-      }
+      toast.error(err.response?.data?.message || "Login failed");
     }
   };
 
