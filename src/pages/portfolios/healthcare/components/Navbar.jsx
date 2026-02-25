@@ -37,7 +37,7 @@ export default function Navbar({ userData, practiceId }) {
 
   return (
     <header className={`fixed top-0 left-0 right-0 bg-white shadow-md z-[1000] transition-all duration-300 px-0.5 ${isScrolled ? 'scrolled' : ''}`}>
-      <nav className="flex items-center justify-between max-w-7xl mx-auto py-3">
+      <nav className="flex items-center justify-between max-w-7xl mx-auto py-3 px-3">
         <Link
           to={`/portfolios/healthcare/${practiceId}`}
           className="flex items-center no-underline text-blue-800 font-bold text-xl md:text-2xl gap-3" // Added gap and responsive text

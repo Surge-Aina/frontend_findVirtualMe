@@ -14,7 +14,7 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 const ProjectsCard = ({ portfolio }) => {
@@ -134,11 +134,12 @@ const ProjectsCard = ({ portfolio }) => {
   };
 
   return (
-    <div className="mt-6">
+    <div className="mt-6" data-testid="projects-card">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-3xl font-bold text-white tracking-tight drop-shadow-sm">Projects</h2>
         {portfolio.email === user?.email && (
           <button
+            data-testid="add-project-btn"
             onClick={() => setAdding(true)}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg border border-blue-500"
             disabled={saveProjectsMutation.isPending}
@@ -151,6 +152,7 @@ const ProjectsCard = ({ portfolio }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {projectList.map((proj, idx) => (
           <div
+            data-testid="project-card"
             key={idx}
             className="relative bg-slate-800 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:border-white/30 min-h-[250px] flex flex-col"
           >
@@ -158,6 +160,7 @@ const ProjectsCard = ({ portfolio }) => {
               <div className="space-y-4 flex-1">
                 <div className="flex justify-end gap-2 mb-4">
                   <button
+                    data-testid="cancel-project-btn"
                     onClick={handleCancel}
                     className="p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/50 transition-colors"
                     aria-label="Cancel"
@@ -165,6 +168,7 @@ const ProjectsCard = ({ portfolio }) => {
                     <FaTimes className="w-4 h-4" />
                   </button>
                   <button
+                    data-testid="save-project-btn"
                     onClick={() => handleSave(idx)}
                     className="p-2 text-green-400 hover:text-green-300 rounded-full hover:bg-green-500/20 transition-colors"
                     aria-label="Save"
@@ -173,6 +177,7 @@ const ProjectsCard = ({ portfolio }) => {
                     <FaSave className="w-4 h-4" />
                   </button>
                   <button
+                    data-testid="delete-project-btn"
                     onClick={() => handleDelete(idx)}
                     className="p-2 text-red-400 hover:text-red-300 rounded-full hover:bg-red-500/20 transition-colors"
                     aria-label="Delete"
@@ -182,6 +187,7 @@ const ProjectsCard = ({ portfolio }) => {
                 </div>
 
                 <input
+                  data-testid="project-name-input"
                   name="name"
                   value={editProject.name || ""}
                   onChange={handleChange}
@@ -190,6 +196,7 @@ const ProjectsCard = ({ portfolio }) => {
                 />
 
                 <textarea
+                  data-testid="project-description-input"
                   name="description"
                   value={editProject.description || ""}
                   onChange={handleChange}
@@ -199,6 +206,7 @@ const ProjectsCard = ({ portfolio }) => {
                 />
 
                 <input
+                  data-testid="project-link-input"
                   name="link"
                   value={editProject.link}
                   onChange={handleChange}
@@ -221,6 +229,7 @@ const ProjectsCard = ({ portfolio }) => {
               <>
                 {portfolio.email === user?.email && (
                   <button
+                    data-testid="edit-project-btn"
                     onClick={() => handleEdit(idx)}
                     className="absolute top-4 right-4 p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
                     aria-label="Edit"
@@ -257,6 +266,7 @@ const ProjectsCard = ({ portfolio }) => {
         {adding && (
           <div className="relative bg-slate-800 backdrop-blur-lg border border-blue-400/50 rounded-xl shadow-lg p-6 min-h-[250px] flex flex-col">
             <button
+              data-testid="cancel-add-project-btn"
               onClick={() => setAdding(false)}
               className="absolute top-4 right-4 p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/50 transition-colors"
               aria-label="Cancel"
@@ -268,6 +278,7 @@ const ProjectsCard = ({ portfolio }) => {
 
             <div className="space-y-4 flex-1">
               <input
+                data-testid="project-name-input"
                 name="name"
                 value={newProject.name}
                 onChange={handleNewChange}
@@ -276,6 +287,7 @@ const ProjectsCard = ({ portfolio }) => {
               />
 
               <textarea
+                data-testid="project-description-input"
                 name="description"
                 value={newProject.description}
                 onChange={handleNewChange}
@@ -285,6 +297,7 @@ const ProjectsCard = ({ portfolio }) => {
               />
 
               <input
+                data-testid="project-link-input"
                 name="link"
                 value={newProject.link}
                 onChange={handleNewChange}
@@ -293,6 +306,7 @@ const ProjectsCard = ({ portfolio }) => {
               />
 
               <button
+                data-testid="submit-project-btn"
                 onClick={handleAdd}
                 className="w-full mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500 disabled:opacity-50"
                 disabled={saveProjectsMutation.isPending}
@@ -304,10 +318,11 @@ const ProjectsCard = ({ portfolio }) => {
         )}
       </div>
 
-      {projectList.length === 0 && !adding && (
+      {projectList.length === 0 && !adding && portfolio.email === user?.email && (
         <div className="text-center py-12">
           <div className="text-slate-400 text-lg mb-4">No projects yet</div>
           <button
+            data-testid="add-project-btn"
             onClick={() => setAdding(true)}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500"
           >

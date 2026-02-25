@@ -14,7 +14,7 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 const ExperienceCard = ({ portfolio }) => {
@@ -34,7 +34,7 @@ const ExperienceCard = ({ portfolio }) => {
     description: "",
   });
 
-    const formatDateForInput = (date) => {
+  const formatDateForInput = (date) => {
     if (!date) return "";
     const d = new Date(date);
     const year = d.getFullYear();
@@ -51,37 +51,36 @@ const ExperienceCard = ({ portfolio }) => {
   }, [experiences]);
 
   const saveExperienceMutation = useMutation({
-  mutationFn: async (experienceData) => {
-    const updatedPortfolio = {
-      ...portfolio,
-      experiences: experienceData,
-    };
+    mutationFn: async (experienceData) => {
+      const updatedPortfolio = {
+        ...portfolio,
+        experiences: experienceData,
+      };
 
-    const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
-      portfolio: updatedPortfolio,
-    });
+      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+        portfolio: updatedPortfolio,
+      });
 
-    return response.data;
-  },
-  onSuccess: (data) => {
-    console.log("Save successful:", data);
-    setExpList(data.experiences || []);
-    toast.success("Experience saved successfully!");
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Save successful:", data);
+      setExpList(data.experiences || []);
+      toast.success("Experience saved successfully!");
 
-    if (portfolioId) {
-      queryClient.setQueryData(["portfolio", portfolioId], data);
-    } else {
-      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
-    }
-  },
-  onError: (error) => {
-    console.error("Save failed:", error);
-    toast.error("Failed to save Experience");
-  },
-});
+      if (portfolioId) {
+        queryClient.setQueryData(["portfolio", portfolioId], data);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      }
+    },
+    onError: (error) => {
+      console.error("Save failed:", error);
+      toast.error("Failed to save Experience");
+    },
+  });
 
-
-    const handleEdit = (idx) => {
+  const handleEdit = (idx) => {
     const current = expList[idx] || {};
     setEditIdx(idx);
     setEditExp({
@@ -90,7 +89,6 @@ const ExperienceCard = ({ portfolio }) => {
       endDate: formatDateForInput(current.endDate),
     });
   };
-
 
   const handleChange = (e) => {
     setEditExp({ ...editExp, [e.target.name]: e.target.value });
@@ -138,12 +136,13 @@ const ExperienceCard = ({ portfolio }) => {
   };
 
   return (
-    <div className="mt-6">
+    <div className="mt-6" data-testid="experience-card">
       {/* Mobile-optimized header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-sm">Experience</h2>
         {portfolio.email === user?.email && (
           <button
+            data-testid="add-experience-btn"
             onClick={() => setAdding(true)}
             className="self-start sm:self-auto px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg border border-blue-500 text-sm sm:text-base"
             disabled={saveExperienceMutation.isPending}
@@ -158,6 +157,7 @@ const ExperienceCard = ({ portfolio }) => {
       <div className="space-y-4 sm:space-y-6">
         {expList.map((exp, idx) => (
           <div
+            data-testid="experience-entry"
             key={idx}
             className="relative bg-slate-800 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg p-4 sm:p-6 transition-all duration-300 hover:shadow-xl hover:border-white/30"
           >
@@ -165,6 +165,7 @@ const ExperienceCard = ({ portfolio }) => {
               <div className="space-y-4">
                 <div className="flex justify-end gap-1 sm:gap-2 mb-4">
                   <button
+                    data-testid="cancel-experience-btn"
                     onClick={handleCancel}
                     className="p-1.5 sm:p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/50 transition-colors"
                     aria-label="Cancel"
@@ -172,6 +173,7 @@ const ExperienceCard = ({ portfolio }) => {
                     <FaTimes className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                   <button
+                    data-testid="save-experience-btn"
                     onClick={() => handleSave(idx)}
                     className="p-1.5 sm:p-2 text-green-400 hover:text-green-300 rounded-full hover:bg-green-500/20 transition-colors"
                     aria-label="Save"
@@ -180,6 +182,7 @@ const ExperienceCard = ({ portfolio }) => {
                     <FaSave className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                   <button
+                    data-testid="delete-experience-btn"
                     onClick={() => handleDelete(idx)}
                     className="p-1.5 sm:p-2 text-red-400 hover:text-red-300 rounded-full hover:bg-red-500/20 transition-colors"
                     aria-label="Delete"
@@ -190,6 +193,7 @@ const ExperienceCard = ({ portfolio }) => {
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-4">
                   <input
+                    data-testid="experience-title-input"
                     name="title"
                     value={editExp.title || ""}
                     onChange={handleChange}
@@ -197,6 +201,7 @@ const ExperienceCard = ({ portfolio }) => {
                     placeholder="Job Title"
                   />
                   <input
+                    data-testid="experience-company-input"
                     name="company"
                     value={editExp.company || ""}
                     onChange={handleChange}
@@ -211,6 +216,7 @@ const ExperienceCard = ({ portfolio }) => {
                       Start Date
                     </label>
                     <input
+                      data-testid="experience-start-input"
                       name="startDate"
                       type="date"
                       value={editExp.startDate || ""}
@@ -221,6 +227,7 @@ const ExperienceCard = ({ portfolio }) => {
                   <div>
                     <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1 sm:mb-2">End Date</label>
                     <input
+                      data-testid="experience-end-input"
                       name="endDate"
                       type="date"
                       value={editExp.endDate || ""}
@@ -229,6 +236,7 @@ const ExperienceCard = ({ portfolio }) => {
                     />
                   </div>
                   <input
+                    data-testid="experience-location-input"
                     name="location"
                     value={editExp.location || ""}
                     onChange={handleChange}
@@ -238,6 +246,7 @@ const ExperienceCard = ({ portfolio }) => {
                 </div>
 
                 <textarea
+                  data-testid="experience-description-input"
                   name="description"
                   value={editExp.description || ""}
                   onChange={handleChange}
@@ -250,6 +259,7 @@ const ExperienceCard = ({ portfolio }) => {
               <>
                 {portfolio.email === user?.email && (
                   <button
+                    data-testid="edit-experience-btn"
                     onClick={() => handleEdit(idx)}
                     className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-blue-400 hover:text-blue-300 rounded-full hover:bg-blue-500/20 transition-colors"
                     aria-label="Edit"
@@ -295,6 +305,7 @@ const ExperienceCard = ({ portfolio }) => {
         {adding && (
           <div className="relative bg-slate-800 backdrop-blur-lg border border-blue-400/50 rounded-xl shadow-lg p-4 sm:p-6">
             <button
+              data-testid="cancel-add-experience-btn"
               onClick={() => setAdding(false)}
               className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/50 transition-colors"
               aria-label="Cancel"
@@ -309,6 +320,7 @@ const ExperienceCard = ({ portfolio }) => {
             <div className="space-y-3 sm:space-y-4">
               <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <input
+                  data-testid="experience-title-input"
                   name="title"
                   value={newExp.title}
                   onChange={handleNewChange}
@@ -316,6 +328,7 @@ const ExperienceCard = ({ portfolio }) => {
                   placeholder="Job Title"
                 />
                 <input
+                  data-testid="experience-company-input"
                   name="company"
                   value={newExp.company}
                   onChange={handleNewChange}
@@ -328,6 +341,7 @@ const ExperienceCard = ({ portfolio }) => {
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1 sm:mb-2">Start Date</label>
                   <input
+                    data-testid="experience-start-input"
                     name="startDate"
                     type="date"
                     value={newExp.startDate}
@@ -338,6 +352,7 @@ const ExperienceCard = ({ portfolio }) => {
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1 sm:mb-2">End Date</label>
                   <input
+                    data-testid="experience-end-input"
                     name="endDate"
                     type="date"
                     value={newExp.endDate}
@@ -346,6 +361,7 @@ const ExperienceCard = ({ portfolio }) => {
                   />
                 </div>
                 <input
+                  data-testid="experience-location-input"
                   name="location"
                   value={newExp.location}
                   onChange={handleNewChange}
@@ -355,6 +371,7 @@ const ExperienceCard = ({ portfolio }) => {
               </div>
 
               <textarea
+                data-testid="experience-description-input"
                 name="description"
                 value={newExp.description}
                 onChange={handleNewChange}
@@ -364,6 +381,7 @@ const ExperienceCard = ({ portfolio }) => {
               />
 
               <button
+                data-testid="submit-experience-btn"
                 onClick={handleAdd}
                 className="w-full mt-4 sm:mt-6 px-4 py-2.5 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500 disabled:opacity-50 text-sm sm:text-base"
                 disabled={saveExperienceMutation.isPending}
@@ -375,10 +393,11 @@ const ExperienceCard = ({ portfolio }) => {
         )}
       </div>
 
-      {expList.length === 0 && !adding && (
+      {expList.length === 0 && !adding && portfolio.email === user?.email && (
         <div className="text-center py-8 sm:py-12">
           <div className="text-slate-400 text-base sm:text-lg mb-4">No experience entries yet</div>
           <button
+            data-testid="add-experience-btn"
             onClick={() => setAdding(true)}
             className="px-4 py-2.5 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg border border-blue-500 text-sm sm:text-base"
           >
