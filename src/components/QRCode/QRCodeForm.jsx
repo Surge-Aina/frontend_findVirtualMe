@@ -1,6 +1,5 @@
 import { useState } from "react";
 import axiosAuth from "../../utils/axiosAuth";
-import QRDisplay from "./QRDisplay";
 
 export default function QRCodeForm({ onSuccess }) {
   const initialFormState = {
@@ -202,11 +201,6 @@ export default function QRCodeForm({ onSuccess }) {
           )}
         </button>
       </form>
-
-
-      {/* preview of QR code */}
-
-      <QRDisplay qrId={"699fa1703460250eb61bd6cb"} />
     </div>
   );
 }
