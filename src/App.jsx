@@ -59,6 +59,7 @@ import axios from "axios";
 import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
+import QRCodeForm from "./components/QRCode/QRCodeForm.jsx";
 
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {
@@ -289,7 +290,7 @@ export default function App() {
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
-          <Route path="/testPage" element={<FullStackEditor />} />
+          <Route path="/testPage" element={<QRCodeForm />} />
         </Routes>
       </ErrorBoundary>
       <FloatingHelpButton />
