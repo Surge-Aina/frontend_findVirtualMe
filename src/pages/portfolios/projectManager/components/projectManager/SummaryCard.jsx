@@ -44,6 +44,8 @@ const SummaryCard = ({ portfolio }) => {
   const [editData, setEditData] = useState(portfolio || {});
   const [savedData, setSavedData] = useState(portfolio || {}); // last saved snapshot
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const [resumeUploading, setResumeUploading] = useState(false);
   const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
@@ -55,6 +57,14 @@ const SummaryCard = ({ portfolio }) => {
     setEditData(baseData);
     setSavedData(baseData);
   }, [portfolio]);
+
+  useEffect(() => {
+    if (portfolio?.profileImage) {
+      setImagePreview(portfolio.profileImage);
+    } else {
+      setImagePreview(null);
+    }
+  }, [portfolio?.profileImage]);
 
   // tracking when editing
   useEffect(() => {
@@ -133,7 +143,8 @@ const SummaryCard = ({ portfolio }) => {
   const socialLinks = {
     github: base.socialLinks?.github || base.github || "",
     linkedin: base.socialLinks?.linkedin || base.linkedin || "",
-    website: base.socialLinks?.website || base.website || "",
+    // ✅ portfolio link should be stored/read as "website" because schema supports it
+    website: base.socialLinks?.website || base.website || base.portfolio || "",
   };
 
   const handleChange = (e) => {
@@ -199,13 +210,60 @@ const SummaryCard = ({ portfolio }) => {
     }
   };
 
+  const handleProfileImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
+    const portfolioId = portfolio?._id || portfolio?.id;
+    if (!portfolioId) return;
+
+    // instant local preview
+    const localUrl = URL.createObjectURL(file);
+    setImagePreview(localUrl);
+
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await axios.post(
+        `${apiUrl}/portfolio/profile-image/${portfolioId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      const updatedPortfolio = response.data?.portfolio;
+      const s3Url = response.data?.profileImage || updatedPortfolio?.profileImage;
+
+      if (s3Url) setImagePreview(s3Url);
+
+      if (updatedPortfolio) {
+        setEditData(updatedPortfolio);
+        setSavedData(updatedPortfolio);
+
+        const pid = updatedPortfolio._id || updatedPortfolio.id;
+        if (pid) {
+          queryClient.setQueryData(["portfolio", pid], updatedPortfolio);
+          queryClient.invalidateQueries({ queryKey: ["portfolio", pid] });
+        }
+      }
+
+      toast.success("Profile photo updated!");
+    } catch (err) {
+      console.error("Error uploading profile image:", err);
+      toast.error("Failed to upload profile photo");
+      // optional: revert preview back to saved
+      setImagePreview(savedData?.profileImage || portfolio?.profileImage || null);
+    } finally {
+      setImageUploading(false);
+    }
+  };
   // normalize & send both nested + top-level fields
   const handleSave = () => {
     const social = editData.socialLinks || {};
     const githubUrl = normalizeUrl(social.github || editData.github);
     const linkedinUrl = normalizeUrl(social.linkedin || editData.linkedin);
-    const websiteUrl = normalizeUrl(social.website || editData.website);
+    const websiteUrl = normalizeUrl(social.website || editData.website || editData.portfolio);
 
     const updatedFields = {
       name: editData.name,
@@ -217,14 +275,11 @@ const SummaryCard = ({ portfolio }) => {
       socialLinks: {
         github: githubUrl,
         linkedin: linkedinUrl,
-        website: websiteUrl,
+        website: websiteUrl, // ✅ store portfolio link here
       },
-      // also send top-level, in case backend uses that shape
       github: githubUrl,
       linkedin: linkedinUrl,
-      website: websiteUrl,
-      // keep this so avatar changes persist once backend supports it
-      //profileImage: imagePreview,
+      website: websiteUrl,   // ✅ keep top-level in sync (optional)
     };
 
     // include portfolio id so backend updates THIS portfolio
@@ -259,6 +314,66 @@ const SummaryCard = ({ portfolio }) => {
           )}
 
           <div className="flex items-center gap-6 mb-6 pr-12">
+            {/* ✅ Avatar always visible (placeholder if no photo) */}
+            <div className="flex flex-col items-center">
+              {isEditing ? (
+                <>
+                  {/* ✅ Uploadable avatar (edit mode) */}
+                  <button
+                    type="button"
+                    className="relative w-20 h-20 rounded-full overflow-hidden border border-blue-400/30 shadow-lg group"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                    aria-label="Upload profile photo"
+                  >
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-blue-500/20 flex items-center justify-center text-blue-200 font-bold text-3xl">
+                        {name?.[0] || "H"}
+                      </div>
+                    )}
+
+                    {/* hover overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <span className="text-white text-xs font-medium">
+                        {imageUploading ? "Uploading..." : "Change"}
+                      </span>
+                    </div>
+                  </button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleProfileImageUpload}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* ✅ Display-only avatar (non-edit mode) */}
+                  <div className="w-20 h-20 rounded-full overflow-hidden border border-white/20 shadow-lg">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-700 flex items-center justify-center text-white font-bold text-3xl">
+                        {name?.[0] || "H"}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
             <div className="flex-1">
               {isEditing ? (
                 <div className="space-y-3">
@@ -436,11 +551,9 @@ const SummaryCard = ({ portfolio }) => {
                 />
                 <input
                   value={socialLinks.website || ""}
-                  onChange={(e) =>
-                    handleSocialChange("website", e.target.value)
-                  }
+                  onChange={(e) => handleSocialChange("website", e.target.value)}
                   className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
-                  placeholder="Website URL"
+                  placeholder="Portfolio URL"
                 />
               </div>
             ) : (
@@ -473,7 +586,7 @@ const SummaryCard = ({ portfolio }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-400 hover:text-blue-300 transition-colors text-2xl"
-                    aria-label="Website"
+                    aria-label="Portfolio"
                   >
                     <FaGlobe />
                   </a>
