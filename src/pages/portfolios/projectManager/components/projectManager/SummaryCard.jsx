@@ -49,6 +49,7 @@ const SummaryCard = ({ portfolio }) => {
   const [resumeUploading, setResumeUploading] = useState(false);
   const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
+  const [pendingImageFile, setPendingImageFile] = useState(null);
   const apiUrl = import.meta.env.VITE_BACKEND_API;
 
   // keep local state in sync with latest portfolio from server
@@ -210,61 +211,66 @@ const SummaryCard = ({ portfolio }) => {
     }
   };
 
-  const handleProfileImageUpload = async (event) => {
+  const handleProfileImageUpload = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const portfolioId = portfolio?._id || portfolio?.id;
-    if (!portfolioId) return;
-
-    // instant local preview
+    // ✅ Local preview only (do NOT upload here)
     const localUrl = URL.createObjectURL(file);
     setImagePreview(localUrl);
-
-    setImageUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const response = await axios.post(
-        `${apiUrl}/portfolio/profile-image/${portfolioId}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      const updatedPortfolio = response.data?.portfolio;
-      const s3Url = response.data?.profileImage || updatedPortfolio?.profileImage;
-
-      if (s3Url) setImagePreview(s3Url);
-
-      if (updatedPortfolio) {
-        setEditData(updatedPortfolio);
-        setSavedData(updatedPortfolio);
-
-        const pid = updatedPortfolio._id || updatedPortfolio.id;
-        if (pid) {
-          queryClient.setQueryData(["portfolio", pid], updatedPortfolio);
-          queryClient.invalidateQueries({ queryKey: ["portfolio", pid] });
-        }
-      }
-
-      toast.success("Profile photo updated!");
-    } catch (err) {
-      console.error("Error uploading profile image:", err);
-      toast.error("Failed to upload profile photo");
-      // optional: revert preview back to saved
-      setImagePreview(savedData?.profileImage || portfolio?.profileImage || null);
-    } finally {
-      setImageUploading(false);
-    }
+    setPendingImageFile(file);
   };
   // normalize & send both nested + top-level fields
-  const handleSave = () => {
+// normalize & send both nested + top-level fields
+  const handleSave = async () => {
     const social = editData.socialLinks || {};
     const githubUrl = normalizeUrl(social.github || editData.github);
     const linkedinUrl = normalizeUrl(social.linkedin || editData.linkedin);
-    const websiteUrl = normalizeUrl(social.website || editData.website || editData.portfolio);
+    const websiteUrl = normalizeUrl(
+      social.website || editData.website || editData.portfolio
+    );
 
+    // ✅ 1) Upload image ONLY on Save (if user selected a new one)
+    let finalProfileImageUrl =
+      savedData?.profileImage || editData?.profileImage || portfolio?.profileImage || "";
+
+    if (pendingImageFile) {
+      setImageUploading(true);
+      try {
+        const portfolioId =
+          editData._id || editData.id || portfolio?._id || portfolio?.id;
+
+        if (!portfolioId) throw new Error("Portfolio ID missing");
+
+        const formData = new FormData();
+        formData.append("image", pendingImageFile);
+
+        const res = await axios.post(
+          `${apiUrl}/portfolio/profile-image/${portfolioId}`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+
+        finalProfileImageUrl =
+          res.data?.profileImage ||
+          res.data?.portfolio?.profileImage ||
+          finalProfileImageUrl;
+
+        // clear pending file since it’s now uploaded
+        setPendingImageFile(null);
+
+        // optional: keep preview synced with S3 url after upload
+        if (finalProfileImageUrl) setImagePreview(finalProfileImageUrl);
+      } catch (err) {
+        console.error("Profile image upload failed:", err);
+        toast.error("Failed to upload profile photo");
+        return; // ❗ stop save if upload fails
+      } finally {
+        setImageUploading(false);
+      }
+    }
+
+    // ✅ 2) Now save the rest of fields + the finalProfileImageUrl in DB
     const updatedFields = {
       name: editData.name,
       bio: editData.bio,
@@ -272,22 +278,20 @@ const SummaryCard = ({ portfolio }) => {
       email: editData.email,
       phone: editData.phone,
       location: editData.location,
+      profileImage: finalProfileImageUrl, // ✅ IMPORTANT
       socialLinks: {
         github: githubUrl,
         linkedin: linkedinUrl,
-        website: websiteUrl, // ✅ store portfolio link here
+        website: websiteUrl,
       },
       github: githubUrl,
       linkedin: linkedinUrl,
-      website: websiteUrl,   // ✅ keep top-level in sync (optional)
+      website: websiteUrl,
     };
 
-    // include portfolio id so backend updates THIS portfolio
     const portfolioId =
       editData._id || editData.id || portfolio?._id || portfolio?.id;
-    if (portfolioId) {
-      updatedFields._id = portfolioId;
-    }
+    if (portfolioId) updatedFields._id = portfolioId;
 
     saveSummaryMutation.mutate(updatedFields);
   };
@@ -295,7 +299,14 @@ const SummaryCard = ({ portfolio }) => {
   const handleCancel = () => {
     const baseData = savedData || portfolio || {};
     setEditData(baseData);
+
+    // ✅ discard selected-but-not-saved image
+    setPendingImageFile(null);
     setImagePreview(baseData?.profileImage || null);
+
+    // ✅ allow selecting the same file again later
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     setIsEditing(false);
   };
 
