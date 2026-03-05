@@ -9,7 +9,6 @@ import ExperienceCard from "../components/projectManager/ExperienceCard";
 import ProjectsCard from "../components/projectManager/ProjectsCard";
 import SkillsCard from "../components/projectManager/SkillsCard";
 import FileUploader from "../components/FileUploader";
-import { FaCamera } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import "../style.css";
 // import emailjs from "@emailjs/browser";
@@ -18,7 +17,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
   const [activeSection, setActiveSection] = useState("summary");
   const [animating, setAnimating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useRef(null);
+  const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
   const userPortfolioId = localStorage.getItem("portfolioId");
@@ -418,8 +417,10 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                 <div className="card-glassmorphism p-8 hover-scale-md">
                   <div className="flex flex-col items-center text-center mb-6">
                     <div
-                      className="relative w-24 h-24 group cursor-pointer profile-avatar"
-                      onClick={() => fileInputRef.current?.click()}
+                      className="relative w-24 h-24 cursor-pointer profile-avatar"
+                      onClick={() => {
+                        if (imagePreview) setIsPhotoOpen(true);
+                      }}
                     >
                       {/* Profile Image or Fallback */}
                       <div className="w-full h-full rounded-full overflow-hidden border border-blue-400/30 shadow-lg">
@@ -436,19 +437,6 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                         )}
                       </div>
 
-                      {/* Upload overlay */}
-                      <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                        <FaCamera className="text-white text-xl" />
-                      </div>
-
-                      {/* Hidden file input */}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
                     </div>
                     <h2 className="text-2xl font-bold mb-1 text-white tracking-tight drop-shadow-sm">
                       {portfolio?.name || "Portfolio Name"}
@@ -505,10 +493,70 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                           </svg>
                         </a>
                       )}
+
+                      {/* Portfolio / Website */}
+                      {(portfolio?.socialLinks?.website || portfolio?.website || portfolio?.portfolio) && (
+                        <a
+                          href={
+                            /^https?:\/\//i.test(
+                              portfolio?.socialLinks?.website || portfolio?.website || portfolio?.portfolio
+                            )
+                              ? (portfolio?.socialLinks?.website || portfolio?.website || portfolio?.portfolio)
+                              : `https://${portfolio?.socialLinks?.website || portfolio?.website || portfolio?.portfolio}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="social-icon"
+                          aria-label="Portfolio"
+                        >
+                          {/* Globe Icon */}
+                          <svg
+                            className="w-5 h-5"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.06a15.3 15.3 0 00-1.1-5.02A8.02 8.02 0 0119.93 11zM12 4c.86 0 2.15 1.6 2.86 5H9.14C9.85 5.6 11.14 4 12 4zM4.07 13h3.06c.2 1.77.7 3.5 1.1 5.02A8.02 8.02 0 014.07 13zM7.13 11H4.07A8.02 8.02 0 018.23 5.98 15.3 15.3 0 007.13 11zM12 20c-.86 0-2.15-1.6-2.86-5h5.72c-.71 3.4-2 5-2.86 5zm3.97-2.98c.4-1.52.9-3.25 1.1-5.02h3.06a8.02 8.02 0 01-4.16 5.02zM7.94 13a13.6 13.6 0 001.2 5h-1.1A7.98 7.98 0 015.1 13h2.84zm8.12 0h2.84a7.98 7.98 0 01-2.94 5h-1.1a13.6 13.6 0 001.2-5zM9.14 11h5.72a13.8 13.8 0 010 2H9.14a13.8 13.8 0 010-2z" />
+                          </svg>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
+
+              {isPhotoOpen && (
+                <div
+                  className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center p-6"
+                  onClick={() => setIsPhotoOpen(false)}
+                >
+                  <div
+                    className="max-w-2xl w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="bg-slate-900/80 border border-white/20 rounded-xl p-4 shadow-2xl">
+                      <div className="flex justify-end">
+                        <button
+                          className="text-slate-300 hover:text-white text-sm px-3 py-1 rounded-md hover:bg-white/10"
+                          onClick={() => setIsPhotoOpen(false)}
+                          type="button"
+                        >
+                          Close
+                        </button>
+                      </div>
+
+                      <div className="flex justify-center">
+                        <img
+                          src={imagePreview}
+                          alt="Profile enlarged"
+                          className="max-h-[70vh] w-auto rounded-lg border border-white/10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
 
               {/* Main info card */}
               <div className="col-span-main group">
