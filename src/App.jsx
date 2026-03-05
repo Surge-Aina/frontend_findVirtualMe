@@ -238,7 +238,7 @@ export default function App() {
           {/* Photographer */}
           <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
           {/* Handyman =======================QR Overlay */}
-          <Route index element={<HandymanShowcasePage />} />
+          <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
           <Route path="/portfolios/handyman" element={<WidgetOverlayWrapper portfolioType="HandymanMainPortfolio"/>} >
             <Route path=":id" element={<HandymanPage />} />
             <Route path=":id/edit" element={<EditHandymanPortfolio />} />
