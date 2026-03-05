@@ -45,11 +45,13 @@ const SummaryCard = ({ portfolio }) => {
   const [editData, setEditData] = useState(portfolio || {});
   const [savedData, setSavedData] = useState(portfolio || {}); // last saved snapshot
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const [resumeUploading, setResumeUploading] = useState(false);
   const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
+  const [pendingImageFile, setPendingImageFile] = useState(null);
   const apiUrl = import.meta.env.VITE_BACKEND_API;
-  const fileInputRef = useRef();
 
   // keep local state in sync with latest portfolio from server
   useEffect(() => {
@@ -57,6 +59,14 @@ const SummaryCard = ({ portfolio }) => {
     setEditData(baseData);
     setSavedData(baseData);
   }, [portfolio]);
+
+  useEffect(() => {
+    if (portfolio?.profileImage) {
+      setImagePreview(portfolio.profileImage);
+    } else {
+      setImagePreview(null);
+    }
+  }, [portfolio?.profileImage]);
 
   // tracking when editing
   useEffect(() => {
@@ -135,7 +145,8 @@ const SummaryCard = ({ portfolio }) => {
   const socialLinks = {
     github: base.socialLinks?.github || base.github || "",
     linkedin: base.socialLinks?.linkedin || base.linkedin || "",
-    website: base.socialLinks?.website || base.website || "",
+    // ✅ portfolio link should be stored/read as "website" because schema supports it
+    website: base.socialLinks?.website || base.website || base.portfolio || "",
   };
 
   const handleChange = (e) => {
@@ -201,14 +212,66 @@ const SummaryCard = ({ portfolio }) => {
     }
   };
 
+  const handleProfileImageUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
+    // ✅ Local preview only (do NOT upload here)
+    const localUrl = URL.createObjectURL(file);
+    setImagePreview(localUrl);
+    setPendingImageFile(file);
+  };
   // normalize & send both nested + top-level fields
-  const handleSave = () => {
+// normalize & send both nested + top-level fields
+  const handleSave = async () => {
     const social = editData.socialLinks || {};
     const githubUrl = normalizeUrl(social.github || editData.github);
     const linkedinUrl = normalizeUrl(social.linkedin || editData.linkedin);
-    const websiteUrl = normalizeUrl(social.website || editData.website);
+    const websiteUrl = normalizeUrl(
+      social.website || editData.website || editData.portfolio
+    );
 
+    // ✅ 1) Upload image ONLY on Save (if user selected a new one)
+    let finalProfileImageUrl =
+      savedData?.profileImage || editData?.profileImage || portfolio?.profileImage || "";
+
+    if (pendingImageFile) {
+      setImageUploading(true);
+      try {
+        const portfolioId =
+          editData._id || editData.id || portfolio?._id || portfolio?.id;
+
+        if (!portfolioId) throw new Error("Portfolio ID missing");
+
+        const formData = new FormData();
+        formData.append("image", pendingImageFile);
+
+        const res = await axios.post(
+          `${apiUrl}/portfolio/profile-image/${portfolioId}`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+
+        finalProfileImageUrl =
+          res.data?.profileImage ||
+          res.data?.portfolio?.profileImage ||
+          finalProfileImageUrl;
+
+        // clear pending file since it’s now uploaded
+        setPendingImageFile(null);
+
+        // optional: keep preview synced with S3 url after upload
+        if (finalProfileImageUrl) setImagePreview(finalProfileImageUrl);
+      } catch (err) {
+        console.error("Profile image upload failed:", err);
+        toast.error("Failed to upload profile photo");
+        return; // ❗ stop save if upload fails
+      } finally {
+        setImageUploading(false);
+      }
+    }
+
+    // ✅ 2) Now save the rest of fields + the finalProfileImageUrl in DB
     const updatedFields = {
       name: editData.name,
       bio: editData.bio,
@@ -216,25 +279,20 @@ const SummaryCard = ({ portfolio }) => {
       email: editData.email,
       phone: editData.phone,
       location: editData.location,
+      profileImage: finalProfileImageUrl, // ✅ IMPORTANT
       socialLinks: {
         github: githubUrl,
         linkedin: linkedinUrl,
         website: websiteUrl,
       },
-      // also send top-level, in case backend uses that shape
       github: githubUrl,
       linkedin: linkedinUrl,
       website: websiteUrl,
-      // keep this so avatar changes persist once backend supports it
-      profileImage: imagePreview,
     };
 
-    // include portfolio id so backend updates THIS portfolio
     const portfolioId =
       editData._id || editData.id || portfolio?._id || portfolio?.id;
-    if (portfolioId) {
-      updatedFields._id = portfolioId;
-    }
+    if (portfolioId) updatedFields._id = portfolioId;
 
     saveSummaryMutation.mutate(updatedFields);
   };
@@ -242,7 +300,14 @@ const SummaryCard = ({ portfolio }) => {
   const handleCancel = () => {
     const baseData = savedData || portfolio || {};
     setEditData(baseData);
+
+    // ✅ discard selected-but-not-saved image
+    setPendingImageFile(null);
     setImagePreview(baseData?.profileImage || null);
+
+    // ✅ allow selecting the same file again later
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     setIsEditing(false);
   };
 
@@ -261,54 +326,66 @@ const SummaryCard = ({ portfolio }) => {
           )}
 
           <div className="flex items-center gap-6 mb-6 pr-12">
-            <div
-              className="relative w-24 h-24 group cursor-pointer"
-              onClick={() => isEditing && fileInputRef.current?.click()}
-            >
-              {/* Profile Image or Fallback */}
-              <div className="w-full h-full rounded-full overflow-hidden border border-blue-400/30 shadow-lg">
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt={name || "Profile"}
-                    className="w-full h-full object-cover"
+            {/* ✅ Avatar always visible (placeholder if no photo) */}
+            <div className="flex flex-col items-center">
+              {isEditing ? (
+                <>
+                  {/* ✅ Uploadable avatar (edit mode) */}
+                  <button
+                    type="button"
+                    className="relative w-20 h-20 rounded-full overflow-hidden border border-blue-400/30 shadow-lg group"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                    aria-label="Upload profile photo"
+                  >
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-blue-500/20 flex items-center justify-center text-blue-200 font-bold text-3xl">
+                        {name?.[0] || "H"}
+                      </div>
+                    )}
+
+                    {/* hover overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <span className="text-white text-xs font-medium">
+                        {imageUploading ? "Uploading..." : "Change"}
+                      </span>
+                    </div>
+                  </button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleProfileImageUpload}
                   />
-                ) : (
-                  <div className="w-full h-full bg-blue-500/20 flex items-center justify-center text-blue-200 font-bold text-4xl">
-                    {name?.[0]?.toUpperCase() || "U"}
+                </>
+              ) : (
+                <>
+                  {/* ✅ Display-only avatar (non-edit mode) */}
+                  <div className="w-20 h-20 rounded-full overflow-hidden border border-white/20 shadow-lg">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-700 flex items-center justify-center text-white font-bold text-3xl">
+                        {name?.[0] || "H"}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-
-              {/* Upload Overlay - Only visible when editing */}
-              {isEditing && (
-                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                  <FaCamera className="text-white text-xl" />
-                </div>
+                </>
               )}
-
-              {/* Hidden File Input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setImagePreview(reader.result);
-                      setEditData((prev) => ({
-                        ...prev,
-                        profileImage: reader.result,
-                      }));
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-              />
             </div>
+
             <div className="flex-1">
               {isEditing ? (
                 <div className="space-y-3">
@@ -486,11 +563,9 @@ const SummaryCard = ({ portfolio }) => {
                 />
                 <input
                   value={socialLinks.website || ""}
-                  onChange={(e) =>
-                    handleSocialChange("website", e.target.value)
-                  }
+                  onChange={(e) => handleSocialChange("website", e.target.value)}
                   className="w-full bg-slate-700 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 px-4 py-3"
-                  placeholder="Website URL"
+                  placeholder="Portfolio URL"
                 />
               </div>
             ) : (
@@ -523,7 +598,7 @@ const SummaryCard = ({ portfolio }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-400 hover:text-blue-300 transition-colors text-2xl"
-                    aria-label="Website"
+                    aria-label="Portfolio"
                   >
                     <FaGlobe />
                   </a>
