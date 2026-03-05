@@ -19,6 +19,7 @@ import axiosAuth from "../../utils/axiosAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHandleCardClick } from "../../utils/useHandleCardClick";
 import DomainLookup from "./DomainLookup";
+import QRWidgetSettings from "./QRWidgetSettings";
 
 export default function UserProfile() {
   const { handleCardClick } = useHandleCardClick();
@@ -256,6 +257,12 @@ export default function UserProfile() {
             setCurrentTab={handleTabChange}
           />
           <SidebarItem
+            icon={<Settings className="w-5 h-5" />}
+            label="QR Customization"
+            currentTab={currentTab}
+            setCurrentTab={handleTabChange}
+          />
+          <SidebarItem
             icon={<Bell className="w-5 h-5" />}
             label="Notifications"
             currentTab={currentTab}
@@ -425,7 +432,6 @@ export default function UserProfile() {
               <p className="text-gray-600">Connect custom domains to your portfolios and manage DNS settings.</p>
             </div>
 
-
             {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* Add New Domain */}
             <div className="border border-gray-200 rounded-lg p-6 mb-6">
@@ -504,6 +510,13 @@ export default function UserProfile() {
                 </div>
               </div>
             )}
+          </section>
+        </main>
+      )}
+      {currentTab === "QR Customization" && (
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+          <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+            <QRWidgetSettings />
           </section>
         </main>
       )}
@@ -604,17 +617,16 @@ function DomainCard({ domain, onRemove, onVerify }) {
 
   const onConnectProject = async (domainName, portfolioId) => {
     // Implement the logic to connect the domain to the selected portfolio type
-    const res = await axiosAuth
-      .patch(`/domainRouter/${domain._id}`, {
-        domain: domain.domain,
-        portfolioId: portfolioId,
-        //optional: notes(String)
-      })
-      console.log("connecting domain to portfolio", domainName, portfolioId);
+    const res = await axiosAuth.patch(`/domainRouter/${domain._id}`, {
+      domain: domain.domain,
+      portfolioId: portfolioId,
+      //optional: notes(String)
+    });
+    console.log("connecting domain to portfolio", domainName, portfolioId);
     console.log("domain connect response", res);
     console.log("user data", user);
     setSelectedPortfolio(res.data.portfolioId);
-  }
+  };
 
   // const selectedPortfolio = user?.portfolios?.find(p => p.portfolioId === domain.portfolioId);
 
@@ -649,8 +661,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
           </div>
         </div>
         <div className="flex items-center gap-2 ml-4">
-        
-        {/* =============== removed for now -- possible addition later on -carlosG==============*/}
+          {/* =============== removed for now -- possible addition later on -carlosG==============*/}
           {/* <button
             onClick={() => onVerify(domain._id)}
             className="px-3 py-1 text-sm border border-blue-300 text-blue-600 rounded hover:bg-blue-50 transition"
@@ -661,24 +672,25 @@ function DomainCard({ domain, onRemove, onVerify }) {
           {user.portfolios?.length > 0 && (
             <select
               className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:border-gray-400 transition"
-              value={ selectedPortfolio}
+              value={selectedPortfolio}
               onChange={(e) => onConnectProject(domain.domain, e.target.value)}
             >
               <option value="" disabled>
                 Select portfolio
               </option>
 
-              {user.portfolios.map((portfolio) => (portfolio.portfolioId &&
-                <option key={portfolio._id} value={portfolio.portfolioId}>
-                  {portfolio.portfolioType}
-                </option>
-              ))}
+              {user.portfolios.map(
+                (portfolio) =>
+                  portfolio.portfolioId && (
+                    <option key={portfolio._id} value={portfolio.portfolioId}>
+                      {portfolio.portfolioType}
+                    </option>
+                  ),
+              )}
             </select>
           )}
 
-          <div>
-            
-          </div>
+          <div></div>
 
           <button
             onClick={() => onRemove(domain._id)}
