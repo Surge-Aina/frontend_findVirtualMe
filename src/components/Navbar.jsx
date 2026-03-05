@@ -125,6 +125,7 @@ export default function Navbar() {
             ) : (
               <>
                 <button
+                  data-testid="open-auth-modal"
                   className="relative px-4 py-2 rounded-xl transition-colors text-slate-800 overflow-hidden group border border-blue-300"
                   onClick={() => {
                     setShowAuth(true);

@@ -6,6 +6,7 @@ import {
   FaPen,
   FaSave,
   FaTimes,
+  FaCamera,
 } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";

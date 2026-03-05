@@ -43,6 +43,7 @@ const NavBar = ({ onSelect }) => {
               .filter((item) => item.key !== "fileUpload")
               .map((item) => (
                 <button
+                  data-testid={`tab-${item.key}`}
                   key={item.key}
                   className="px-4 py-2 font-medium text-white hover:text-blue-400 transition-colors duration-200 border-none bg-transparent rounded-md hover:bg-white/10"
                   onClick={() => onSelect(item.key)}
@@ -128,6 +129,7 @@ const NavBar = ({ onSelect }) => {
             <div className="flex flex-col space-y-2">
               {navItems.map((item) => (
                 <button
+                  data-testid={`tab-${item.key}`}
                   key={item.key}
                   className="w-full text-left px-4 py-3 font-medium text-white hover:text-blue-400 transition-colors duration-200 border-none bg-transparent rounded-md hover:bg-white/10"
                   onClick={() => handleMenuSelect(item.key)}

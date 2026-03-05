@@ -14,7 +14,7 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 const SkillsCard = ({ portfolio }) => {
@@ -167,7 +167,7 @@ const SkillsCard = ({ portfolio }) => {
         )}
       </div>
 
-      {skillList.length === 0 && !adding && (
+      {skillList.length === 0 && !adding && portfolio.email === user?.email && (
         <div className="text-center py-8">
           <div className="text-slate-400 text-lg mb-4">No skills yet</div>
           <button
