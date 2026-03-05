@@ -5,6 +5,7 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useHandleCardClick } from "../utils/useHandleCardClick";
 import axiosAuth from "../utils/axiosAuth.js";
+import WidgetOverlay from "./WidgetOverlay/WidgetOverlay.jsx";
 
 export default function Dashboard() {
   const { handleCardClick } = useHandleCardClick();
@@ -57,6 +58,8 @@ export default function Dashboard() {
       const pubPortfs = await axiosAuth.get("/publicPortfolios/public");
       const portfolios = pubPortfs.data?.portfolios || [];
       setOtherPortfolios(Array.isArray(portfolios) ? portfolios : []);
+      console.log("Public portfolios loaded:", portfolios.length);
+      console.log("Public portfolios:", portfolios);
     } catch (error) {
       console.error("Error fetching public portfolios:", error);
       setOtherPortfolios([]);
@@ -85,6 +88,7 @@ export default function Dashboard() {
       
       console.log("Full portfolios loaded:", fullPortfolios.length);
       setMyPortfolios(fullPortfolios);
+      console.log("My portfolios:", fullPortfolios);
     } catch (err) {
       console.error("Error fetching full portfolios:", err);
     }
