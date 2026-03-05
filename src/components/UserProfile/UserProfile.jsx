@@ -19,6 +19,7 @@ import axiosAuth from "../../utils/axiosAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHandleCardClick } from "../../utils/useHandleCardClick";
 import DomainLookup from "./DomainLookup";
+import QRWidgetSettings from "./QRWidgetSettings";
 
 export default function UserProfile() {
   const { handleCardClick } = useHandleCardClick();
@@ -107,6 +108,7 @@ export default function UserProfile() {
       const response = await axiosAuth.post(`${apiUrl}/api/domains/custom`, {
         domain: newDomain.trim(),
       });
+      console.log("add domain response", response);
 
       // Reload domains to get the updated list
       await loadDomains();
@@ -124,7 +126,12 @@ export default function UserProfile() {
     if (!window.confirm("Are you sure you want to remove this domain?")) return;
 
     try {
-      await axiosAuth.delete(`${apiUrl}/api/domains/${domainId}`);
+      //delete from users domain array
+      const userArrayResponse = await axiosAuth.delete(`${apiUrl}/api/domains/${domainId}`);
+      //delete from domain collection
+      const domainRouterResponse = await axiosAuth.delete(`/domainRouter/${domainId}`);
+      console.log("remove domain responses", { userArrayResponse, domainRouterResponse });
+      
       setDomains((prev) => prev.filter((domain) => domain._id !== domainId));
       toast.success("Domain removed successfully!");
     } catch (error) {
@@ -144,6 +151,8 @@ export default function UserProfile() {
 
       const response = await axiosAuth.post(`${apiUrl}/api/domains/verify/${domain.domain}`);
 
+      console.log("verify domain response", response);
+      console.log("domain being verified", domain);
       // Reload domains to get updated status
       await loadDomains();
       toast.success("Domain verification completed!");
@@ -244,6 +253,12 @@ export default function UserProfile() {
           <SidebarItem
             icon={<PanelsTopLeft className="w-5 h-5" />}
             label="Domain Management"
+            currentTab={currentTab}
+            setCurrentTab={handleTabChange}
+          />
+          <SidebarItem
+            icon={<Settings className="w-5 h-5" />}
+            label="QR Customization"
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
           />
@@ -417,10 +432,9 @@ export default function UserProfile() {
               <p className="text-gray-600">Connect custom domains to your portfolios and manage DNS settings.</p>
             </div>
 
-
             {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* Add New Domain */}
-            {/* <div className="border border-gray-200 rounded-lg p-6 mb-6">
+            <div className="border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Domain</h3>
               <div className="flex gap-3">
                 <input
@@ -429,7 +443,7 @@ export default function UserProfile() {
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onKeyPress={(e) => e.key === "Enter" && handleAddDomain()}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddDomain()}
                 />
                 <button
                   onClick={handleAddDomain}
@@ -442,7 +456,7 @@ export default function UserProfile() {
               <p className="text-sm text-gray-500 mt-2">
                 Make sure you own this domain and can configure its DNS settings.
               </p>
-            </div> */}
+            </div>
 
             {/* Existing Domains */}
             <div className="space-y-4">
@@ -474,29 +488,35 @@ export default function UserProfile() {
 
             {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* DNS Instructions */}
-            {/* {domains.length > 0 && (
+            {domains.length > 0 && (
               <div className="mt-8 border border-blue-200 bg-blue-50 rounded-lg p-6">
                 <h3 className="text-lg font-medium text-blue-900 mb-3">DNS Configuration Instructions</h3>
                 <div className="space-y-3 text-sm">
                   <div>
                     <strong className="text-blue-800">1. Add CNAME Record:</strong>
                     <div className="mt-1 font-mono bg-white border border-blue-200 rounded px-3 py-2">
-                      Type: CNAME | Name: www | Value: your-app.vercel.app
+                      Type: CNAME | Name: www | Value: cname.vercel-dns.com
                     </div>
                   </div>
                   <div>
                     <strong className="text-blue-800">2. Add A Record (optional):</strong>
                     <div className="mt-1 font-mono bg-white border border-blue-200 rounded px-3 py-2">
-                      Type: A | Name: @ | Value: 76.76.19.61
+                      Type: A | Name: @ | Value: 76.76.21.21
                     </div>
                   </div>
                   <p className="text-blue-700 mt-3">
-                    DNS changes may take up to 24 hours to propagate. Click "Verify" to check if your domain is
-                    configured correctly.
+                    DNS changes may take up to 24 hours to propagate.
                   </p>
                 </div>
               </div>
-            )} */}
+            )}
+          </section>
+        </main>
+      )}
+      {currentTab === "QR Customization" && (
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+          <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+            <QRWidgetSettings />
           </section>
         </main>
       )}
@@ -597,17 +617,16 @@ function DomainCard({ domain, onRemove, onVerify }) {
 
   const onConnectProject = async (domainName, portfolioId) => {
     // Implement the logic to connect the domain to the selected portfolio type
-    const res = await axiosAuth
-      .patch(`/domainRouter/${domain._id}`, {
-        domain: domain.domain,
-        portfolioId: portfolioId,
-        //optional: notes(String)
-      })
-      console.log("connecting domain to portfolio", domainName, portfolioId);
+    const res = await axiosAuth.patch(`/domainRouter/${domain._id}`, {
+      domain: domain.domain,
+      portfolioId: portfolioId,
+      //optional: notes(String)
+    });
+    console.log("connecting domain to portfolio", domainName, portfolioId);
     console.log("domain connect response", res);
     console.log("user data", user);
     setSelectedPortfolio(res.data.portfolioId);
-  }
+  };
 
   // const selectedPortfolio = user?.portfolios?.find(p => p.portfolioId === domain.portfolioId);
 
@@ -618,7 +637,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
           <div className="flex items-center gap-3 mb-2">
             <h4 className="font-medium text-gray-900">
               <a 
-                href={`http://${domain.domain}`} 
+                href={`https://${domain.domain}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-blue-600 hover:underline"
@@ -642,8 +661,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
           </div>
         </div>
         <div className="flex items-center gap-2 ml-4">
-        
-        {/* =============== removed for now -- possible addition later on -carlosG==============*/}
+          {/* =============== removed for now -- possible addition later on -carlosG==============*/}
           {/* <button
             onClick={() => onVerify(domain._id)}
             className="px-3 py-1 text-sm border border-blue-300 text-blue-600 rounded hover:bg-blue-50 transition"
@@ -654,24 +672,25 @@ function DomainCard({ domain, onRemove, onVerify }) {
           {user.portfolios?.length > 0 && (
             <select
               className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:border-gray-400 transition"
-              value={ selectedPortfolio}
+              value={selectedPortfolio}
               onChange={(e) => onConnectProject(domain.domain, e.target.value)}
             >
               <option value="" disabled>
                 Select portfolio
               </option>
 
-              {user.portfolios.map((portfolio) => (portfolio.portfolioId &&
-                <option key={portfolio._id} value={portfolio.portfolioId}>
-                  {portfolio.portfolioType}
-                </option>
-              ))}
+              {user.portfolios.map(
+                (portfolio) =>
+                  portfolio.portfolioId && (
+                    <option key={portfolio._id} value={portfolio.portfolioId}>
+                      {portfolio.portfolioType}
+                    </option>
+                  ),
+              )}
             </select>
           )}
 
-          <div>
-            
-          </div>
+          <div></div>
 
           <button
             onClick={() => onRemove(domain._id)}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useParams, Outlet } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
 import Dashboard from "./components/Dashboard";
@@ -59,6 +59,8 @@ import axios from "axios";
 import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
+import QRCodeForm from "./components/QRCode/QRCodeForm.jsx";
+import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
 
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {
@@ -108,6 +110,23 @@ function ProtectedHealthcareRoute({ children }) {
   return <Navigate to="/signup" replace />;
 }
 
+
+//wrapper for widget overaly
+// qrCodeSchema type must be one of the following
+// enum: ["ProjectManagerPortfolio","HealthcarePortfolio","HandymanMainPortfolio"]
+//must set portfolioId within the portfolio page
+function WidgetOverlayWrapper({ portfolioType }) {
+  const { id, practiceId } = useParams();
+
+  return (
+    <>
+      {id && <WidgetOverlay portfolioId={id} portfolioType={portfolioType} />}
+      {practiceId && <WidgetOverlay portfolioId={practiceId} portfolioType={portfolioType} />}
+      <Outlet />
+    </>
+  );
+}
+
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
 
@@ -123,66 +142,29 @@ export default function App() {
     <Layout>
       <ErrorBoundary>
         <Routes>
+          {/* Main Routes */}
           <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
           <Route path="/dashboard" element={<Dashboard onRequestAdmin={handleRequestAdmin} />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignUp />} />
           <Route path="/occupations" element={<Occupations />} />
-          <Route
-            path="/resume"
-            element={
-              <VendorProvider>
-                <ResumeUpload />
-              </VendorProvider>
-            }
-          />
-          <Route path="/portfolios" element={<ExamplePortfolios />} />
-          <Route path="/portfolios/ProjectManager/:id" element={<PortfolioPage />} />
-          <Route path="/portfolios/software-engineer" />
-          <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
-          <Route path="/portfolios/cleaningService/*" element={<CleaningPage />} />
-          <Route
-            path="/portfolios/localVendor"
-            element={
-              <VendorProvider forceDefault={true}>
-                <LocalVendorApp />
-              </VendorProvider>
-            }
-          />
           <Route path="/mvp/*" element={<EmailMvpApp />} />
-          <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
-          <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
-          <Route path="/portfolios/handyman/:id" element={<HandymanPage />} />
-          <Route path="/portfolios/handyman/:id/edit" element={<EditHandymanPortfolio />} />
+          {/* payment */}
+          <Route path="/payment" element={<Payment />} />
           <Route path="/success" element={<SuccessPage />} />
+          {/* Support */}
           <Route path="/support" element={<ITForm />} />
+          {/* Onboarding */}
           <Route path="/onboarding" element={<OnboardingFlow />} />
+          {/* Profile */}
           <Route path="/profile" element={<UserProfile />} />
-          <Route
-            path="/onboarding_info"
-            element={
-              <VendorProvider>
-                <OnboardingInfoPage />
-              </VendorProvider>
-            }
-          />
-          <Route
-            path="/portfolios/vendor/:username/:id/*"
-            element={
-              <VendorProvider>
-                <LocalVendorApp />
-              </VendorProvider>
-            }
-          />
-          <Route path="/admin_page" element={<ITAdminPage />} />
-          <Route
-            path="/admin-choice"
-            element={
-              <AdminRoute>
-                <AdminChoicePanel />
-              </AdminRoute>
-            }
-          />
+          {/* example portfolios */}
+          <Route path="/portfolios" element={<ExamplePortfolios />} />
+          {/* Project manager =======================QR Overlay */}
+          <Route path="/portfolios/ProjectManager" element={<WidgetOverlayWrapper portfolioType="ProjectManagerPortfolio" />} >
+            <Route path=":id" element={<PortfolioPage />} />
+          </Route>
+          {/* IT Admin Routes */}
           <Route
             path="/itadmin/logs"
             element={
@@ -199,13 +181,69 @@ export default function App() {
               </AdminRoute>
             }
           />
-          <Route path="/payment" element={<Payment />} />
+          <Route path="/admin_page" element={<ITAdminPage />} />
+          <Route
+            path="/admin-choice"
+            element={
+              <AdminRoute>
+                <AdminChoicePanel />
+              </AdminRoute>
+            }
+          />
+          {/* Solution Routes */}
           <Route path="/solutions" element={<Solutions />} />
           <Route path="/solutions/vendors" element={<Vendors />} />
           <Route path="/solutions/restaurant" element={<Restaurant />} />
           <Route path="/solutions/property" element={<Property />} />
           <Route path="/solutions/farmers" element={<Farmers />} />
-          
+          {/* Software Engineer */}
+          <Route path="/portfolios/software-engineer" />
+          {/* Data Scientist */}
+          <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
+          {/* Cleaning Service */}
+          <Route path="/portfolios/cleaningService/*" element={<CleaningPage />} />
+          {/* Local Vendor */}
+          <Route
+            path="/portfolios/localVendor"
+            element={
+              <VendorProvider forceDefault={true}>
+                <LocalVendorApp />
+              </VendorProvider>
+            }
+          />
+          <Route
+            path="/resume"
+            element={
+              <VendorProvider>
+                <ResumeUpload />
+              </VendorProvider>
+            }
+          />
+          <Route
+            path="/onboarding_info"
+            element={
+              <VendorProvider>
+                <OnboardingInfoPage />
+              </VendorProvider>
+            }
+          />
+          <Route
+            path="/portfolios/vendor/:username/:id/*"
+            element={
+              <VendorProvider>
+                <LocalVendorApp />
+              </VendorProvider>
+            }
+          />
+          {/* Photographer */}
+          <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
+          {/* Handyman =======================QR Overlay */}
+          <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
+          <Route path="/portfolios/handyman" element={<WidgetOverlayWrapper portfolioType="HandymanMainPortfolio"/>} >
+            <Route path=":id" element={<HandymanPage />} />
+            <Route path=":id/edit" element={<EditHandymanPortfolio />} />
+          </Route>
+
           {/* ==========================================
               HEALTHCARE ROUTES
               practiceId param = MongoDB _id (like other portfolios)
@@ -224,62 +262,64 @@ export default function App() {
           <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
           
           {/* ✅ User Portfolio Routes - :practiceId is the MongoDB _id */}
-          <Route 
-            path="/portfolios/healthcare/:practiceId" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareHome />
-              </ProtectedHealthcareRoute>
-            } 
-          />
-          <Route 
-            path="/portfolios/healthcare/:practiceId/services" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareServices />
-              </ProtectedHealthcareRoute>
-            } 
-          />
-          <Route 
-            path="/portfolios/healthcare/:practiceId/blog" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareBlog />
-              </ProtectedHealthcareRoute>
-            } 
-          />
-          <Route 
-            path="/portfolios/healthcare/:practiceId/blog/:id" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareBlogPost />
-              </ProtectedHealthcareRoute>
-            } 
-          />
-          <Route 
-            path="/portfolios/healthcare/:practiceId/gallery" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareGallery />
-              </ProtectedHealthcareRoute>
-            } 
-          />
-          <Route 
-            path="/portfolios/healthcare/:practiceId/contact" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareContact />
-              </ProtectedHealthcareRoute>
-            } 
-          />
-          <Route 
-            path="/portfolios/healthcare/:practiceId/admin/dashboard" 
-            element={
-              <ProtectedHealthcareRoute>
-                <HealthcareAdminDashboard />
-              </ProtectedHealthcareRoute>
-            } 
-          />
+          <Route path="/portfolios/healthcare/:practiceId" element={<ProtectedHealthcareRoute><WidgetOverlayWrapper portfolioType="HealthcarePortfolio" /></ProtectedHealthcareRoute>} >
+            <Route 
+              index 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareHome />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+            <Route 
+              path="services" 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareServices />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+            <Route 
+              path="blog" 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareBlog />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+            <Route 
+              path="blog/:id" 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareBlogPost />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+            <Route 
+              path="gallery" 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareGallery />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+            <Route 
+              path="contact" 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareContact />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+            <Route 
+              path="admin/dashboard" 
+              element={
+                <ProtectedHealthcareRoute>
+                  <HealthcareAdminDashboard />
+                </ProtectedHealthcareRoute>
+              } 
+            />
+          </Route>
           
           <Route path="/editor/*" element={<OnlineEditor />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
@@ -289,7 +329,7 @@ export default function App() {
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
-          <Route path="/testPage" element={<FullStackEditor />} />
+          <Route path="/testPage" element={<QRCodeForm />} />
         </Routes>
       </ErrorBoundary>
       <FloatingHelpButton />

@@ -80,12 +80,12 @@ export default {
         ],
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'bounce-gentle': 'bounceGentle 2s infinite',
-        'terminal-blink': 'terminalBlink 1s infinite',
-        'terminal-type': 'terminalType 0.1s ease-out',
-        'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+        // 'fade-in': 'fadeIn 0.5s ease-in-out',
+        // 'slide-up': 'slideUp 0.3s ease-out',
+        // 'bounce-gentle': 'bounceGentle 2s infinite',
+        // 'terminal-blink': 'terminalBlink 1s infinite',
+        // 'terminal-type': 'terminalType 0.1s ease-out',
+        // 'glow-pulse': 'glowPulse 2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -131,5 +131,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-animate'), 
+  ],
 }
