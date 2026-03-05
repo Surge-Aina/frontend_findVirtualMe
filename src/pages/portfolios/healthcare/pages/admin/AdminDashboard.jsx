@@ -169,6 +169,15 @@ export default function AdminDashboard() {
       alert("Image upload failed");
     }
   };
+  
+const uploadLogoImage = (file) => {
+  uploadAndSaveImage({ file, section: 'practice', field: 'logoImage' });
+};
+
+const uploadHeroImage = (file) => {
+  uploadAndSaveImage({ file, section: 'ui', subsection: 'hero', field: 'backgroundImage' });
+};
+
 
   const uploadLogoImage = (file) => {
     uploadAndSaveImage({ file, section: "practice", field: "logoImage" });
