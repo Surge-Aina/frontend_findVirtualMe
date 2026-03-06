@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, Navigate, useParams, Outlet } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
@@ -61,6 +61,7 @@ import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
 import QRCodeForm from "./components/QRCode/QRCodeForm.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
+import { set } from "date-fns";
 
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {
@@ -116,7 +117,7 @@ function ProtectedHealthcareRoute({ children }) {
 // enum: ["ProjectManagerPortfolio","HealthcarePortfolio","HandymanMainPortfolio"]
 //must set portfolioId within the portfolio page
 function WidgetOverlayWrapper({ portfolioType }) {
-  const { id, practiceId } = useParams();
+  const { id, practiceId } = useParams();//practice id is for healthcase, id is for project manager and handyman
 
   return (
     <>

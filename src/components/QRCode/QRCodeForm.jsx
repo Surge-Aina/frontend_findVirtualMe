@@ -1,7 +1,8 @@
+// QRCodeForm.jsx
 import { useState } from "react";
 import axiosAuth from "../../utils/axiosAuth";
 
-export default function QRCodeForm({ onSuccess }) {
+export default function QRCodeForm({ onSuccess, portfolioId, portfolioType, onClose }) {
   const initialFormState = {
     title: "",
     description: "",
@@ -10,6 +11,10 @@ export default function QRCodeForm({ onSuccess }) {
     alignVertical: "bottom",
     size: 160,
     active: true,
+    portfolio: {
+      id: portfolioId,
+      type: portfolioType
+    }
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -34,6 +39,7 @@ export default function QRCodeForm({ onSuccess }) {
       setLoading(false);
       if (onSuccess) onSuccess(res.data);
       setFormData(initialFormState);
+      if (onClose) onClose();
     } catch (err) {
       setLoading(false);
       setError(err.response?.data?.message || "Failed to create QR code");
