@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext, use } from "react";
 import { useQuery, useQueryClient  } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -11,9 +11,16 @@ import SkillsCard from "../components/projectManager/SkillsCard";
 import FileUploader from "../components/FileUploader";
 import { useParams } from "react-router-dom";
 import "../style.css";
+import { usePortfolio } from "../../../../context/PortfolioContext";
 // import emailjs from "@emailjs/browser";
 
 const PortfolioPage = ({portfolioId, portfolioType}) => {
+  const {  
+    setPortfolioId,  
+    setPortfolioType, 
+    setPortfolioOwner,
+    clearPortfolio
+  } = usePortfolio();
   const [activeSection, setActiveSection] = useState("summary");
   const [animating, setAnimating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
@@ -42,16 +49,28 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
   });
 
   useEffect(() => {
+    if(!portfolio) return;
+
+    setPortfolioId(portfolio._id);
+    setPortfolioType("ProjectManagerPortfolio");
+    setPortfolioOwner({
+      id: portfolio.userId || null,
+      name: portfolio.name || "",
+      email: portfolio.email || "",
+    });
+
+    if (portfolio.profileImage) {
+      setImagePreview(portfolio.profileImage);
+    }
+
+    return () => clearPortfolio(); // Clear portfolio context on unmount
+  }, [portfolio]);
+
+  useEffect(() => {
     setAnimating(true);
     const timer = setTimeout(() => setAnimating(false), 300);
     return () => clearTimeout(timer);
   }, [activeSection]);
-
-  useEffect(() => {
-    if (portfolio?.profileImage) {
-      setImagePreview(portfolio.profileImage);
-    }
-  }, [portfolio]);
 
     // Handle top nav click (including Resume)
   const handleNavSelect = (key) => {

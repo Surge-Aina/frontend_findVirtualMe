@@ -13,10 +13,26 @@ import HealthcareSearch from "../pages/portfolios/healthcare/pages/SearchResults
 import HealthcareAdminDashboard from "../pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
 import Landing from "../pages/portfolios/healthcare/pages/Landing.jsx";
 import { Navigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import WidgetOverlay from '../components/WidgetOverlay/WidgetOverlay.jsx';
 // Other portfolio imports
 import HandymanPage from "../pages/portfolios/handyman/HandyManPage.jsx";
+import EditHandymanPortfolio from '../pages/portfolios/handyman/EditHandymanPortfolio.jsx';
 import PortfolioPage from '../pages/portfolios/projectManager/pages/PortfolioPage';
 import { BrowserRouter } from 'react-router-dom';
+import { PortfolioProvider } from '../context/PortfolioContext.jsx';
+
+//wrapper for widget overaly
+//must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
+function WidgetOverlayWrapper() {
+    return (
+        <>
+        {<WidgetOverlay />}
+        <Outlet />
+        </>
+    );
+}
+
 function DomainRouter({ children }) {
   const [domainRoute, setDomainRoute] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +41,7 @@ function DomainRouter({ children }) {
     const checkDomain = async () => {
       const hostname = window.location.hostname;
       
-      if (hostname === 'findvirtual.me' || hostname === 'localhost') {
+      if (hostname === 'findvirtual.me' || hostname === 'staging.findvirtual.me') {
         setLoading(false);
         return;
       }
@@ -38,6 +54,10 @@ function DomainRouter({ children }) {
           setDomainRoute(response.data);
         }
       } catch (err) {
+        if(err.status === 404){
+            console.log("Domain not found");
+            return;
+        }
         console.error('Domain lookup failed:', err);
       } finally {
         setLoading(false);
@@ -80,61 +100,62 @@ if (domainRoute) {
                 <Route path="/portfolios/healthcare/demo/gallery" element={<HealthcareGallery />} />
                 <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
                 
-                {/* User Portfolio Routes - Protected */}
-                <Route 
-                    path="/portfolios/healthcare/:practiceId" 
+                <Route
+                    path="/portfolios/healthcare/:practiceId"
                     element={
-               
-                        <HealthcareHome />
-                    } 
-                />
-                <Route 
-                    path="/portfolios/healthcare/:practiceId/services" 
-                    element={
-                        <HealthcareServices />
-                    } 
-                />
-                <Route 
-                    path="/portfolios/healthcare/:practiceId/blog" 
-                    element={
-                        <HealthcareBlog />
-                    } 
-                />
-                <Route 
-                    path="/portfolios/healthcare/:practiceId/blog/:id" 
-                    element={
-                        <HealthcareBlogPost />
-                    } 
-                />
-                <Route 
-                    path="/portfolios/healthcare/:practiceId/gallery" 
-                    element={
-                        <HealthcareGallery />
-                    } 
-                />
-                <Route 
-                    path="/portfolios/healthcare/:practiceId/contact" 
-                    element={
-                        <HealthcareContact />
-                    } 
-                />
-                <Route 
-                    path="/portfolios/healthcare/:practiceId/admin/dashboard" 
-                    element={
-                        <HealthcareAdminDashboard />
-                    } 
-                />
+                        <PortfolioProvider>
+                            <WidgetOverlayWrapper />
+                        </PortfolioProvider>
+                }>
+                    {/* User Portfolio Routes - Protected */}
+                    <Route index element={<HealthcareHome />} />
+                    <Route path="services" element={<HealthcareServices />} />
+                    <Route path="blog" element={<HealthcareBlog />} />
+                    <Route path="blog/:id" element={<HealthcareBlogPost />} />
+                    <Route path="gallery" element={<HealthcareGallery />} />
+                    <Route path="contact" element={<HealthcareContact />} />
+                    <Route path="admin/dashboard" element={<HealthcareAdminDashboard />} />
+                </Route>
             </Routes>
         // </BrowserRouter>
         );
         }
 
         if (portfolioType === 'Handyman') {
-            return <HandymanPage portfolioId={portfolioId} />;
+            return (
+                <Routes>
+                <Route path="/" element={<Navigate to={`/portfolios/handyman/${portfolioId}`} replace />} />
+                <Route
+                    path="/portfolios/handyman/:id"
+                    element={
+                    <PortfolioProvider>
+                        <WidgetOverlayWrapper />
+                    </PortfolioProvider>
+                    }
+                >
+                    <Route index element={<HandymanPage />} />
+                    <Route path="edit" element={<EditHandymanPortfolio />} />
+                </Route>
+                </Routes>
+            );
         }
 
         if (portfolioType === 'ProjectManager') {
-            return <PortfolioPage portfolioId={portfolioId} />;
+            return (
+                <Routes>
+                <Route path="/" element={<Navigate to={`/portfolios/ProjectManager/${portfolioId}`} replace />} />
+                <Route
+                    path="/portfolios/ProjectManager/:id"
+                    element={
+                    <PortfolioProvider>
+                        <WidgetOverlayWrapper />
+                    </PortfolioProvider>
+                    }
+                >
+                    <Route index element={<PortfolioPage />} />
+                </Route>
+                </Routes>
+            );
         }
     }
 
