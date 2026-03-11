@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import ScrollToTop from "../components/ScrollToTop";
+import { usePortfolio } from "../../../../context/PortfolioContext";
 
 export default function Home({ portfolioId }) {
   const { practiceId: urlId } = useParams();
@@ -22,6 +23,7 @@ export default function Home({ portfolioId }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const {setPortfolioId, setPortfolioType, setPortfolioOwner, clearPortfolio} = usePortfolio();
 
   useEffect(() => {
     // Handle demo vs user portfolio
@@ -37,6 +39,20 @@ export default function Home({ portfolioId }) {
       loadData();
     }
   }, [practiceId]);
+
+  // set portfolio context for widgets
+  useEffect(() => {
+    //for demo dont set portfolio context
+    if (practiceId === "demo") {
+      clearPortfolio();
+      return;
+    } else {
+      setPortfolioId(userData?._id || practiceId); // Use userId if available, otherwise fallback to practiceId
+      setPortfolioType("HealthcarePortfolio");
+      setPortfolioOwner({id: userData?.userId, name: userData?.practice.name, email: userData?.contact.email });
+    }
+  }, [practiceId, userData]);
+
 
   const loadDemoData = async () => {
     try {

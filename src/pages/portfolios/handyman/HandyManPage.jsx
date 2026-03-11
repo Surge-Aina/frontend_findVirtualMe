@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import handymanAPI from './api.js';
 import { AuthContext } from '../../../context/AuthContext';
+import { usePortfolio } from '../../../context/PortfolioContext.jsx';
 
 import Hero from './Hero.jsx';
 import Services from './Services.jsx';
@@ -24,6 +25,13 @@ import './ContactForm.css';
 import './Footer.css';
 
 const HandymanPage = ({ portfolioId }) => {
+  const {  
+    setPortfolioId,  
+    setPortfolioType, 
+    setPortfolioOwner,
+    clearPortfolio
+  } = usePortfolio();
+
   const { id: urlId } = useParams();
   const id = portfolioId || urlId;
 
@@ -56,6 +64,23 @@ const HandymanPage = ({ portfolioId }) => {
       }
     })();
   }, [id, user]);
+
+  // Set portfolio context when data is loaded
+  useEffect(() => {
+    if (!data) return;
+
+    // Set portfolio context based on fetched data
+    setPortfolioId(data._id);
+    setPortfolioType("HandymanMainPortfolio");
+    setPortfolioOwner({
+      id: data.userId || null,
+      name: data.name || "",
+      email: data.email || ""
+    });
+
+    // Cleanup function after unmounting the component
+    return () => clearPortfolio();
+  }, [data]);
 
   if (loading) return <div className="text-center p-10 font-bold">Loading...</div>;
   if (error) return <div className="text-center p-10 text-red-600 font-bold">{error}</div>;

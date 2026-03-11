@@ -17,7 +17,6 @@ import { Outlet } from 'react-router-dom';
 import WidgetOverlay from '../components/WidgetOverlay/WidgetOverlay.jsx';
 // Other portfolio imports
 import HandymanPage from "../pages/portfolios/handyman/HandyManPage.jsx";
-import EditHandymanPortfolio from '../pages/portfolios/handyman/EditHandymanPortfolio.jsx';
 import PortfolioPage from '../pages/portfolios/projectManager/pages/PortfolioPage';
 import { BrowserRouter } from 'react-router-dom';
 import { PortfolioProvider } from '../context/PortfolioContext.jsx';
@@ -54,10 +53,6 @@ function DomainRouter({ children }) {
           setDomainRoute(response.data);
         }
       } catch (err) {
-        if(err.status === 404){
-            console.log("Domain not found");
-            return;
-        }
         console.error('Domain lookup failed:', err);
       } finally {
         setLoading(false);
@@ -101,7 +96,7 @@ if (domainRoute) {
                 <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
                 
                 <Route
-                    path="/portfolios/healthcare/:practiceId"
+                    path="/portfolios/healthcare/:prcticeId"
                     element={
                         <PortfolioProvider>
                             <WidgetOverlayWrapper />
@@ -122,40 +117,11 @@ if (domainRoute) {
         }
 
         if (portfolioType === 'Handyman') {
-            return (
-                <Routes>
-                <Route path="/" element={<Navigate to={`/portfolios/handyman/${portfolioId}`} replace />} />
-                <Route
-                    path="/portfolios/handyman/:id"
-                    element={
-                    <PortfolioProvider>
-                        <WidgetOverlayWrapper />
-                    </PortfolioProvider>
-                    }
-                >
-                    <Route index element={<HandymanPage />} />
-                    <Route path="edit" element={<EditHandymanPortfolio />} />
-                </Route>
-                </Routes>
-            );
+            return <HandymanPage portfolioId={portfolioId} />;
         }
 
         if (portfolioType === 'ProjectManager') {
-            return (
-                <Routes>
-                <Route path="/" element={<Navigate to={`/portfolios/ProjectManager/${portfolioId}`} replace />} />
-                <Route
-                    path="/portfolios/ProjectManager/:id"
-                    element={
-                    <PortfolioProvider>
-                        <WidgetOverlayWrapper />
-                    </PortfolioProvider>
-                    }
-                >
-                    <Route index element={<PortfolioPage />} />
-                </Route>
-                </Routes>
-            );
+            return <PortfolioPage portfolioId={portfolioId} />;
         }
     }
 

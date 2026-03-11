@@ -18,8 +18,8 @@ export default function QRCodeWidget({
     checkIfCreator, 
     selectedWidget: selectedQR, 
     setSelectedWidget: setSelectedQR, 
-    showForm: showQRForm, 
-    setShowForm: setShowQRForm }) {
+    selectedForm, 
+    setSelectedForm}) {
 
     const [QRCodes, setQRCodes] = useState([]);
     const { user, loading: authLoading } = useContext(AuthContext);
@@ -80,10 +80,10 @@ export default function QRCodeWidget({
     return (
         <>
             {/* QR Code Form */}
-            {showQRForm && createPortal(
+            {selectedForm === 'qr' && createPortal(
             <div 
-                className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
-                onClick={() => setShowQRForm(false)} 
+                className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 p-4"
+                onClick={() => setSelectedForm(null)} 
             >
                 <div 
                 onClick={(e) => e.stopPropagation()} 
@@ -92,11 +92,11 @@ export default function QRCodeWidget({
                 <QRCodeForm
                     portfolioId={portfolioId}
                     portfolioType={portfolioType}
-                    onClose={() => setShowQRForm(false)}
+                    onClose={() => setSelectedForm(null)}
                     onSuccess={(newQR) => {
                     setQRCodes((prev) => [...prev, newQR]);
                     setSelectedQR(newQR);
-                    setShowQRForm(false);
+                    setSelectedForm(null);
                     }}
                 />
                 </div>
@@ -176,7 +176,7 @@ export default function QRCodeWidget({
             <button
                 className="flex items-center gap-3 p-3  bg-white text-blue-600 rounded-2xl shadow-xl hover:scale-105 transition-transform w-fit"
                 onClick={() => {
-                setShowQRForm(true);
+                setSelectedForm('qr');
                 }}
             >
                 <PlusIcon className="w-5 h-5 shrink-0" />
