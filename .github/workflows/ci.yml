@@ -1,0 +1,57 @@
+name: CI (frontend)
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]  # keeps checks green after merge
+
+jobs:
+  build-frontend:
+    name: build-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      # Optional: if your Vite build expects envs, write a minimal .env
+      - name: Configure env for build
+        run: |
+          echo "VITE_BACKEND_API=${{ vars.VITE_BACKEND_API }}" >> .env
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-dist
+          path: dist
+
+  test-frontend:
+    name: test-frontend
+    runs-on: ubuntu-latest
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Test
+        run: npm test -- --ci
