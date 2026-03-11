@@ -1,6 +1,6 @@
 //contactMeForm.jsx
 import { useState } from "react";
-import axiosAuth from "../../../utils/axiosAuth";
+import axios from "axios";
 
 export default function ContactMeForm({ onSuccess, portfolioId, portfolioType, ownerEmail, ownerName, onClose }) {
   const initialFormState = {
@@ -25,11 +25,11 @@ export default function ContactMeForm({ onSuccess, portfolioId, portfolioType, o
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    //   await axiosAuth.post(`/contactMe`, formData);
-    //   if (onSuccess) onSuccess();
-    //   setFormData(initialFormState);
-    //   if (onClose) onClose();
-    console.log("Form submitted with data:", formData);
+        await axios.post(`${import.meta.env.VITE_BACKEND_API}/contactMe/contactMeForm`, formData);
+        if (onSuccess) onSuccess();
+        setFormData(initialFormState);
+        if (onClose) onClose();
+    // console.log("Form submitted with data:", formData);
     } catch (err) {
       console.error("Failed to send message", err);
     }   

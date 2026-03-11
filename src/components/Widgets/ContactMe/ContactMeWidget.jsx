@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import ContactMeForm from "./ContactMeForm";
 import { FaEnvelope as ContactIcon } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function ContactMeWidget({
     portfolioId,
@@ -24,7 +25,10 @@ export default function ContactMeWidget({
             className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6"
         >
             <ContactMeForm
-            onSuccess={() => setSelectedForm(null)}
+            onSuccess={() => {
+                setSelectedForm(null)
+                toast("Message Sent!")
+            }}
             portfolioId={portfolioId}
             portfolioType={portfolioType}
             ownerEmail={ownerEmail}
