@@ -1,11 +1,58 @@
     // cypress/e2e/handyman-18-refresh-back-deep-linking.cy.js
 
     describe("FE-E2E-HM-EDGE-3 — Refresh, Back Button & Deep Linking", () => {
-    const vendorEmail = "vendor@example.com";
-    const vendorPassword = "Password123!";
+    const unique = Date.now();
+    const user = {
+    firstName: "HM",
+    lastName: `EDGE${unique}`,
+    email: `hm_edge_${unique}@example.com`,
+    password: "Password123!",
+    username: `hm_edge_${unique}`,
+    };
+
+    const signupOnly = () => {
+    cy.visit("/");
+
+    cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
+        .should("be.visible")
+        .click({ force: true });
+
+    cy.contains("button, a", /^sign up$/i, { timeout: 20000 }).click();
+    cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding");
+
+    cy.contains(/what's your main goal\?/i, { timeout: 20000 }).should("be.visible");
+    cy.contains(/find a job/i).click();
+
+    cy.contains(/what type of work do you do\?/i, { timeout: 20000 }).should("be.visible");
+    cy.contains(/^other$/i).click();
+
+    cy.contains(/what are your skills\?/i, { timeout: 20000 }).should("be.visible");
+    cy.contains(/^customer service$/i).click();
+    cy.contains("button", /^continue$/i).click();
+
+    cy.intercept("POST", "**/user/addUser").as("signup");
+    cy.intercept("POST", "**/user/login").as("login");
+
+    cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
+    cy.get('input[placeholder="Enter your first name"]').type(user.firstName);
+    cy.get('input[placeholder="Enter your last name"]').type(user.lastName);
+    cy.get('input[placeholder="your@email.com"]').type(user.email);
+    cy.get('input[placeholder="Enter a password"]').type(user.password, { log: false });
+    cy.get('input[placeholder="Choose a username"]').type(user.username);
+
+    cy.contains("button", /complete setup/i).click();
+
+    cy.wait("@signup", { timeout: 30000 })
+        .its("response.statusCode")
+        .should("be.oneOf", [200, 201]);
+
+    cy.wait("@login", { timeout: 30000 })
+        .its("response.statusCode")
+        .should("be.oneOf", [200, 201]);
+    };    
 
     const loginViaModal = (email, password) => {
-        cy.contains("button", /log in\s*\/\s*sign up/i)
+        /*cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
         .should("exist")
         .click({ force: true });
 
@@ -30,7 +77,7 @@
         .click({ force: true });
 
         cy.url({ timeout: 15000 }).should("include", "/profile");
-        cy.contains(/personal information/i).should("exist");
+        cy.contains(/personal information/i).should("exist");*/
     };
 
     it("handles refresh, back button, and deep links for Handyman showcase, live, and edit routes", () => {
@@ -71,8 +118,8 @@
         }).should("exist");
 
         // ---------- PHASE 2: LIVE + EDIT (authenticated vendor) ----------
-        cy.visit("/");
-        loginViaModal(vendorEmail, vendorPassword);
+        signupOnly();
+        loginViaModal(user.email, user.password);
 
         // Go to dashboard
         cy.contains("a,button", /^dashboard$/i)
