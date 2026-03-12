@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, Navigate, useParams, Outlet } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
@@ -59,8 +59,9 @@ import axios from "axios";
 import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
-import QRCodeForm from "./components/QRCode/QRCodeForm.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
+import { set } from "date-fns";
+import { PortfolioProvider } from "./context/PortfolioContext.jsx";
 
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {
@@ -112,16 +113,11 @@ function ProtectedHealthcareRoute({ children }) {
 
 
 //wrapper for widget overaly
-// qrCodeSchema type must be one of the following
-// enum: ["ProjectManagerPortfolio","HealthcarePortfolio","HandymanMainPortfolio"]
-//must set portfolioId within the portfolio page
-function WidgetOverlayWrapper({ portfolioType }) {
-  const { id, practiceId } = useParams();
-
+//must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
+function WidgetOverlayWrapper() {
   return (
     <>
-      {id && <WidgetOverlay portfolioId={id} portfolioType={portfolioType} />}
-      {practiceId && <WidgetOverlay portfolioId={practiceId} portfolioType={portfolioType} />}
+      {<WidgetOverlay />}
       <Outlet />
     </>
   );
@@ -160,8 +156,12 @@ export default function App() {
           <Route path="/profile" element={<UserProfile />} />
           {/* example portfolios */}
           <Route path="/portfolios" element={<ExamplePortfolios />} />
-          {/* Project manager =======================QR Overlay */}
-          <Route path="/portfolios/ProjectManager" element={<WidgetOverlayWrapper portfolioType="ProjectManagerPortfolio" />} >
+          {/* Project manager =======================Widget Overlay========================= */}
+          <Route path="/portfolios/ProjectManager" element={
+            <PortfolioProvider>
+              <WidgetOverlayWrapper />
+            </PortfolioProvider>
+          }>
             <Route path=":id" element={<PortfolioPage />} />
           </Route>
           {/* IT Admin Routes */}
@@ -237,9 +237,13 @@ export default function App() {
           />
           {/* Photographer */}
           <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
-          {/* Handyman =======================QR Overlay */}
+          {/* Handyman =======================Widget Overlay========================= */}
           <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
-          <Route path="/portfolios/handyman" element={<WidgetOverlayWrapper portfolioType="HandymanMainPortfolio"/>} >
+          <Route path="/portfolios/handyman" element={
+            <PortfolioProvider>
+              <WidgetOverlayWrapper />
+            </PortfolioProvider>
+          }>
             <Route path=":id" element={<HandymanPage />} />
             <Route path=":id/edit" element={<EditHandymanPortfolio />} />
           </Route>
@@ -262,7 +266,14 @@ export default function App() {
           <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
           
           {/* ✅ User Portfolio Routes - :practiceId is the MongoDB _id */}
-          <Route path="/portfolios/healthcare/:practiceId" element={<ProtectedHealthcareRoute><WidgetOverlayWrapper portfolioType="HealthcarePortfolio" /></ProtectedHealthcareRoute>} >
+          {/* Healthcare ====================== Widget Overlay ========================= */}
+          <Route path="/portfolios/healthcare/:practiceId" element={
+            <ProtectedHealthcareRoute>
+              <PortfolioProvider>
+                <WidgetOverlayWrapper />  
+              </PortfolioProvider>
+            </ProtectedHealthcareRoute>
+          }>
             <Route 
               index 
               element={
@@ -329,7 +340,7 @@ export default function App() {
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
-          <Route path="/testPage" element={<QRCodeForm />} />
+          {/* <Route path="/testPage" element={<QRCodeForm />} /> */}
         </Routes>
       </ErrorBoundary>
       <FloatingHelpButton />

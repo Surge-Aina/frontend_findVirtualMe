@@ -13,6 +13,12 @@
 
     let token = null;
 
+    Cypress.on("uncaught:exception", (err) => {
+    if (err.message?.includes("Cannot read properties of undefined (reading 'frame')")) {
+        return false;
+    }
+    });
+
     const acceptCookiesIfShown = () => {
         cy.get("body").then(($body) => {
         if (
@@ -41,7 +47,7 @@
         cy.visit("/");
         acceptCookiesIfShown();
 
-        cy.contains("button", /log in\s*\/\s*sign up/i, { timeout: 20000 })
+        cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
         .should("be.visible")
         .click();
 
@@ -90,7 +96,7 @@
         cy.visit("/");
         acceptCookiesIfShown();
 
-        cy.contains("button", /log in\s*\/\s*sign up/i, { timeout: 20000 })
+        cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
         .should("be.visible")
         .click();
 

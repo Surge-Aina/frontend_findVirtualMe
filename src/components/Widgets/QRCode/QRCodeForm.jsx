@@ -1,7 +1,8 @@
+// QRCodeForm.jsx
 import { useState } from "react";
-import axiosAuth from "../../utils/axiosAuth";
+import axiosAuth from "../../../utils/axiosAuth";
 
-export default function QRCodeForm({ onSuccess }) {
+export default function QRCodeForm({ onSuccess, portfolioId, portfolioType, onClose }) {
   const initialFormState = {
     title: "",
     description: "",
@@ -10,6 +11,10 @@ export default function QRCodeForm({ onSuccess }) {
     alignVertical: "bottom",
     size: 160,
     active: true,
+    portfolio: {
+      id: portfolioId,
+      type: portfolioType
+    }
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -34,6 +39,7 @@ export default function QRCodeForm({ onSuccess }) {
       setLoading(false);
       if (onSuccess) onSuccess(res.data);
       setFormData(initialFormState);
+      if (onClose) onClose();
     } catch (err) {
       setLoading(false);
       setError(err.response?.data?.message || "Failed to create QR code");
@@ -46,7 +52,7 @@ export default function QRCodeForm({ onSuccess }) {
   const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all";
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div className="p-6">
       <h3 className="text-xl font-semibold text-gray-800 mb-6">Create New QR Code</h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">

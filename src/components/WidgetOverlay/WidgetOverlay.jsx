@@ -1,35 +1,48 @@
-import { useEffect, useState } from 'react';
-import { FaPlus as PlusIcon, FaQrcode as QRIcon } from 'react-icons/fa';
-import QRDisplay from '../QRCode/QRDisplay';
-import axios from 'axios';
+import { useState, useContext, useEffect } from 'react';
+import { FaPlus as PlusIcon } from 'react-icons/fa';
+import { AuthContext } from '../../context/AuthContext';
+import QRCodeWidget from '../Widgets/QRCode/QRCodeWidget';
+import ContactMeWidget from '../Widgets/ContactMe/ContactMeWidget';
+import { usePortfolio } from '../../context/PortfolioContext';
 
-export default function WidgetOverlay({ portfolioId, portfolioType }) {
+export default function WidgetOverlay() {
   const [isOpen, setIsOpen] = useState(false);
-  const [QRCodes, setQRCodes] = useState([]);
-  const [selectedQR, setSelectedQR] = useState(null);
-
+  const [selectedWidget, setSelectedWidget] = useState(null);
+  const [selectedForm, setSelectedForm] = useState(null);
+  const { user, loading: authLoading } = useContext(AuthContext);//only available if PortfolioOwner is logged in, otherwise null
+  const { 
+    portfolioId, 
+    portfolioType, 
+    portfolioOwner,
+    isOwnerReady
+  } = usePortfolio();
+  
   useEffect(() => {
-    const fetchQRCodes = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_API}/qrCode/public/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
-        );
-        setQRCodes(res.data);
-      } catch (error) {
-        console.error('Error fetching QR IDs:', error);
-      }
-    };
-    fetchQRCodes();
-  }, [portfolioId, portfolioType]);
+    console.log("Portfolio Context - ID:", portfolioId);
+    console.log("Portfolio Context - Type:", portfolioType);
+    console.log("Portfolio Context - Owner:", portfolioOwner);
+    console.log("Portfolio Context - Owner Ready:", isOwnerReady);
+  }, [portfolioId, portfolioType, portfolioOwner, isOwnerReady]);  
+  
+  if(!portfolioId) return null; // Don't render if no portfolioId is provided
+
+  //check if user is creator of portfolio
+  function checkIfCreator() {
+    console.log("checkIfCreator user: ", user)
+    if (!user) return false; 
+    return user.portfolios.some(p => p.portfolioId === portfolioId);
+  }
 
   return (
     <>
-      {/* Backdrop */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[9998] transition-opacity duration-300"
-          onClick={() => { setIsOpen(false); setSelectedQR(null); }}
-        />
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[9998] transition-opacity duration-300"
+            onClick={() => { setIsOpen(false); setSelectedWidget(null); setSelectedForm(null); }}
+          />
+        </>
       )}
 
       {/* Widget Container */}
@@ -40,38 +53,34 @@ export default function WidgetOverlay({ portfolioId, portfolioType }) {
             : 'opacity-0 translate-y-4 scale-95 pointer-events-none'
         }`}>
 
-          {QRCodes && QRCodes.map((QRCode) => (
-            <div key={QRCode._id} className="flex flex-col">
-              {/* QR icon and title*/}
-              <button
-                className={`flex items-center  gap-3 p-3 mx-auto ${selectedQR?._id === QRCode._id ? 'bg-slate-500' : 'bg-white'}  text-blue-600 rounded-2xl shadow-xl hover:scale-105 transition-transform`}
-                onClick={() => setSelectedQR(selectedQR?._id === QRCode._id ? null : QRCode)}
-              >
-                <QRIcon className="w-5 h-5 shrink-0" />
-                <span className={`text-sm font-medium ${selectedQR?._id === QRCode._id ? 'text-white' : 'text-blue-600'} whitespace-nowrap`}>
-                  {QRCode.title}
-                </span>
-              </button>
+          {/* QR Code Widget */}
+          <QRCodeWidget
+            portfolioId={portfolioId}
+            portfolioType={portfolioType}
+            checkIfCreator={checkIfCreator}
+            selectedWidget={selectedWidget}
+            setSelectedWidget={setSelectedWidget}
+            selectedForm={selectedForm}
+            setSelectedForm={setSelectedForm}
+           />
 
-              {/* Expanded QR Panel */}
-              <div className={`transition-all duration-200 origin-top overflow-hidden ${
-                selectedQR?._id === QRCode._id
-                  ? 'opacity-100 scale-y-100 max-h-96 mt-2'
-                  : 'opacity-0 scale-y-95 max-h-0 pointer-events-none'
-              }`}>
-                <div className="bg-white rounded-2xl shadow-xl ">
-                  <QRDisplay qrObject={QRCode} />
-                </div>
-              </div>
-            </div>
-          ))}
+           {/* Contact Me Widget */}
+           <ContactMeWidget
+             portfolioId={portfolioId}
+             portfolioType={portfolioType}
+             ownerEmail={isOwnerReady ? portfolioOwner?.email : null}
+             ownerName={isOwnerReady ? portfolioOwner?.name : null}
+             selectedForm={selectedForm}
+             setSelectedForm={setSelectedForm}
+           />
+          
 
         </div>
 
         {/* Widget Toggle Button */}
         <button
-          onClick={() => { setIsOpen(!isOpen); setSelectedQR(null); }}
-          className="p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition-colors"
+          onClick={() => { setIsOpen(!isOpen); setSelectedWidget(null); setSelectedForm(null); }}
+          className="p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition-colors cursor-pointer"
         >
           <span className={`block transition-transform duration-300 ${isOpen ? 'rotate-45' : 'rotate-0'}`}>
             <PlusIcon className="w-6 h-6" />

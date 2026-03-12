@@ -109,6 +109,7 @@ export default function UserProfile() {
         domain: newDomain.trim(),
       });
       console.log("add domain response", response);
+      console.log("add domain response", response);
 
       // Reload domains to get the updated list
       await loadDomains();
