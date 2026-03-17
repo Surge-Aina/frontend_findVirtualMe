@@ -20,6 +20,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHandleCardClick } from "../../utils/useHandleCardClick";
 import DomainLookup from "./DomainLookup";
 import QRWidgetSettings from "./QRWidgetSettings";
+import PrivacyPolicy from "./PrivacyPolicy";
 
 export default function UserProfile() {
   const { handleCardClick } = useHandleCardClick();
@@ -260,6 +261,12 @@ export default function UserProfile() {
           <SidebarItem
             icon={<Settings className="w-5 h-5" />}
             label="QR Customization"
+            currentTab={currentTab}
+            setCurrentTab={handleTabChange}
+          />
+          <SidebarItem
+            icon={<Shield className="w-5 h-5" />}
+            label="Privacy Policy"
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
           />
@@ -518,6 +525,13 @@ export default function UserProfile() {
         <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
           <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
             <QRWidgetSettings />
+          </section>
+        </main>
+      )}
+      {currentTab === "Privacy Policy" && (
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+          <section className="w-full max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+            <PrivacyPolicy />
           </section>
         </main>
       )}

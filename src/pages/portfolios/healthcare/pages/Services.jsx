@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 import ScrollToTop from '../components/ScrollToTop';
+import Footer from '../components/Footer';
 import { api } from '../lib/api';
 
 export default function Services() {
@@ -138,6 +139,7 @@ export default function Services() {
         </div>
       </section>
 
+      <Footer practiceData={userData.practice} />
       <ScrollToTop />
     </div>
   );

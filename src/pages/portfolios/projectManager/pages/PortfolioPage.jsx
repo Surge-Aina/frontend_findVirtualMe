@@ -12,6 +12,7 @@ import FileUploader from "../components/FileUploader";
 import { useParams } from "react-router-dom";
 import "../style.css";
 import { usePortfolio } from "../../../../context/PortfolioContext";
+import PrivacyPolicyFooterLink from "../../../../components/PrivacyPolicy/PrivacyPolicyFooterLink";
 // import emailjs from "@emailjs/browser";
 
 const PortfolioPage = ({portfolioId, portfolioType}) => {
@@ -744,9 +745,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
                 <a href="#" className="nav-link">
                   Terms
                 </a>
-                <a href="#" className="nav-link">
-                  Privacy
-                </a>
+                <PrivacyPolicyFooterLink className="nav-link" label="Privacy" />
                 <a href="#" className="nav-link">
                   Contact
                 </a>

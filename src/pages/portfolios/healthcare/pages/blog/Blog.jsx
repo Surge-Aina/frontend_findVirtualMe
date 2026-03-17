@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { FaImage, FaCalendar, FaUser, FaClock, FaTag } from 'react-icons/fa'
 import Navbar from '../../components/Navbar'
 import ScrollToTop from '../../components/ScrollToTop'
+import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
 
 export default function Blog() {
@@ -217,6 +218,7 @@ export default function Blog() {
           </div>
         </section>
 
+        <Footer practiceData={userData.practice} />
         <ScrollToTop />
       </div>
     </>
