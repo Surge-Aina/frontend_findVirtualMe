@@ -2,7 +2,7 @@ name: Deploy (staging - frontend)
 
 on:
   workflow_run:
-    workflows: ["CI (frontend)"]     # must match your frontend CI workflow name
+    workflows: ["CI (frontend)"]
     types: [completed]
 
 concurrency:
@@ -20,14 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: staging
-      # Optional: if you add FRONTEND_URL in the staging Environment Variables,
-      # it will show up as a link on the deployment in GitHub.
-      # url: ${{ vars.FRONTEND_URL }}
 
     steps:
       - uses: actions/checkout@v4
 
-      # Trigger Vercel to build & deploy using your project's Deploy Hook URL
       - name: Trigger Vercel deploy (staging)
         env:
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
@@ -39,7 +35,6 @@ jobs:
           curl -fsS -X POST "$VERCEL_DEPLOY_HOOK"
           echo "Deploy triggered."
 
-      # (Optional) If you set vars.FRONTEND_URL, wait for it to respond 200
       - name: Wait for site to become available (optional)
         if: ${{ vars.FRONTEND_URL != '' }}
         env:
