@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { FaSearch, FaFileAlt, FaCog, FaArrowLeft } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import ScrollToTop from "../components/ScrollToTop";
+import Footer from "../components/Footer";
 import { api } from "../lib/api";
 import { Link, useLocation } from "react-router-dom";
 
@@ -304,6 +305,7 @@ export default function SearchResults() {
         </div>
       </section>
 
+      {userData?.practice && <Footer userData={userData} practiceId={userData._id} />}
       <ScrollToTop />
     </div>
   );

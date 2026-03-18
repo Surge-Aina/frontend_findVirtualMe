@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import ScrollToTop from "../components/ScrollToTop";
+import Footer from "../components/Footer";
 import { usePortfolio } from "../../../../context/PortfolioContext";
 
 export default function Home({ portfolioId }) {
@@ -223,6 +224,7 @@ export default function Home({ portfolioId }) {
         </Link>
       )}
 
+      <Footer userData={userData} practiceId={practiceId} />
       <ScrollToTop />
     </div>
   );

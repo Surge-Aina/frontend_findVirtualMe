@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { FaArrowLeft, FaCalendarAlt, FaUser, FaClock } from 'react-icons/fa'
 import Navbar from '../../components/Navbar'
 import ScrollToTop from '../../components/ScrollToTop'
+import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
 
 export default function BlogPost() {
@@ -177,6 +178,7 @@ export default function BlogPost() {
           </div>
         </article>
 
+        <Footer userData={userData} practiceId={practiceId} />
         <ScrollToTop />
       </div>
     </>

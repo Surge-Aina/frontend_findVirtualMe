@@ -4,6 +4,7 @@ import { api } from '../lib/api'
 import { FaImage, FaCamera, FaSpinner } from 'react-icons/fa'
 import Navbar from '../components/Navbar'
 import ScrollToTop from '../components/ScrollToTop'
+import Footer from '../components/Footer'
 
 export default function Gallery() {
   const { practiceId } = useParams()
@@ -236,6 +237,7 @@ export default function Gallery() {
       )}
       </section>
       
+      <Footer userData={practiceData} practiceId={practiceId} />
       <ScrollToTop />
     </div>
   )
