@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useHealthcareBasePath } from '../../../../../hooks/useHealthcareBasePath'
 import { motion } from 'framer-motion'
 import { FaImage, FaCalendar, FaUser, FaClock, FaTag } from 'react-icons/fa'
 import Navbar from '../../components/Navbar'
 import ScrollToTop from '../../components/ScrollToTop'
+import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
 
 export default function Blog() {
-  const { practiceId } = useParams() // ✅ Get practiceId from URL
+  const { basePath, practiceId } = useHealthcareBasePath()
   const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -189,7 +191,7 @@ export default function Blog() {
 
                       {/* Read More Button - ✅ Fixed with practiceId */}
                       <Link
-                        to={`/portfolios/healthcare/${practiceId}/blog/${post.id}`}
+                        to={`${basePath}/blog/${post.id}`}
                         className="text-blue-600 hover:text-blue-700 font-semibold transition-colors flex items-center"
                       >
                         {userData.ui?.blog?.readMoreText || 'Read More'}
@@ -207,7 +209,7 @@ export default function Blog() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">No Blog Posts Yet</h2>
                 <p className="text-gray-600 mb-6">Blog posts will appear here once added through the admin panel.</p>
                 <Link
-                  to={`/portfolios/healthcare/${practiceId}/admin/dashboard`}
+                  to={`${basePath}/admin/dashboard`}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-block"
                 >
                   Go to Admin Panel
@@ -217,6 +219,7 @@ export default function Blog() {
           </div>
         </section>
 
+        <Footer userData={userData} practiceId={practiceId} />
         <ScrollToTop />
       </div>
     </>

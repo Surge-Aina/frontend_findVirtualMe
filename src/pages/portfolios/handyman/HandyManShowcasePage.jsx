@@ -114,7 +114,7 @@ const HandymanShowcasePage = () => {
         <Testimonials list={showcaseData.testimonials} />
         <ContactForm services={showcaseData.services} />
       </main>
-      <Footer />
+      <Footer siteName="Handyman Services" />
     </div>
   );
 };

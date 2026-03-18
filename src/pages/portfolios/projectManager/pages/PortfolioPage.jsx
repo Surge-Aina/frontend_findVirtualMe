@@ -12,6 +12,7 @@ import FileUploader from "../components/FileUploader";
 import { useParams } from "react-router-dom";
 import "../style.css";
 import { usePortfolio } from "../../../../context/PortfolioContext";
+import Footer from "../components/Footer";
 // import emailjs from "@emailjs/browser";
 
 const PortfolioPage = ({portfolioId, portfolioType}) => {
@@ -653,7 +654,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
             <div className="card-main-section">{renderSection()}</div>
           </div>
 
-          <section className="mt-16 mb-12 flex justify-center">
+          <section id="contact" className="mt-16 mb-12 flex justify-center">
             <div className="w-full max-w-6xl card-glassmorphism flex flex-col md:flex-row items-stretch p-0 overflow-hidden shadow-lg">
               <div className="md:w-1/3 w-full flex flex-col justify-start items-start px-8 py-6 md:py-8 mt-2 md:mt-6">
                 <h2 className="text-2xl font-bold text-white-900 mb-2 text-left tracking-tight">Contact Me</h2>
@@ -726,34 +727,11 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
           </section>
         </main>
 
-        <footer className="footer-base">
-          <div className="max-w-6xl mx-auto px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-6 md:mb-0">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-md flex items-center justify-center shadow-sm">
-                    <span className="text-xs font-medium text-white">PM</span>
-                  </div>
-                  <span className="text-body-primary font-medium">Portfolio Management</span>
-                </div>
-                <p className="text-body-muted text-sm">
-                  Showcase your professional journey © {new Date().getFullYear()}
-                </p>
-              </div>
-              <div className="flex gap-8">
-                <a href="#" className="nav-link">
-                  Terms
-                </a>
-                <a href="#" className="nav-link">
-                  Privacy
-                </a>
-                <a href="#" className="nav-link">
-                  Contact
-                </a>
-              </div>
-            </div>
-          </div>
-        </footer>
+        <Footer
+          siteName={portfolio?.name}
+          showBranding={!portfolio?.hideBranding}
+          socialLinks={portfolio?.socialLinks}
+        />
       </div>
     </div>
   );

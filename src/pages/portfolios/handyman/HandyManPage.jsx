@@ -134,7 +134,11 @@ const HandymanPage = ({ portfolioId }) => {
         />
       </main>
 
-      <Footer />
+      <Footer
+        siteName={data.hero?.title || data.portfolioTitle || "Handyman Services"}
+        showBranding={!data.hideBranding}
+        socialLinks={data.socialLinks}
+      />
     </div>
   );
 };

@@ -10,9 +10,9 @@ const defaultPortfolioOwner = {
 
 export const PortfolioContext = createContext();
 
-export function PortfolioProvider({ children }) {
-  const [portfolioId, setPortfolioId] = useState(null);
-  const [portfolioType, setPortfolioType] = useState(null);
+export function PortfolioProvider({ children, initialPortfolioId, initialPortfolioType, isCustomDomain = false }) {
+  const [portfolioId, setPortfolioId] = useState(initialPortfolioId ?? null);
+  const [portfolioType, setPortfolioType] = useState(initialPortfolioType ?? null);
   const [portfolioOwner, setPortfolioOwner] = useState(defaultPortfolioOwner);
   const [isOwnerReady, setIsOwnerReady] = useState(false);
 
@@ -67,6 +67,7 @@ export function PortfolioProvider({ children }) {
       portfolioType, setPortfolioType,
       portfolioOwner, setPortfolioOwner,
       isOwnerReady,
+      isCustomDomain,
       clearPortfolio,
     }}>
       {children}

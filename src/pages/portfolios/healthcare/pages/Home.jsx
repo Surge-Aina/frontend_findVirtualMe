@@ -14,11 +14,14 @@ import {
 } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import ScrollToTop from "../components/ScrollToTop";
+import Footer from "../components/Footer";
 import { usePortfolio } from "../../../../context/PortfolioContext";
+import { useHealthcareBasePath } from "../../../../hooks/useHealthcareBasePath";
 
-export default function Home({ portfolioId }) {
+export default function Home({ portfolioId: portfolioIdProp }) {
+  const { basePath, practiceId: practiceIdFromHook } = useHealthcareBasePath();
   const { practiceId: urlId } = useParams();
-  const practiceId = portfolioId || urlId;
+  const practiceId = portfolioIdProp ?? practiceIdFromHook ?? urlId;
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,7 +100,7 @@ export default function Home({ portfolioId }) {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Practice Not Found</h1>
           <p className="text-gray-600 mb-8">{error || "The practice you're looking for doesn't exist."}</p>
           <Link
-            to="/portfolios/healthcare"
+            to={basePath || "/portfolios/healthcare"}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-block"
           >
             Back to Healthcare Home
@@ -172,14 +175,14 @@ export default function Home({ portfolioId }) {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              to={`/portfolios/healthcare/${practiceId}/contact`}
+              to={`${basePath}/contact`}
               className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:scale-105"
             >
               {userData?.ui?.hero?.primaryButtonText || "Get Started"}
             </Link>
 
             <Link
-              to={`/portfolios/healthcare/${practiceId}/services`}
+              to={`${basePath}/services`}
               className="border-2 border-white text-white hover:bg-white hover:text-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition-all"
             >
               {userData?.ui?.hero?.secondaryButtonText || "Learn More"}
@@ -216,13 +219,14 @@ export default function Home({ portfolioId }) {
       {/* ✅ UPDATED: Admin Access Link - only show for portfolio owner */}
       {practiceId !== "demo" && (
         <Link
-          to={`/portfolios/healthcare/${practiceId}/admin/dashboard`}
+          to={`${basePath}/admin/dashboard`}
           className="fixed bottom-4 left-4 z-50 bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 opacity-20 hover:opacity-100"
         >
           Admin
         </Link>
       )}
 
+      <Footer userData={userData} practiceId={practiceId} />
       <ScrollToTop />
     </div>
   );

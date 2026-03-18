@@ -4,9 +4,12 @@ import { FaTooth, FaBars, FaTimes, FaSearch, FaHospital } from 'react-icons/fa';
 import { MdHealthAndSafety } from "react-icons/md";
 import { GiHealthNormal } from "react-icons/gi";
 import { FaHospitalUser } from "react-icons/fa6";
-import { RiMentalHealthFill } from "react-icons/ri"
+import { RiMentalHealthFill } from "react-icons/ri";
+import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath';
 
-export default function Navbar({ userData, practiceId }) {
+export default function Navbar({ userData, practiceId: practiceIdProp }) {
+  const { basePath, practiceId: practiceIdFromHook } = useHealthcareBasePath();
+  const practiceId = practiceIdProp ?? practiceIdFromHook;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -17,12 +20,13 @@ export default function Navbar({ userData, practiceId }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const homePath = basePath || '/';
   const navItems = [
-    { href: `/portfolios/healthcare/${practiceId}`, label: 'Home' },
-    { href: `/portfolios/healthcare/${practiceId}/services`, label: 'Services' },
-    { href: `/portfolios/healthcare/${practiceId}/blog`, label: 'Blog' },
-    { href: `/portfolios/healthcare/${practiceId}/gallery`, label: 'Gallery' },
-    { href: `/portfolios/healthcare/${practiceId}/contact`, label: 'Contact' }
+    { href: homePath, label: 'Home' },
+    { href: `${basePath}/services`, label: 'Services' },
+    { href: `${basePath}/blog`, label: 'Blog' },
+    { href: `${basePath}/gallery`, label: 'Gallery' },
+    { href: `${basePath}/contact`, label: 'Contact' }
   ];
 
   const iconMap = {
@@ -39,7 +43,7 @@ export default function Navbar({ userData, practiceId }) {
     <header className={`fixed top-0 left-0 right-0 bg-white shadow-md z-[1000] transition-all duration-300 px-0.5 ${isScrolled ? 'scrolled' : ''}`}>
       <nav className="flex items-center justify-between max-w-7xl mx-auto py-3 px-3">
         <Link
-          to={`/portfolios/healthcare/${practiceId}`}
+          to={homePath}
           className="flex items-center no-underline text-blue-800 font-bold text-xl md:text-2xl gap-3" // Added gap and responsive text
         >
           {userData?.practice?.logoImage ? (
@@ -70,7 +74,7 @@ export default function Navbar({ userData, practiceId }) {
         </div>
         
         <Link
-          to={`/portfolios/healthcare/${practiceId}/contact`}
+          to={`${basePath}/contact`}
           className="btn-contact desktop md:block hidden"
         >
           Contact Us

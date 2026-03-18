@@ -76,48 +76,24 @@ if (domainRoute) {
 
     if (portfolioType === 'Healthcare') {
         return (
-        // <BrowserRouter>
-            <Routes>
-                <Route
-        path="/"
-        element={
-          <Navigate
-            to={`/portfolios/healthcare/${portfolioId}`}
-            replace
-          />
-        }
-      />
-
-                {/* Public Routes - No Auth */}
-                <Route path="/portfolios/healthcare" element={<Landing />} />
-                <Route path="/portfolios/healthcare/search" element={<HealthcareSearch />} />
-                
-                {/* Demo Routes - No Auth */}
-                <Route path="/portfolios/healthcare/demo" element={<HealthcareHome />} />
-                <Route path="/portfolios/healthcare/demo/services" element={<HealthcareServices />} />
-                <Route path="/portfolios/healthcare/demo/blog" element={<HealthcareBlog />} />
-                <Route path="/portfolios/healthcare/demo/blog/:id" element={<HealthcareBlogPost />} />
-                <Route path="/portfolios/healthcare/demo/gallery" element={<HealthcareGallery />} />
-                <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
-                
-                <Route
-                    path="/portfolios/healthcare/:practiceId"
-                    element={
-                        <PortfolioProvider>
-                            <WidgetOverlayWrapper />
-                        </PortfolioProvider>
-                }>
-                    {/* User Portfolio Routes - Protected */}
-                    <Route index element={<HealthcareHome />} />
-                    <Route path="services" element={<HealthcareServices />} />
-                    <Route path="blog" element={<HealthcareBlog />} />
-                    <Route path="blog/:id" element={<HealthcareBlogPost />} />
-                    <Route path="gallery" element={<HealthcareGallery />} />
-                    <Route path="contact" element={<HealthcareContact />} />
-                    <Route path="admin/dashboard" element={<HealthcareAdminDashboard />} />
-                </Route>
-            </Routes>
-        // </BrowserRouter>
+            <PortfolioProvider
+                initialPortfolioId={portfolioId}
+                initialPortfolioType="HealthcarePortfolio"
+                isCustomDomain={true}
+            >
+                <Routes>
+                    {/* Root-level routes for clean URLs: customDomain.com, customDomain.com/services, etc. */}
+                    <Route path="/" element={<WidgetOverlayWrapper />}>
+                        <Route index element={<HealthcareHome />} />
+                        <Route path="services" element={<HealthcareServices />} />
+                        <Route path="blog" element={<HealthcareBlog />} />
+                        <Route path="blog/:id" element={<HealthcareBlogPost />} />
+                        <Route path="gallery" element={<HealthcareGallery />} />
+                        <Route path="contact" element={<HealthcareContact />} />
+                        <Route path="admin/dashboard" element={<HealthcareAdminDashboard />} />
+                    </Route>
+                </Routes>
+            </PortfolioProvider>
         );
         }
 
