@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath';
 import { 
   FaPhone, FaEnvelope, FaMapMarkerAlt, 
   FaClock, FaPaperPlane, FaWhatsapp
@@ -10,7 +10,7 @@ import Footer from '../components/Footer';
 import { api } from '../lib/api';
 
 export default function Contact() {
-  const { practiceId } = useParams(); // ✅ Get practiceId from URL
+  const { basePath, practiceId } = useHealthcareBasePath();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({

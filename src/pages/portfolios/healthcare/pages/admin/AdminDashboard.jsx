@@ -1,4 +1,5 @@
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useHealthcareBasePath } from "../../../../../hooks/useHealthcareBasePath";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { api } from "../../lib/api";
 import {
@@ -37,8 +38,7 @@ const tabs = [
 ];
 
 export default function AdminDashboard() {
-  // ✅ Get portfolio _id from URL (same as other portfolios)
-  const { practiceId } = useParams();
+  const { basePath, practiceId } = useHealthcareBasePath();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState("practice");
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
 
               {userData?._id && (
                 <Link
-                  to={`/portfolios/healthcare/${userData._id}`}
+                  to={basePath || '/'}
                   target="_blank"
                   className="text-blue-600 hover:text-blue-800 text-sm flex items-center mr-2"
                 >

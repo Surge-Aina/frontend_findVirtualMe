@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath'
 import { api } from '../lib/api'
 import { FaImage, FaCamera, FaSpinner } from 'react-icons/fa'
 import Navbar from '../components/Navbar'
@@ -7,7 +8,7 @@ import ScrollToTop from '../components/ScrollToTop'
 import Footer from '../components/Footer'
 
 export default function Gallery() {
-  const { practiceId } = useParams()
+  const { practiceId } = useHealthcareBasePath()
   const [practiceData, setPracticeData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
