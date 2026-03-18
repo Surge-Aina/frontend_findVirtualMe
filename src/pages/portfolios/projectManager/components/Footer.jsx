@@ -1,16 +1,14 @@
 import React from "react";
-import PortfolioFooter from "../../../components/PortfolioFooter/PortfolioFooter";
-import "./Footer.css";
+import PortfolioFooter from "../../../../components/PortfolioFooter/PortfolioFooter";
 
 export default function Footer({ siteName, showBranding = true, socialLinks }) {
   return (
     <PortfolioFooter
-      portfolioType="HandymanMainPortfolio"
+      portfolioType="ProjectManagerPortfolio"
       siteName={siteName}
       showBranding={showBranding}
       socialLinks={socialLinks}
       variant="dark"
-      className="footer"
     />
   );
 }

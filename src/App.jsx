@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Routes, Route, Navigate, useParams, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
 import Dashboard from "./components/Dashboard";
@@ -125,6 +125,11 @@ function WidgetOverlayWrapper() {
 
 export default function App() {
   const [adminRequested, setAdminRequested] = useState(false);
+  const location = useLocation();
+  const isPortfolioWithOwnFooter =
+    location.pathname.startsWith("/portfolios/ProjectManager") ||
+    location.pathname.startsWith("/portfolios/handyman") ||
+    location.pathname.startsWith("/portfolios/healthcare/");
 
   const handleGetStarted = () => {
     // Show tip/suggestion for plus button
@@ -345,7 +350,7 @@ export default function App() {
       </ErrorBoundary>
       <FloatingHelpButton />
       {adminRequested && <Tip message="Request received! Our admin team will contact you shortly." />}
-      <Footer />
+      {!isPortfolioWithOwnFooter && <Footer />}
       <CookieConsent />
       <CookieSettings />
       <TelemetryVisit />

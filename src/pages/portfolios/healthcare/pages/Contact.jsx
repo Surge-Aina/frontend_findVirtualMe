@@ -294,7 +294,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <Footer practiceData={userData.practice} />
+      <Footer userData={userData} practiceId={practiceId} />
       <ScrollToTop />
     </div>
   );

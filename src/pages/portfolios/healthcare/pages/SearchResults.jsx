@@ -305,7 +305,7 @@ export default function SearchResults() {
         </div>
       </section>
 
-      {userData?.practice && <Footer practiceData={userData.practice} />}
+      {userData?.practice && <Footer userData={userData} practiceId={userData._id} />}
       <ScrollToTop />
     </div>
   );

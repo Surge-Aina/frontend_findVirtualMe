@@ -224,7 +224,7 @@ export default function Home({ portfolioId }) {
         </Link>
       )}
 
-      <Footer practiceData={userData.practice} />
+      <Footer userData={userData} practiceId={practiceId} />
       <ScrollToTop />
     </div>
   );

@@ -237,7 +237,7 @@ export default function Gallery() {
       )}
       </section>
       
-      <Footer practiceData={practiceData.practice} />
+      <Footer userData={practiceData} practiceId={practiceId} />
       <ScrollToTop />
     </div>
   )

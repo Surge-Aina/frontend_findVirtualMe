@@ -21,6 +21,8 @@ import { useHandleCardClick } from "../../utils/useHandleCardClick";
 import DomainLookup from "./DomainLookup";
 import QRWidgetSettings from "./QRWidgetSettings";
 import PrivacyPolicy from "./PrivacyPolicy";
+import TermsOfService from "./TermsOfService";
+import PortfolioBranding from "./PortfolioBranding";
 
 export default function UserProfile() {
   const { handleCardClick } = useHandleCardClick();
@@ -271,6 +273,12 @@ export default function UserProfile() {
             setCurrentTab={handleTabChange}
           />
           <SidebarItem
+            icon={<Shield className="w-5 h-5" />}
+            label="Terms of Service"
+            currentTab={currentTab}
+            setCurrentTab={handleTabChange}
+          />
+          <SidebarItem
             icon={<Bell className="w-5 h-5" />}
             label="Notifications"
             currentTab={currentTab}
@@ -417,8 +425,9 @@ export default function UserProfile() {
                 </div>
               </div>
 
-              <div className="pt-4">
-                <div className="text-sm text-gray-500 italic">More account settings will be available soon...</div>
+              <div className="pt-4 border-t border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Portfolio Branding</h3>
+                <PortfolioBranding />
               </div>
             </div>
           </section>
@@ -532,6 +541,13 @@ export default function UserProfile() {
         <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
           <section className="w-full max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-8">
             <PrivacyPolicy />
+          </section>
+        </main>
+      )}
+      {currentTab === "Terms of Service" && (
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+          <section className="w-full max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+            <TermsOfService />
           </section>
         </main>
       )}
