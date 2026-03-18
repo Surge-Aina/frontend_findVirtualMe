@@ -1,7 +1,10 @@
 import PortfolioFooter from "../../../../components/PortfolioFooter/PortfolioFooter";
+import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath';
 
-export default function Footer({ userData, practiceId }) {
-  const basePath = practiceId ? `/portfolios/healthcare/${practiceId}` : "";
+export default function Footer({ userData, practiceId: practiceIdProp }) {
+  const { basePath, practiceId: practiceIdFromHook } = useHealthcareBasePath();
+  const practiceId = practiceIdProp ?? practiceIdFromHook;
+  const resolvedBasePath = basePath !== undefined && basePath !== null ? basePath : (practiceId ? `/portfolios/healthcare/${practiceId}` : "");
   const siteName = userData?.practice?.name || "";
   const showBranding = !userData?.hideBranding;
   const socialLinks = userData?.socialLinks || userData?.ui?.social
@@ -17,7 +20,7 @@ export default function Footer({ userData, practiceId }) {
   return (
     <PortfolioFooter
       portfolioType="HealthcarePortfolio"
-      basePath={basePath}
+      basePath={resolvedBasePath}
       siteName={siteName}
       showBranding={showBranding}
       socialLinks={socialLinks}

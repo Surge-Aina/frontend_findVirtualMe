@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useHealthcareBasePath } from '../../../../../hooks/useHealthcareBasePath'
 import { FaArrowLeft, FaCalendarAlt, FaUser, FaClock } from 'react-icons/fa'
 import Navbar from '../../components/Navbar'
 import ScrollToTop from '../../components/ScrollToTop'
@@ -7,7 +8,8 @@ import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
 
 export default function BlogPost() {
-  const { practiceId, id } = useParams() // ✅ Get both practiceId and post id from URL
+  const { id } = useParams()
+  const { basePath, practiceId } = useHealthcareBasePath()
   const [userData, setUserData] = useState(null)
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -52,7 +54,7 @@ export default function BlogPost() {
         <div className="max-w-4xl mx-auto px-4 py-20 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Blog Post Not Found</h1>
           <Link 
-            to={`/portfolios/healthcare/${practiceId}/blog`}
+            to={`${basePath}/blog`}
             className="inline-flex items-center text-blue-600 hover:text-blue-700"
           >
             <FaArrowLeft className="mr-2" />
@@ -72,7 +74,7 @@ export default function BlogPost() {
           <div className="max-w-4xl mx-auto px-4">
             {/* Back Button - ✅ Fixed with practiceId */}
             <Link 
-              to={`/portfolios/healthcare/${practiceId}/blog`}
+              to={`${basePath}/blog`}
               className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-8"
             >
               <FaArrowLeft className="mr-2" />
@@ -150,7 +152,7 @@ export default function BlogPost() {
                     .map((relatedPost) => (
                       <Link
                         key={relatedPost.id}
-                        to={`/portfolios/healthcare/${practiceId}/blog/${relatedPost.id}`}
+                        to={`${basePath}/blog/${relatedPost.id}`}
                         className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all overflow-hidden"
                       >
                         {relatedPost.image && (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath';
 import { 
   FaUserMd, FaHeartbeat, FaMicroscope, 
   FaShieldAlt, FaProcedures, FaTooth,
@@ -11,7 +12,7 @@ import Footer from '../components/Footer';
 import { api } from '../lib/api';
 
 export default function Services() {
-  const { practiceId } = useParams(); // ✅ Get practiceId from URL
+  const { basePath, practiceId } = useHealthcareBasePath();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -131,7 +132,7 @@ export default function Services() {
             Contact us today to schedule your appointment
           </p>
           <Link
-            to={`/portfolios/healthcare/${practiceId}/contact`}
+            to={`${basePath}/contact`}
             className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg inline-block transition-all hover:scale-105"
           >
             Contact Us
