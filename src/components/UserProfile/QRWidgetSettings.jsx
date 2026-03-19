@@ -108,24 +108,33 @@ export default function QRWidgetSettings() {
       </div>
 
       {selectedPortfolio && !loading && (
-        <div className="flex items-center justify-between border rounded-lg p-4">
-          <div>
+        <div className="flex items-center justify-between gap-4 border rounded-lg p-4">
+          <div className="min-w-0 flex-1">
             <h3 className="text-sm font-medium text-gray-900">Enable QR Widget</h3>
             <p className="text-xs text-gray-500">Toggle all QR codes for this portfolio.</p>
           </div>
 
+          <div className="shrink-0 flex-none">
           <button
             onClick={handleToggle}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+            style={{
+              width: "52px",
+              minWidth: "52px",
+              height: "24px",
+              minHeight: "24px",
+              maxHeight: "24px",
+            }}
+            className={`relative inline-flex shrink-0 flex-none items-center rounded-full transition ${
               qrActive ? "bg-blue-600" : "bg-gray-300"
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                qrActive ? "translate-x-6" : "translate-x-1"
+              className={`absolute left-1 top-1/2 h-4 w-4 -translate-y-1/2 transform rounded-full bg-white shadow transition ${
+                qrActive ? "translate-x-7" : "translate-x-0"
               }`}
             />
           </button>
+          </div>
         </div>
       )}
     </div>

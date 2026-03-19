@@ -19,12 +19,7 @@ export default function Navbar() {
   };
 
   return (
-    <motion.nav
-      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/40 border-b border-white/10"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/40 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <motion.div
@@ -43,16 +38,16 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <button
               className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
-              onClick={() => navigate("/occupations")}
+              onClick={navigateHome}
             >
-              <span className="relative z-10">Creators</span>
+              <span className="relative z-10">Job Seekers</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
               className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
-              onClick={navigateHome}
+              onClick={() => navigate("/occupations")}
             >
-              <span className="relative z-10">Job Seekers</span>
+              <span className="relative z-10">Creators</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
@@ -194,19 +189,19 @@ export default function Navbar() {
               className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
               onClick={() => {
                 setMobileMenuOpen(false);
-                navigate("/occupations");
+                navigateHome();
               }}
             >
-              Creators
+              Job Seekers
             </button>
             <button
               className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
               onClick={() => {
                 setMobileMenuOpen(false);
-                navigateHome();
+                navigate("/occupations");
               }}
             >
-              Job Seekers
+              Creators
             </button>
             <button
               className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
@@ -252,6 +247,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 }
