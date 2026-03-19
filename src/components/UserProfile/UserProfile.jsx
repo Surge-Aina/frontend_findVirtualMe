@@ -405,15 +405,15 @@ export default function UserProfile() {
               <div className="border-b border-gray-200 pb-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Privacy Settings</h3>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex-1">
+                <div className="flex items-center justify-between gap-4 p-4 border border-gray-200 rounded-lg">
+                  <div className="min-w-0 flex-1">
                     <h4 className="text-sm font-medium text-gray-900">Portfolio Visibility</h4>
                     <p className="text-sm text-gray-600 mt-1">
                       Allow your portfolios to be visible to the public. When disabled, only you can view your
                       portfolios.
                     </p>
                   </div>
-                  <div className="ml-4">
+                  <div className="ml-4 shrink-0 flex-none">
                     <ToggleSwitch enabled={portfolioVisible} onChange={setPortfolioVisible} />
                   </div>
                 </div>
@@ -437,13 +437,13 @@ export default function UserProfile() {
       {currentTab === "Billing" && <ManageBillingComponent />}
       {/* Domain Management */}
       {currentTab === "Domain Management" && (
-        <main className="flex  flex-col justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+        <main className="flex flex-col justify-center items-start py-12 px-4 md:px-12 bg-gray-50 w-full min-w-0">
           {/* Domain lookup */}
-          <section>
+          <section className="w-full min-w-0">
             <DomainLookup />
           </section>
 
-          <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+          <section className="w-full max-w-4xl min-w-0 bg-white rounded-2xl shadow border border-gray-200 p-4 sm:p-8">
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Domain Management</h2>
               <p className="text-gray-600">Connect custom domains to your portfolios and manage DNS settings.</p>
@@ -453,19 +453,19 @@ export default function UserProfile() {
             {/* Add New Domain */}
             <div className="border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Domain</h3>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   placeholder="Enter your domain (e.g., myportfolio.com)"
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
-                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 min-w-0 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   onKeyDown={(e) => e.key === "Enter" && handleAddDomain()}
                 />
                 <button
                   onClick={handleAddDomain}
                   disabled={!newDomain.trim() || addingDomain}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition shrink-0"
                 >
                   {addingDomain ? "Adding..." : "Add Domain"}
                 </button>
@@ -595,20 +595,27 @@ function ProfileField({ label, name, value, editable, onChange }) {
   );
 }
 
-// Toggle switch component
+// Toggle switch component - explicit 52x24px ensures pill shape on mobile (avoids 44x44 touch-target circle)
 function ToggleSwitch({ enabled, onChange }) {
   return (
     <button
       type="button"
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+      style={{
+        width: "52px",
+        minWidth: "52px",
+        height: "24px",
+        minHeight: "24px",
+        maxHeight: "24px",
+      }}
+      className={`relative inline-flex shrink-0 flex-none items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
         enabled ? "bg-blue-600" : "bg-gray-200"
       }`}
       onClick={() => onChange(!enabled)}
     >
       <span className="sr-only">Toggle portfolio visibility</span>
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-          enabled ? "translate-x-6" : "translate-x-1"
+        className={`absolute left-1 top-1/2 h-4 w-4 -translate-y-1/2 transform rounded-full bg-white shadow transition-transform ${
+          enabled ? "translate-x-7" : "translate-x-0"
         }`}
       />
     </button>
@@ -663,8 +670,8 @@ function DomainCard({ domain, onRemove, onVerify }) {
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <h4 className="font-medium text-gray-900">
               <a 
@@ -691,7 +698,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
             {domain.connectedProject && <p>Connected to: {domain.connectedProject}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-2 ml-4">
+        <div className="flex flex-wrap items-center gap-2 sm:ml-4 shrink-0">
           {/* =============== removed for now -- possible addition later on -carlosG==============*/}
           {/* <button
             onClick={() => onVerify(domain._id)}
@@ -702,7 +709,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
           {/* Domain Portfolio */}
           {user.portfolios?.length > 0 && (
             <select
-              className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:border-gray-400 transition"
+              className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:border-gray-400 transition min-w-0"
               value={selectedPortfolio}
               onChange={(e) => onConnectProject(domain.domain, e.target.value)}
             >
