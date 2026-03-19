@@ -52,7 +52,7 @@ export default function Footer() {
                   Pricing
                 </a>
               </li>
-              <li><a href="#" className="hover:text-white transition-colors">Examples</a></li>
+              <li><a href="/portfolios" className="hover:text-white transition-colors">Examples</a></li>
             </ul>
           </motion.div>
           

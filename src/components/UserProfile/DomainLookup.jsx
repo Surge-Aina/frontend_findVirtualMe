@@ -137,24 +137,24 @@ const DomainLookup = () => {
   =========================
   */
   return (
-    <div className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8 mb-8">
+    <div className="w-full max-w-4xl min-w-0 bg-white rounded-2xl shadow border border-gray-200 p-4 sm:p-8 mb-8">
       <h2 className="text-xl font-semibold mb-2">Domain Lookup</h2>
       <p className="text-gray-600 mb-6">
         Check if a domain is available for registration.
       </p>
 
       {/* SEARCH */}
-      <form onSubmit={handleSubmit} className="flex gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
         <input
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           placeholder="example.com"
-          className="flex-1 border rounded-lg px-4 py-2"
+          className="flex-1 min-w-0 border rounded-lg px-4 py-2"
         />
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg shrink-0"
         >
           {isLoading ? "Searching..." : "Search"}
         </button>
