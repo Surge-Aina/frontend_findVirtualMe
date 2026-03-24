@@ -135,7 +135,7 @@ export default function UserProfile() {
       //delete from domain collection
       const domainRouterResponse = await axiosAuth.delete(`/domainRouter/${domainId}`);
       console.log("remove domain responses", { userArrayResponse, domainRouterResponse });
-      
+
       setDomains((prev) => prev.filter((domain) => domain._id !== domainId));
       toast.success("Domain removed successfully!");
     } catch (error) {
@@ -260,12 +260,12 @@ export default function UserProfile() {
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
           />
-          <SidebarItem
+          {/* <SidebarItem
             icon={<Settings className="w-5 h-5" />}
             label="QR Customization"
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
-          />
+          /> */}
           <SidebarItem
             icon={<Shield className="w-5 h-5" />}
             label="Privacy Policy"
@@ -278,18 +278,18 @@ export default function UserProfile() {
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
           />
-          <SidebarItem
+          {/* <SidebarItem
             icon={<Bell className="w-5 h-5" />}
             label="Notifications"
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
-          />
-          <SidebarItem
+          /> */}
+          {/* <SidebarItem
             icon={<HelpCircle className="w-5 h-5" />}
             label="Help & Support"
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
-          />
+          /> */}
         </nav>
         <div className="px-6 pb-6">
           <button className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-gray-700 hover:bg-gray-100 transition">
@@ -521,22 +521,20 @@ export default function UserProfile() {
                       Type: A | Name: @ | Value: 76.76.21.21
                     </div>
                   </div>
-                  <p className="text-blue-700 mt-3">
-                    DNS changes may take up to 24 hours to propagate.
-                  </p>
+                  <p className="text-blue-700 mt-3">DNS changes may take up to 24 hours to propagate.</p>
                 </div>
               </div>
             )}
           </section>
         </main>
       )}
-      {currentTab === "QR Customization" && (
+      {/* {currentTab === "QR Customization" && (
         <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
           <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
             <QRWidgetSettings />
           </section>
         </main>
-      )}
+      )} */}
       {currentTab === "Privacy Policy" && (
         <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
           <section className="w-full max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-8">
@@ -674,9 +672,9 @@ function DomainCard({ domain, onRemove, onVerify }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <h4 className="font-medium text-gray-900">
-              <a 
-                href={`https://${domain.domain}`} 
-                target="_blank" 
+              <a
+                href={`https://${domain.domain}`}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-600 hover:underline"
               >
