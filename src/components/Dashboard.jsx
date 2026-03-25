@@ -4,8 +4,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { useHandleCardClick } from "../utils/useHandleCardClick";
-import axiosAuth from "../utils/axiosAuth.js";
-import WidgetOverlay from "./WidgetOverlay/WidgetOverlay.jsx";
+import { portfolioApi } from "../api/portfolioApi.js";
 
 export default function Dashboard() {
   const { handleCardClick } = useHandleCardClick();
@@ -19,9 +18,6 @@ export default function Dashboard() {
   const [publicProjects, setPublicProjects] = useState([]);
   const [viewMode, setViewMode] = useState("other");
 
-  const loggedInEmail = (user?.email || localStorage.getItem("email") || "").trim().toLowerCase();
-  const loggedInId = String(user?._id || user?.id || localStorage.getItem("userId") || localStorage.getItem("id") || "");
-
   useEffect(() => {
     fetchPortfolios();
     fetchPublicProjects();
@@ -30,21 +26,10 @@ export default function Dashboard() {
     }
   }, [user, token]);
 
-  const ownerEmail = (obj, type) => {
-    const e = obj?.email || obj?.userEmail || obj?.ownerEmail || obj?.user?.email || obj?.owner?.email || "";
-    if (e) return String(e).trim().toLowerCase();
-
-    if (type === "handyman" || type === "cleaningLady") {
-      const uid = String(obj?.userId || "");
-      if (uid && loggedInId && uid === loggedInId) return loggedInEmail;
-    }
-    return "";
-  };
-
   const fetchPortfolios = async () => {
     try {
       fetchPublicPortfolios();
-      if (user) {
+      if (user && token) {
         fetchMyPortfolios();
       }
     } catch (err) {
@@ -55,11 +40,9 @@ export default function Dashboard() {
 
   const fetchPublicPortfolios = async () => {
     try {
-      const pubPortfs = await axiosAuth.get("/publicPortfolios/public");
+      const pubPortfs = await portfolioApi.listPublic();
       const portfolios = pubPortfs.data?.portfolios || [];
       setOtherPortfolios(Array.isArray(portfolios) ? portfolios : []);
-      console.log("Public portfolios loaded:", portfolios.length);
-      console.log("Public portfolios:", portfolios);
     } catch (error) {
       console.error("Error fetching public portfolios:", error);
       setOtherPortfolios([]);
@@ -67,30 +50,15 @@ export default function Dashboard() {
   };
 
   const fetchMyPortfolios = async () => {
-    if (!user || !user.portfolios) return;
+    if (!user || !token) return;
     try {
-      // ✅ portfolioId is the MongoDB _id for all portfolio types
-      const promises = user.portfolios.map(({ portfolioId, portfolioType }) =>
-        axiosAuth.get(`/publicPortfolios/${portfolioType}/${portfolioId}`).then((res) => res.data)
-      );
-      
-      const results = await Promise.allSettled(promises);
-      
-      const fullPortfolios = results
-        .filter((result) => {
-          if (result.status === 'rejected') {
-            console.warn('Failed to fetch portfolio:', result.reason);
-            return false;
-          }
-          return true;
-        })
-        .map((result) => result.value);
-      
-      console.log("Full portfolios loaded:", fullPortfolios.length);
-      setMyPortfolios(fullPortfolios);
-      console.log("My portfolios:", fullPortfolios);
+      const res = await portfolioApi.getMine();
+      const portfolios = res.data?.portfolios || [];
+      setMyPortfolios(Array.isArray(portfolios) ? portfolios : []);
     } catch (err) {
-      console.error("Error fetching full portfolios:", err);
+      console.error("Error fetching my portfolios:", err);
+      setMyPortfolios([]);
+      toast.error("Could not load your portfolios");
     }
   };
 
@@ -121,27 +89,30 @@ export default function Dashboard() {
     }
   };
 
+  const isPortfolioPublic = (p) =>
+    p?.visibility === "public" || Boolean(p?.isPublic);
+
   const togglePublic = async (portfolio) => {
     try {
-      // ✅ Use _id consistently
       const portfolioId = portfolio._id;
-      
-      const res = await axiosAuth.patch(`/publicPortfolios/${portfolioId}/toggle-public`);
+
+      const res = await portfolioApi.toggleVisibility(portfolioId);
 
       if (res.data?.success) {
-        toast.success("Toggled Public Setting");
+        const nextVisibility = res.data.visibility;
+        toast.success("Toggled visibility");
         setMyPortfolios((prev) =>
-          prev.map((p) => 
-            p._id === portfolioId ? { ...p, isPublic: res.data.portfolio.isPublic } : p
+          prev.map((p) =>
+            p._id === portfolioId ? { ...p, visibility: nextVisibility } : p
           )
         );
         fetchPublicPortfolios();
       } else {
-        toast.error("Could not toggle public");
+        toast.error("Could not toggle visibility");
       }
     } catch (error) {
       console.error("Toggle error:", error);
-      toast.error("Error toggling public setting");
+      toast.error(error.response?.data?.error || "Error toggling visibility");
     }
   };
 
@@ -174,17 +145,19 @@ export default function Dashboard() {
 
   const handleDeletePortfolio = async (portfolioId) => {
     try {
-      const res = await axiosAuth.delete(`/publicPortfolios/${portfolioId}`);
+      const res = await portfolioApi.delete(portfolioId);
 
       if (res.data.success) {
         toast.success(`Deleted portfolio`);
+        setMyPortfolios((prev) => prev.filter((p) => p._id !== portfolioId));
+        fetchPublicPortfolios();
         refreshUser();
       } else {
         toast.error("Could not delete portfolio");
       }
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Error deleting portfolio");
+      toast.error(error.response?.data?.error || "Error deleting portfolio");
     }
   };
 
@@ -218,13 +191,19 @@ export default function Dashboard() {
 
   // ✅ Helper to get display name for any portfolio type
   const getPortfolioDisplayName = (p) => {
-    // Healthcare portfolios use practice.name
     if (p.portfolioType === "Healthcare") {
       return p.practice?.name || p.portfolioName || "Healthcare Portfolio";
     }
-    // Other portfolios
-    return p.businessName || p.title || p.portfolioTitle || p.name || "Untitled Portfolio";
+    return (
+      p.title ||
+      p.businessName ||
+      p.portfolioTitle ||
+      p.name ||
+      "Untitled Portfolio"
+    );
   };
+
+  const getPortfolioTypeLabel = (p) => p.template || p.portfolioType || "—";
 
   return (
     <main className="min-h-screen bg-slate-50 pt-24 px-4">
@@ -246,18 +225,18 @@ export default function Dashboard() {
                       togglePublic(p);
                     }}
                     className={`absolute top-3 right-3 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center
-                      ${Boolean(p.isPublic) ? "bg-blue-600" : "bg-gray-300"}`}
+                      ${isPortfolioPublic(p) ? "bg-blue-600" : "bg-gray-300"}`}
                   >
                     <div
                       className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600
-                        ${Boolean(p.isPublic) ? "translate-x-[16px]" : "translate-x-0"}`}
+                        ${isPortfolioPublic(p) ? "translate-x-[16px]" : "translate-x-0"}`}
                     >
-                      {Boolean(p.isPublic) ? "public" : "private"}
+                      {isPortfolioPublic(p) ? "public" : "private"}
                     </div>
                   </div>
 
                   <div className="mt-8 font-semibold text-slate-800 mb-2">
-                    {p.portfolioType || "Unknown"}
+                    {getPortfolioTypeLabel(p)}
                   </div>
 
                   <div className="text-slate-600 mb-2">
@@ -266,15 +245,30 @@ export default function Dashboard() {
 
                   <div className="text-slate-400 text-xs truncate">{p._id}</div>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeletePortfolio(p._id);
-                    }}
-                    className="mt-4 px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300"
-                  >
-                    Delete
-                  </button>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {(p.template || p.sections) && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/portfolios/view/${p._id}/edit`);
+                        }}
+                        className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePortfolio(p._id);
+                      }}
+                      className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-red-500 transition-colors duration-300 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
 
@@ -357,7 +351,7 @@ export default function Dashboard() {
                     onClick={() => handleCardClick(p)}
                   >
                     <div className="font-semibold mb-2 bg-slate-600 rounded-2xl text-white px-2 py-1 inline-block">
-                      {p.portfolioType}
+                      {getPortfolioTypeLabel(p)}
                     </div>
 
                     <div className="font-bold text-slate-800 mb-2 text-xl">

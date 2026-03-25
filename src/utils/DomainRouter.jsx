@@ -1,47 +1,36 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import axios from 'axios';
-
-// Healthcare imports
-import HealthcareHome from "../pages/portfolios/healthcare/pages/Home.jsx";
-import HealthcareServices from "../pages/portfolios/healthcare/pages/Services.jsx";
-import HealthcareBlog from "../pages/portfolios/healthcare/pages/blog/Blog.jsx";
-import HealthcareBlogPost from "../pages/portfolios/healthcare/pages/blog/BlogPost.jsx";
-import HealthcareContact from "../pages/portfolios/healthcare/pages/Contact.jsx";
-import HealthcareGallery from "../pages/portfolios/healthcare/pages/Gallery.jsx";
-import HealthcareSearch from "../pages/portfolios/healthcare/pages/SearchResults.jsx";
-import HealthcareAdminDashboard from "../pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
-import Landing from "../pages/portfolios/healthcare/pages/Landing.jsx";
-import { Navigate } from 'react-router-dom';
-import { Outlet } from 'react-router-dom';
 import WidgetOverlay from '../components/WidgetOverlay/WidgetOverlay.jsx';
-// Other portfolio imports
-import HandymanPage from "../pages/portfolios/handyman/HandyManPage.jsx";
-import EditHandymanPortfolio from '../pages/portfolios/handyman/EditHandymanPortfolio.jsx';
-import PortfolioPage from '../pages/portfolios/projectManager/pages/PortfolioPage';
-import { BrowserRouter } from 'react-router-dom';
 import { PortfolioProvider } from '../context/PortfolioContext.jsx';
+import PortfolioRenderer from '../components/PortfolioRenderer.jsx';
+import PortfolioEditor from '../components/PortfolioEditor.jsx';
+import { portfolioApi } from '../api/portfolioApi.js';
 
-//wrapper for widget overaly
-//must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
 function WidgetOverlayWrapper() {
-    return (
-        <>
-        {<WidgetOverlay />}
-        <Outlet />
-        </>
-    );
+  return (
+    <>
+      <WidgetOverlay />
+      <Outlet />
+    </>
+  );
 }
 
 function DomainRouter({ children }) {
   const [domainRoute, setDomainRoute] = useState(null);
+  const [portfolioData, setPortfolioData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkDomain = async () => {
       const hostname = window.location.hostname;
-      
-      if (hostname === 'findvirtual.me' || hostname === 'staging.findvirtual.me') {
+
+      if (
+        hostname === 'findvirtual.me' ||
+        hostname === 'staging.findvirtual.me' ||
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1'
+      ) {
         setLoading(false);
         return;
       }
@@ -52,11 +41,14 @@ function DomainRouter({ children }) {
         );
         if (response.data.portfolioId) {
           setDomainRoute(response.data);
+
+          const portfolioRes = await portfolioApi.getById(response.data.portfolioId);
+          setPortfolioData(portfolioRes.data);
         }
       } catch (err) {
-        if(err.status === 404){
-            console.log("Domain not found");
-            return;
+        if (err?.status === 404) {
+          console.log("Domain not found");
+          return;
         }
         console.error('Domain lookup failed:', err);
       } finally {
@@ -66,76 +58,32 @@ function DomainRouter({ children }) {
     checkDomain();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
 
+  if (domainRoute && portfolioData) {
+    return (
+      <PortfolioProvider
+        initialPortfolioId={domainRoute.portfolioId}
+        initialPortfolioType={portfolioData.template}
+        isCustomDomain={true}
+      >
+        <Routes>
+          <Route path="/" element={<WidgetOverlayWrapper />}>
+            <Route index element={<PortfolioRenderer portfolioData={portfolioData} />} />
+            <Route path="edit" element={<PortfolioEditor portfolioData={portfolioData} />} />
+          </Route>
+        </Routes>
+      </PortfolioProvider>
+    );
+  }
 
-  // Custom domain routing
-if (domainRoute) {
-    console.log(domainRoute)
-    const { portfolioType, portfolioId } = domainRoute;
-
-    if (portfolioType === 'Healthcare') {
-        return (
-            <PortfolioProvider
-                initialPortfolioId={portfolioId}
-                initialPortfolioType="HealthcarePortfolio"
-                isCustomDomain={true}
-            >
-                <Routes>
-                    {/* Root-level routes for clean URLs: customDomain.com, customDomain.com/services, etc. */}
-                    <Route path="/" element={<WidgetOverlayWrapper />}>
-                        <Route index element={<HealthcareHome />} />
-                        <Route path="services" element={<HealthcareServices />} />
-                        <Route path="blog" element={<HealthcareBlog />} />
-                        <Route path="blog/:id" element={<HealthcareBlogPost />} />
-                        <Route path="gallery" element={<HealthcareGallery />} />
-                        <Route path="contact" element={<HealthcareContact />} />
-                        <Route path="admin/dashboard" element={<HealthcareAdminDashboard />} />
-                    </Route>
-                </Routes>
-            </PortfolioProvider>
-        );
-        }
-
-        if (portfolioType === 'Handyman') {
-            return (
-                <Routes>
-                <Route path="/" element={<Navigate to={`/portfolios/handyman/${portfolioId}`} replace />} />
-                <Route
-                    path="/portfolios/handyman/:id"
-                    element={
-                    <PortfolioProvider>
-                        <WidgetOverlayWrapper />
-                    </PortfolioProvider>
-                    }
-                >
-                    <Route index element={<HandymanPage />} />
-                    <Route path="edit" element={<EditHandymanPortfolio />} />
-                </Route>
-                </Routes>
-            );
-        }
-
-        if (portfolioType === 'ProjectManager') {
-            return (
-                <Routes>
-                <Route path="/" element={<Navigate to={`/portfolios/ProjectManager/${portfolioId}`} replace />} />
-                <Route
-                    path="/portfolios/ProjectManager/:id"
-                    element={
-                    <PortfolioProvider>
-                        <WidgetOverlayWrapper />
-                    </PortfolioProvider>
-                    }
-                >
-                    <Route index element={<PortfolioPage />} />
-                </Route>
-                </Routes>
-            );
-        }
-    }
-
-        return children;
-    }
+  return children;
+}
 
 export default DomainRouter;

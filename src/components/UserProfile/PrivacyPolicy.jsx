@@ -21,6 +21,9 @@ const portfolioTypeToModelName = {
   LocalVendor: "LocalVendorPortfolio",
   CleaningLady: "CleaningPortfolio",
   Healthcare: "HealthcarePortfolio",
+  DataScientist: "Portfolio",
+  agent: "Portfolio",
+  Agent: "Portfolio",
 };
 
 export default function PrivacyPolicy() {

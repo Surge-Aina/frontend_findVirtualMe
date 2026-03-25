@@ -1,22 +1,20 @@
 import React, { useContext, useState } from "react";
-import { useVendor } from "../../../context/VendorContext.jsx";
 import { AuthContext } from "../../../context/AuthContext.jsx";
 import { logPortfolioAction } from "../../../utils/portfolioEditLogger";
-import handymanAPI from "../../../pages/portfolios/handyman/api.js";
 import { toast } from "react-toastify";
-import axios from "axios";
 import axiosAuth from "../../../utils/axiosAuth.js";
+import { portfolioApi } from "../../../api/portfolioApi.js";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../portfolios/healthcare/lib/api.js";
 
 export default function PortfolioTemplateOptions() {
-  const [creatingVendor, setCreatingVendor] = useState(false);
+  const [creatingVendor] = useState(false);
   const [creatingHealthcare, setCreatingHealthcare] = useState(false);
-  const { setVendorId } = useVendor();
-  const { pendingFile, setPendingFile, user, refreshUser } = useContext(AuthContext);
+  const [creatingHandyman, setCreatingHandyman] = useState(false);
+  const [creatingDataScientist, setCreatingDataScientist] = useState(false);
+  const [creatingAgentPortfolio, setCreatingAgentPortfolio] = useState(false);
+  const { user, refreshUser } = useContext(AuthContext);
 
   const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
 
   // ✅ Helper to count healthcare portfolios
   const getHealthcarePortfolioCount = () => {
@@ -26,30 +24,56 @@ export default function PortfolioTemplateOptions() {
 
   const handleCardClick = async (index) => {
     switch (index) {
-      case 0:
+      case 0: {
         try {
-          const portfolio = user;
-          console.log("00100210102010 portfolio: ", portfolio);
-          const res = await axios.post(`${backendUrl}/portfolio/add`, {
-            portfolio,
-          });
-          const username = res.data.username;
-          const id = res.data._id;
-          const response = await axiosAuth.patch("/user/addPortfolioId", {
-            portfolioId: id,
-            portfolioType: "ProjectManager",
-            isPublic: false,
-          });
-          if (response.status === 200) {
-            toast.success("Added portfolio ID to User");
-          } else {
-            toast.error("could not add potfolioID to User:", response.message);
+          const token = localStorage.getItem("token");
+          if (!token) {
+            toast.error("Please log in to create a portfolio");
+            navigate("/login");
+            return;
           }
-          navigate(`/portfolios/ProjectManager/${id}`);
+
+          const title =
+            user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName}`.trim()
+              : user?.name || "My portfolio";
+
+          const createRes = await portfolioApi.create("projectManager", {
+            title,
+          });
+
+          const created = createRes.data?.portfolio;
+          const id = created?._id;
+          if (!id) {
+            throw new Error(createRes.data?.error || "No portfolio returned");
+          }
+
+          try {
+            const response = await axiosAuth.patch("/user/addPortfolioId", {
+              portfolioId: id,
+              portfolioType: "ProjectManager",
+              isPublic: false,
+            });
+            if (response.status === 200) {
+              toast.success("Portfolio created and linked to your account");
+            }
+          } catch (linkErr) {
+            console.warn("addPortfolioId:", linkErr);
+            toast.success("Portfolio created");
+          }
+
+          navigate(`/portfolios/view/${id}/edit`);
         } catch (error) {
-          console.log("error creating portfolio: ", error);
+          console.error("error creating portfolio: ", error);
+          const msg =
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            error.message ||
+            "Could not create portfolio";
+          toast.error(msg);
         }
         break;
+      }
 
       // case 3: // Local Food Vendor
       //   try {
@@ -118,30 +142,44 @@ export default function PortfolioTemplateOptions() {
         // }
         // break;
 
-      case 2:
+      case 2: {
         try {
-          const handyman_portfolio = user;
-          const res = await handymanAPI.post(`/api/handyman-template`, {
-            hero: { phoneNumber: user?.phone ?? user?.hero?.phoneNumber ?? "" },
-            contact: {
-              phone: user?.phone ?? "",
-              email: user?.email ?? "",
-            },
+          setCreatingHandyman(true);
+          const token = localStorage.getItem("token");
+          if (!token) {
+            toast.error("Please log in to create a portfolio");
+            navigate("/login");
+            return;
+          }
+
+          const title =
+            user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName}`.trim()
+              : user?.name || "My handyman portfolio";
+
+          const createRes = await portfolioApi.create("handyman", {
+            title,
+            socialLinks: {},
           });
 
-          console.log("response: ", res.data);
-          const id = res.data._id;
-          const response = await axiosAuth.patch("/user/addPortfolioId", {
-            portfolioId: id,
-            portfolioType: "Handyman",
-            isPublic: false,
-          });
+          const created = createRes.data?.portfolio;
+          const id = created?._id;
+          if (!id) {
+            throw new Error(createRes.data?.error || "No portfolio returned");
+          }
 
-          if (response.status === 200) {
-            toast.success("Portfolio successfully linked to user");
-          } else {
-            toast.error("Unexpected response from server");
-            console.log(response.message);
+          try {
+            const response = await axiosAuth.patch("/user/addPortfolioId", {
+              portfolioId: id,
+              portfolioType: "Handyman",
+              isPublic: false,
+            });
+            if (response.status === 200) {
+              toast.success("Handyman portfolio created and linked to your account");
+            }
+          } catch (linkErr) {
+            console.warn("addPortfolioId:", linkErr);
+            toast.success("Handyman portfolio created");
           }
 
           const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
@@ -154,11 +192,186 @@ export default function PortfolioTemplateOptions() {
             email: user?.email || null,
           });
 
-          navigate(`/portfolios/handyman/${id}`);
+          navigate(`/portfolios/view/${id}/edit`);
         } catch (error) {
-          console.log("error creating portfolio: ", error);
+          console.error("error creating handyman portfolio: ", error);
+          const msg =
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            error.message ||
+            "Could not create portfolio";
+          toast.error(msg);
+        } finally {
+          setCreatingHandyman(false);
         }
         break;
+      }
+
+      case 3: {
+        try {
+          setCreatingDataScientist(true);
+          const token = localStorage.getItem("token");
+          if (!token) {
+            toast.error("Please log in to create a portfolio");
+            navigate("/login");
+            return;
+          }
+
+          const title =
+            user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName}`.trim()
+              : user?.name || "My data science portfolio";
+
+          const createRes = await portfolioApi.create("dataScientist", {
+            title,
+            socialLinks: {},
+          });
+
+          const created = createRes.data?.portfolio;
+          const id = created?._id;
+          if (!id) {
+            throw new Error(createRes.data?.error || "No portfolio returned");
+          }
+
+          try {
+            const response = await axiosAuth.patch("/user/addPortfolioId", {
+              portfolioId: id,
+              portfolioType: "DataScientist",
+              isPublic: false,
+            });
+            if (response.status === 200) {
+              toast.success("Data science portfolio created and linked to your account");
+            }
+          } catch (linkErr) {
+            console.warn("addPortfolioId:", linkErr);
+            toast.success("Data science portfolio created");
+          }
+
+          const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
+          await logPortfolioAction("created", {
+            sessionId: sessionId,
+            userId: user?.id || user?._id || "anonymous",
+            portfolioID: id,
+            portfolioType: "dataScientist",
+            name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.name || null,
+            email: user?.email || null,
+          });
+
+          navigate(`/portfolios/view/${id}/edit`);
+        } catch (error) {
+          console.error("error creating data science portfolio: ", error);
+          const msg =
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            error.message ||
+            "Could not create portfolio";
+          toast.error(msg);
+        } finally {
+          setCreatingDataScientist(false);
+        }
+        break;
+      }
+
+      case 4: {
+        try {
+          setCreatingAgentPortfolio(true);
+          const token = localStorage.getItem("token");
+          if (!token) {
+            toast.error("Please log in to create a portfolio");
+            navigate("/login");
+            return;
+          }
+
+          const title =
+            user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName} — AI Custom Portfolio`
+              : user?.name || "My AI custom portfolio";
+
+          const createRes = await portfolioApi.createAgent({
+            baseTemplate: "agent",
+            title,
+            themeId: "aurora",
+            layoutMode: "stacked",
+            requestedCapability: "custom portfolio composed by AI from available blocks",
+            sections: [
+              {
+                type: "summary",
+                data: {
+                  name: title,
+                  title: "AI-composed portfolio",
+                  bio: "A flexible portfolio assembled from reusable blocks.",
+                  summary: "Start with this structure, then customize sections, order, and styling.",
+                  email: user?.email || "",
+                  phone: user?.phone || "",
+                  location: user?.location || "",
+                  profileImage: "",
+                  profileImageKey: "",
+                  resumeUrl: "",
+                  resumeKey: "",
+                },
+              },
+              {
+                type: "projects",
+                data: {
+                  items: [],
+                },
+              },
+              {
+                type: "contact",
+                data: {
+                  email: user?.email || "",
+                  phone: user?.phone || "",
+                  location: user?.location || "",
+                  website: "",
+                },
+              },
+            ],
+          });
+
+          const created = createRes.data?.portfolio;
+          const id = created?._id;
+          if (!id) {
+            throw new Error(createRes.data?.error || "No portfolio returned");
+          }
+
+          try {
+            const response = await axiosAuth.patch("/user/addPortfolioId", {
+              portfolioId: id,
+              portfolioType: "agent",
+              isPublic: false,
+            });
+            if (response.status === 200) {
+              toast.success("AI custom portfolio created and linked to your account");
+            }
+          } catch (linkErr) {
+            console.warn("addPortfolioId:", linkErr);
+            toast.success("AI custom portfolio created");
+          }
+
+          const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
+          await logPortfolioAction("created", {
+            sessionId,
+            userId: user?.id || user?._id || "anonymous",
+            portfolioID: id,
+            portfolioType: "agent",
+            name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.name || null,
+            email: user?.email || null,
+          });
+
+          navigate(`/portfolios/view/${id}/edit`);
+        } catch (error) {
+          console.error("error creating AI custom portfolio: ", error);
+          const msg =
+            error.response?.data?.error ||
+            error.response?.data?.message ||
+            error.message ||
+            "Could not create AI custom portfolio";
+          toast.error(msg);
+        } finally {
+          setCreatingAgentPortfolio(false);
+        }
+        break;
+      }
 
       // case 6: // Cleaning Lady Portfolio
       //   try {
@@ -222,47 +435,45 @@ export default function PortfolioTemplateOptions() {
 
           toast.info("Creating your healthcare practice website...");
 
-          // ✅ Use new API endpoint that integrates with main platform
-          const createResponse = await api.createHealthcarePortfolio();
+          const portfolioTitle =
+            user?.firstName && user?.lastName
+              ? `${user.firstName} ${user.lastName} — Practice`
+              : `Healthcare Portfolio #${currentCount + 1}`;
 
-          console.log("✅ Healthcare portfolio created:", createResponse);
+          const createRes = await portfolioApi.create("healthcare", {
+            title: portfolioTitle,
+            socialLinks: {},
+          });
 
-          const { practiceId, portfolio, subdomain } = createResponse;
+          const created = createRes.data?.portfolio;
+          const practiceId = created?._id;
 
           if (!practiceId) {
-            throw new Error("No practice ID returned from server");
+            throw new Error(createRes.data?.error || "No portfolio returned from server");
           }
 
-          // ✅ Link portfolio to user
           try {
             const portfolioResponse = await axiosAuth.patch("/user/addPortfolioId", {
-              portfolioId: practiceId, // This is the MongoDB _id
+              portfolioId: practiceId,
               portfolioType: "Healthcare",
               isPublic: false,
-              portfolioName: portfolio?.portfolioName || `Healthcare Portfolio #${currentCount + 1}`,
+              portfolioName: portfolioTitle,
             });
 
             if (portfolioResponse.status === 200) {
-              console.log("✅ Healthcare portfolio linked to user successfully");
               toast.success("Healthcare portfolio linked to your account");
             } else {
-              console.warn("⚠️ Unexpected response when linking portfolio:", portfolioResponse.status);
               toast.warning("Portfolio created but linking had issues");
             }
           } catch (linkError) {
-            console.error("❌ Error linking healthcare portfolio to user:", linkError);
+            console.error("Error linking healthcare portfolio to user:", linkError);
             toast.error("Portfolio created but could not link to your account");
           }
 
-          // ✅ Refresh user to get updated portfolios
           await refreshUser();
 
-          const newCount = getHealthcarePortfolioCount();
-          console.log("📊 User now has", newCount, "healthcare portfolio(s)");
+          toast.success("Healthcare portfolio created successfully!");
 
-          toast.success(`Healthcare portfolio created successfully!`);
-
-          // ✅ Log portfolio creation
           try {
             const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
             await logPortfolioAction("created", {
@@ -273,13 +484,11 @@ export default function PortfolioTemplateOptions() {
               name: `${user.firstName} ${user.lastName}`,
               email: user.email,
             });
-            console.log("✅ Portfolio action logged");
           } catch (logError) {
-            console.log("⚠️ Could not log action:", logError);
+            console.log("Could not log action:", logError);
           }
 
-          // ✅ Navigate to admin dashboard
-          navigate(`/portfolios/healthcare/${practiceId}/admin/dashboard`);
+          navigate(`/portfolios/view/${practiceId}/edit`);
           
         } catch (error) {
           console.error("❌ Error creating healthcare portfolio:", error);
@@ -326,10 +535,14 @@ export default function PortfolioTemplateOptions() {
       name: "Handyman / Local Repair Services",
       description: "Demonstrate your skills, previous jobs, and customer testimonials.",
     },
-    // {
-    //   name: "Data Scientist",
-    //   description: "Highlight your data projects, analyses, and machine learning experience.",
-    // },
+    {
+      name: "Data Scientist",
+      description: "Highlight your analysis, modeling, projects, and dashboards in a terminal-inspired layout.",
+    },
+    {
+      name: "AI Custom Portfolio",
+      description: "Start with a block-composed custom portfolio that can evolve into a new layout without adding a new hardcoded template.",
+    },
     // {
     //   name: "Software Engineer",
     //   description: "Display your coding projects, apps, and technical expertise.",
@@ -359,17 +572,31 @@ export default function PortfolioTemplateOptions() {
     { bg: "bg-slate-100 border-slate-300", text: "text-slate-800" },
   ];
 
-  if (creatingVendor || creatingHealthcare) {
+  if (creatingVendor || creatingHealthcare || creatingHandyman || creatingDataScientist || creatingAgentPortfolio) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
         <h2 className="text-lg font-semibold text-slate-700 animate-pulse">
-          {creatingVendor ? "Creating your vendor site..." : "Creating your healthcare practice..."}
+          {creatingVendor
+            ? "Creating your vendor site..."
+            : creatingHandyman
+              ? "Creating your handyman portfolio..."
+              : creatingDataScientist
+                ? "Creating your data science portfolio..."
+                : creatingAgentPortfolio
+                  ? "Creating your AI custom portfolio..."
+                : "Creating your healthcare practice..."}
         </h2>
         <p className="text-slate-500 text-sm mt-2">
           {creatingVendor
             ? "This may take up to a minute as we process your file."
-            : "Setting up your professional healthcare website..."}
+            : creatingHandyman
+              ? "Setting up your services and contact sections..."
+              : creatingDataScientist
+                ? "Setting up sections, charts, and your contact block..."
+                : creatingAgentPortfolio
+                  ? "Setting up reusable blocks, theme tokens, and agent metadata..."
+                : "Setting up your professional healthcare website..."}
         </p>
       </div>
     );

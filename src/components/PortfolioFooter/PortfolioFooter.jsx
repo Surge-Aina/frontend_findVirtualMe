@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Github,
   Twitter,
@@ -20,15 +20,6 @@ const SOCIAL_ICONS = {
   website: Globe,
 };
 
-function handleAnchorClick(e, path) {
-  if (!path.startsWith("#")) return;
-  e.preventDefault();
-  const target = document.querySelector(path);
-  if (target) {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}
-
 export default function PortfolioFooter({
   portfolioType,
   basePath = "",
@@ -37,9 +28,31 @@ export default function PortfolioFooter({
   socialLinks = null,
   className = "",
   variant = "dark",
+  sections,
+  /** "scroll" = scroll to #id on page; "hash" = update URL hash (single-section portfolio views). */
+  siteMapAnchorBehavior = "scroll",
 }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
-  const siteMapLinks = getSiteMapLinks(portfolioType, basePath);
+  const siteMapLinks = getSiteMapLinks(portfolioType, basePath, sections);
+
+  function handleAnchorClick(e, path) {
+    if (!path.startsWith("#")) return;
+    e.preventDefault();
+    if (siteMapAnchorBehavior === "hash") {
+      navigate({
+        pathname: location.pathname,
+        search: location.search,
+        hash: path,
+      });
+      return;
+    }
+    const target = document.querySelector(path);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
   const hasSocialLinks =
     socialLinks &&
     Object.values(socialLinks).some((v) => v && typeof v === "string");

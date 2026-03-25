@@ -63,6 +63,10 @@ import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
 import { set } from "date-fns";
 import { PortfolioProvider } from "./context/PortfolioContext.jsx";
 
+// Unified portfolio (sections/blocks architecture)
+import PortfolioRenderer from "./components/PortfolioRenderer.jsx";
+import PortfolioEditor from "./components/PortfolioEditor.jsx";
+
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {
   const { practiceId } = useParams(); // This is actually the MongoDB _id
@@ -129,7 +133,8 @@ export default function App() {
   const isPortfolioWithOwnFooter =
     location.pathname.startsWith("/portfolios/ProjectManager") ||
     location.pathname.startsWith("/portfolios/handyman") ||
-    location.pathname.startsWith("/portfolios/healthcare/");
+    location.pathname.startsWith("/portfolios/healthcare/") ||
+    location.pathname.startsWith("/portfolios/view/");
 
   const handleGetStarted = () => {
     // Show tip/suggestion for plus button
@@ -161,6 +166,16 @@ export default function App() {
           <Route path="/profile" element={<UserProfile />} />
           {/* example portfolios */}
           <Route path="/portfolios" element={<ExamplePortfolios />} />
+          {/* ============ Unified portfolio route (sections/blocks) ============ */}
+          <Route path="/portfolios/view" element={
+            <PortfolioProvider>
+              <WidgetOverlayWrapper />
+            </PortfolioProvider>
+          }>
+            <Route path=":id" element={<PortfolioRenderer />} />
+            <Route path=":id/edit" element={<PortfolioEditor />} />
+          </Route>
+
           {/* Project manager =======================Widget Overlay========================= */}
           <Route path="/portfolios/ProjectManager" element={
             <PortfolioProvider>
