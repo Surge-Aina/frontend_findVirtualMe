@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useContext } from "react";
+import { useEffect, useState, useCallback, useMemo, useContext, useSyncExternalStore } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { portfolioApi } from "../api/portfolioApi";
 import {
@@ -59,6 +59,26 @@ import { AgentDesignPreview } from "./AgentDesignPreview";
 function clonePortfolio(value) {
   return value ? JSON.parse(JSON.stringify(value)) : null;
 }
+
+const LG_QUERY = "(min-width: 1024px)";
+
+function useMediaQuery(query) {
+  const getSnapshot = () =>
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false;
+  const subscribe = (callback) => {
+    const m = window.matchMedia(query);
+    m.addEventListener("change", callback);
+    return () => m.removeEventListener("change", callback);
+  };
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
+}
+
+const INSPECTOR_TAB_LABELS = {
+  site: "Site",
+  design: "Design",
+  publish: "Publish",
+  ai: "AI",
+};
 
 const AI_EDIT_SHORTCUTS = [
   "Make it more minimal",
@@ -181,6 +201,9 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const [availableBlocks, setAvailableBlocks] = useState([]);
   const [addingSectionType, setAddingSectionType] = useState("");
   const [activeIdx, setActiveIdx] = useState(0);
+  const [inspectorTab, setInspectorTab] = useState("site");
+  const [mobileWorkspace, setMobileWorkspace] = useState("edit");
+  const isLgUp = useMediaQuery(LG_QUERY);
 
   useEffect(() => {
     if (prefetched) {
@@ -225,6 +248,39 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   }, [portfolio?.template]);
 
   const isAgentTemplate = portfolio?.template === "agent";
+
+  const inspectorTabIds = useMemo(() => {
+    if (isAgentTemplate) return ["site", "design", "publish", "ai"];
+    return ["site", "publish"];
+  }, [isAgentTemplate]);
+
+  useEffect(() => {
+    if (!inspectorTabIds.includes(inspectorTab)) {
+      setInspectorTab("site");
+    }
+  }, [inspectorTabIds, inspectorTab]);
+
+  useEffect(() => {
+    if (!isAgentTemplate && (mobileWorkspace === "design" || mobileWorkspace === "ai")) {
+      setMobileWorkspace("edit");
+    }
+  }, [isAgentTemplate, mobileWorkspace]);
+
+  const mobileWorkspaceTabs = useMemo(
+    () => [
+      { id: "edit", label: "Edit" },
+      { id: "sections", label: "Sections" },
+      { id: "site", label: "Site" },
+      ...(isAgentTemplate
+        ? [
+            { id: "design", label: "Design" },
+            { id: "ai", label: "AI" },
+          ]
+        : []),
+      { id: "publish", label: "Publish" },
+    ],
+    [isAgentTemplate]
+  );
 
   useEffect(() => {
     if (!isAgentTemplate || !user?._id) {
@@ -615,66 +671,117 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const saveDisabled = saving || structureBusy || addingSection || remixing || aiLoading;
   const aiProposalDisabled = saveDisabled || (aiUsage?.remaining ?? 1) <= 0;
 
+  const panelVisible = (tabId) =>
+    isLgUp ? inspectorTab === tabId : mobileWorkspace === tabId;
+  const hideLeftRailMobile = !isLgUp && mobileWorkspace !== "sections";
+  const hideMainMobile = !isLgUp && mobileWorkspace !== "edit";
+  const hideInspectorMobile =
+    !isLgUp && (mobileWorkspace === "edit" || mobileWorkspace === "sections");
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button type="button" onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-700">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+          <div className="flex items-start gap-3 min-w-0 w-full lg:flex-1 lg:min-w-0">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="shrink-0 mt-1 text-gray-500 hover:text-gray-700"
+              aria-label="Back"
+            >
               <FaArrowLeft />
             </button>
-            <div>
+            <div className="min-w-0 flex-1 space-y-1">
               <input
-                className="text-lg font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1"
+                className="w-full min-w-0 max-w-full text-base sm:text-lg font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1"
                 value={portfolio.title || ""}
                 onChange={(e) => setPortfolio((p) => ({ ...p, title: e.target.value }))}
                 placeholder="Portfolio title"
               />
-              <span className="text-sm text-gray-500 ml-2 capitalize">{portfolio.template}</span>
-              {isDirty && (
-                <span className="ml-3 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                  Unsaved changes
-                </span>
-              )}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
+                <span className="capitalize">{portfolio.template}</span>
+                {isDirty && (
+                  <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                    Unsaved changes
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto lg:flex-nowrap lg:justify-end shrink-0">
             <Link
               to={`/portfolios/view/${portfolio._id}`}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm sm:text-base"
+              title="Preview"
+              aria-label="Preview portfolio"
             >
-              <FaEye /> Preview
+              <FaEye className="shrink-0" />
+              <span className="hidden sm:inline">Preview</span>
             </Link>
             <button
               type="button"
               onClick={handleRemix}
               disabled={saveDisabled}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 text-sm sm:text-base"
+              title="Remix"
+              aria-label={remixing ? "Remixing" : "Remix portfolio"}
             >
-              <FaClone /> {remixing ? "Remixing..." : "Remix"}
+              <FaClone className="shrink-0" />
+              <span className="hidden sm:inline">{remixing ? "Remixing..." : "Remix"}</span>
             </button>
             <button
               type="button"
               onClick={handleReset}
               disabled={!isDirty || saveDisabled}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 text-sm sm:text-base"
+              title="Reset"
+              aria-label="Reset unsaved changes"
             >
-              <FaUndo /> Reset
+              <FaUndo className="shrink-0" />
+              <span className="hidden sm:inline">Reset</span>
             </button>
             <button
               type="button"
               onClick={handleSave}
               disabled={saveDisabled}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm sm:text-base"
+              title="Save"
+              aria-label={saving ? "Saving" : "Save portfolio"}
             >
-              <FaSave /> {saving ? "Saving..." : "Save"}
+              <FaSave className="shrink-0" />
+              <span>{saving ? "Saving..." : "Save"}</span>
             </button>
+          </div>
+        </div>
+        <div className="lg:hidden border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto">
+            {mobileWorkspaceTabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  setMobileWorkspace(tab.id);
+                  if (["site", "design", "publish", "ai"].includes(tab.id)) {
+                    setInspectorTab(tab.id);
+                  }
+                }}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors ${
+                  mobileWorkspace === tab.id
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
-        <div className="w-64 shrink-0">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
+        <aside
+          className={`w-full shrink-0 space-y-4 lg:w-64 ${hideLeftRailMobile ? "hidden" : ""} lg:block`}
+        >
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-4 border-b border-gray-200">
               <h3 className="font-semibold text-gray-900">Sections</h3>
@@ -767,23 +874,79 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
               <FaPlus /> {addingSection ? "Adding..." : "Add section"}
             </button>
           </div>
+        </aside>
 
-          <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
-            <h3 className="font-semibold text-gray-900 text-sm">Settings</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              <span className="font-medium text-gray-700">Public / private:</span> use the visibility toggle on the
-              Dashboard for this portfolio. It is not changed from this screen.
-            </p>
-            <p className="text-xs font-semibold text-gray-700 pt-2 border-t">Social links</p>
-            <FieldEditor label="GitHub" value={sl.github} onChange={(v) => setSocialLink("github", v)} />
-            <FieldEditor label="LinkedIn" value={sl.linkedin} onChange={(v) => setSocialLink("linkedin", v)} />
-            <FieldEditor label="Twitter" value={sl.twitter} onChange={(v) => setSocialLink("twitter", v)} />
-            <FieldEditor label="Instagram" value={sl.instagram} onChange={(v) => setSocialLink("instagram", v)} />
-            <FieldEditor label="Website" value={sl.website} onChange={(v) => setSocialLink("website", v)} />
+        <main
+          className={`flex-1 min-w-0 ${hideMainMobile ? "hidden" : ""} lg:block`}
+        >
+          {activeSection ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {BLOCK_LABELS[activeSection.type] || activeSection.type}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSection(activeSection._id)}
+                  disabled={saveDisabled}
+                  className="text-red-400 hover:text-red-600 p-2 disabled:opacity-50"
+                  title="Remove section"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+              <SectionEditor
+                section={activeSection}
+                template={portfolio.template}
+                onDataChange={(newData) => handleSectionDataChange(activeSection._id, newData)}
+              />
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center text-gray-500">
+              No sections yet. Add a section to get started.
+            </div>
+          )}
+        </main>
+
+        <aside
+          className={`w-full shrink-0 flex flex-col min-h-0 lg:w-80 xl:w-96 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overflow-x-hidden ${hideInspectorMobile ? "hidden" : ""} lg:flex`}
+        >
+          <div className="hidden lg:flex flex-wrap gap-1.5 border-b border-gray-200 pb-3 mb-4">
+            {inspectorTabIds.map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setInspectorTab(id)}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  inspectorTab === id
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {INSPECTOR_TAB_LABELS[id] || id}
+              </button>
+            ))}
+          </div>
+
+          <div className={panelVisible("site") ? "block" : "hidden"}>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+              <h3 className="font-semibold text-gray-900 text-sm">Settings</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                <span className="font-medium text-gray-700">Public / private:</span> use the visibility toggle on the
+                Dashboard for this portfolio. It is not changed from this screen.
+              </p>
+              <p className="text-xs font-semibold text-gray-700 pt-2 border-t">Social links</p>
+              <FieldEditor label="GitHub" value={sl.github} onChange={(v) => setSocialLink("github", v)} />
+              <FieldEditor label="LinkedIn" value={sl.linkedin} onChange={(v) => setSocialLink("linkedin", v)} />
+              <FieldEditor label="Twitter" value={sl.twitter} onChange={(v) => setSocialLink("twitter", v)} />
+              <FieldEditor label="Instagram" value={sl.instagram} onChange={(v) => setSocialLink("instagram", v)} />
+              <FieldEditor label="Website" value={sl.website} onChange={(v) => setSocialLink("website", v)} />
+            </div>
           </div>
 
           {isAgentTemplate && (
-            <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
+            <div className={panelVisible("design") ? "block" : "hidden"}>
+            <div className="mt-4 lg:mt-0 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
               <h3 className="font-semibold text-gray-900 text-sm">Design</h3>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Theme preset</label>
@@ -930,9 +1093,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 layoutMode={portfolio.layoutMode}
               />
             </div>
+            </div>
           )}
 
-          <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+          <div className={panelVisible("publish") ? "block" : "hidden"}>
+          <div className="mt-4 lg:mt-0 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <h3 className="font-semibold text-gray-900 text-sm">Publish readiness</h3>
               <span
@@ -970,9 +1135,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
               </div>
             )}
           </div>
+          </div>
 
           {isAgentTemplate && (
-            <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
+            <div className={panelVisible("ai") ? "block" : "hidden"}>
+            <div className="mt-4 lg:mt-0 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-gray-900 text-sm">Ask AI</h3>
@@ -1149,38 +1316,9 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 </div>
               )}
             </div>
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          {activeSection ? (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {BLOCK_LABELS[activeSection.type] || activeSection.type}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSection(activeSection._id)}
-                  disabled={saveDisabled}
-                  className="text-red-400 hover:text-red-600 p-2 disabled:opacity-50"
-                  title="Remove section"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-              <SectionEditor
-                section={activeSection}
-                template={portfolio.template}
-                onDataChange={(newData) => handleSectionDataChange(activeSection._id, newData)}
-              />
-            </div>
-          ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center text-gray-500">
-              No sections yet. Add a section to get started.
             </div>
           )}
-        </div>
+        </aside>
       </div>
     </div>
   );
