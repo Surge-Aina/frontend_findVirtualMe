@@ -23,6 +23,7 @@ import QRWidgetSettings from "./QRWidgetSettings";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import PortfolioBranding from "./PortfolioBranding";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function UserProfile() {
   const { handleCardClick } = useHandleCardClick();
@@ -42,6 +43,18 @@ export default function UserProfile() {
   const [newDomain, setNewDomain] = useState("");
   const [addingDomain, setAddingDomain] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Get tab from URL or default to "Profile Information"
   const [currentTab, setCurrentTab] = useState(searchParams.get("tab") || "Profile Information");
@@ -77,6 +90,58 @@ export default function UserProfile() {
       loadDomains();
     }
   }, [currentTab]);
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+  const handlePasswordChange = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    // validation for new password strength
+    if (!passwordRegex.test(passwordForm.newPassword)) {
+      toast.error(
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+      );
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+
+      await axiosAuth.patch("/user/change-password", {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+
+      toast.success("Password updated successfully");
+
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const getPasswordChecks = (password) => ({
+    length: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    special: /[@$!%*?&]/.test(password),
+  });
+  const passwordChecks = getPasswordChecks(passwordForm.newPassword);
 
   // domain management functions
   const loadDomains = async () => {
@@ -135,7 +200,7 @@ export default function UserProfile() {
       //delete from domain collection
       const domainRouterResponse = await axiosAuth.delete(`/domainRouter/${domainId}`);
       console.log("remove domain responses", { userArrayResponse, domainRouterResponse });
-      
+
       setDomains((prev) => prev.filter((domain) => domain._id !== domainId));
       toast.success("Domain removed successfully!");
     } catch (error) {
@@ -521,9 +586,7 @@ export default function UserProfile() {
                       Type: A | Name: @ | Value: 76.76.21.21
                     </div>
                   </div>
-                  <p className="text-blue-700 mt-3">
-                    DNS changes may take up to 24 hours to propagate.
-                  </p>
+                  <p className="text-blue-700 mt-3">DNS changes may take up to 24 hours to propagate.</p>
                 </div>
               </div>
             )}
@@ -534,6 +597,93 @@ export default function UserProfile() {
         <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
           <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
             <QRWidgetSettings />
+          </section>
+        </main>
+      )}
+      {/* Security - password reset */}
+      {currentTab === "Security" && (
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
+          <section className="w-full max-w-3xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Security</h2>
+              <p className="text-gray-600">Update your password</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="relative">
+                <input
+                  type={showPassword.current ? "text" : "password"}
+                  placeholder="Current Password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => ({ ...prev, current: !prev.current }))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              <div>
+                {/* INPUT WRAPPER to ensure display icon and rules are not overlapped */}
+                <div className="relative">
+                  <input
+                    type={showPassword.new ? "text" : "password"}
+                    placeholder="New Password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => ({ ...prev, new: !prev.new }))}
+                    className="absolute right-3 inset-y-0 flex items-center text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+
+                {/* PASSWORD RULES */}
+                <div className="mt-2 space-y-1 text-sm">
+                  <PasswordRule valid={passwordChecks.length} label="At least 8 characters" />
+                  <PasswordRule valid={passwordChecks.upper} label="One uppercase letter" />
+                  <PasswordRule valid={passwordChecks.lower} label="One lowercase letter" />
+                  <PasswordRule valid={passwordChecks.number} label="One number" />
+                  <PasswordRule valid={passwordChecks.special} label="One special character" />
+                </div>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showPassword.confirm ? "text" : "password"}
+                  placeholder="Confirm New Password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => ({ ...prev, confirm: !prev.confirm }))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              <button
+                onClick={handlePasswordChange}
+                disabled={passwordLoading}
+                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+              >
+                {passwordLoading ? "Updating..." : "Update Password"}
+              </button>
+            </div>
           </section>
         </main>
       )}
@@ -667,9 +817,9 @@ function DomainCard({ domain, onRemove, onVerify }) {
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <h4 className="font-medium text-gray-900">
-              <a 
-                href={`https://${domain.domain}`} 
-                target="_blank" 
+              <a
+                href={`https://${domain.domain}`}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-600 hover:underline"
               >
@@ -731,6 +881,15 @@ function DomainCard({ domain, onRemove, onVerify }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function PasswordRule({ valid, label }) {
+  return (
+    <div className={`flex items-center gap-2 ${valid ? "text-green-600" : "text-gray-500"}`}>
+      <span>{valid ? "✔" : "•"}</span>
+      <span>{label}</span>
     </div>
   );
 }
