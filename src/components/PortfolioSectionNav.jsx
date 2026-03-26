@@ -19,6 +19,12 @@ const SECTION_LABELS = {
   process: "Process",
   dashboardChart: "Chart",
   dashboardTable: "Table",
+  faq: "FAQ",
+  clientLogos: "Client Logos",
+  certifications: "Certifications",
+  languages: "Languages",
+  team: "Team",
+  videoEmbed: "Video",
   caseStudy: "Case Study",
 };
 

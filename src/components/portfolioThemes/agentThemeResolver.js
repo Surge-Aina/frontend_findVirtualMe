@@ -118,6 +118,35 @@ const AGENT_THEME_PRESETS = {
   },
 };
 
+/**
+ * Normalizes a CSS color to #rrggbb for <input type="color"> (presets may use rgba).
+ */
+export function themeColorToHexForInput(color) {
+  if (color == null || typeof color !== "string") return "#808080";
+  const s = color.trim();
+  if (s.startsWith("#")) {
+    if (s.length === 7) return s.toLowerCase();
+    if (s.length === 9) return `#${s.slice(1, 7)}`.toLowerCase();
+    if (s.length === 4) {
+      const r = s[1];
+      const g = s[2];
+      const b = s[3];
+      return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+    }
+  }
+  const rgba = s.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgba) {
+    const r = Math.min(255, Math.max(0, parseInt(rgba[1], 10)));
+    const g = Math.min(255, Math.max(0, parseInt(rgba[2], 10)));
+    const b = Math.min(255, Math.max(0, parseInt(rgba[3], 10)));
+    return `#${[r, g, b]
+      .map((x) => x.toString(16).padStart(2, "0"))
+      .join("")
+      .toLowerCase()}`;
+  }
+  return "#808080";
+}
+
 function toCssVars(tokens) {
   return {
     "--agent-page": tokens.page,

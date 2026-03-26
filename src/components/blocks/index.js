@@ -15,6 +15,12 @@ import HoursBlock from "./HoursBlock";
 import SeoBlock from "./SeoBlock";
 import ChartBlock from "./ChartBlock";
 import TableBlock from "./TableBlock";
+import FaqBlock from "./FaqBlock";
+import ClientLogosBlock from "./ClientLogosBlock";
+import CertificationsBlock from "./CertificationsBlock";
+import LanguagesBlock from "./LanguagesBlock";
+import TeamBlock from "./TeamBlock";
+import VideoEmbedBlock from "./VideoEmbedBlock";
 import CaseStudyBlock from "./CaseStudyBlock";
 
 const BLOCK_COMPONENTS = {
@@ -35,6 +41,12 @@ const BLOCK_COMPONENTS = {
   seo: SeoBlock,
   dashboardChart: ChartBlock,
   dashboardTable: TableBlock,
+  faq: FaqBlock,
+  clientLogos: ClientLogosBlock,
+  certifications: CertificationsBlock,
+  languages: LanguagesBlock,
+  team: TeamBlock,
+  videoEmbed: VideoEmbedBlock,
   caseStudy: CaseStudyBlock,
 };
 

@@ -18,6 +18,12 @@ export const BLOCK_LABELS = {
   process: "Process Steps",
   dashboardChart: "Dashboard Chart",
   dashboardTable: "Dashboard Table",
+  faq: "FAQ",
+  clientLogos: "Client Logos",
+  certifications: "Certifications",
+  languages: "Languages",
+  team: "Team",
+  videoEmbed: "Video Embed",
   caseStudy: "Case Study",
 };
 
@@ -185,6 +191,53 @@ export function getDefaultBlockData(type, template = "agent") {
       return {
         tableTitle: "Highlights",
         tableData: [{ name: "Metric", value: 95, percentage: 40, icon: "", link: "", buttonText: "" }],
+      };
+    case "faq":
+      return {
+        sectionTitle: "Frequently asked questions",
+        sectionIntro: "Answer the questions people usually ask before they reach out.",
+        items: [{ question: "What kind of work do you take on?", answer: "Add a concise answer." }],
+      };
+    case "clientLogos":
+      return {
+        sectionTitle: "Trusted by",
+        sectionIntro: "Show the brands, partners, or clients that add credibility.",
+        items: [{ name: "Client name", logoUrl: "", url: "" }],
+      };
+    case "certifications":
+      return {
+        sectionTitle: "Certifications",
+        items: [
+          {
+            name: "Certification name",
+            issuer: "Issuing organization",
+            credentialId: "",
+            earnedDate: "",
+            expiresDate: "",
+            url: "",
+          },
+        ],
+      };
+    case "languages":
+      return {
+        sectionTitle: "Languages",
+        items: [{ name: "English", proficiency: "Native" }],
+      };
+    case "team":
+      return {
+        sectionTitle: "Team",
+        sectionIntro: "Introduce the people behind the work.",
+        items: [{ name: "Team member", role: "Role", bio: "Add a short bio.", imageUrl: "", profileUrl: "" }],
+      };
+    case "videoEmbed":
+      return {
+        sectionTitle: "Featured video",
+        title: "Project reel or introduction",
+        description: "Add a video that helps visitors understand your work quickly.",
+        provider: "",
+        embedUrl: "",
+        videoUrl: "",
+        posterImageUrl: "",
       };
     case "caseStudy":
       return {

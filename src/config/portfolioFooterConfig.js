@@ -47,6 +47,12 @@ const SECTION_TO_LINK = {
   seo: { label: "SEO", path: "#seo" },
   dashboardChart: { label: "Chart", path: "#dashboardChart" },
   dashboardTable: { label: "Table", path: "#dashboardTable" },
+  faq: { label: "FAQ", path: "#faq" },
+  clientLogos: { label: "Client Logos", path: "#clientLogos" },
+  certifications: { label: "Certifications", path: "#certifications" },
+  languages: { label: "Languages", path: "#languages" },
+  team: { label: "Team", path: "#team" },
+  videoEmbed: { label: "Video", path: "#videoEmbed" },
   caseStudy: { label: "Case Study", path: "#caseStudy" },
 };
 

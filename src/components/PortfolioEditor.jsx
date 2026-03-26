@@ -33,12 +33,18 @@ import {
   BlogDataEditor,
   ProcessEditor,
   TestimonialsEditor,
+  FaqEditor,
+  ClientLogosEditor,
+  CertificationsEditor,
+  LanguagesEditor,
+  TeamEditor,
+  VideoEmbedEditor,
   CaseStudyEditor,
 } from "./portfolioSectionEditors";
 import { DashboardChartEditor, DashboardTableEditor } from "./DashboardBlockEditors";
 import axiosAuth from "../utils/axiosAuth";
 import { AuthContext } from "../context/AuthContext";
-import { AGENT_THEME_PRESETS } from "./portfolioThemes/agentThemeResolver";
+import { AGENT_THEME_PRESETS, themeColorToHexForInput } from "./portfolioThemes/agentThemeResolver";
 import {
   AGENT_THEME_OPTIONS,
   BLOCK_LABELS,
@@ -48,6 +54,7 @@ import {
   getReadinessReport,
   toCreateSections,
 } from "./portfolioEditorConfig";
+import { AgentDesignPreview } from "./AgentDesignPreview";
 
 function clonePortfolio(value) {
   return value ? JSON.parse(JSON.stringify(value)) : null;
@@ -124,6 +131,18 @@ function SectionEditor({ section, template, onDataChange }) {
       return <DashboardChartEditor data={data} onChange={onDataChange} />;
     case "dashboardTable":
       return <DashboardTableEditor data={data} onChange={onDataChange} />;
+    case "faq":
+      return <FaqEditor data={data} onChange={onDataChange} />;
+    case "clientLogos":
+      return <ClientLogosEditor data={data} onChange={onDataChange} />;
+    case "certifications":
+      return <CertificationsEditor data={data} onChange={onDataChange} />;
+    case "languages":
+      return <LanguagesEditor data={data} onChange={onDataChange} />;
+    case "team":
+      return <TeamEditor data={data} onChange={onDataChange} />;
+    case "videoEmbed":
+      return <VideoEmbedEditor data={data} onChange={onDataChange} />;
     case "caseStudy":
       return <CaseStudyEditor data={data} onChange={onDataChange} />;
     default:
@@ -240,9 +259,10 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     };
   }, [isAgentTemplate, user?._id, user?.email]);
 
-  const sections = portfolio?.sections
-    ? [...portfolio.sections].sort((a, b) => a.order - b.order)
-    : [];
+  const sections = useMemo(
+    () => (portfolio?.sections ? [...portfolio.sections].sort((a, b) => a.order - b.order) : []),
+    [portfolio?.sections]
+  );
 
   const addableBlocks = useMemo(() => {
     const existingTypes = new Set(sections.map((section) => section.type));
@@ -501,6 +521,8 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       delete nextTokens.text;
       delete nextTokens.accent;
       delete nextTokens.accentStrong;
+      delete nextTokens.panel;
+      delete nextTokens.panelAlt;
       return {
         ...prev,
         themeTokens: nextTokens,
@@ -869,7 +891,44 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                     />
                   </label>
                 </div>
+
+                <div className="pt-2 border-t border-gray-100">
+                  <p className="text-xs font-medium text-gray-700 mb-2">Blocks</p>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Card and section surfaces (overrides the preset until reset).
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="text-sm text-gray-700">
+                      Block
+                      <input
+                        type="color"
+                        value={themeColorToHexForInput(
+                          portfolio.themeTokens?.panel ?? activeThemePreset.panel
+                        )}
+                        onChange={(e) => setThemeToken("panel", e.target.value)}
+                        className="mt-1 h-10 w-full rounded border border-gray-300"
+                      />
+                    </label>
+                    <label className="text-sm text-gray-700">
+                      Block alt
+                      <input
+                        type="color"
+                        value={themeColorToHexForInput(
+                          portfolio.themeTokens?.panelAlt ?? activeThemePreset.panelAlt
+                        )}
+                        onChange={(e) => setThemeToken("panelAlt", e.target.value)}
+                        className="mt-1 h-10 w-full rounded border border-gray-300"
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
+
+              <AgentDesignPreview
+                themeId={portfolio.themeId}
+                themeTokens={portfolio.themeTokens}
+                layoutMode={portfolio.layoutMode}
+              />
             </div>
           )}
 

@@ -592,6 +592,165 @@ export function TestimonialsEditor({ data, onChange }) {
   );
 }
 
+export function FaqEditor({ data, onChange }) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const setItems = (next) => onChange({ ...data, items: next });
+
+  const patch = (i, obj) => {
+    const next = [...items];
+    next[i] = { ...next[i], ...obj };
+    setItems(next);
+  };
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => onChange({ ...data, sectionTitle: v })} />
+      <FieldEditor label="Section intro" value={data.sectionIntro} onChange={(v) => onChange({ ...data, sectionIntro: v })} type="textarea" rows={3} />
+      {items.map((item, i) => (
+        <CardShell title={`Question ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
+          <FieldEditor label="Question" value={item.question} onChange={(v) => patch(i, { question: v })} />
+          <FieldEditor label="Answer" value={item.answer} onChange={(v) => patch(i, { answer: v })} type="textarea" rows={4} />
+        </CardShell>
+      ))}
+      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+        + Add question
+      </button>
+    </div>
+  );
+}
+
+export function ClientLogosEditor({ data, onChange }) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const setItems = (next) => onChange({ ...data, items: next });
+
+  const patch = (i, obj) => {
+    const next = [...items];
+    next[i] = { ...next[i], ...obj };
+    setItems(next);
+  };
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => onChange({ ...data, sectionTitle: v })} />
+      <FieldEditor label="Section intro" value={data.sectionIntro} onChange={(v) => onChange({ ...data, sectionIntro: v })} type="textarea" rows={3} />
+      {items.map((item, i) => (
+        <CardShell title={`Logo ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
+          <FieldEditor label="Name" value={item.name} onChange={(v) => patch(i, { name: v })} />
+          <FieldEditor label="Logo URL" value={item.logoUrl} onChange={(v) => patch(i, { logoUrl: v })} />
+          <FieldEditor label="Link URL" value={item.url} onChange={(v) => patch(i, { url: v })} />
+        </CardShell>
+      ))}
+      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+        + Add logo
+      </button>
+    </div>
+  );
+}
+
+export function CertificationsEditor({ data, onChange }) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const setItems = (next) => onChange({ ...data, items: next });
+
+  const patch = (i, obj) => {
+    const next = [...items];
+    next[i] = { ...next[i], ...obj };
+    setItems(next);
+  };
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => onChange({ ...data, sectionTitle: v })} />
+      {items.map((item, i) => (
+        <CardShell title={`Credential ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
+          <FieldEditor label="Name" value={item.name} onChange={(v) => patch(i, { name: v })} />
+          <FieldEditor label="Issuer" value={item.issuer} onChange={(v) => patch(i, { issuer: v })} />
+          <FieldEditor label="Credential ID" value={item.credentialId} onChange={(v) => patch(i, { credentialId: v })} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FieldEditor label="Earned date" value={item.earnedDate} onChange={(v) => patch(i, { earnedDate: v })} placeholder="YYYY-MM-DD" />
+            <FieldEditor label="Expires date" value={item.expiresDate} onChange={(v) => patch(i, { expiresDate: v })} placeholder="YYYY-MM-DD" />
+          </div>
+          <FieldEditor label="Verification URL" value={item.url} onChange={(v) => patch(i, { url: v })} />
+        </CardShell>
+      ))}
+      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+        + Add credential
+      </button>
+    </div>
+  );
+}
+
+export function LanguagesEditor({ data, onChange }) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const setItems = (next) => onChange({ ...data, items: next });
+
+  const patch = (i, obj) => {
+    const next = [...items];
+    next[i] = { ...next[i], ...obj };
+    setItems(next);
+  };
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => onChange({ ...data, sectionTitle: v })} />
+      {items.map((item, i) => (
+        <CardShell title={`Language ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
+          <FieldEditor label="Language" value={item.name} onChange={(v) => patch(i, { name: v })} />
+          <FieldEditor label="Proficiency" value={item.proficiency} onChange={(v) => patch(i, { proficiency: v })} placeholder="Native, fluent, conversational" />
+        </CardShell>
+      ))}
+      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+        + Add language
+      </button>
+    </div>
+  );
+}
+
+export function TeamEditor({ data, onChange }) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const setItems = (next) => onChange({ ...data, items: next });
+
+  const patch = (i, obj) => {
+    const next = [...items];
+    next[i] = { ...next[i], ...obj };
+    setItems(next);
+  };
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => onChange({ ...data, sectionTitle: v })} />
+      <FieldEditor label="Section intro" value={data.sectionIntro} onChange={(v) => onChange({ ...data, sectionIntro: v })} type="textarea" rows={3} />
+      {items.map((item, i) => (
+        <CardShell title={`Team member ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
+          <FieldEditor label="Name" value={item.name} onChange={(v) => patch(i, { name: v })} />
+          <FieldEditor label="Role" value={item.role} onChange={(v) => patch(i, { role: v })} />
+          <FieldEditor label="Bio" value={item.bio} onChange={(v) => patch(i, { bio: v })} type="textarea" rows={4} />
+          <FieldEditor label="Image URL" value={item.imageUrl} onChange={(v) => patch(i, { imageUrl: v })} />
+          <FieldEditor label="Profile URL" value={item.profileUrl} onChange={(v) => patch(i, { profileUrl: v })} />
+        </CardShell>
+      ))}
+      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+        + Add team member
+      </button>
+    </div>
+  );
+}
+
+export function VideoEmbedEditor({ data, onChange }) {
+  const set = (key, value) => onChange({ ...data, [key]: value });
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => set("sectionTitle", v)} />
+      <FieldEditor label="Title" value={data.title} onChange={(v) => set("title", v)} />
+      <FieldEditor label="Description" value={data.description} onChange={(v) => set("description", v)} type="textarea" rows={3} />
+      <FieldEditor label="Provider" value={data.provider} onChange={(v) => set("provider", v)} placeholder="YouTube, Vimeo, Loom" />
+      <FieldEditor label="Embed URL" value={data.embedUrl} onChange={(v) => set("embedUrl", v)} />
+      <FieldEditor label="Hosted video URL" value={data.videoUrl} onChange={(v) => set("videoUrl", v)} />
+      <FieldEditor label="Poster image URL" value={data.posterImageUrl} onChange={(v) => set("posterImageUrl", v)} />
+    </div>
+  );
+}
+
 export function CaseStudyEditor({ data, onChange }) {
   const set = (key, value) => onChange({ ...data, [key]: value });
 
