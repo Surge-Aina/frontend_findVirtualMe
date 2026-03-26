@@ -24,6 +24,7 @@ export const portfolioApi = {
   create: (template, data = {}) => axiosAuth.post(BASE, { template, ...data }),
   createAgent: (data = {}) => axiosAuth.post(`${BASE}/agent`, data),
   generateAgent: (data = {}) => axiosAuth.post(`${BASE}/agent/generate`, data),
+  proposeAgentEdit: (id, data = {}) => axiosAuth.post(`${BASE}/${id}/agent-edit`, data),
   update: (id, data) => axiosAuth.patch(`${BASE}/${id}`, data),
   updateSection: (id, sectionId, data) =>
     axiosAuth.patch(`${BASE}/${id}/sections/${sectionId}`, { data }),

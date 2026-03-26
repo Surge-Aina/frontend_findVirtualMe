@@ -1,7 +1,22 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, useContext } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { portfolioApi } from "../api/portfolioApi";
-import { FaSave, FaEye, FaArrowLeft, FaTrash, FaGripVertical } from "react-icons/fa";
+import {
+  FaSave,
+  FaEye,
+  FaArrowLeft,
+  FaTrash,
+  FaGripVertical,
+  FaArrowUp,
+  FaArrowDown,
+  FaPlus,
+  FaClone,
+  FaUndo,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaMagic,
+  FaLock,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 import { HeroEditor, ContactEditor, FieldEditor, JsonEditor } from "./PortfolioEditorFields";
 import {
@@ -18,29 +33,51 @@ import {
   BlogDataEditor,
   ProcessEditor,
   TestimonialsEditor,
+  CaseStudyEditor,
 } from "./portfolioSectionEditors";
 import { DashboardChartEditor, DashboardTableEditor } from "./DashboardBlockEditors";
+import axiosAuth from "../utils/axiosAuth";
+import { AuthContext } from "../context/AuthContext";
+import { AGENT_THEME_PRESETS } from "./portfolioThemes/agentThemeResolver";
+import {
+  AGENT_THEME_OPTIONS,
+  BLOCK_LABELS,
+  LAYOUT_MODE_OPTIONS,
+  getAiProposalDiff,
+  getDefaultBlockData,
+  getReadinessReport,
+  toCreateSections,
+} from "./portfolioEditorConfig";
 
-const BLOCK_LABELS = {
-  hero: "Hero",
-  stats: "Statistics",
-  services: "Services",
-  gallery: "Gallery",
-  blog: "Blog",
-  contact: "Contact",
-  hours: "Business Hours",
-  seo: "SEO",
-  summary: "Summary",
-  skills: "Skills",
-  experience: "Experience",
-  education: "Education",
-  projects: "Projects",
-  testimonials: "Testimonials",
-  process: "Process Steps",
-  dashboardChart: "Dashboard Chart",
-  dashboardTable: "Dashboard Table",
-  caseStudy: "Case Study",
-};
+function clonePortfolio(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : null;
+}
+
+const AI_EDIT_SHORTCUTS = [
+  "Make it more minimal",
+  "Make it bolder",
+  "More professional",
+  "More visual",
+  "Switch to single-section",
+];
+
+function toComparablePortfolio(value) {
+  if (!value) return null;
+  return {
+    title: value.title || "",
+    socialLinks: value.socialLinks || {},
+    sections: (value.sections || []).map((section) => ({
+      _id: section._id || "",
+      type: section.type,
+      order: section.order,
+      visible: section.visible !== false,
+      data: section.data || {},
+    })),
+    themeId: value.themeId || "",
+    themeTokens: value.themeTokens || {},
+    layoutMode: value.layoutMode || "",
+  };
+}
 
 function SectionEditor({ section, template, onDataChange }) {
   const { type, data } = section;
@@ -57,7 +94,7 @@ function SectionEditor({ section, template, onDataChange }) {
     case "seo":
       return <SeoEditor data={data} onChange={onDataChange} />;
     case "summary":
-      return template === "projectManager" || template === "dataScientist" ? (
+      return template === "projectManager" || template === "dataScientist" || template === "agent" ? (
         <SummarySectionEditor data={data} onChange={onDataChange} />
       ) : (
         <div>
@@ -104,29 +141,151 @@ function SectionEditor({ section, template, onDataChange }) {
 export default function PortfolioEditor({ portfolioData: prefetched }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, refreshUser } = useContext(AuthContext);
 
   const [portfolio, setPortfolio] = useState(prefetched || null);
+  const [originalPortfolio, setOriginalPortfolio] = useState(
+    prefetched ? clonePortfolio(prefetched) : null
+  );
   const [loading, setLoading] = useState(!prefetched);
   const [saving, setSaving] = useState(false);
+  const [structureBusy, setStructureBusy] = useState(false);
+  const [addingSection, setAddingSection] = useState(false);
+  const [remixing, setRemixing] = useState(false);
+  const [aiAccessLoading, setAiAccessLoading] = useState(false);
+  const [hasAiAccess, setHasAiAccess] = useState(false);
+  const [aiUsage, setAiUsage] = useState(null);
+  const [aiInstruction, setAiInstruction] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiProposal, setAiProposal] = useState(null);
+  const [aiProposalBaseSnapshot, setAiProposalBaseSnapshot] = useState("");
+  const [availableBlocks, setAvailableBlocks] = useState([]);
+  const [addingSectionType, setAddingSectionType] = useState("");
   const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
     if (prefetched) {
       setPortfolio(prefetched);
+      setOriginalPortfolio(clonePortfolio(prefetched));
+      setLoading(false);
       return;
     }
     if (!id) return;
 
     portfolioApi
       .getById(id)
-      .then((res) => setPortfolio(res.data))
+      .then((res) => {
+        setPortfolio(res.data);
+        setOriginalPortfolio(clonePortfolio(res.data));
+      })
       .catch(() => toast.error("Failed to load portfolio"))
       .finally(() => setLoading(false));
   }, [id, prefetched]);
 
+  useEffect(() => {
+    if (!portfolio?.template) return;
+    let cancelled = false;
+
+    portfolioApi
+      .getBlockTypes(
+        portfolio.template,
+        portfolio.template === "agent" ? { mode: "agent" } : {}
+      )
+      .then((res) => {
+        if (!cancelled) {
+          setAvailableBlocks(Array.isArray(res.data) ? res.data : []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableBlocks([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [portfolio?.template]);
+
+  const isAgentTemplate = portfolio?.template === "agent";
+
+  useEffect(() => {
+    if (!isAgentTemplate || !user?._id) {
+      setHasAiAccess(false);
+      setAiUsage(null);
+      setAiAccessLoading(false);
+      return;
+    }
+    let cancelled = false;
+
+    setAiAccessLoading(true);
+    axiosAuth
+      .get("/user/ai-edit-access")
+      .then((res) => {
+        if (!cancelled) {
+          setHasAiAccess(Boolean(res.data?.hasAccess));
+          setAiUsage(res.data?.usage || null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setHasAiAccess(false);
+          setAiUsage(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setAiAccessLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAgentTemplate, user?._id, user?.email]);
+
   const sections = portfolio?.sections
     ? [...portfolio.sections].sort((a, b) => a.order - b.order)
     : [];
+
+  const addableBlocks = useMemo(() => {
+    const existingTypes = new Set(sections.map((section) => section.type));
+    return availableBlocks.filter((block) => !existingTypes.has(block.type));
+  }, [availableBlocks, sections]);
+  const readiness = useMemo(() => getReadinessReport(portfolio), [portfolio]);
+  const isDirty = useMemo(() => {
+    return (
+      JSON.stringify(toComparablePortfolio(portfolio)) !==
+      JSON.stringify(toComparablePortfolio(originalPortfolio))
+    );
+  }, [portfolio, originalPortfolio]);
+  const portfolioSnapshot = useMemo(
+    () => JSON.stringify(toComparablePortfolio(portfolio)),
+    [portfolio]
+  );
+  const aiProposalDiff = useMemo(() => {
+    if (!aiProposal?.proposal || !portfolio) return [];
+    return getAiProposalDiff(portfolio, aiProposal.proposal);
+  }, [aiProposal, portfolio]);
+
+  useEffect(() => {
+    if (activeIdx > Math.max(0, sections.length - 1)) {
+      setActiveIdx(Math.max(0, sections.length - 1));
+    }
+  }, [activeIdx, sections.length]);
+
+  useEffect(() => {
+    if (aiProposal && aiProposalBaseSnapshot && portfolioSnapshot !== aiProposalBaseSnapshot) {
+      setAiProposal(null);
+      setAiProposalBaseSnapshot("");
+    }
+  }, [aiProposal, aiProposalBaseSnapshot, portfolioSnapshot]);
+
+  useEffect(() => {
+    if (!addableBlocks.length) {
+      setAddingSectionType("");
+      return;
+    }
+    if (!addableBlocks.some((block) => block.type === addingSectionType)) {
+      setAddingSectionType(addableBlocks[0].type);
+    }
+  }, [addableBlocks, addingSectionType]);
 
   const handleSectionDataChange = useCallback((sectionId, newData) => {
     setPortfolio((prev) => ({
@@ -149,16 +308,46 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     }));
   };
 
-  const handleSave = async () => {
+  const persistPortfolio = useCallback(async (current, options = {}) => {
+    if (!current?._id) return null;
+    const { showToast = true } = options;
+
+    const response = await portfolioApi.update(current._id, {
+      title: current.title,
+      socialLinks: current.socialLinks,
+      sections: current.sections,
+      themeId: current.themeId,
+      themeTokens: current.themeTokens,
+      layoutMode: current.layoutMode,
+    });
+
+    const nextPortfolio = response.data?.portfolio || current;
+    setPortfolio(nextPortfolio);
+    setOriginalPortfolio(clonePortfolio(nextPortfolio));
+    if (showToast) {
+      toast.success("Portfolio saved");
+    }
+    return nextPortfolio;
+  }, []);
+
+  const saveCurrentChangesIfNeeded = useCallback(async () => {
+    if (!portfolio || !isDirty) return portfolio;
     setSaving(true);
     try {
-      await portfolioApi.update(portfolio._id, {
-        title: portfolio.title,
-        slug: portfolio.slug,
-        socialLinks: portfolio.socialLinks,
-        sections: portfolio.sections,
-      });
-      toast.success("Portfolio saved");
+      return await persistPortfolio(portfolio, { showToast: false });
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Save failed before applying that change");
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  }, [isDirty, persistPortfolio, portfolio]);
+
+  const handleSave = async () => {
+    if (!portfolio) return;
+    setSaving(true);
+    try {
+      await persistPortfolio(portfolio);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to save");
     } finally {
@@ -167,14 +356,217 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   };
 
   const handleRemoveSection = async (sectionId) => {
-    if (!confirm("Remove this section?")) return;
+    if (!window.confirm("Remove this section?")) return;
     try {
+      setStructureBusy(true);
+      await saveCurrentChangesIfNeeded();
       const res = await portfolioApi.removeSection(portfolio._id, sectionId);
       setPortfolio(res.data.portfolio);
+      setOriginalPortfolio(clonePortfolio(res.data.portfolio));
       if (activeIdx >= sections.length - 1) setActiveIdx(Math.max(0, activeIdx - 1));
       toast.success("Section removed");
-    } catch {
-      toast.error("Failed to remove section");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to remove section");
+    } finally {
+      setStructureBusy(false);
+    }
+  };
+
+  const handleMoveSection = async (index, direction) => {
+    if (!portfolio?._id) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= sections.length) return;
+
+    const orderedIds = [...sections].map((section) => section._id).filter(Boolean);
+    if (orderedIds.length !== sections.length) {
+      toast.error("This portfolio cannot be reordered yet.");
+      return;
+    }
+
+    const nextIds = [...orderedIds];
+    [nextIds[index], nextIds[targetIndex]] = [nextIds[targetIndex], nextIds[index]];
+
+    try {
+      setStructureBusy(true);
+      await saveCurrentChangesIfNeeded();
+      const res = await portfolioApi.reorderSections(portfolio._id, nextIds);
+      setPortfolio(res.data.portfolio);
+      setOriginalPortfolio(clonePortfolio(res.data.portfolio));
+      setActiveIdx(targetIndex);
+      toast.success("Section order updated");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to reorder sections");
+    } finally {
+      setStructureBusy(false);
+    }
+  };
+
+  const handleAddSection = async () => {
+    if (!portfolio?._id || !addingSectionType) return;
+
+    try {
+      setAddingSection(true);
+      await saveCurrentChangesIfNeeded();
+      const res = await portfolioApi.addSection(
+        portfolio._id,
+        addingSectionType,
+        getDefaultBlockData(addingSectionType, portfolio.template),
+        sections.length
+      );
+      const nextPortfolio = res.data.portfolio;
+      const nextSections = [...(nextPortfolio.sections || [])].sort(
+        (a, b) => a.order - b.order
+      );
+      setPortfolio(nextPortfolio);
+      setOriginalPortfolio(clonePortfolio(nextPortfolio));
+      setActiveIdx(Math.max(0, nextSections.length - 1));
+      toast.success(`${BLOCK_LABELS[addingSectionType] || addingSectionType} added`);
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to add section");
+    } finally {
+      setAddingSection(false);
+    }
+  };
+
+  const handleReset = () => {
+    if (!originalPortfolio || !isDirty) return;
+    if (!window.confirm("Discard your unsaved changes and restore the last saved version?")) {
+      return;
+    }
+    setPortfolio(clonePortfolio(originalPortfolio));
+    setAiProposal(null);
+    setAiProposalBaseSnapshot("");
+    toast.info("Unsaved changes were discarded");
+  };
+
+  const handleRemix = async () => {
+    if (!portfolio) return;
+
+    setRemixing(true);
+    try {
+      const source = await saveCurrentChangesIfNeeded();
+      const current = source || portfolio;
+      const baseTitle = (current.title || "Portfolio").trim();
+      const response = await portfolioApi.create(current.template, {
+        title: `${baseTitle} Remix`,
+        visibility: "private",
+        socialLinks: current.socialLinks || {},
+        sections: toCreateSections(current.sections),
+        themeId: current.themeId,
+        themeTokens: current.themeTokens || {},
+        layoutMode: current.layoutMode,
+      });
+
+      const created = response.data?.portfolio;
+      const createdId = created?._id;
+      if (!createdId) {
+        throw new Error("No remixed portfolio was returned");
+      }
+
+      try {
+        await axiosAuth.patch("/user/addPortfolioId", {
+          portfolioId: createdId,
+          portfolioType: current.template,
+          isPublic: false,
+          portfolioName: created.title || `${baseTitle} Remix`,
+        });
+      } catch (linkErr) {
+        console.warn("addPortfolioId:", linkErr);
+      }
+
+      await refreshUser?.();
+      toast.success("Remix created");
+      navigate(`/portfolios/view/${createdId}/edit`);
+    } catch (err) {
+      toast.error(err.response?.data?.error || err.message || "Failed to remix portfolio");
+    } finally {
+      setRemixing(false);
+    }
+  };
+
+  const setThemeToken = (key, value) => {
+    setPortfolio((prev) => ({
+      ...prev,
+      themeTokens: {
+        ...(prev.themeTokens || {}),
+        [key]: value,
+      },
+    }));
+  };
+
+  const clearThemeOverrides = () => {
+    setPortfolio((prev) => {
+      const nextTokens = { ...(prev.themeTokens || {}) };
+      delete nextTokens.page;
+      delete nextTokens.text;
+      delete nextTokens.accent;
+      delete nextTokens.accentStrong;
+      return {
+        ...prev,
+        themeTokens: nextTokens,
+      };
+    });
+  };
+
+  const handleGenerateAiProposal = async (nextInstruction = aiInstruction) => {
+    const instruction = String(nextInstruction || "").trim();
+    if (!instruction || !portfolio?._id) {
+      toast.error("Enter an AI edit request first");
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const currentSnapshot = JSON.stringify(toComparablePortfolio(portfolio));
+      const res = await portfolioApi.proposeAgentEdit(portfolio._id, {
+        instruction,
+        currentDraft: toComparablePortfolio(portfolio),
+      });
+      setAiInstruction(instruction);
+      setAiProposal(res.data);
+      setAiUsage(res.data?.usage || aiUsage);
+      setAiProposalBaseSnapshot(currentSnapshot);
+      toast.success("AI edit proposal ready");
+    } catch (err) {
+      const code = err.response?.data?.code;
+      if (code === "PREMIUM_REQUIRED") {
+        setHasAiAccess(false);
+      }
+      if (err.response?.data?.usage) {
+        setAiUsage(err.response.data.usage);
+      }
+      toast.error(
+        err.response?.data?.error || err.response?.data?.message || "Failed to generate AI edit proposal"
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyAiProposal = async () => {
+    const proposed = aiProposal?.proposal;
+    if (!proposed || !portfolio) return;
+
+    setSaving(true);
+    try {
+      setAiProposal(null);
+      setAiProposalBaseSnapshot("");
+      const nextPortfolio = {
+        ...portfolio,
+        title: proposed.title,
+        socialLinks: proposed.socialLinks,
+        sections: proposed.sections,
+        themeId: proposed.themeId,
+        themeTokens: proposed.themeTokens,
+        layoutMode: proposed.layoutMode,
+      };
+      await persistPortfolio(nextPortfolio);
+      setActiveIdx(0);
+      toast.success("AI edits applied");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to apply AI edits");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -196,6 +588,10 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
   const activeSection = sections[activeIdx];
   const sl = portfolio.socialLinks || {};
+  const activeThemePreset =
+    AGENT_THEME_PRESETS[portfolio.themeId] || AGENT_THEME_PRESETS.aurora;
+  const saveDisabled = saving || structureBusy || addingSection || remixing || aiLoading;
+  const aiProposalDisabled = saveDisabled || (aiUsage?.remaining ?? 1) <= 0;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -213,6 +609,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 placeholder="Portfolio title"
               />
               <span className="text-sm text-gray-500 ml-2 capitalize">{portfolio.template}</span>
+              {isDirty && (
+                <span className="ml-3 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                  Unsaved changes
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -224,8 +625,24 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
             </Link>
             <button
               type="button"
+              onClick={handleRemix}
+              disabled={saveDisabled}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <FaClone /> {remixing ? "Remixing..." : "Remix"}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={!isDirty || saveDisabled}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <FaUndo /> Reset
+            </button>
+            <button
+              type="button"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saveDisabled}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               <FaSave /> {saving ? "Saving..." : "Save"}
@@ -248,6 +665,26 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                     activeIdx === idx ? "bg-blue-50 border-blue-100" : "hover:bg-gray-50"
                   }`}
                 >
+                    <div className="flex flex-col justify-center px-1.5 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveSection(idx, -1)}
+                        disabled={idx === 0 || saveDisabled}
+                        className="text-gray-400 hover:text-gray-700 disabled:opacity-30"
+                        title="Move up"
+                      >
+                        <FaArrowUp className="text-xs" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveSection(idx, 1)}
+                        disabled={idx === sections.length - 1 || saveDisabled}
+                        className="text-gray-400 hover:text-gray-700 disabled:opacity-30"
+                        title="Move down"
+                      >
+                        <FaArrowDown className="text-xs" />
+                      </button>
+                    </div>
                   <button
                     type="button"
                     onClick={() => setActiveIdx(idx)}
@@ -279,18 +716,39 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
           </div>
 
           <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
-            <h3 className="font-semibold text-gray-900 text-sm">Settings</h3>
-            <FieldEditor
-              label="Slug (optional)"
-              value={portfolio.slug || ""}
-              onChange={(v) => setPortfolio((p) => ({ ...p, slug: v }))}
-            />
+            <h3 className="font-semibold text-gray-900 text-sm">Structure</h3>
             <p className="text-xs text-gray-500 leading-relaxed">
-              If set, unique across portfolios. Used by the API at{" "}
-              <code className="text-[11px] bg-gray-100 px-1 rounded">/api/portfolios/slug/your-slug</code>. The in-app
-              preview link uses your portfolio ID, not the slug.
+              Add a supported block type. Existing section types are hidden from the list to keep navigation predictable.
             </p>
-            <p className="text-xs text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
+            <select
+              value={addingSectionType}
+              onChange={(e) => setAddingSectionType(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              disabled={!addableBlocks.length || saveDisabled}
+            >
+              {addableBlocks.length === 0 ? (
+                <option value="">All supported blocks are already in use</option>
+              ) : (
+                addableBlocks.map((block) => (
+                  <option key={block.type} value={block.type}>
+                    {block.label || BLOCK_LABELS[block.type] || block.type}
+                  </option>
+                ))
+              )}
+            </select>
+            <button
+              type="button"
+              onClick={handleAddSection}
+              disabled={!addingSectionType || !addableBlocks.length || saveDisabled}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50"
+            >
+              <FaPlus /> {addingSection ? "Adding..." : "Add section"}
+            </button>
+          </div>
+
+          <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+            <h3 className="font-semibold text-gray-900 text-sm">Settings</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">
               <span className="font-medium text-gray-700">Public / private:</span> use the visibility toggle on the
               Dashboard for this portfolio. It is not changed from this screen.
             </p>
@@ -301,6 +759,338 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
             <FieldEditor label="Instagram" value={sl.instagram} onChange={(v) => setSocialLink("instagram", v)} />
             <FieldEditor label="Website" value={sl.website} onChange={(v) => setSocialLink("website", v)} />
           </div>
+
+          {isAgentTemplate && (
+            <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
+              <h3 className="font-semibold text-gray-900 text-sm">Design</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Theme preset</label>
+                <select
+                  value={portfolio.themeId || "aurora"}
+                  onChange={(e) =>
+                    setPortfolio((prev) => ({
+                      ...prev,
+                      themeId: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                >
+                  {AGENT_THEME_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Layout mode</label>
+                <div className="space-y-2">
+                  {LAYOUT_MODE_OPTIONS.map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-start gap-3 rounded-lg border px-3 py-3 cursor-pointer ${
+                        (portfolio.layoutMode || "stacked") === option.value
+                          ? "border-blue-300 bg-blue-50"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="layoutMode"
+                        checked={(portfolio.layoutMode || "stacked") === option.value}
+                        onChange={() =>
+                          setPortfolio((prev) => ({
+                            ...prev,
+                            layoutMode: option.value,
+                          }))
+                        }
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-medium text-gray-800">{option.label}</span>
+                        <span className="block text-xs text-gray-500">{option.description}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 pt-4 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">Custom colors</p>
+                    <p className="text-xs text-gray-500">
+                      These values override the current preset until you reset them.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearThemeOverrides}
+                    className="text-xs text-blue-600 hover:text-blue-800"
+                  >
+                    Reset colors
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-sm text-gray-700">
+                    Page
+                    <input
+                      type="color"
+                      value={portfolio.themeTokens?.page || activeThemePreset.page}
+                      onChange={(e) => setThemeToken("page", e.target.value)}
+                      className="mt-1 h-10 w-full rounded border border-gray-300"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-700">
+                    Text
+                    <input
+                      type="color"
+                      value={portfolio.themeTokens?.text || activeThemePreset.text}
+                      onChange={(e) => setThemeToken("text", e.target.value)}
+                      className="mt-1 h-10 w-full rounded border border-gray-300"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-700">
+                    Accent
+                    <input
+                      type="color"
+                      value={portfolio.themeTokens?.accent || activeThemePreset.accent}
+                      onChange={(e) => setThemeToken("accent", e.target.value)}
+                      className="mt-1 h-10 w-full rounded border border-gray-300"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-700">
+                    Accent strong
+                    <input
+                      type="color"
+                      value={portfolio.themeTokens?.accentStrong || activeThemePreset.accentStrong}
+                      onChange={(e) => setThemeToken("accentStrong", e.target.value)}
+                      className="mt-1 h-10 w-full rounded border border-gray-300"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-semibold text-gray-900 text-sm">Publish readiness</h3>
+              <span
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  readiness.score >= 85
+                    ? "bg-emerald-100 text-emerald-800"
+                    : readiness.score >= 60
+                      ? "bg-amber-100 text-amber-800"
+                      : "bg-red-100 text-red-800"
+                }`}
+              >
+                Score {readiness.score}
+              </span>
+            </div>
+            {readiness.issues.length > 0 ? (
+              <div className="space-y-2">
+                {readiness.issues.map((issue) => (
+                  <div key={issue} className="flex items-start gap-2 text-sm text-amber-900">
+                    <FaExclamationTriangle className="mt-0.5 shrink-0 text-amber-500" />
+                    <span>{issue}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-emerald-700">No major readiness issues found.</p>
+            )}
+            {readiness.positives.length > 0 && (
+              <div className="pt-2 border-t border-gray-100 space-y-2">
+                {readiness.positives.slice(0, 3).map((positive) => (
+                  <div key={positive} className="flex items-start gap-2 text-sm text-emerald-800">
+                    <FaCheckCircle className="mt-0.5 shrink-0 text-emerald-500" />
+                    <span>{positive}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {isAgentTemplate && (
+            <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm">Ask AI</h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Generates a proposal from your current portfolio so you can review before applying.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                  <FaMagic className="text-[10px]" /> Premium
+                </span>
+              </div>
+
+              {aiAccessLoading ? (
+                <p className="text-sm text-gray-500">Checking subscription access...</p>
+              ) : hasAiAccess ? (
+                <>
+                  {aiUsage && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <p className="text-sm text-slate-800">
+                        <span className="font-semibold">{aiUsage.remaining}</span> AI edit
+                        {aiUsage.remaining === 1 ? "" : "s"} remaining this month
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Used {aiUsage.used} of {aiUsage.limit} monthly proposals.
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {AI_EDIT_SHORTCUTS.map((shortcut) => (
+                      <button
+                        key={shortcut}
+                        type="button"
+                        onClick={() => handleGenerateAiProposal(shortcut)}
+                        disabled={aiProposalDisabled}
+                        className="rounded-full border border-gray-300 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {shortcut}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Edit instruction
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={aiInstruction}
+                      onChange={(e) => setAiInstruction(e.target.value)}
+                      placeholder='Example: Make this feel more minimal, switch to single-section, and replace any overly salesy copy with a more polished tone.'
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateAiProposal()}
+                      disabled={aiProposalDisabled}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-white hover:bg-violet-700 disabled:opacity-50"
+                    >
+                      <FaMagic /> {aiLoading ? "Generating proposal..." : "Generate AI proposal"}
+                    </button>
+                    {(aiUsage?.remaining ?? 1) <= 0 && (
+                      <p className="text-xs text-amber-700">
+                        You have used all AI edit proposals for this month.
+                      </p>
+                    )}
+                  </div>
+
+                  {aiProposal?.changes && (
+                    <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h4 className="text-sm font-semibold text-violet-950">Proposal preview</h4>
+                          <p className="text-xs text-violet-700">
+                            Source: {aiProposal.source === "openai" ? "AI" : "Fallback composer"}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleApplyAiProposal}
+                          disabled={saveDisabled}
+                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-700 disabled:opacity-50"
+                        >
+                          <FaCheckCircle /> Apply
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {aiProposal.changes.summary.map((item) => (
+                          <div key={item} className="text-sm text-violet-900">
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="rounded-lg bg-white p-3 border border-violet-100">
+                          <p className="font-semibold text-gray-800">Theme</p>
+                          <p className="text-gray-600">
+                            {portfolio.themeId || "aurora"} {"->"} {aiProposal.proposal.themeId}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-white p-3 border border-violet-100">
+                          <p className="font-semibold text-gray-800">Layout</p>
+                          <p className="text-gray-600">
+                            {portfolio.layoutMode || "stacked"} {"->"} {aiProposal.proposal.layoutMode}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-white p-3 border border-violet-100">
+                          <p className="font-semibold text-gray-800">Visible sections now</p>
+                          <p className="text-gray-600">{sections.filter((section) => section.visible !== false).length}</p>
+                        </div>
+                        <div className="rounded-lg bg-white p-3 border border-violet-100">
+                          <p className="font-semibold text-gray-800">Visible sections proposed</p>
+                          <p className="text-gray-600">
+                            {(aiProposal.proposal.sections || []).filter((section) => section.visible !== false).length}
+                          </p>
+                        </div>
+                      </div>
+
+                      {aiProposalDiff.length > 0 && (
+                        <div className="space-y-3 pt-2 border-t border-violet-100">
+                          <p className="text-sm font-semibold text-violet-950">
+                            Section-by-section diff
+                          </p>
+                          {aiProposalDiff.map((item) => (
+                            <div
+                              key={`${item.type}-${item.status}`}
+                              className="rounded-lg border border-violet-100 bg-white p-3"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-sm font-semibold text-gray-900">{item.label}</p>
+                                <span
+                                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                                    item.status === "added"
+                                      ? "bg-emerald-100 text-emerald-800"
+                                      : item.status === "removed"
+                                        ? "bg-red-100 text-red-800"
+                                        : "bg-amber-100 text-amber-800"
+                                  }`}
+                                >
+                                  {item.status}
+                                </span>
+                              </div>
+                              <div className="mt-3 grid gap-3 md:grid-cols-2 text-xs">
+                                <div>
+                                  <p className="font-semibold text-gray-700">Before</p>
+                                  <p className="mt-1 text-gray-600">{item.beforePreview}</p>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-700">After</p>
+                                  <p className="mt-1 text-gray-600">{item.afterPreview}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <FaLock className="mt-0.5 text-amber-600" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-900">
+                        AI editing is reserved for paid subscriptions
+                      </p>
+                      <p className="text-sm text-amber-800 mt-1">
+                        Manual editing stays available to everyone. Upgrade if you want natural-language portfolio revisions with proposal previews.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -313,7 +1103,8 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 <button
                   type="button"
                   onClick={() => handleRemoveSection(activeSection._id)}
-                  className="text-red-400 hover:text-red-600 p-2"
+                  disabled={saveDisabled}
+                  className="text-red-400 hover:text-red-600 p-2 disabled:opacity-50"
                   title="Remove section"
                 >
                   <FaTrash />
