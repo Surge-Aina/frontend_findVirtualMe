@@ -170,8 +170,8 @@ export default function PortfolioBranding() {
 
 function PortfolioBrandingRow({ portfolio, hideBranding, onToggle, updating }) {
   return (
-    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-      <div>
+    <div className="flex items-center justify-between gap-4 p-4 border border-gray-200 rounded-lg">
+      <div className="min-w-0 flex-1">
         <h4 className="text-sm font-medium text-gray-900">
           {portfolio.portfolioType} – {String(portfolio.portfolioId).slice(-8)}
         </h4>
@@ -183,14 +183,21 @@ function PortfolioBrandingRow({ portfolio, hideBranding, onToggle, updating }) {
         type="button"
         onClick={onToggle}
         disabled={updating}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+        style={{
+          width: "52px",
+          minWidth: "52px",
+          height: "24px",
+          minHeight: "24px",
+          maxHeight: "24px",
+        }}
+        className={`relative inline-flex shrink-0 flex-none items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
           hideBranding ? "bg-blue-600" : "bg-gray-200"
         }`}
       >
         <span className="sr-only">Toggle branding</span>
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-            hideBranding ? "translate-x-6" : "translate-x-1"
+          className={`absolute left-1 top-1/2 h-4 w-4 -translate-y-1/2 transform rounded-full bg-white shadow transition-transform ${
+            hideBranding ? "translate-x-7" : "translate-x-0"
           }`}
         />
       </button>
