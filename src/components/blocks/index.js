@@ -15,6 +15,7 @@ import HoursBlock from "./HoursBlock";
 import SeoBlock from "./SeoBlock";
 import ChartBlock from "./ChartBlock";
 import TableBlock from "./TableBlock";
+import CaseStudyBlock from "./CaseStudyBlock";
 
 const BLOCK_COMPONENTS = {
   hero: HeroBlock,
@@ -34,6 +35,7 @@ const BLOCK_COMPONENTS = {
   seo: SeoBlock,
   dashboardChart: ChartBlock,
   dashboardTable: TableBlock,
+  caseStudy: CaseStudyBlock,
 };
 
 export default BLOCK_COMPONENTS;

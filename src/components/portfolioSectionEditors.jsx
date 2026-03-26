@@ -591,3 +591,50 @@ export function TestimonialsEditor({ data, onChange }) {
     </div>
   );
 }
+
+export function CaseStudyEditor({ data, onChange }) {
+  const set = (key, value) => onChange({ ...data, [key]: value });
+
+  const metrics = Array.isArray(data.metrics) ? data.metrics.join("\n") : "";
+  const tools = Array.isArray(data.tools) ? data.tools.join("\n") : "";
+
+  return (
+    <div className="space-y-4">
+      <FieldEditor label="Title" value={data.title} onChange={(v) => set("title", v)} />
+      <FieldEditor label="Client" value={data.client} onChange={(v) => set("client", v)} />
+      <FieldEditor label="Industry" value={data.industry} onChange={(v) => set("industry", v)} />
+      <FieldEditor label="Challenge" value={data.challenge} onChange={(v) => set("challenge", v)} type="textarea" rows={3} />
+      <FieldEditor label="Solution" value={data.solution} onChange={(v) => set("solution", v)} type="textarea" rows={3} />
+      <FieldEditor label="Outcome" value={data.outcome} onChange={(v) => set("outcome", v)} type="textarea" rows={3} />
+      <FieldEditor label="Link URL" value={data.link} onChange={(v) => set("link", v)} />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Metrics (one per line)</label>
+        <textarea
+          rows={4}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          value={metrics}
+          onChange={(e) =>
+            set(
+              "metrics",
+              e.target.value.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)
+            )
+          }
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Tools (one per line)</label>
+        <textarea
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          value={tools}
+          onChange={(e) =>
+            set(
+              "tools",
+              e.target.value.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)
+            )
+          }
+        />
+      </div>
+    </div>
+  );
+}

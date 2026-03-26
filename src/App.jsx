@@ -56,12 +56,11 @@ import HealthcareSearch from "./pages/portfolios/healthcare/pages/SearchResults.
 import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
 import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import axios from "axios";
-import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
-import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
 import { set } from "date-fns";
 import { PortfolioProvider } from "./context/PortfolioContext.jsx";
+import AiPortfolioCreatorPage from "./pages/portfolios/AiPortfolioCreatorPage.jsx";
 
 // Unified portfolio (sections/blocks architecture)
 import PortfolioRenderer from "./components/PortfolioRenderer.jsx";
@@ -166,6 +165,7 @@ export default function App() {
           <Route path="/profile" element={<UserProfile />} />
           {/* example portfolios */}
           <Route path="/portfolios" element={<ExamplePortfolios />} />
+          <Route path="/portfolios/create/ai" element={<AiPortfolioCreatorPage />} />
           {/* ============ Unified portfolio route (sections/blocks) ============ */}
           <Route path="/portfolios/view" element={
             <PortfolioProvider>
@@ -352,7 +352,6 @@ export default function App() {
             />
           </Route>
           
-          <Route path="/editor/*" element={<OnlineEditor />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-signup" element={<VisitorSignup />} />

@@ -281,91 +281,14 @@ export default function PortfolioTemplateOptions() {
             navigate("/login");
             return;
           }
-
-          const title =
-            user?.firstName && user?.lastName
-              ? `${user.firstName} ${user.lastName} — AI Custom Portfolio`
-              : user?.name || "My AI custom portfolio";
-
-          const createRes = await portfolioApi.createAgent({
-            baseTemplate: "agent",
-            title,
-            themeId: "aurora",
-            layoutMode: "stacked",
-            requestedCapability: "custom portfolio composed by AI from available blocks",
-            sections: [
-              {
-                type: "summary",
-                data: {
-                  name: title,
-                  title: "AI-composed portfolio",
-                  bio: "A flexible portfolio assembled from reusable blocks.",
-                  summary: "Start with this structure, then customize sections, order, and styling.",
-                  email: user?.email || "",
-                  phone: user?.phone || "",
-                  location: user?.location || "",
-                  profileImage: "",
-                  profileImageKey: "",
-                  resumeUrl: "",
-                  resumeKey: "",
-                },
-              },
-              {
-                type: "projects",
-                data: {
-                  items: [],
-                },
-              },
-              {
-                type: "contact",
-                data: {
-                  email: user?.email || "",
-                  phone: user?.phone || "",
-                  location: user?.location || "",
-                  website: "",
-                },
-              },
-            ],
-          });
-
-          const created = createRes.data?.portfolio;
-          const id = created?._id;
-          if (!id) {
-            throw new Error(createRes.data?.error || "No portfolio returned");
-          }
-
-          try {
-            const response = await axiosAuth.patch("/user/addPortfolioId", {
-              portfolioId: id,
-              portfolioType: "agent",
-              isPublic: false,
-            });
-            if (response.status === 200) {
-              toast.success("AI custom portfolio created and linked to your account");
-            }
-          } catch (linkErr) {
-            console.warn("addPortfolioId:", linkErr);
-            toast.success("AI custom portfolio created");
-          }
-
-          const sessionId = localStorage.getItem("onboardingSessionId") || `session_${Date.now()}`;
-          await logPortfolioAction("created", {
-            sessionId,
-            userId: user?.id || user?._id || "anonymous",
-            portfolioID: id,
-            portfolioType: "agent",
-            name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.name || null,
-            email: user?.email || null,
-          });
-
-          navigate(`/portfolios/view/${id}/edit`);
+          navigate("/portfolios/create/ai", { state: { source: "onboarding" } });
         } catch (error) {
-          console.error("error creating AI custom portfolio: ", error);
+          console.error("error opening AI portfolio creator: ", error);
           const msg =
             error.response?.data?.error ||
             error.response?.data?.message ||
             error.message ||
-            "Could not create AI custom portfolio";
+            "Could not open AI portfolio creator";
           toast.error(msg);
         } finally {
           setCreatingAgentPortfolio(false);
@@ -540,8 +463,8 @@ export default function PortfolioTemplateOptions() {
       description: "Highlight your analysis, modeling, projects, and dashboards in a terminal-inspired layout.",
     },
     {
-      name: "AI Custom Portfolio",
-      description: "Start with a block-composed custom portfolio that can evolve into a new layout without adding a new hardcoded template.",
+      name: "AI Portfolio Creator",
+      description: "Describe the portfolio you want and generate an editable block-based portfolio from your prompt.",
     },
     // {
     //   name: "Software Engineer",
@@ -584,7 +507,7 @@ export default function PortfolioTemplateOptions() {
               : creatingDataScientist
                 ? "Creating your data science portfolio..."
                 : creatingAgentPortfolio
-                  ? "Creating your AI custom portfolio..."
+                  ? "Opening AI portfolio creator..."
                 : "Creating your healthcare practice..."}
         </h2>
         <p className="text-slate-500 text-sm mt-2">
@@ -595,7 +518,7 @@ export default function PortfolioTemplateOptions() {
               : creatingDataScientist
                 ? "Setting up sections, charts, and your contact block..."
                 : creatingAgentPortfolio
-                  ? "Setting up reusable blocks, theme tokens, and agent metadata..."
+                  ? "Getting your prompt-based creator ready..."
                 : "Setting up your professional healthcare website..."}
         </p>
       </div>

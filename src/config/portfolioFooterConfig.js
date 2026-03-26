@@ -47,6 +47,7 @@ const SECTION_TO_LINK = {
   seo: { label: "SEO", path: "#seo" },
   dashboardChart: { label: "Chart", path: "#dashboardChart" },
   dashboardTable: { label: "Table", path: "#dashboardTable" },
+  caseStudy: { label: "Case Study", path: "#caseStudy" },
 };
 
 /**

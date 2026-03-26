@@ -19,6 +19,7 @@ const SECTION_LABELS = {
   process: "Process",
   dashboardChart: "Chart",
   dashboardTable: "Table",
+  caseStudy: "Case Study",
 };
 
 /**

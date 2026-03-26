@@ -39,6 +39,7 @@ const BLOCK_LABELS = {
   process: "Process Steps",
   dashboardChart: "Dashboard Chart",
   dashboardTable: "Dashboard Table",
+  caseStudy: "Case Study",
 };
 
 function SectionEditor({ section, template, onDataChange }) {
@@ -86,6 +87,8 @@ function SectionEditor({ section, template, onDataChange }) {
       return <DashboardChartEditor data={data} onChange={onDataChange} />;
     case "dashboardTable":
       return <DashboardTableEditor data={data} onChange={onDataChange} />;
+    case "caseStudy":
+      return <CaseStudyEditor data={data} onChange={onDataChange} />;
     default:
       return (
         <div>
