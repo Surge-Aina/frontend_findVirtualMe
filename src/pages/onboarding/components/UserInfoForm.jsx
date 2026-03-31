@@ -21,6 +21,17 @@ export default function UserInfoForm({ onComplete, onBack }) {
     }
   };
 
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+  const getPasswordChecks = (password) => ({
+    length: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    special: /[@$!%*?&]/.test(password),
+  });
+  const passwordChecks = getPasswordChecks(userInfo.password);
+
   const validateForm = () => {
     const newErrors = {};
     if (!userInfo.firstName.trim()) newErrors.firstName = "First name is required";
@@ -30,7 +41,11 @@ export default function UserInfoForm({ onComplete, onBack }) {
     } else if (!/\S+@\S+\.\S+/.test(userInfo.email)) {
       newErrors.email = "Please enter a valid email";
     }
-    if (!userInfo.password.trim()) newErrors.password = "Password is required";
+    if (!userInfo.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (!passwordRegex.test(userInfo.password)) {
+      newErrors.password = "Password must be 8+ chars, include uppercase, lowercase, number, and special character";
+    }
     if (!userInfo.username.trim()) newErrors.username = "Username is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -45,17 +60,16 @@ export default function UserInfoForm({ onComplete, onBack }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div
-        className="text-center mb-12 opacity-0 animate-fade-in"
-        style={{ animationDelay: "0ms" }}
-      >
+      <div className="text-center mb-12 opacity-0 animate-fade-in" style={{ animationDelay: "0ms" }}>
         <h1 className="mb-4 text-gray-900">Tell us about yourself</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Complete your profile to get started with FindVirtual.me
-        </p>
+        <p className="text-gray-600 max-w-2xl mx-auto">Complete your profile to get started with FindVirtual.me</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 opacity-0 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 opacity-0 animate-fade-in-up"
+        style={{ animationDelay: "300ms" }}
+      >
         {/* Name fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -69,9 +83,7 @@ export default function UserInfoForm({ onComplete, onBack }) {
               className={`w-full px-3 py-2 border rounded-md ${errors.firstName ? "border-red-500" : "border-gray-300"}`}
               placeholder="Enter your first name"
             />
-            {errors.firstName && (
-              <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-            )}
+            {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
           </div>
           <div>
             <label htmlFor="lastName" className="block mb-1 font-medium text-gray-700">
@@ -84,9 +96,7 @@ export default function UserInfoForm({ onComplete, onBack }) {
               className={`w-full px-3 py-2 border rounded-md ${errors.lastName ? "border-red-500" : "border-gray-300"}`}
               placeholder="Enter your last name"
             />
-            {errors.lastName && (
-              <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-            )}
+            {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
           </div>
         </div>
 
@@ -103,9 +113,7 @@ export default function UserInfoForm({ onComplete, onBack }) {
             className={`w-full px-3 py-2 border rounded-md ${errors.email ? "border-red-500" : "border-gray-300"}`}
             placeholder="your@email.com"
           />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
         </div>
 
         {/* Password */}
@@ -121,9 +129,14 @@ export default function UserInfoForm({ onComplete, onBack }) {
             className={`w-full px-3 py-2 border rounded-md ${errors.password ? "border-red-500" : "border-gray-300"}`}
             placeholder="Enter a password"
           />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-          )}
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+        </div>
+        <div className="mt-2 space-y-1 text-sm">
+          <PasswordRule valid={passwordChecks.length} label="At least 8 characters" />
+          <PasswordRule valid={passwordChecks.upper} label="One uppercase letter" />
+          <PasswordRule valid={passwordChecks.lower} label="One lowercase letter" />
+          <PasswordRule valid={passwordChecks.number} label="One number" />
+          <PasswordRule valid={passwordChecks.special} label="One special character" />
         </div>
 
         {/* Username */}
@@ -138,9 +151,7 @@ export default function UserInfoForm({ onComplete, onBack }) {
             className={`w-full px-3 py-2 border rounded-md ${errors.username ? "border-red-500" : "border-gray-300"}`}
             placeholder="Choose a username"
           />
-          {errors.username && (
-            <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-          )}
+          {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
         </div>
 
         {/* phone (not required)*/}
@@ -171,8 +182,6 @@ export default function UserInfoForm({ onComplete, onBack }) {
             placeholder="City, State/Country"
           />
         </div>
-
-        
 
         {/* Form Actions */}
         <div className="flex justify-between items-center pt-6">
@@ -213,6 +222,15 @@ export default function UserInfoForm({ onComplete, onBack }) {
           }
         `}
       </style>
+    </div>
+  );
+}
+
+function PasswordRule({ valid, label }) {
+  return (
+    <div className={`flex items-center gap-2 ${valid ? "text-green-600" : "text-gray-500"}`}>
+      <span>{valid ? "✔" : "•"}</span>
+      <span>{label}</span>
     </div>
   );
 }
