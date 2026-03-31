@@ -45,7 +45,7 @@
         expect(main.className).toContain("pt-20");
     });
 
-    test("shows Navbar on portfolio route if not from dashboard", () => {
+    test("shows Navbar on portfolio routes that are not unified view", () => {
         const { container } = renderWithRoute("/portfolios/handyman");
 
         expect(screen.getByTestId("navbar")).toBeInTheDocument();
@@ -54,15 +54,24 @@
         expect(main.className).toContain("pt-20");
     });
 
-    test("hides Navbar on portfolio route when navigated from dashboard", () => {
-        const { container } = renderWithRoute("/portfolios/handyman", {
-        from: "dashboard",
-        });
+    test("hides Navbar on unified portfolio view /portfolios/view/:id", () => {
+        const { container } = renderWithRoute("/portfolios/view/507f1f77bcf86cd799439011");
 
         expect(screen.queryByTestId("navbar")).toBeNull();
 
         const main = container.querySelector("main");
         expect(main.className).not.toContain("pt-20");
+    });
+
+    test("shows Navbar on unified portfolio edit /portfolios/view/:id/edit", () => {
+        const { container } = renderWithRoute(
+        "/portfolios/view/507f1f77bcf86cd799439011/edit"
+        );
+
+        expect(screen.getByTestId("navbar")).toBeInTheDocument();
+
+        const main = container.querySelector("main");
+        expect(main.className).toContain("pt-20");
     });
     });
 

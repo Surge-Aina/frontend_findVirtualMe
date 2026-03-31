@@ -92,8 +92,11 @@ export default function CleanAbout() {
       
       try {
         console.log('🔍 FETCHING portfolio ID:', portfolioId);
-        
-        const res = await fetch(`${backendUrl}/api/portfolios/${portfolioId}?t=${Date.now()}`);
+
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${backendUrl}/api/portfolios/${portfolioId}?t=${Date.now()}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (!res.ok) throw new Error('Failed to fetch portfolio');
         
         const response = await res.json();

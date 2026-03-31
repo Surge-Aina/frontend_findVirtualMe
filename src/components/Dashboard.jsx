@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { toast } from "react-toastify";
 
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -27,6 +27,73 @@ function getPortfolioTypeLabel(portfolio) {
   return portfolio.template || portfolio.portfolioType || "Portfolio";
 }
 
+function isAiPortfolio(portfolio) {
+  return portfolio.createdBy === "agent" || portfolio.template === "agent";
+}
+
+/** Pull string values from nested section data (contact email lives here, not on portfolio root). */
+function collectStringsFromValue(value, depth = 0, maxDepth = 5) {
+  if (depth > maxDepth || value == null) return [];
+  if (typeof value === "string") return [value];
+  if (typeof value === "number" || typeof value === "boolean") return [String(value)];
+  if (Array.isArray(value)) {
+    return value.flatMap((v) => collectStringsFromValue(v, depth + 1, maxDepth));
+  }
+  if (typeof value === "object") {
+    return Object.values(value).flatMap((v) => collectStringsFromValue(v, depth + 1, maxDepth));
+  }
+  return [];
+}
+
+function stringsFromPortfolioSections(portfolio) {
+  if (!Array.isArray(portfolio.sections)) return [];
+  return portfolio.sections.flatMap((section) => collectStringsFromValue(section?.data));
+}
+
+function portfolioMatchesSearch(portfolio, query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const parts = [
+    getPortfolioDisplayName(portfolio),
+    portfolio.title,
+    portfolio.businessName,
+    portfolio.portfolioTitle,
+    portfolio.name,
+    portfolio.slug,
+    portfolio._id != null ? String(portfolio._id) : "",
+    portfolio.email,
+    portfolio.contact?.email,
+    ...stringsFromPortfolioSections(portfolio),
+    portfolio.socialLinks?.website,
+    portfolio.socialLinks?.github,
+    portfolio.socialLinks?.linkedin,
+  ];
+  const haystack = parts.filter(Boolean).join(" ").toLowerCase();
+  return haystack.includes(q);
+}
+
+function sortPortfolios(list, sortKey, getName, getTypeLabel) {
+  const copy = [...list];
+  const cmp = {
+    nameAsc: (a, b) => getName(a).localeCompare(getName(b), undefined, { sensitivity: "base" }),
+    nameDesc: (a, b) => getName(b).localeCompare(getName(a), undefined, { sensitivity: "base" }),
+    createdNewest: (a, b) =>
+      new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    createdOldest: (a, b) =>
+      new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime(),
+    updatedRecent: (a, b) =>
+      new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime(),
+    typeAsc: (a, b) => {
+      const ta = `${getTypeLabel(a)} ${a.template || ""}`;
+      const tb = `${getTypeLabel(b)} ${b.template || ""}`;
+      return ta.localeCompare(tb, undefined, { sensitivity: "base" });
+    },
+  };
+  const fn = cmp[sortKey] || cmp.updatedRecent;
+  copy.sort(fn);
+  return copy;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { handleCardClick } = useHandleCardClick();
@@ -34,6 +101,15 @@ export default function Dashboard() {
 
   const [myPortfolios, setMyPortfolios] = useState([]);
   const [publicPortfolios, setPublicPortfolios] = useState([]);
+
+  const [mySearch, setMySearch] = useState("");
+  const [mySort, setMySort] = useState("updatedRecent");
+  const [myVisibility, setMyVisibility] = useState("all");
+  const [myKind, setMyKind] = useState("all");
+
+  const [publicSearch, setPublicSearch] = useState("");
+  const [publicSort, setPublicSort] = useState("updatedRecent");
+  const [publicTemplate, setPublicTemplate] = useState("all");
 
   useEffect(() => {
     const load = async () => {
@@ -62,6 +138,43 @@ export default function Dashboard() {
 
   const isPortfolioPublic = (portfolio) =>
     portfolio?.visibility === "public" || Boolean(portfolio?.isPublic);
+
+  const filteredMyPortfolios = useMemo(() => {
+    let list = myPortfolios;
+
+    if (myVisibility === "public") {
+      list = list.filter((p) => isPortfolioPublic(p));
+    } else if (myVisibility === "private") {
+      list = list.filter((p) => !isPortfolioPublic(p));
+    }
+
+    if (myKind === "ai") {
+      list = list.filter((p) => isAiPortfolio(p));
+    } else if (myKind === "other") {
+      list = list.filter((p) => !isAiPortfolio(p));
+    }
+
+    list = list.filter((p) => portfolioMatchesSearch(p, mySearch));
+
+    return sortPortfolios(list, mySort, getPortfolioDisplayName, getPortfolioTypeLabel);
+  }, [myPortfolios, mySearch, mySort, myVisibility, myKind]);
+
+  const publicTemplateOptions = useMemo(() => {
+    const set = new Set();
+    publicPortfolios.forEach((p) => {
+      if (p.template) set.add(p.template);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  }, [publicPortfolios]);
+
+  const filteredPublicPortfolios = useMemo(() => {
+    let list = publicPortfolios;
+    if (publicTemplate !== "all") {
+      list = list.filter((p) => p.template === publicTemplate);
+    }
+    list = list.filter((p) => portfolioMatchesSearch(p, publicSearch));
+    return sortPortfolios(list, publicSort, getPortfolioDisplayName, getPortfolioTypeLabel);
+  }, [publicPortfolios, publicSearch, publicSort, publicTemplate]);
 
   const togglePublic = async (portfolio) => {
     try {
@@ -110,12 +223,18 @@ export default function Dashboard() {
     }
   };
 
+  const sortSelectClass =
+    "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+
+  const searchInputClass =
+    "w-full sm:w-56 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+
   return (
     <main className="min-h-screen bg-slate-50 pt-24 px-4">
       <div className="max-w-5xl mx-auto space-y-12">
         {user && (
           <section>
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
               <div>
                 <h2 className="text-2xl font-semibold text-slate-800">My Portfolios</h2>
                 <p className="text-slate-500 mt-1">
@@ -124,8 +243,59 @@ export default function Dashboard() {
               </div>
             </div>
 
+            <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-end gap-3 mb-6">
+              <label className="flex flex-col gap-1 min-w-0 flex-1 sm:flex-none">
+                <span className="text-xs font-medium text-slate-500">Search</span>
+                <input
+                  type="search"
+                  value={mySearch}
+                  onChange={(e) => setMySearch(e.target.value)}
+                  placeholder="Name, ID, slug…"
+                  className={searchInputClass}
+                  autoComplete="off"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-slate-500">Sort</span>
+                <select value={mySort} onChange={(e) => setMySort(e.target.value)} className={sortSelectClass}>
+                  <option value="updatedRecent">Recently updated</option>
+                  <option value="createdNewest">Newest first</option>
+                  <option value="createdOldest">Oldest first</option>
+                  <option value="nameAsc">Name A–Z</option>
+                  <option value="nameDesc">Name Z–A</option>
+                  <option value="typeAsc">Type</option>
+                </select>
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-slate-500">Visibility</span>
+                <select
+                  value={myVisibility}
+                  onChange={(e) => setMyVisibility(e.target.value)}
+                  className={sortSelectClass}
+                >
+                  <option value="all">All</option>
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                </select>
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-slate-500">Kind</span>
+                <select value={myKind} onChange={(e) => setMyKind(e.target.value)} className={sortSelectClass}>
+                  <option value="all">All</option>
+                  <option value="ai">AI</option>
+                  <option value="other">Non-AI</option>
+                </select>
+              </label>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {myPortfolios.map((portfolio) => (
+              {filteredMyPortfolios.length === 0 && myPortfolios.length > 0 && (
+                <div className="col-span-full text-center py-10 text-slate-600 bg-white rounded-2xl border border-slate-200 text-sm">
+                  No portfolios match your search or filters.
+                </div>
+              )}
+
+              {filteredMyPortfolios.map((portfolio) => (
                 <div
                   key={portfolio._id}
                   className="bg-white rounded-2xl shadow-md p-6 cursor-pointer relative"
@@ -208,10 +378,63 @@ export default function Dashboard() {
         )}
 
         <section>
-          <h2 className="text-2xl font-semibold mb-6 text-slate-800">Public Portfolios</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-slate-800">Public Portfolios</h2>
+
+          <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-end gap-3 mb-6">
+            <label className="flex flex-col gap-1 min-w-0 flex-1 sm:flex-none">
+              <span className="text-xs font-medium text-slate-500">Search</span>
+              <input
+                type="search"
+                value={publicSearch}
+                onChange={(e) => setPublicSearch(e.target.value)}
+                placeholder="Name, email, ID…"
+                className={searchInputClass}
+                autoComplete="off"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-slate-500">Sort</span>
+              <select
+                value={publicSort}
+                onChange={(e) => setPublicSort(e.target.value)}
+                className={sortSelectClass}
+              >
+                <option value="updatedRecent">Recently updated</option>
+                <option value="createdNewest">Newest first</option>
+                <option value="createdOldest">Oldest first</option>
+                <option value="nameAsc">Name A–Z</option>
+                <option value="nameDesc">Name Z–A</option>
+                <option value="typeAsc">Type</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 min-w-[10rem]">
+              <span className="text-xs font-medium text-slate-500">Template</span>
+              <select
+                value={publicTemplate}
+                onChange={(e) => setPublicTemplate(e.target.value)}
+                className={sortSelectClass}
+              >
+                <option value="all">All templates</option>
+                {publicTemplateOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publicPortfolios.length > 0 ? (
-              publicPortfolios.map((portfolio) => (
+            {publicPortfolios.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
+                No public portfolios available yet
+              </div>
+            ) : filteredPublicPortfolios.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-slate-600 bg-white rounded-2xl border border-slate-200 text-sm">
+                No portfolios match your search or filters.
+              </div>
+            ) : (
+              filteredPublicPortfolios.map((portfolio) => (
                 <div
                   key={portfolio._id}
                   className="bg-white rounded-2xl shadow-md p-6 cursor-pointer"
@@ -229,10 +452,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))
-            ) : (
-              <div className="col-span-full text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
-                No public portfolios available yet
-              </div>
             )}
           </div>
         </section>
