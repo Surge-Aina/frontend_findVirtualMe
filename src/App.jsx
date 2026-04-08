@@ -34,7 +34,6 @@ import ITForm from "./components/ITForm";
 import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
 import UserProfile from "./components/UserProfile/UserProfile.jsx";
 import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
-import ITAdminPage from "./components/ITAdminPage.jsx";
 import TicketingPage from "./pages/ticketing/TicketingPage.jsx";
 import PortfolioEditLogViewer from "./components/PortfolioEditLogViewer.jsx";
 import { VendorProvider } from "./context/VendorContext.jsx";
@@ -204,7 +203,7 @@ export default function App() {
               </AdminRoute>
             }
           />
-          <Route path="/admin_page" element={<ITAdminPage />} />
+          <Route path="/admin_page" element={<Navigate to="/admin-choice" replace />} />
           <Route
             path="/admin-choice"
             element={
