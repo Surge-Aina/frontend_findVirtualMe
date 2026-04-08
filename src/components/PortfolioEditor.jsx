@@ -282,7 +282,7 @@ function SectionsStructurePanel({
         <select
           value={addingSectionType}
           onChange={(e) => setAddingSectionType(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 px-3 py-2 text-sm text-gray-900 dark:text-neutral-100"
+          className="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-gray-900 dark:text-neutral-100 shadow-sm [color-scheme:light] dark:[color-scheme:dark] focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           disabled={!addableBlocks.length || saveDisabled}
         >
           {addableBlocks.length === 0 ? (

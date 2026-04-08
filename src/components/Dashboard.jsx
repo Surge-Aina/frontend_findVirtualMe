@@ -285,13 +285,8 @@ export default function Dashboard() {
       <div className="max-w-5xl mx-auto space-y-12">
         {user && (
           <section>
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
-              <div>
-                <h2 className="text-2xl font-semibold text-slate-800 dark:text-neutral-100">My Portfolios</h2>
-                <p className="text-slate-500 dark:text-neutral-400 mt-1">
-                  AI-generated portfolios now live here alongside every other portfolio.
-                </p>
-              </div>
+            <div className="mb-4 text-center">
+              <h2 className="text-2xl font-semibold text-slate-800 dark:text-neutral-100">My Portfolios</h2>
             </div>
 
             <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-end gap-3 mb-6">
@@ -357,13 +352,13 @@ export default function Dashboard() {
                       event.stopPropagation();
                       togglePublic(portfolio);
                     }}
-                    className={`absolute top-4 right-4 w-16 h-6 rounded-full cursor-pointer transition-colors duration-300 flex items-center ${
+                    className={`absolute top-4 right-4 h-6 w-16 overflow-hidden rounded-full cursor-pointer transition-colors duration-300 ${
                       isPortfolioPublic(portfolio) ? "bg-blue-600" : "bg-gray-300"
                     }`}
                   >
                     <div
-                      className={`absolute w-3/4 py-1 flex items-center justify-center rounded-full bg-gray-900 text-white text-xs font-medium transition-transform duration-300 border border-gray-600 ${
-                        isPortfolioPublic(portfolio) ? "translate-x-[16px]" : "translate-x-0"
+                      className={`absolute inset-y-0 left-0 flex w-3/4 items-center justify-center rounded-full bg-gray-900 px-0.5 text-center text-[10px] font-medium leading-none text-white shadow-sm ring-1 ring-black/20 transition-transform duration-300 dark:ring-white/10 ${
+                        isPortfolioPublic(portfolio) ? "translate-x-4" : "translate-x-0"
                       }`}
                     >
                       {isPortfolioPublic(portfolio) ? "public" : "private"}
