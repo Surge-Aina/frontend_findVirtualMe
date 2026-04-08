@@ -123,7 +123,7 @@ export default function ResumeUpload() {
         <h2 className="text-3xl font-bold text-slate-800 mb-2 text-center">Get Started with Your Portfolio</h2>
         <p className="text-slate-500 mb-8 text-center max-w-2xl mx-auto">
           Choose how you'd like to begin: upload your existing resume to enhance your portfolio, or start building
-          custom web applications with our online editor.
+          a new portfolio from a prompt with our AI portfolio creator.
         </p>
 
         {/* Side by side layout */}
@@ -235,7 +235,7 @@ export default function ResumeUpload() {
             )}
           </div>
 
-          {/* Online Editor Section */}
+          {/* AI Portfolio Creator Section */}
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border border-slate-200 rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-slate-600 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -248,33 +248,33 @@ export default function ResumeUpload() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-2">Online Code Editor</h3>
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">AI Portfolio Creator</h3>
               <p className="text-slate-500 text-sm">
-                Build custom web applications with our integrated development environment.
+                Turn a prompt into a polished block-based portfolio that you can edit right away.
               </p>
             </div>
 
             <div className="space-y-4 mb-6">
               <div className="flex items-center text-sm text-slate-600">
                 <span className="w-2 h-2 bg-green-400 rounded-full mr-3"></span>
-                Live Preview & Real-time Updates
+                Prompt-to-portfolio generation
               </div>
               <div className="flex items-center text-sm text-slate-600">
                 <span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                AI-Powered Code Assistant
+                Built from reusable portfolio blocks
               </div>
               <div className="flex items-center text-sm text-slate-600">
                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>
-                Multi-project Management
+                Unified edit and publish flow
               </div>
             </div>
 
             <button
-              onClick={() => navigate("/editor")}
+              onClick={() => navigate("/portfolios/create/ai", { state: { source: "onboarding" } })}
               className="w-full bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
             >
               <span className="flex items-center justify-center">
-                Launch Editor
+                Open AI Creator
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"

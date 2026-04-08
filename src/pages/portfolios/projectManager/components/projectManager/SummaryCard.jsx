@@ -139,7 +139,7 @@ const SummaryCard = ({ portfolio }) => {
   const base =
     (editData && Object.keys(editData).length ? editData : portfolio) || {};
 
-  const { name, bio, summary, email, phone, location } = base;
+  const { name, bio, summary, email: _email, phone, location } = base;
 
   // read social links from BOTH nested + top-level
   const socialLinks = {

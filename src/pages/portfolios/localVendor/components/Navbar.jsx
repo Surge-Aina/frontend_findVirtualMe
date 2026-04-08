@@ -14,7 +14,7 @@ const Navbar = () => {
 
   const basePath = `/portfolios/vendor/${username}/${id}`;
 
-  const canEdit = canEditPortfolio(id);
+  const canEdit = canEditPortfolio(user, id);
 
   const navLinks = [
     { label: "Home", href: `${basePath}#home` },

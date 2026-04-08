@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 const AdminPage = () => {
-  const { portfolio, loading, error, refetch, forceRefresh } = usePortfolio();
+  const { portfolio, loading, error, forceRefresh } = usePortfolio();
   const [activeTab, setActiveTab] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -480,17 +480,6 @@ const AdminPage = () => {
 
   const handleCloseSnackbar = () => {
     setSnackbar({ open: false, message: '', type: 'success' });
-  };
-
-  // Helper function to remove custom id fields from nested objects (keep MongoDB _id)
-  const removeIdFields = (obj) => {
-    if (Array.isArray(obj)) {
-      return obj.map(item => {
-        const { id, ...cleanItem } = item;
-        return cleanItem;
-      });
-    }
-    return obj;
   };
 
   const renderContent = (item) => {

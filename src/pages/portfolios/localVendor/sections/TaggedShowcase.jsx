@@ -178,7 +178,6 @@ export default function TaggedShowcase() {
     let left = absX + offset;
     let top = absY + offset;
     let placeX = "left"; // arrow on left edge by default (card sits right of tag)
-    let placeY = "top";
 
     if (left + W + padding > container.clientWidth) {
       left = absX - W - offset;
@@ -186,7 +185,6 @@ export default function TaggedShowcase() {
     }
     if (top + H + padding > container.clientHeight) {
       top = absY - H - offset;
-      placeY = "bottom";
     }
 
     left = Math.max(

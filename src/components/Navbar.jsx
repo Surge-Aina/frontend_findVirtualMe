@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import Auth from "../pages/login/Auth.jsx";
 import SignUp from "../pages/login/SignUp.jsx";
 import { motion } from "framer-motion";
@@ -11,7 +11,7 @@ export default function Navbar() {
   const [authMode, setAuthMode] = useState("login");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // const { contextLoggedIn, contextLogout } = useContext(AuthContext);
-  const { login, logout, user } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
 
   const navigate = useNavigate();
   const navigateHome = () => {
@@ -19,7 +19,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/40 border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/40 dark:bg-neutral-950/70 border-b border-white/10 dark:border-neutral-700/80">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <motion.div
@@ -31,34 +31,34 @@ export default function Navbar() {
             <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-medium">FV</span>
             </div>
-            <span className="font-medium text-lg text-slate-800 hidden sm:inline">FindVirtual.me</span>
+            <span className="font-medium text-lg text-slate-800 dark:text-neutral-100 hidden sm:inline">FindVirtual.me</span>
           </motion.div>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center space-x-8">
             <button
-              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
               onClick={navigateHome}
             >
               <span className="relative z-10">Job Seekers</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
-              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
               onClick={() => navigate("/occupations")}
             >
               <span className="relative z-10">Creators</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
-              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
               onClick={() => navigate("/dashboard")}
             >
               <span className="relative z-10">Dashboard</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
-              className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
               onClick={() => navigate("/solutions")}
             >
               <span className="relative z-10">Solutions</span>
@@ -66,7 +66,7 @@ export default function Navbar() {
             </button>
             {user && user.role === "admin" && (
               <button
-                className="relative transition-colors text-slate-800 px-4 py-2 rounded-xl overflow-hidden group"
+                className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
                 onClick={() => navigate("/admin-choice")}
               >
                 <span className="relative z-10">Admin</span>
@@ -79,7 +79,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg focus:outline-none"
+              className="p-2 rounded-lg focus:outline-none text-slate-800 dark:text-neutral-200"
               aria-label="Open menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -92,7 +92,7 @@ export default function Navbar() {
               <>
                 {/* Profile button */}
                 <button
-                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 hover:bg-gray-100 transition shadow-sm"
+                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 rounded-lg text-slate-800 dark:text-neutral-100 hover:bg-gray-100 dark:hover:bg-neutral-700 transition shadow-sm"
                   onClick={() => navigate("/profile")}
                   aria-label="Profile"
                 >
@@ -101,7 +101,7 @@ export default function Navbar() {
                 </button>
                 {/* Logout button */}
                 <button
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 hover:bg-gray-100 transition shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 rounded-lg text-slate-800 dark:text-neutral-100 hover:bg-gray-100 dark:hover:bg-neutral-700 transition shadow-sm"
                   onClick={() => {
                     logout();
                     navigate("/");
@@ -121,7 +121,7 @@ export default function Navbar() {
               <>
                 <button
                   data-testid="open-auth-modal"
-                  className="relative px-4 py-2 rounded-xl transition-colors text-slate-800 overflow-hidden group border border-blue-300"
+                  className="relative px-4 py-2 rounded-xl transition-colors text-slate-800 dark:text-neutral-200 overflow-hidden group border border-blue-300 dark:border-blue-700"
                   onClick={() => {
                     setShowAuth(true);
                     setAuthMode("login");
@@ -132,13 +132,13 @@ export default function Navbar() {
                 </button>
                 {showAuth && (
                   <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 min-h-screen"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 min-h-screen"
                     style={{ backdropFilter: "blur(2px)" }}
                   >
-                    <div className="relative max-w-md w-full mx-auto bg-gradient-to-br from-slate-100 to-slate-300 border border-slate-300 rounded-2xl shadow-2xl px-4 py-8 sm:px-10 sm:py-12 z-10">
+                    <div className="relative max-w-md w-full mx-auto bg-gradient-to-br from-slate-100 to-slate-300 dark:from-neutral-800 dark:to-neutral-900 border border-slate-300 dark:border-neutral-600 rounded-2xl shadow-2xl px-4 py-8 sm:px-10 sm:py-12 z-10">
                       <button
                         onClick={() => setShowAuth(false)}
-                        className="absolute top-4 right-4 text-slate-700 text-xl font-bold"
+                        className="absolute top-4 right-4 text-slate-700 dark:text-neutral-300 text-xl font-bold hover:text-slate-900 dark:hover:text-white"
                         aria-label="Close"
                       >
                         ×
@@ -148,7 +148,7 @@ export default function Navbar() {
                           <Auth onSignUpClick={() => setAuthMode("signup")} onClose={() => setShowAuth(false)} />
                           <div className="mt-4 text-center">
                             <button
-                              className="text-blue-600 font-semibold underline"
+                              className="text-blue-600 dark:text-blue-400 font-semibold underline"
                               onClick={() => setAuthMode("signup")}
                             >
                               Don't have an account? Sign up
@@ -160,7 +160,7 @@ export default function Navbar() {
                           <SignUp onClose={() => setShowAuth(false)} onLoginClick={() => setAuthMode("login")} />
                           <div className="mt-4 text-center">
                             <button
-                              className="text-blue-600 font-semibold underline"
+                              className="text-blue-600 dark:text-blue-400 font-semibold underline"
                               onClick={() => setAuthMode("login")}
                             >
                               Already have an account? Log in
@@ -178,7 +178,7 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         <div
-          className={`md:hidden absolute top-full left-0 w-full bg-white/95 shadow-lg border-t border-slate-200 z-40 transform transition-all duration-300 ease-in-out ${
+          className={`md:hidden absolute top-full left-0 w-full bg-white/95 dark:bg-neutral-900/95 shadow-lg border-t border-slate-200 dark:border-neutral-700 z-40 transform transition-all duration-300 ease-in-out ${
             mobileMenuOpen
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 -translate-y-4 pointer-events-none"
@@ -186,7 +186,7 @@ export default function Navbar() {
         >
           <div className="flex flex-col items-center py-4 space-y-2">
             <button
-              className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+              className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg"
               onClick={() => {
                 setMobileMenuOpen(false);
                 navigateHome();
@@ -195,7 +195,7 @@ export default function Navbar() {
               Job Seekers
             </button>
             <button
-              className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+              className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg"
               onClick={() => {
                 setMobileMenuOpen(false);
                 navigate("/occupations");
@@ -204,7 +204,7 @@ export default function Navbar() {
               Creators
             </button>
             <button
-              className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+              className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg"
               onClick={() => {
                 setMobileMenuOpen(false);
                 navigate("/dashboard");
@@ -213,7 +213,7 @@ export default function Navbar() {
               Dashboard
             </button>
             <button
-              className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg"
+              className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg"
               onClick={() => {
                 setMobileMenuOpen(false);
                 navigate("/solutions");
@@ -223,7 +223,7 @@ export default function Navbar() {
             </button>
             {user && user.role === "admin" && (
               <button
-                className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg flex items-center"
+                className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg flex items-center"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate("/admin-choice");
@@ -234,7 +234,7 @@ export default function Navbar() {
             )}
             {user && (
               <button
-                className="w-full text-left px-6 py-3 text-slate-800 hover:bg-blue-100 rounded-lg flex items-center"
+                className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg flex items-center"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate("/profile");

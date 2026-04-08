@@ -3,6 +3,9 @@ import axios from "axios";
 import { createPortal } from "react-dom";
 import { usePortfolio } from "../../context/PortfolioContext";
 import { portfolioTypeToModel } from "../../utils/portfolioTypeToModel";
+import {
+  PLATFORM_TERMS_OF_SERVICE_TEXT,
+} from "../../legal/platformLegalContent";
 
 export default function TermsOfServiceFooterLink({
   className = "hover:text-white transition-colors",
@@ -11,6 +14,8 @@ export default function TermsOfServiceFooterLink({
   const { portfolioId, portfolioType } = usePortfolio();
   const [terms, setTerms] = useState(null);
   const [open, setOpen] = useState(false);
+  const [userTermsError, setUserTermsError] = useState("");
+  const [loadingUserTerms, setLoadingUserTerms] = useState(false);
 
   const modelType = useMemo(
     () => (portfolioType ? portfolioTypeToModel[portfolioType] : null),
@@ -18,12 +23,14 @@ export default function TermsOfServiceFooterLink({
   );
 
   useEffect(() => {
+    setUserTermsError("");
     if (!portfolioId || !modelType) {
       setTerms(null);
       return;
     }
 
     const fetchTerms = async () => {
+      setLoadingUserTerms(true);
       try {
         const backendUrl =
           import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
@@ -39,13 +46,16 @@ export default function TermsOfServiceFooterLink({
         }
         console.error("Failed to load terms of service", err);
         setTerms(null);
+        setUserTermsError(
+          "Portfolio-specific terms of service could not be loaded.",
+        );
+      } finally {
+        setLoadingUserTerms(false);
       }
     };
 
     fetchTerms();
   }, [portfolioId, modelType]);
-
-  if (!terms) return null;
 
   const modal = open ? (
     <>
@@ -67,10 +77,10 @@ export default function TermsOfServiceFooterLink({
                 id="terms-modal-title"
                 className="text-base font-semibold text-gray-900"
               >
-                {terms.name || "Terms of Service"}
+                Terms of Service
               </h2>
               <p className="text-xs text-gray-500">
-                Terms and conditions for using this portfolio.
+                FindVirtual.me and your portfolio.
               </p>
             </div>
             <button
@@ -82,8 +92,42 @@ export default function TermsOfServiceFooterLink({
               Close
             </button>
           </div>
-          <div className="px-5 py-4 overflow-y-auto text-sm leading-relaxed text-gray-800 whitespace-pre-wrap">
-            {terms.termsOfServiceText}
+          <div className="px-5 py-4 overflow-y-auto text-sm leading-relaxed text-gray-800 space-y-8">
+            <section>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                FindVirtual.me
+              </h3>
+              <div className="whitespace-pre-wrap">{PLATFORM_TERMS_OF_SERVICE_TEXT}</div>
+            </section>
+
+            {terms && (
+              <section className="border-t border-gray-200 pt-6">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                  Your portfolio
+                  {terms.name ? (
+                    <span className="font-normal text-gray-600">
+                      {" "}
+                      — {terms.name}
+                    </span>
+                  ) : null}
+                </h3>
+                <div className="whitespace-pre-wrap">
+                  {terms.termsOfServiceText}
+                </div>
+              </section>
+            )}
+
+            {loadingUserTerms && !terms && portfolioId && modelType && (
+              <p className="text-xs text-gray-500 border-t border-gray-200 pt-4">
+                Loading portfolio-specific terms…
+              </p>
+            )}
+
+            {userTermsError && (
+              <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                {userTermsError}
+              </p>
+            )}
           </div>
         </div>
       </div>

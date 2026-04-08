@@ -1,12 +1,3 @@
-// Safe helper for Vite + Jest
-function safeImportMetaEnv() {
-  try {
-    return typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
-  } catch {
-    return {};
-  }
-}
-
 export const API_BASE_URL =
   import.meta.env.VITE_BACKEND_API || 
   "http://localhost:5000";
@@ -237,17 +228,29 @@ export const api = {
     return res.json();
   },
 
-  async getS3UploadUrl({ fileType }) {
+  async getS3UploadUrl({ fileType, contentLength }) {
+    const token = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      throw new Error("Authentication required. Please log in.");
+    }
+
+    const body = { fileType };
+    if (contentLength != null) {
+      body.contentLength = contentLength;
+    }
+
     const res = await fetch(`${API_BASE_URL}/s3-upload-url`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ fileType }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
-      throw new Error('Failed to get upload URL');
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to get upload URL");
     }
 
     return res.json();
@@ -255,16 +258,17 @@ export const api = {
 
   async uploadImageToS3(file) {
     try {
-      // Get signed URL from backend
+      // Get signed URL from backend (legacy hero-images/ path; auth required)
       const { uploadUrl, publicUrl } = await this.getS3UploadUrl({
         fileType: file.type,
+        contentLength: file.size,
       });
 
       // Upload directly to S3
       await fetch(uploadUrl, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': file.type,
+          "Content-Type": file.type,
         },
         body: file,
       });

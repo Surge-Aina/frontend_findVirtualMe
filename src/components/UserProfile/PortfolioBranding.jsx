@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
-import axiosAuth from "../../utils/axiosAuth";
+import { portfolioApi } from "../../api/portfolioApi";
 import { toast } from "react-toastify";
 
 const backendUrl = import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
@@ -17,28 +17,13 @@ const fetchBilling = async () => {
 };
 
 async function fetchPortfolioHideBranding(portfolio) {
-  const { portfolioId, portfolioType } = portfolio;
+  const { portfolioId } = portfolio;
   try {
-    if (portfolioType === "Healthcare") {
-      const res = await axiosAuth.get(`/healthcare/admin/data/${portfolioId}`);
-      return res.data?.hideBranding ?? false;
-    }
-    if (portfolioType === "Handyman") {
-      const res = await axios.get(
-        `${backendUrl}/api/handyman-template/${portfolioId}`
-      );
-      return res.data?.hideBranding ?? false;
-    }
-    if (portfolioType === "ProjectManager") {
-      const res = await axios.get(
-        `${backendUrl}/portfolio/id/${portfolioId}`
-      );
-      return res.data?.hideBranding ?? false;
-    }
+    const res = await portfolioApi.getById(portfolioId);
+    return res.data?.hideBranding ?? false;
   } catch {
     return false;
   }
-  return false;
 }
 
 export default function PortfolioBranding() {
@@ -72,38 +57,12 @@ export default function PortfolioBranding() {
 
   const handleToggle = async (portfolio) => {
     const portfolioId = portfolio.portfolioId;
-    const portfolioType = portfolio.portfolioType;
     const currentVal = hideBrandingMap[portfolioId] ?? false;
     const newVal = !currentVal;
     setUpdating((prev) => ({ ...prev, [portfolioId]: true }));
 
     try {
-      if (portfolioType === "Healthcare") {
-        await axiosAuth.post(
-          `/healthcare/admin/data/${portfolioId}`,
-          { hideBranding: newVal }
-        );
-      } else if (portfolioType === "Handyman") {
-        const res = await axios.get(
-          `${backendUrl}/api/handyman-template/${portfolioId}`
-        );
-        await axios.put(
-          `${backendUrl}/api/handyman-template/${portfolioId}`,
-          { ...res.data, hideBranding: newVal },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-      } else if (portfolioType === "ProjectManager") {
-        await axiosAuth.patch("/portfolio/edit", {
-          portfolio: {
-            _id: portfolioId,
-            hideBranding: newVal,
-          },
-        });
-      }
+      await portfolioApi.toggleBranding(portfolioId);
       setHideBrandingMap((prev) => ({ ...prev, [portfolioId]: newVal }));
       toast.success("Branding setting updated");
     } catch (err) {

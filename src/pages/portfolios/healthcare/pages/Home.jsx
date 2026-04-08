@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import {
   FaUserMd,
@@ -22,7 +22,6 @@ export default function Home({ portfolioId: portfolioIdProp }) {
   const { basePath, practiceId: practiceIdFromHook } = useHealthcareBasePath();
   const { practiceId: urlId } = useParams();
   const practiceId = portfolioIdProp ?? practiceIdFromHook ?? urlId;
-  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,8 +33,7 @@ export default function Home({ portfolioId: portfolioIdProp }) {
       loadDemoData();
     } else {
       // ✅ Check auth for non-demo portfolios
-      const token = localStorage.getItem("token");
-      // if (!token) {
+      // if (!localStorage.getItem("token")) {
       //   navigate('/login');
       //   return;
       // }

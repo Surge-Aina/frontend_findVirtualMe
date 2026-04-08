@@ -10,7 +10,7 @@ import Footer from '../components/Footer';
 import { api } from '../lib/api';
 
 export default function Contact() {
-  const { basePath, practiceId } = useHealthcareBasePath();
+  const { practiceId } = useHealthcareBasePath();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({

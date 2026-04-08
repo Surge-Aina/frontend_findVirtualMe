@@ -59,8 +59,6 @@ useEffect(() => {
     hasToken: !!localStorage.getItem('token')
   });
   
-  const token = localStorage.getItem('token');
-  const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
   const navigate = useNavigate();
 
   useEffect(() => {

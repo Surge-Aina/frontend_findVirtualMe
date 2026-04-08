@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Github, Twitter, Instagram, Linkedin } from "lucide-react";
 
 export default function Footer() {
@@ -66,8 +67,16 @@ export default function Footer() {
             <ul className="space-y-2 text-slate-400">
               <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+              <li>
+                <Link to="/privacy" className="hover:text-white transition-colors">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="hover:text-white transition-colors">
+                  Terms
+                </Link>
+              </li>
             </ul>
           </motion.div>
         </div>
@@ -79,7 +88,7 @@ export default function Footer() {
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <p>&copy; 2025 FindVirtual.me. All rights reserved.</p>
+          <p>&copy; 2026 FindVirtual.me. All rights reserved.</p>
         </motion.div>
       </div>
     </footer>

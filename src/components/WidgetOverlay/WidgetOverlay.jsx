@@ -9,7 +9,7 @@ export default function WidgetOverlay() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState(null);
   const [selectedForm, setSelectedForm] = useState(null);
-  const { user, loading: authLoading } = useContext(AuthContext);//only available if PortfolioOwner is logged in, otherwise null
+  const { user } = useContext(AuthContext); // only available if PortfolioOwner is logged in, otherwise null
   const { 
     portfolioId, 
     portfolioType, 
@@ -45,11 +45,13 @@ export default function WidgetOverlay() {
         </>
       )}
 
-      {/* Widget Container */}
-      <div className="fixed bottom-16 left-5 pr-6 flex flex-col items-start gap-4 z-[9999]">
+      {/* Widget Container: outer uses pointer-events-none so the flex layout box (which
+          stays tall even when widgets are visually hidden) does not steal clicks from the page.
+          Interactive children use pointer-events-auto. */}
+      <div className="fixed bottom-16 left-5 pr-6 flex flex-col items-start gap-4 z-[9999] pointer-events-none">
         <div className={`flex flex-col gap-3 mb-2 transition-all duration-200 origin-bottom-left ${
           isOpen
-            ? 'opacity-100 translate-y-0 scale-100'
+            ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
             : 'opacity-0 translate-y-4 scale-95 pointer-events-none'
         }`}>
 
@@ -78,8 +80,9 @@ export default function WidgetOverlay() {
 
         {/* Widget Toggle Button */}
         <button
+          type="button"
           onClick={() => { setIsOpen(!isOpen); setSelectedWidget(null); setSelectedForm(null); }}
-          className="p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition-colors cursor-pointer"
+          className="pointer-events-auto p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition-colors cursor-pointer"
         >
           <span className={`block transition-transform duration-300 ${isOpen ? 'rotate-45' : 'rotate-0'}`}>
             <PlusIcon className="w-6 h-6" />

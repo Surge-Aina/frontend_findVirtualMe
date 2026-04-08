@@ -56,37 +56,37 @@ export default function About() {
       {/* Hero Section */}
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden w-full">
         {/* Background gradient */}
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-sky-50 via-white to-blue-50"></div>
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:from-slate-950 dark:via-neutral-950 dark:to-slate-900"></div>
 
         {/* Floating elements - static gradients for SEO (no animation) */}
         <div className="absolute inset-0 overflow-hidden w-full h-full">
           <div
-            className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-slate-200/30 to-slate-300/20 rounded-full blur-3xl"
+            className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-slate-200/30 to-slate-300/20 dark:from-slate-700/20 dark:to-slate-800/10 rounded-full blur-3xl"
           />
           <div
-            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-slate-300/20 to-slate-200/30 rounded-full blur-3xl"
+            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-slate-300/20 to-slate-200/30 dark:from-slate-800/15 dark:to-slate-700/10 rounded-full blur-3xl"
           />
         </div>
 
         <div className="w-full text-center relative z-10">
           <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-              <Sparkles className="w-4 h-4 text-slate-600" />
-              <span className="text-sm text-slate-600">
+            <div className="flex items-center space-x-2 bg-white/60 dark:bg-neutral-800/80 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20 dark:border-neutral-600">
+              <Sparkles className="w-4 h-4 text-slate-600 dark:text-neutral-300" />
+              <span className="text-sm text-slate-600 dark:text-neutral-300">
                 Create stunning portfolios in minutes
               </span>
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-light text-slate-800 mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-light text-slate-800 dark:text-neutral-100 mb-6 leading-tight">
             Showcase your work
             <br />
-            <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-slate-700 to-slate-900 dark:from-neutral-200 dark:to-neutral-400 bg-clip-text text-transparent">
               beautifully
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-800 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-slate-800 dark:text-neutral-300 mb-12 max-w-3xl mx-auto leading-relaxed">
             FindVirtual.me empowers creators, designers, and professionals to
             build stunning portfolio websites that stand out. No coding required
             – just your creativity and our intelligent platform.
@@ -106,13 +106,13 @@ export default function About() {
 
             <button
               onClick={() => navigate("/portfolios", { state: { from: "about" } })}
-              className="text-slate-600 hover:text-slate-800 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20 w-full sm:w-auto mx-2"
+              className="text-slate-600 hover:text-slate-800 dark:text-neutral-300 dark:hover:text-neutral-100 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/80 border border-white/20 dark:border-neutral-600 w-full sm:w-auto mx-2"
             >
               View examples
             </button>
           </div>
 
-          <div className="mt-16 text-sm text-slate-500">
+          <div className="mt-16 text-sm text-slate-500 dark:text-neutral-500">
             Join amazing creators who trust FindVirtual.me
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function About() {
       {/* Features Section */}
       <section
         id="features"
-        className="py-24 bg-white/50 backdrop-blur-sm w-full"
+        className="py-24 bg-white/50 dark:bg-neutral-900/80 backdrop-blur-sm w-full"
       >
         <div className="w-full">
           <motion.div
@@ -131,19 +131,19 @@ export default function About() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
+            <h2 className="text-3xl md:text-4xl font-light text-slate-800 dark:text-neutral-100 mb-4">
               Everything you need to{" "}
-              <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-slate-700 to-slate-900 dark:from-neutral-200 dark:to-neutral-400 bg-clip-text text-transparent">
                 succeed
               </span>
             </h2>
-            <p className="text-lg text-slate-800 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-800 dark:text-neutral-300 max-w-2xl mx-auto">
               Our platform combines powerful features with intuitive design to
               help you create portfolios that truly represent your work.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center">
               <motion.div
-                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 max-w-xl w-full mx-2"
+                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 dark:from-blue-950/50 dark:via-neutral-800 dark:to-slate-900 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 dark:border-blue-800/50 max-w-xl w-full mx-2"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -152,10 +152,10 @@ export default function About() {
                 <div className="flex items-center justify-center mb-3">
                   <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-2 text-center">
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-neutral-100 mb-2 text-center">
                   Portfolio Intelligence
                 </h3>
-                <p className="text-slate-700 text-center">
+                <p className="text-slate-700 dark:text-neutral-300 text-center">
                   Go beyond just beautiful design. 
                   We show you <span className="font-semibold">detailed analytics</span> about your portfolio visitors - like which sections they spend the most time on, which are skipped, and how they interact with your content. 
                   <span className="font-semibold">Get smart recommendations</span> to improve your portfolio and make a lasting impression.
@@ -175,14 +175,14 @@ export default function About() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 group-hover:-translate-y-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                      <feature.icon className="w-6 h-6 text-slate-700" />
+                  <div className="bg-white/60 dark:bg-neutral-800/70 backdrop-blur-sm rounded-2xl p-8 border border-white/20 dark:border-neutral-600 hover:bg-white/80 dark:hover:bg-neutral-800/90 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-neutral-900/50 group-hover:-translate-y-2">
+                    <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-neutral-700 dark:to-neutral-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="w-6 h-6 text-slate-700 dark:text-neutral-200" />
                     </div>
-                    <h3 className="text-lg font-medium text-slate-800 mb-3">
+                    <h3 className="text-lg font-medium text-slate-800 dark:text-neutral-100 mb-3">
                       {feature.title}
                     </h3>
-                    <p className="text-slate-800 leading-relaxed">
+                    <p className="text-slate-800 dark:text-neutral-300 leading-relaxed">
                       {feature.description}
                     </p>
                   </div>

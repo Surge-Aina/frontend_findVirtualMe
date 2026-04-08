@@ -57,7 +57,7 @@
     localStorage.clear();
 
     // Re-require the module AFTER resetModules
-    // eslint-disable-next-line global-require
+     
     const { getSessionId } = require("../utils/portfolioEditLogger");
 
     // 1) When onboardingSessionId exists in localStorage

@@ -22,7 +22,7 @@ const Banner = () => {
   const api = useVendorApi();
 
   const { user } = useContext(AuthContext);
-  const canEdit = canEditPortfolio(vendorId);
+  const canEdit = canEditPortfolio(user, vendorId);
 
   useEffect(() => {
     if (!vendorId) return; // don’t fetch until a vendor is set

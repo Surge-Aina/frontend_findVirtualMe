@@ -23,7 +23,7 @@ const AboutSection = () => {
   const api = useVendorApi();
 
   const { user } = useContext(AuthContext);
-  const canEdit = canEditPortfolio(vendorId);
+  const canEdit = canEditPortfolio(user, vendorId);
 
   useEffect(() => {
     if (!vendorId) return; // don’t fetch until vendor selected
@@ -83,7 +83,7 @@ const AboutSection = () => {
     // vendor-aware updateAbout
     api
       .updateAbout({
-        contentBlocks: mergedBlocks.map(({ isEditing, clientId, ...b }) => b),
+        contentBlocks: mergedBlocks.map(({ isEditing: _isEditing, clientId: _clientId, ...b }) => b),
         gridImages: bottomImages,
       })
       .then(() => {

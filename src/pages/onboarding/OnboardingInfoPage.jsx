@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import PortfolioTemplateOptions from "./components/PortfolioTemplateOptions";
@@ -63,7 +63,7 @@ export default function OnboardingInfoPage() {
               />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold text-slate-800">Online Code Editor</h3>
+          <h3 className="text-xl font-semibold text-slate-800">AI Portfolio Creator</h3>
         </div>
 
         {/* Main content box */}
@@ -71,30 +71,30 @@ export default function OnboardingInfoPage() {
           <div className="flex items-center justify-between">
             <div className="flex-1 text-left">
               <p className="text-slate-600 leading-relaxed mb-3">
-                Build custom web applications with our integrated development environment. Create, edit, and preview
-                your projects with real-time updates and AI assistance.
+                Describe the portfolio you want and generate a normal editable portfolio from your prompt. The result
+                uses the same block system as your other portfolios.
               </p>
               <div className="flex items-center text-sm text-slate-500">
                 <span className="flex items-center mr-4">
                   <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                  Live Preview
+                  Prompt-driven generation
                 </span>
                 <span className="flex items-center mr-4">
                   <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
-                  AI Assistant
+                  Unified portfolio blocks
                 </span>
                 <span className="flex items-center">
                   <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
-                  Real-time Sync
+                  Edit after creation
                 </span>
               </div>
             </div>
             <button
-              onClick={() => navigate("/editor")}
+              onClick={() => navigate("/portfolios/create/ai", { state: { source: "onboarding" } })}
               className="bg-slate-600 hover:bg-slate-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-300 ml-6 whitespace-nowrap hover:scale-105 shadow-md hover:shadow-lg"
             >
               <span className="flex items-center">
-                Launch Editor
+                Open AI Creator
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
