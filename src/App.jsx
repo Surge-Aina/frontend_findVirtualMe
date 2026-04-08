@@ -62,13 +62,15 @@ import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
 import { set } from "date-fns";
 import { PortfolioProvider } from "./context/PortfolioContext.jsx";
+import ForgotPassword from "./components/PasswordReset/ForgotPassword";
+import ResetPassword from "./components/PasswordReset/ResetPassword";
 
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {
   const { practiceId } = useParams(); // This is actually the MongoDB _id
   const [isPublic, setIsPublic] = useState(null);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const backendUrl = import.meta.env.VITE_BACKEND_API;
 
   useEffect(() => {
@@ -103,14 +105,13 @@ function ProtectedHealthcareRoute({ children }) {
 
   // Public portfolio → Allow
   if (isPublic) return children;
-  
+
   // Private + logged in → Allow
   if (token) return children;
-  
+
   // Private + not logged in → Block
   return <Navigate to="/signup" replace />;
 }
-
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -162,11 +163,14 @@ export default function App() {
           {/* example portfolios */}
           <Route path="/portfolios" element={<ExamplePortfolios />} />
           {/* Project manager =======================Widget Overlay========================= */}
-          <Route path="/portfolios/ProjectManager" element={
-            <PortfolioProvider>
-              <WidgetOverlayWrapper />
-            </PortfolioProvider>
-          }>
+          <Route
+            path="/portfolios/ProjectManager"
+            element={
+              <PortfolioProvider>
+                <WidgetOverlayWrapper />
+              </PortfolioProvider>
+            }
+          >
             <Route path=":id" element={<PortfolioPage />} />
           </Route>
           {/* IT Admin Routes */}
@@ -244,11 +248,14 @@ export default function App() {
           <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
           {/* Handyman =======================Widget Overlay========================= */}
           <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
-          <Route path="/portfolios/handyman" element={
-            <PortfolioProvider>
-              <WidgetOverlayWrapper />
-            </PortfolioProvider>
-          }>
+          <Route
+            path="/portfolios/handyman"
+            element={
+              <PortfolioProvider>
+                <WidgetOverlayWrapper />
+              </PortfolioProvider>
+            }
+          >
             <Route path=":id" element={<HandymanPage />} />
             <Route path=":id/edit" element={<EditHandymanPortfolio />} />
           </Route>
@@ -257,11 +264,11 @@ export default function App() {
               HEALTHCARE ROUTES
               practiceId param = MongoDB _id (like other portfolios)
               ========================================== */}
-          
+
           {/* Public Routes - No Auth */}
           <Route path="/portfolios/healthcare" element={<Landing />} />
           <Route path="/portfolios/healthcare/search" element={<HealthcareSearch />} />
-          
+
           {/* Demo Routes - No Auth */}
           <Route path="/portfolios/healthcare/demo" element={<HealthcareHome />} />
           <Route path="/portfolios/healthcare/demo/services" element={<HealthcareServices />} />
@@ -269,74 +276,77 @@ export default function App() {
           <Route path="/portfolios/healthcare/demo/blog/:id" element={<HealthcareBlogPost />} />
           <Route path="/portfolios/healthcare/demo/gallery" element={<HealthcareGallery />} />
           <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
-          
+
           {/* ✅ User Portfolio Routes - :practiceId is the MongoDB _id */}
           {/* Healthcare ====================== Widget Overlay ========================= */}
-          <Route path="/portfolios/healthcare/:practiceId" element={
-            <ProtectedHealthcareRoute>
-              <PortfolioProvider>
-                <WidgetOverlayWrapper />  
-              </PortfolioProvider>
-            </ProtectedHealthcareRoute>
-          }>
-            <Route 
-              index 
+          <Route
+            path="/portfolios/healthcare/:practiceId"
+            element={
+              <ProtectedHealthcareRoute>
+                <PortfolioProvider>
+                  <WidgetOverlayWrapper />
+                </PortfolioProvider>
+              </ProtectedHealthcareRoute>
+            }
+          >
+            <Route
+              index
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareHome />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="services" 
+            <Route
+              path="services"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareServices />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="blog" 
+            <Route
+              path="blog"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareBlog />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="blog/:id" 
+            <Route
+              path="blog/:id"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareBlogPost />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="gallery" 
+            <Route
+              path="gallery"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareGallery />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="contact" 
+            <Route
+              path="contact"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareContact />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="admin/dashboard" 
+            <Route
+              path="admin/dashboard"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareAdminDashboard />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
           </Route>
-          
+
           <Route path="/editor/*" element={<OnlineEditor />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/visitor-login" element={<VisitorLogin />} />
@@ -346,6 +356,8 @@ export default function App() {
           <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
           {/* <Route path="/testPage" element={<QRCodeForm />} /> */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </ErrorBoundary>
       <FloatingHelpButton />
