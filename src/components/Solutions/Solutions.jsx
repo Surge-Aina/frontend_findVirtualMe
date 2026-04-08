@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 const solutions = [
@@ -63,7 +63,7 @@ const solutions = [
 
 export default function Solutions() {
   const navigate = useNavigate();
-  const cardRefs = solutions.map(() => useRef(null));
+  const cardRefs = useMemo(() => solutions.map(() => ({ current: null })), []);
 
   const handleScrollToCard = (idx) => {
     cardRefs[idx].current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -78,20 +78,20 @@ export default function Solutions() {
   ];
 
   return (
-     <div className="min-h-screen bg-gradient-to-br from-[#f7faff] to-[#f3f6fb] py-16 px-4 flex flex-col items-center">
+     <div className="min-h-screen bg-gradient-to-br from-[#f7faff] to-[#f3f6fb] dark:from-neutral-950 dark:to-slate-900 py-16 px-4 flex flex-col items-center">
 
       <div className="w-full max-w-4xl mx-auto text-center mb-24">
         <div className="flex justify-center mb-6">
-          <div className="bg-white rounded-full px-6 py-3 shadow text-slate-900 font-medium text-lg inline-block">
+          <div className="bg-white dark:bg-neutral-800 rounded-full px-6 py-3 shadow text-slate-900 dark:text-neutral-100 font-medium text-lg inline-block border border-transparent dark:border-neutral-600">
             <ul className="list-disc list-inside">
               <li>Tailored solutions for every industry</li>
             </ul>
           </div>
         </div>
-        <h2 className="text-xl md:text-2xl font-semibold text-slate-900 mb-4">
+        <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-neutral-100 mb-4">
           Industry-specific solutions that drive results
         </h2>
-        <p className="text-lg md:text-2xl text-slate-500 mb-8">
+        <p className="text-lg md:text-2xl text-slate-500 dark:text-neutral-400 mb-8">
           From retail and restaurants to property management and agriculture, our platform adapts to your industry's unique needs with specialized tools and workflows.
         </p>
         <div className="flex flex-col md:flex-row gap-3 justify-center items-center">
@@ -99,7 +99,7 @@ export default function Solutions() {
             <button
               key={sol.category}
               onClick={() => handleScrollToCard(idx)}
-              className="relative transition-colors text-slate-800 bg-white px-4 py-2 rounded-xl overflow-hidden group border border-blue-200 font-semibold text-base shadow hover:text-slate-900"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 bg-white dark:bg-neutral-800 px-4 py-2 rounded-xl overflow-hidden group border border-blue-200 dark:border-blue-800 font-semibold text-base shadow hover:text-slate-900 dark:hover:text-white"
             >
               <span className="relative z-10">{sol.heading}</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
@@ -118,19 +118,19 @@ export default function Solutions() {
             }`}
           >
             {/* card with image and details */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 flex-[1.3] max-w-2xl p-0 mb-6 md:mb-0 flex flex-col overflow-hidden text-left">
+            <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-gray-200 dark:border-neutral-700 flex-[1.3] max-w-2xl p-0 mb-6 md:mb-0 flex flex-col overflow-hidden text-left">
               <img
                 src={sol.image}
                 alt={sol.heading}
                 className="w-full h-80 object-cover rounded-t-2xl"
               />
               <div className="p-8 flex flex-col items-start text-left">
-                <div className="font-semibold text-2xl text-slate-800 mb-2 font-mono">{sol.heading}</div>
-                <div className="text-slate-600 mb-4 font-mono text-lg">{sol.description}</div>
+                <div className="font-semibold text-2xl text-slate-800 dark:text-neutral-100 mb-2 font-mono">{sol.heading}</div>
+                <div className="text-slate-600 dark:text-neutral-400 mb-4 font-mono text-lg">{sol.description}</div>
                 <ul className="mb-4 space-y-2 font-mono text-lg">
                   {sol.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-slate-700">
-                      <span className="mt-1 w-2 h-2 rounded-full bg-slate-900 inline-block"></span>
+                    <li key={feature} className="flex items-start gap-2 text-slate-700 dark:text-neutral-300">
+                      <span className="mt-1 w-2 h-2 rounded-full bg-slate-900 dark:bg-neutral-300 inline-block"></span>
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -138,11 +138,11 @@ export default function Solutions() {
               </div>
             </div>
             <div className="flex-[0.7] max-w-md flex flex-col items-start justify-center px-2 md:px-0 text-left">
-              <div className="font-bold text-slate-900 text-3xl mb-8 font-mono">Key Features:</div>
+              <div className="font-bold text-slate-900 dark:text-neutral-100 text-3xl mb-8 font-mono">Key Features:</div>
               <ul className="mb-12 space-y-6 font-mono text-xl">
                 {sol.features.slice(0, 3).map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-slate-800">
-                    <span className="mt-2 w-4 h-4 rounded-full bg-slate-900 inline-block"></span>
+                  <li key={feature} className="flex items-start gap-3 text-slate-800 dark:text-neutral-300">
+                    <span className="mt-2 w-4 h-4 rounded-full bg-slate-900 dark:bg-neutral-300 inline-block"></span>
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -155,7 +155,7 @@ export default function Solutions() {
                   Learn More
                   <span className="inline-block ml-2">&rarr;</span>
                 </button>
-                <button className="bg-white border border-gray-200 text-slate-900 font-semibold px-0 py-3 rounded-xl text-base shadow hover:bg-gray-100 transition flex items-center justify-center w-full font-mono">
+                <button className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 text-slate-900 dark:text-neutral-100 font-semibold px-0 py-3 rounded-xl text-base shadow hover:bg-gray-100 dark:hover:bg-neutral-700 transition flex items-center justify-center w-full font-mono">
                   View Demo
                 </button>
               </div>
@@ -165,10 +165,10 @@ export default function Solutions() {
       </div>
 
       <div className="w-full max-w-3xl mx-auto text-center mt-20">
-        <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-4">
+        <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-neutral-100 mb-4">
           Ready to transform your business?
         </h2>
-        <p className="text-lg md:text-2xl text-slate-500 mb-8">
+        <p className="text-lg md:text-2xl text-slate-500 dark:text-neutral-400 mb-8">
           Join thousands of businesses already using our platform to streamline operations and drive growth.
         </p>
         <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
@@ -176,7 +176,7 @@ export default function Solutions() {
             Start Free Trial
             <span className="inline-block">&rarr;</span>
           </button>
-          <button className="bg-white border border-gray-200 text-slate-900 font-semibold px-8 py-4 rounded-xl text-lg shadow hover:bg-gray-100 transition">
+          <button className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-600 text-slate-900 dark:text-neutral-100 font-semibold px-8 py-4 rounded-xl text-lg shadow hover:bg-gray-100 dark:hover:bg-neutral-700 transition">
             Contact Sales
           </button>
         </div>
@@ -184,7 +184,7 @@ export default function Solutions() {
 
       {/* Our Team Section */}
       <div className="w-full max-w-4xl mx-auto text-center mt-24">
-        <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-10">
+        <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-neutral-100 mb-10">
           Our Team
         </h2>
         <div className="flex flex-col md:flex-row gap-10 justify-center items-center">
@@ -192,28 +192,28 @@ export default function Solutions() {
             <img
               src="/assets/images/team/Om.jpg"
               alt="Project Manager"
-              className="w-40 h-40 object-cover object-center rounded-full shadow-lg mb-4 border border-slate-300"
+              className="w-40 h-40 object-cover object-center rounded-full shadow-lg mb-4 border border-slate-300 dark:border-neutral-600"
             />
-            <div className="font-bold text-base text-slate-700 mb-1">Om Patil</div>
-            <div className="font-semibold text-lg text-slate-800">Project Manager</div>
+            <div className="font-bold text-base text-slate-700 dark:text-neutral-300 mb-1">Om Patil</div>
+            <div className="font-semibold text-lg text-slate-800 dark:text-neutral-200">Project Manager</div>
           </div>
           <div className="flex flex-col items-center">
             <img
               src="/assets/images/team/Carlos.png"
               alt="Team Lead 1"
-              className="w-40 h-40 object-cover object-center rounded-full shadow-lg mb-4 border border-slate-300"
+              className="w-40 h-40 object-cover object-center rounded-full shadow-lg mb-4 border border-slate-300 dark:border-neutral-600"
             />
-            <div className="font-bold text-base text-slate-700 mb-1">Carlos Garcia</div>
-            <div className="font-semibold text-lg text-slate-800">Team Lead</div>
+            <div className="font-bold text-base text-slate-700 dark:text-neutral-300 mb-1">Carlos Garcia</div>
+            <div className="font-semibold text-lg text-slate-800 dark:text-neutral-200">Team Lead</div>
           </div>
           <div className="flex flex-col items-center">
             <img
               src="/assets/images/team/Ri.png"
               alt="Team Lead 2"
-              className="w-40 h-40 object-cover object-center rounded-full shadow-lg mb-4 border border-slate-300"
+              className="w-40 h-40 object-cover object-center rounded-full shadow-lg mb-4 border border-slate-300 dark:border-neutral-600"
             />
-            <div className="font-bold text-base text-slate-700 mb-1">Rimma Esheva</div>
-            <div className="font-semibold text-lg text-slate-800">Team Lead</div>
+            <div className="font-bold text-base text-slate-700 dark:text-neutral-300 mb-1">Rimma Esheva</div>
+            <div className="font-semibold text-lg text-slate-800 dark:text-neutral-200">Team Lead</div>
           </div>
         </div>
       </div>

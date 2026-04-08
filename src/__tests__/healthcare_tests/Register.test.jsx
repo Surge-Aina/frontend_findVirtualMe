@@ -334,9 +334,7 @@ describe('Healthcare Register Page', () => {
     });
     
     renderRegister();
-    
-    const form = screen.getByRole('button', { name: /create account/i }).closest('form');
-    
+
     await user.type(screen.getByPlaceholderText(/john/i), 'John');
     await user.type(screen.getByPlaceholderText(/doe/i), 'Doe');
     await user.type(screen.getByPlaceholderText(/elite medical center/i), 'Test Clinic');

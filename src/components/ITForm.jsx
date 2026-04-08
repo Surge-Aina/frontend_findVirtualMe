@@ -29,9 +29,6 @@ export default function ITForm() {
     message: "",
   });
 
-  const [submitting, setSubmitting] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-
   useEffect(() => {
     setForm((prev) => ({
       ...prev,
@@ -59,7 +56,6 @@ export default function ITForm() {
       // const companyTemplateId = import.meta.env.VITE_FORM_COMPANY_TID;
       // const userTemplateId = import.meta.env.VITE_FORM_USER_TID;
       // Get user details
-      const userName = user ? stored.name || stored.email : form.name;
       const userEmail = user ? stored.email : form.email;
 
       const payload = {
@@ -80,8 +76,8 @@ export default function ITForm() {
         },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if(res.ok){
+      await res.json();
+      if (res.ok) {
         toast.success("Request submitted successfully. Check your email for the confirmation.")
       }
       //template parameters for company email
@@ -174,8 +170,6 @@ export default function ITForm() {
           </div>
         )}
 
-        {errMsg && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2 mb-4">{errMsg}</div>}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           {shouldShowName && (
             <div>
@@ -212,8 +206,8 @@ export default function ITForm() {
             <label className="block text-gray-700 text-xs font-medium mb-1">Describe your issue or request</label>
             <textarea name="message" value={form.message} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200 text-sm" placeholder="Please provide details..." rows={4} required />
           </div>
-          <button type="submit" disabled={submitting} className={`w-full text-white font-semibold py-2 rounded-md shadow transition-all hover:bg-blue-700 transition-all ${submitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}>
-            {submitting ? "Submitting..." : "Submit Request"}
+          <button type="submit" disabled={isSubmitting} className={`w-full text-white font-semibold py-2 rounded-md shadow transition-all hover:bg-blue-700 transition-all ${isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}>
+            {isSubmitting ? "Submitting..." : "Submit Request"}
           </button>
         </form>
       </div>

@@ -94,6 +94,15 @@ function sortPortfolios(list, sortKey, getName, getTypeLabel) {
   return copy;
 }
 
+const PAGE_SIZE = 18;
+
+function portfolioPageRange(page, total, pageSize) {
+  if (total <= 0) return { start: 0, end: 0 };
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
+  return { start, end };
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { handleCardClick } = useHandleCardClick();
@@ -110,6 +119,17 @@ export default function Dashboard() {
   const [publicSearch, setPublicSearch] = useState("");
   const [publicSort, setPublicSort] = useState("updatedRecent");
   const [publicTemplate, setPublicTemplate] = useState("all");
+
+  const [myPortfolioPage, setMyPortfolioPage] = useState(1);
+  const [publicPortfolioPage, setPublicPortfolioPage] = useState(1);
+
+  useEffect(() => {
+    setMyPortfolioPage(1);
+  }, [mySearch, mySort, myVisibility, myKind]);
+
+  useEffect(() => {
+    setPublicPortfolioPage(1);
+  }, [publicSearch, publicSort, publicTemplate]);
 
   useEffect(() => {
     const load = async () => {
@@ -176,6 +196,36 @@ export default function Dashboard() {
     return sortPortfolios(list, publicSort, getPortfolioDisplayName, getPortfolioTypeLabel);
   }, [publicPortfolios, publicSearch, publicSort, publicTemplate]);
 
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredMyPortfolios.length / PAGE_SIZE));
+    setMyPortfolioPage((p) => (p > totalPages ? totalPages : p));
+  }, [filteredMyPortfolios.length]);
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredPublicPortfolios.length / PAGE_SIZE));
+    setPublicPortfolioPage((p) => (p > totalPages ? totalPages : p));
+  }, [filteredPublicPortfolios.length]);
+
+  const paginatedMyPortfolios = useMemo(() => {
+    const start = (myPortfolioPage - 1) * PAGE_SIZE;
+    return filteredMyPortfolios.slice(start, start + PAGE_SIZE);
+  }, [filteredMyPortfolios, myPortfolioPage]);
+
+  const paginatedPublicPortfolios = useMemo(() => {
+    const start = (publicPortfolioPage - 1) * PAGE_SIZE;
+    return filteredPublicPortfolios.slice(start, start + PAGE_SIZE);
+  }, [filteredPublicPortfolios, publicPortfolioPage]);
+
+  const myTotalPages = Math.max(1, Math.ceil(filteredMyPortfolios.length / PAGE_SIZE));
+  const publicTotalPages = Math.max(1, Math.ceil(filteredPublicPortfolios.length / PAGE_SIZE));
+
+  const myPageRange = portfolioPageRange(myPortfolioPage, filteredMyPortfolios.length, PAGE_SIZE);
+  const publicPageRangeVals = portfolioPageRange(
+    publicPortfolioPage,
+    filteredPublicPortfolios.length,
+    PAGE_SIZE
+  );
+
   const togglePublic = async (portfolio) => {
     try {
       const res = await portfolioApi.toggleVisibility(portfolio._id);
@@ -215,6 +265,7 @@ export default function Dashboard() {
 
       setMyPortfolios((prev) => prev.filter((portfolio) => portfolio._id !== portfolioId));
       setPublicPortfolios((prev) => prev.filter((portfolio) => portfolio._id !== portfolioId));
+      setMyPortfolioPage(1);
       refreshUser?.();
       toast.success("Deleted portfolio");
     } catch (error) {
@@ -224,20 +275,20 @@ export default function Dashboard() {
   };
 
   const sortSelectClass =
-    "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+    "rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-slate-800 dark:text-neutral-200 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
 
   const searchInputClass =
-    "w-full sm:w-56 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+    "w-full sm:w-56 rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-slate-800 dark:text-neutral-200 shadow-sm placeholder:text-slate-400 dark:placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
 
   return (
-    <main className="min-h-screen bg-slate-50 pt-24 px-4">
+    <main className="min-h-screen bg-slate-50 dark:bg-neutral-950 pt-24 px-4">
       <div className="max-w-5xl mx-auto space-y-12">
         {user && (
           <section>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
               <div>
-                <h2 className="text-2xl font-semibold text-slate-800">My Portfolios</h2>
-                <p className="text-slate-500 mt-1">
+                <h2 className="text-2xl font-semibold text-slate-800 dark:text-neutral-100">My Portfolios</h2>
+                <p className="text-slate-500 dark:text-neutral-400 mt-1">
                   AI-generated portfolios now live here alongside every other portfolio.
                 </p>
               </div>
@@ -245,7 +296,7 @@ export default function Dashboard() {
 
             <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-end gap-3 mb-6">
               <label className="flex flex-col gap-1 min-w-0 flex-1 sm:flex-none">
-                <span className="text-xs font-medium text-slate-500">Search</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Search</span>
                 <input
                   type="search"
                   value={mySearch}
@@ -256,7 +307,7 @@ export default function Dashboard() {
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-slate-500">Sort</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Sort</span>
                 <select value={mySort} onChange={(e) => setMySort(e.target.value)} className={sortSelectClass}>
                   <option value="updatedRecent">Recently updated</option>
                   <option value="createdNewest">Newest first</option>
@@ -267,7 +318,7 @@ export default function Dashboard() {
                 </select>
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-slate-500">Visibility</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Visibility</span>
                 <select
                   value={myVisibility}
                   onChange={(e) => setMyVisibility(e.target.value)}
@@ -279,7 +330,7 @@ export default function Dashboard() {
                 </select>
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-slate-500">Kind</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Kind</span>
                 <select value={myKind} onChange={(e) => setMyKind(e.target.value)} className={sortSelectClass}>
                   <option value="all">All</option>
                   <option value="ai">AI</option>
@@ -290,15 +341,15 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredMyPortfolios.length === 0 && myPortfolios.length > 0 && (
-                <div className="col-span-full text-center py-10 text-slate-600 bg-white rounded-2xl border border-slate-200 text-sm">
+                <div className="col-span-full text-center py-10 text-slate-600 dark:text-neutral-300 bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700 text-sm">
                   No portfolios match your search or filters.
                 </div>
               )}
 
-              {filteredMyPortfolios.map((portfolio) => (
+              {paginatedMyPortfolios.map((portfolio) => (
                 <div
                   key={portfolio._id}
-                  className="bg-white rounded-2xl shadow-md p-6 cursor-pointer relative"
+                  className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md p-6 cursor-pointer relative border border-transparent dark:border-neutral-700"
                   onClick={() => handleCardClick(portfolio)}
                 >
                   <div
@@ -319,13 +370,13 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="mt-8 mb-2 inline-flex rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs font-semibold">
+                  <div className="mt-8 mb-2 inline-flex rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 px-3 py-1 text-xs font-semibold">
                     {getPortfolioTypeLabel(portfolio)}
                   </div>
-                  <div className="text-slate-800 font-semibold min-h-[3rem]">
+                  <div className="text-slate-800 dark:text-neutral-100 font-semibold min-h-[3rem]">
                     {getPortfolioDisplayName(portfolio)}
                   </div>
-                  <div className="text-slate-400 text-xs truncate mt-2">{portfolio._id}</div>
+                  <div className="text-slate-400 dark:text-neutral-500 text-xs truncate mt-2">{portfolio._id}</div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
@@ -353,17 +404,19 @@ export default function Dashboard() {
               ))}
 
               <button
+                type="button"
                 onClick={() => navigate("/resume")}
-                className="flex flex-col items-center justify-center bg-white rounded-2xl shadow-md p-6 border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all min-h-[200px] cursor-pointer"
+                className="flex flex-col items-center justify-center bg-white dark:bg-neutral-900 rounded-2xl shadow-md p-6 border-2 border-dashed border-slate-300 dark:border-neutral-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all min-h-[200px] cursor-pointer"
               >
                 <span className="text-5xl text-blue-400 font-bold">+</span>
-                <span className="mt-2 text-slate-700 font-medium">Add Portfolio</span>
-                <span className="mt-1 text-sm text-slate-500 text-center">
+                <span className="mt-2 text-slate-700 dark:text-neutral-200 font-medium">Add Portfolio</span>
+                <span className="mt-1 text-sm text-slate-500 dark:text-neutral-400 text-center">
                   Start from an existing template
                 </span>
               </button>
 
               <button
+                type="button"
                 onClick={() => navigate("/portfolios/create/ai", { state: { source: "dashboard" } })}
                 className="flex flex-col items-center justify-center bg-slate-900 rounded-2xl shadow-md p-6 border-2 border-dashed border-slate-700 hover:border-sky-400 transition-all min-h-[200px] cursor-pointer text-white"
               >
@@ -374,15 +427,41 @@ export default function Dashboard() {
                 </span>
               </button>
             </div>
+
+            {filteredMyPortfolios.length > 0 && (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-neutral-700">
+                <p className="text-sm text-slate-600 dark:text-neutral-400">
+                  Showing {myPageRange.start}–{myPageRange.end} of {filteredMyPortfolios.length}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={myPortfolioPage <= 1}
+                    onClick={() => setMyPortfolioPage((p) => Math.max(1, p - 1))}
+                    className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={myPortfolioPage >= myTotalPages}
+                    onClick={() => setMyPortfolioPage((p) => Math.min(myTotalPages, p + 1))}
+                    className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4 text-slate-800">Public Portfolios</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-neutral-100">Public Portfolios</h2>
 
           <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-end gap-3 mb-6">
             <label className="flex flex-col gap-1 min-w-0 flex-1 sm:flex-none">
-              <span className="text-xs font-medium text-slate-500">Search</span>
+              <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Search</span>
               <input
                 type="search"
                 value={publicSearch}
@@ -393,7 +472,7 @@ export default function Dashboard() {
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-slate-500">Sort</span>
+              <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Sort</span>
               <select
                 value={publicSort}
                 onChange={(e) => setPublicSort(e.target.value)}
@@ -408,7 +487,7 @@ export default function Dashboard() {
               </select>
             </label>
             <label className="flex flex-col gap-1 min-w-[10rem]">
-              <span className="text-xs font-medium text-slate-500">Template</span>
+              <span className="text-xs font-medium text-slate-500 dark:text-neutral-400">Template</span>
               <select
                 value={publicTemplate}
                 onChange={(e) => setPublicTemplate(e.target.value)}
@@ -426,34 +505,61 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {publicPortfolios.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-200">
+              <div className="col-span-full text-center py-12 text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700">
                 No public portfolios available yet
               </div>
             ) : filteredPublicPortfolios.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-slate-600 bg-white rounded-2xl border border-slate-200 text-sm">
+              <div className="col-span-full text-center py-12 text-slate-600 dark:text-neutral-300 bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700 text-sm">
                 No portfolios match your search or filters.
               </div>
             ) : (
-              filteredPublicPortfolios.map((portfolio) => (
+              paginatedPublicPortfolios.map((portfolio) => (
                 <div
                   key={portfolio._id}
-                  className="bg-white rounded-2xl shadow-md p-6 cursor-pointer"
+                  className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md p-6 cursor-pointer border border-transparent dark:border-neutral-700"
                   onClick={() => handleCardClick(portfolio)}
                 >
-                  <div className="font-semibold mb-3 bg-slate-600 rounded-2xl text-white px-3 py-1 inline-block text-sm">
+                  <div className="font-semibold mb-3 bg-slate-600 dark:bg-slate-500 rounded-2xl text-white px-3 py-1 inline-block text-sm">
                     {getPortfolioTypeLabel(portfolio)}
                   </div>
-                  <div className="font-bold text-slate-800 mb-2 text-xl">
+                  <div className="font-bold text-slate-800 dark:text-neutral-100 mb-2 text-xl">
                     {getPortfolioDisplayName(portfolio)}
                   </div>
-                  <div className="text-slate-600 text-sm">{portfolio.name}</div>
-                  <div className="text-slate-600 text-sm">
+                  <div className="text-slate-600 dark:text-neutral-400 text-sm">{portfolio.name}</div>
+                  <div className="text-slate-600 dark:text-neutral-400 text-sm">
                     {portfolio.email || portfolio.contact?.email}
                   </div>
                 </div>
               ))
             )}
           </div>
+
+          {publicPortfolios.length > 0 && filteredPublicPortfolios.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-neutral-700">
+              <p className="text-sm text-slate-600 dark:text-neutral-400">
+                Showing {publicPageRangeVals.start}–{publicPageRangeVals.end} of{" "}
+                {filteredPublicPortfolios.length}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={publicPortfolioPage <= 1}
+                  onClick={() => setPublicPortfolioPage((p) => Math.max(1, p - 1))}
+                  className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  disabled={publicPortfolioPage >= publicTotalPages}
+                  onClick={() => setPublicPortfolioPage((p) => Math.min(publicTotalPages, p + 1))}
+                  className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </main>

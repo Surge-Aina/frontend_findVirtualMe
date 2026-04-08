@@ -57,7 +57,6 @@ export default function PortfolioBranding() {
 
   const handleToggle = async (portfolio) => {
     const portfolioId = portfolio.portfolioId;
-    const portfolioType = portfolio.portfolioType;
     const currentVal = hideBrandingMap[portfolioId] ?? false;
     const newVal = !currentVal;
     setUpdating((prev) => ({ ...prev, [portfolioId]: true }));

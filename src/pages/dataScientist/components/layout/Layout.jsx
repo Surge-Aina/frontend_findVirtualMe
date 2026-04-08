@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import SocialLinks from '../common/SocialLinks';
 import { Menu, X } from 'lucide-react';
 
 const Layout = ({ children }) => {
-  const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

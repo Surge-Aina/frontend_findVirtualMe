@@ -2,9 +2,51 @@ function looksLikeHttpUrl(value) {
   return /^https?:\/\//i.test(String(value || "").trim());
 }
 
+/** YouTube watch/share URLs cannot be used as iframe src; convert to /embed/… */
+function normalizeEmbedUrlForIframe(raw) {
+  const s = String(raw || "").trim();
+  if (!/^https?:\/\//i.test(s)) return "";
+
+  try {
+    const u = new URL(s);
+    const host = u.hostname.replace(/^www\./i, "").toLowerCase();
+
+    if (host === "youtu.be") {
+      const id = u.pathname.replace(/^\//, "").split("/").filter(Boolean)[0];
+      if (id) return `https://www.youtube.com/embed/${id}`;
+      return s;
+    }
+
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+      if (u.pathname === "/watch" || u.pathname === "/watch/") {
+        const v = u.searchParams.get("v");
+        if (v) {
+          const list = u.searchParams.get("list");
+          let out = `https://www.youtube.com/embed/${v}`;
+          if (list) out += `?list=${encodeURIComponent(list)}`;
+          return out;
+        }
+      }
+      if (u.pathname.startsWith("/embed/")) return s;
+      if (u.pathname.startsWith("/shorts/")) {
+        const id = u.pathname.replace(/^\/shorts\//, "").split("/").filter(Boolean)[0];
+        if (id) return `https://www.youtube.com/embed/${id}`;
+      }
+      if (u.pathname.startsWith("/live/")) {
+        const id = u.pathname.replace(/^\/live\//, "").split("/").filter(Boolean)[0];
+        if (id) return `https://www.youtube.com/embed/${id}`;
+      }
+    }
+  } catch {
+    return s;
+  }
+  return s;
+}
+
 export default function VideoEmbedBlock({ template, ...data }) {
   const isAgent = template === "agent";
-  const embedUrl = looksLikeHttpUrl(data.embedUrl) ? data.embedUrl : "";
+  const rawEmbed = looksLikeHttpUrl(data.embedUrl) ? data.embedUrl.trim() : "";
+  const embedUrl = rawEmbed ? normalizeEmbedUrlForIframe(rawEmbed) : "";
   const videoUrl = looksLikeHttpUrl(data.videoUrl) ? data.videoUrl : "";
   const posterImageUrl = looksLikeHttpUrl(data.posterImageUrl) ? data.posterImageUrl : "";
   const shellClass = isAgent

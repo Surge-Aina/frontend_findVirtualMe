@@ -1,6 +1,5 @@
-import { render, waitFor, screen } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { AuthProvider, AuthContext } from "../context/AuthContext";
-import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";

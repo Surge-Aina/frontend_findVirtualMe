@@ -5,8 +5,8 @@ const BASE = "/api/portfolios";
 
 export const portfolioApi = {
   // Public
-  getById: (id) => axiosAuth.get(`${BASE}/${id}`),
-  getBySlug: (slug) => axiosAuth.get(`${BASE}/slug/${slug}`),
+  getById: (id, config) => axiosAuth.get(`${BASE}/${id}`, config),
+  getBySlug: (slug, config) => axiosAuth.get(`${BASE}/slug/${slug}`, config),
   listPublic: (template) => {
     const params = template ? `?template=${template}` : "";
     return axios.get(`${import.meta.env.VITE_BACKEND_API}${BASE}/public${params}`);

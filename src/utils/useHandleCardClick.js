@@ -30,10 +30,11 @@ export function useHandleCardClick() {
         navigate(`/portfolios/cleaningService/${p._id}/about`);
         break;
 
-      case "LocalVendor":
+      case "LocalVendor": {
         const username = (p.name || p.email || "vendor").toLowerCase().replace(/\s+/g, "-");
         navigate(`/portfolios/vendor/${username}/${p._id}`);
         break;
+      }
 
       case "ProjectManager":
       case "projectManager":

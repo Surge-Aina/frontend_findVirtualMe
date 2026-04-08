@@ -14,14 +14,10 @@ const Menu = () => {
   const { user } = useContext(AuthContext);
 
   // unified permission check
-  const canEdit = canEditPortfolio(vendorId);
+  const canEdit = canEditPortfolio(user, vendorId);
 
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const [quickView, setQuickView] = useState(null);
-  const openQuickView = (item) => setQuickView(item);
-  const closeQuickView = () => setQuickView(null);
 
   // filters
   const [activeCategory, setActiveCategory] = useState("All");

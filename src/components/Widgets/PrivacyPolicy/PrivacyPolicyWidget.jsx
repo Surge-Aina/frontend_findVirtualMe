@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { portfolioTypeToModel } from "../../../utils/portfolioTypeToModel";
+import PlatformPrivacyPolicyEmbed from "../../../legal/PlatformPrivacyPolicyEmbed";
 
 export default function PrivacyPolicyWidget({ portfolioId, portfolioType }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,12 +38,11 @@ export default function PrivacyPolicyWidget({ portfolioId, portfolioType }) {
         );
         setPolicy(res.data || null);
       } catch (err) {
-        // 404 just means no policy configured; hide widget
         if (err.response?.status === 404) {
           setPolicy(null);
         } else {
           console.error("Failed to load privacy policy", err);
-          setError("Failed to load privacy policy");
+          setError("Portfolio-specific policy could not be loaded.");
         }
       } finally {
         setLoading(false);
@@ -52,8 +52,12 @@ export default function PrivacyPolicyWidget({ portfolioId, portfolioType }) {
     fetchPolicy();
   }, [portfolioId, portfolioType]);
 
-  if (!policy || error) {
-    // For now, hide the widget entirely if there is no policy or an error.
+  const modelType =
+    portfolioType && portfolioTypeToModel[portfolioType]
+      ? portfolioTypeToModel[portfolioType]
+      : null;
+
+  if (!portfolioId || !portfolioType || !modelType) {
     return null;
   }
 
@@ -78,10 +82,10 @@ export default function PrivacyPolicyWidget({ portfolioId, portfolioType }) {
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
                 <div>
                   <h2 className="text-sm font-semibold text-gray-900">
-                    {policy.name || "Privacy Policy"}
+                    Privacy Policy
                   </h2>
                   <p className="text-xs text-gray-500">
-                    How your information is collected and used.
+                    FindVirtual.me and your portfolio.
                   </p>
                 </div>
                 <button
@@ -92,8 +96,42 @@ export default function PrivacyPolicyWidget({ portfolioId, portfolioType }) {
                   Close
                 </button>
               </div>
-              <div className="px-4 py-3 overflow-y-auto text-xs leading-relaxed text-gray-800 whitespace-pre-wrap">
-                {loading ? "Loading..." : policy.privacyPolicyText}
+              <div className="px-4 py-3 overflow-y-auto text-xs leading-relaxed text-gray-800 space-y-6 max-h-[55vh]">
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-900 mb-1.5">
+                    FindVirtual.me
+                  </h3>
+                  <PlatformPrivacyPolicyEmbed minHeight="min-h-[36vh]" />
+                </section>
+
+                {policy && (
+                  <section className="border-t border-gray-200 pt-4">
+                    <h3 className="text-xs font-semibold text-gray-900 mb-1.5">
+                      Your portfolio
+                      {policy.name ? (
+                        <span className="font-normal text-gray-600">
+                          {" "}
+                          — {policy.name}
+                        </span>
+                      ) : null}
+                    </h3>
+                    <div className="whitespace-pre-wrap">
+                      {loading ? "Loading…" : policy.privacyPolicyText}
+                    </div>
+                  </section>
+                )}
+
+                {loading && !policy && (
+                  <p className="text-xs text-gray-500 border-t border-gray-200 pt-3">
+                    Loading portfolio-specific policy…
+                  </p>
+                )}
+
+                {error && (
+                  <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5">
+                    {error}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -102,4 +140,3 @@ export default function PrivacyPolicyWidget({ portfolioId, portfolioType }) {
     </>
   );
 }
-

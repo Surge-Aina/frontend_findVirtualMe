@@ -12,7 +12,9 @@ export default function Layout({ children }) {
   return (
     <>
       {showNavbar && <Navbar />}
-      <main className={`min-h-screen w-full ${showNavbar ? "pt-20" : ""}`}>
+      <main
+        className={`min-h-screen w-full bg-white dark:bg-neutral-950 ${showNavbar ? "pt-20" : ""}`}
+      >
         {children}
       </main>
     </>

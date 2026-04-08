@@ -1,6 +1,6 @@
 // src/pages/BulkReply.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { apiRequest } from "../api";
 
 function applyTemplate(subjectTemplate, bodyTemplate, vars) {
@@ -32,7 +32,6 @@ function extractVariablesFromTemplate(subject, body) {
 
 export default function BulkReply({ auth }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const selectedMessages = location.state?.messages || [];
   const initialAccountId = location.state?.accountId || "";

@@ -8,7 +8,6 @@ import UserInfoForm from "./UserInfoForm";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import loadingGif from "../../../assets/images/loading-gif.gif";
 import { AuthContext } from "../../../context/AuthContext";
 
 // main onboarding flow component
@@ -19,7 +18,7 @@ export default function OnboardingFlow() {
   const [countdown, setCountdown] = useState(5);
   // track which step the user is on
   const [currentStep, setCurrentStep] = useState("goal");
-  const { login, setPendingFile } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   // store all user input data for onboarding
   const [data, setData] = useState({
@@ -176,8 +175,7 @@ export default function OnboardingFlow() {
       setError("");
       setCountdown(5);
       //send data to backend
-      const sendData = async () => {
-        let userId;
+        const sendData = async () => {
         try {
           const res = await axios.post(`${backendUrl}/user/addUser`, {
             data,

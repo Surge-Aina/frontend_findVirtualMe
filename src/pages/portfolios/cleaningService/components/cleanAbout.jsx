@@ -40,8 +40,7 @@ export default function CleanAbout() {
   const { portfolioId } = useParams();
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_API;
-  const authContext = useContext(AuthContext);
-  
+
   const { isAdmin, setCurrentPortfolioId, isOwner, user } = useContext(AuthContext);
   
   useEffect(() => {

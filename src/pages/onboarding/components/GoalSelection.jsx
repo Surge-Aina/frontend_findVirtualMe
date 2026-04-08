@@ -1,8 +1,6 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { Search, TrendingUp, Briefcase, Users, ChevronRight } from "lucide-react";
-import axios from "axios";
-
 const goals = [
   {
     id: "find-job",
@@ -46,8 +44,8 @@ export default function GoalSelection({ onSelect, onFileUpload }) {
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [resumeFileName, setResumeFileName] = useState("");
   const [uploadError, setUploadError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState(null);
+  const loading = false;
+  const [, setFile] = useState(null);
   const { setPendingFile } = useContext(AuthContext);
 
   const handleResumeChange = (e) => {
@@ -62,29 +60,6 @@ export default function GoalSelection({ onSelect, onFileUpload }) {
 
     if (typeof onFileUpload === "function") {
       onFileUpload(selectedFile); // Pass to OnboardingFlow
-    }
-  };
-
-  const handleResumeUpload = async (selectedFile) => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("resume", selectedFile);
-
-    try {
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_API}/portfolio/upload-pdf`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (res.status !== 200 && res.status !== 201) throw new Error("Upload failed");
-      setResumeUploaded(true);
-      if (typeof onFileUpload === "function") {
-        onFileUpload(selectedFile); // pass File object
-      }
-    } catch (err) {
-      setResumeUploaded(false);
-      setUploadError(err?.response?.data?.message || err?.message || "Resume upload failed. Please try again.");
-      console.log("Resume upload error:", err?.response?.data || err.message || err);
-    } finally {
-      setLoading(false);
     }
   };
 

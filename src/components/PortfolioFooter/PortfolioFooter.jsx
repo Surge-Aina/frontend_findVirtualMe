@@ -68,11 +68,11 @@ export default function PortfolioFooter({
           {/* Site Map */}
           {siteMapLinks.length > 0 && (
             <nav
-              className="portfolio-footer__section"
+              className="portfolio-footer__section portfolio-footer__section--sitemap"
               aria-label="Site map"
             >
               <h3 className="portfolio-footer__heading">Site Map</h3>
-              <ul className="portfolio-footer__links">
+              <ul className="portfolio-footer__links portfolio-footer__links--sitemap">
                 {siteMapLinks.map(({ label, path }) => {
                   const isAnchor = path.startsWith("#");
                   const href = isAnchor ? path : path;
@@ -101,53 +101,58 @@ export default function PortfolioFooter({
             </nav>
           )}
 
-          {/* Legal */}
-          <div className="portfolio-footer__section" aria-label="Legal">
-            <h3 className="portfolio-footer__heading">Legal</h3>
-            <ul className="portfolio-footer__links">
-              <li>
-                <PrivacyPolicyFooterLink
-                  className="portfolio-footer__link"
-                  label="Privacy Policy"
-                />
-              </li>
-              <li>
-                <TermsOfServiceFooterLink
-                  className="portfolio-footer__link"
-                  label="Terms of Service"
-                />
-              </li>
-            </ul>
-          </div>
-
-          {/* Social Links */}
-          {hasSocialLinks && (
+          <div className="portfolio-footer__meta-row">
+            {/* Legal */}
             <div
-              className="portfolio-footer__section"
-              aria-label="Social links"
+              className="portfolio-footer__section portfolio-footer__section--legal"
+              aria-label="Legal"
             >
-              <h3 className="portfolio-footer__heading">Connect</h3>
-              <ul className="portfolio-footer__social">
-                {Object.entries(SOCIAL_ICONS).map(([key, Icon]) => {
-                  const url = socialLinks?.[key];
-                  if (!url) return null;
-                  return (
-                    <li key={key}>
-                      <a
-                        href={url.startsWith("http") ? url : `https://${url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="portfolio-footer__social-link"
-                        aria-label={`${key} profile`}
-                      >
-                        <Icon className="portfolio-footer__social-icon" />
-                      </a>
-                    </li>
-                  );
-                })}
+              <h3 className="portfolio-footer__heading">Legal</h3>
+              <ul className="portfolio-footer__links">
+                <li>
+                  <PrivacyPolicyFooterLink
+                    className="portfolio-footer__link"
+                    label="Privacy Policy"
+                  />
+                </li>
+                <li>
+                  <TermsOfServiceFooterLink
+                    className="portfolio-footer__link"
+                    label="Terms of Service"
+                  />
+                </li>
               </ul>
             </div>
-          )}
+
+            {/* Social Links */}
+            {hasSocialLinks && (
+              <div
+                className="portfolio-footer__section portfolio-footer__section--connect"
+                aria-label="Social links"
+              >
+                <h3 className="portfolio-footer__heading">Connect</h3>
+                <ul className="portfolio-footer__social">
+                  {Object.entries(SOCIAL_ICONS).map(([key, SocialIcon]) => {
+                    const url = socialLinks?.[key];
+                    if (!url) return null;
+                    return (
+                      <li key={key}>
+                        <a
+                          href={url.startsWith("http") ? url : `https://${url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="portfolio-footer__social-link"
+                          aria-label={`${key} profile`}
+                        >
+                          <SocialIcon className="portfolio-footer__social-icon" />
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="portfolio-footer__bottom">

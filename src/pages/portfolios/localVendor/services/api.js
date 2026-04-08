@@ -26,8 +26,6 @@ export function useVendorApi() {
     };
   }
 
-  const base = `${import.meta.env.VITE_BACKEND_API}/vendor/${vendorId}`;
-
   return {
     // ✅ Fetch entire portfolio
     fetchFullPortfolio: async () => {

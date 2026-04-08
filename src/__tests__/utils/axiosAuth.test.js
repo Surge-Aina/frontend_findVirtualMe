@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 describe('axiosAuth', () => {
   let mockInterceptorUse;
   let requestSuccessHandler;

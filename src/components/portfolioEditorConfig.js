@@ -16,8 +16,8 @@ export const BLOCK_LABELS = {
   projects: "Projects",
   testimonials: "Testimonials",
   process: "Process Steps",
-  dashboardChart: "Dashboard Chart",
-  dashboardTable: "Dashboard Table",
+  dashboardChart: "Data Visualization",
+  dashboardTable: "Data Table",
   faq: "FAQ",
   clientLogos: "Client Logos",
   certifications: "Certifications",
@@ -49,7 +49,7 @@ function deepClone(value) {
   return JSON.parse(JSON.stringify(value ?? null));
 }
 
-export function getDefaultBlockData(type, template = "agent") {
+function getDefaultBlockDataInner(type, template = "agent") {
   switch (type) {
     case "hero":
       return template === "agent"
@@ -58,7 +58,9 @@ export function getDefaultBlockData(type, template = "agent") {
             title: "Your role or specialty",
             bio: "Introduce the work this portfolio represents.",
             primaryButtonText: "Get in touch",
+            primaryButtonUrl: "#contact",
             secondaryButtonText: "Explore work",
+            secondaryButtonUrl: "#projects",
           }
         : {};
     case "summary":
@@ -174,23 +176,42 @@ export function getDefaultBlockData(type, template = "agent") {
       };
     case "dashboardChart":
       return {
-        chartTitle: "Quarterly metrics",
+        sectionTitle: "Performance Overview",
+        chartTitle: "Performance Overview",
+        sectionIntro: "Compare multiple metrics side by side and highlight a supporting breakdown.",
         xAxisLabel: "Quarter",
         yAxisLabel: "Value",
+        summaryTitle: "Workflow split",
         data: {
-          sales: [12, 18, 24],
-          revenue: [1200, 1600, 2200],
           xLabels: ["Q1", "Q2", "Q3"],
           hiddenPoints: [],
+          series: [
+            { name: "Leads", color: "#10b981", values: [12, 18, 24] },
+            { name: "Revenue", color: "#06b6d4", values: [1200, 1600, 2200] },
+          ],
+          sales: [12, 18, 24],
+          revenue: [1200, 1600, 2200],
         },
         categories: ["Build", "Analyze", "Report"],
         categoryData: [40, 35, 25],
+        summaryItems: [
+          { label: "Build", value: 40, color: "#10b981" },
+          { label: "Analyze", value: 35, color: "#8b5cf6" },
+          { label: "Report", value: 25, color: "#f59e0b" },
+        ],
         isActive: true,
       };
     case "dashboardTable":
       return {
-        tableTitle: "Highlights",
-        tableData: [{ name: "Metric", value: 95, percentage: 40, icon: "", link: "", buttonText: "" }],
+        sectionTitle: "Data Table",
+        tableTitle: "Data Table",
+        sectionIntro: "Display structured information in either a table or card layout.",
+        displayMode: "table",
+        columnOrder: ["service", "status", "owner", "website", "completion"],
+        tableData: [
+          { service: "Analytics Dashboard", status: "Active", owner: "Casey", website: "https://example.com", completion: 92 },
+        ],
+        emptyStateText: "Add rows to display your data.",
       };
     case "faq":
       return {
@@ -254,6 +275,11 @@ export function getDefaultBlockData(type, template = "agent") {
     default:
       return {};
   }
+}
+
+export function getDefaultBlockData(type, template = "agent") {
+  const data = getDefaultBlockDataInner(type, template);
+  return { ...data, pageBanner: { enabled: false, bannerBackground: "gradient" } };
 }
 
 export function toCreateSections(sections = []) {

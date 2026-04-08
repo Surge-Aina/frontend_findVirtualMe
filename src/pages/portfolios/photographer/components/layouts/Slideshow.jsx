@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Slideshow({ photos, isAdmin = false }) {
+export default function Slideshow({ photos, isAdmin: _isAdmin = false }) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const slideshowRef = React.useRef(null);
   const photosToUse = photos;
@@ -33,7 +33,7 @@ export default function Slideshow({ photos, isAdmin = false }) {
         className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {photosToUse.map((photo, index) => (
+        {photosToUse.map((photo) => (
           <div
             key={photo.id}
             className="w-full h-full flex-shrink-0 snap-center"

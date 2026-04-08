@@ -22,13 +22,15 @@ function HealthcareServices({ items = [] }) {
                   {service.price} {service.duration && `· ${service.duration}`}
                 </p>
               )}
-              {service.features?.length > 0 && (
+              {(service.features || []).filter((f) => String(f).trim()).length > 0 && (
                 <ul className="space-y-2">
-                  {service.features.map((f, j) => (
-                    <li key={j} className="flex items-center gap-2 text-gray-600 text-sm">
-                      <FaCheck className="text-green-500 shrink-0" /> {f}
-                    </li>
-                  ))}
+                  {(service.features || [])
+                    .filter((f) => String(f).trim())
+                    .map((f, j) => (
+                      <li key={j} className="flex items-center gap-2 text-gray-600 text-sm">
+                        <FaCheck className="text-green-500 shrink-0" /> {f}
+                      </li>
+                    ))}
                 </ul>
               )}
             </div>
@@ -51,13 +53,15 @@ function HandymanServices({ sectionTitle, sectionIntro, items = [] }) {
               {service.icon && <div className="text-4xl mb-4">{service.icon}</div>}
               <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
               <p className="text-gray-600 mb-4">{service.description}</p>
-              {service.bullets?.length > 0 && (
+              {(service.bullets || []).filter((b) => String(b).trim()).length > 0 && (
                 <ul className="space-y-2">
-                  {service.bullets.map((b, j) => (
-                    <li key={j} className="flex items-center gap-2 text-gray-600 text-sm">
-                      <FaCheck className="text-amber-500 shrink-0" /> {b}
-                    </li>
-                  ))}
+                  {(service.bullets || [])
+                    .filter((b) => String(b).trim())
+                    .map((b, j) => (
+                      <li key={j} className="flex items-center gap-2 text-gray-600 text-sm">
+                        <FaCheck className="text-amber-500 shrink-0" /> {b}
+                      </li>
+                    ))}
                 </ul>
               )}
               {service.price != null && (
@@ -89,41 +93,45 @@ function AgentServices(data) {
             </p>
           )}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((service, i) => (
-              <article key={service.id || i} className="agent-panel-alt rounded-[1.5rem] p-6">
-                {(service.icon || service.image) && (
-                  service.image ? (
-                    <img
-                      src={service.image}
-                      alt={service.title || ""}
-                      className="w-full h-40 object-cover rounded-2xl mb-4"
-                    />
-                  ) : (
-                    <div className="text-4xl mb-4">{service.icon}</div>
-                  )
-                )}
-                <h3 className="text-xl font-bold text-[color:var(--agent-text)] mb-2">
-                  {service.title || `Service ${i + 1}`}
-                </h3>
-                {service.description && (
-                  <p className="text-[color:var(--agent-muted)] mb-4">{service.description}</p>
-                )}
-                {(service.features?.length > 0 || service.bullets?.length > 0) && (
-                  <ul className="space-y-2">
-                    {[...(service.features || []), ...(service.bullets || [])].map((entry, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm text-[color:var(--agent-muted)]">
-                        <FaCheck className="shrink-0 text-[color:var(--agent-accent)]" /> {entry}
-                      </li>
+            {items.map((service, i) => {
+              const entryLines = [...(service.features || []), ...(service.bullets || [])].filter((e) =>
+                String(e).trim()
+              );
+              return (
+                <article key={service.id || i} className="agent-panel-alt rounded-[1.5rem] p-6">
+                  {(service.icon || service.image) &&
+                    (service.image ? (
+                      <img
+                        src={service.image}
+                        alt={service.title || ""}
+                        className="w-full h-40 object-cover rounded-2xl mb-4"
+                      />
+                    ) : (
+                      <div className="text-4xl mb-4">{service.icon}</div>
                     ))}
-                  </ul>
-                )}
-                {(service.price || service.duration) && (
-                  <p className="mt-4 text-sm font-semibold text-[color:var(--agent-accent-strong)]">
-                    {[service.price, service.duration].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-              </article>
-            ))}
+                  <h3 className="text-xl font-bold text-[color:var(--agent-text)] mb-2">
+                    {service.title || `Service ${i + 1}`}
+                  </h3>
+                  {service.description && (
+                    <p className="text-[color:var(--agent-muted)] mb-4">{service.description}</p>
+                  )}
+                  {entryLines.length > 0 && (
+                    <ul className="space-y-2">
+                      {entryLines.map((entry, j) => (
+                        <li key={j} className="flex items-center gap-2 text-sm text-[color:var(--agent-muted)]">
+                          <FaCheck className="shrink-0 text-[color:var(--agent-accent)]" /> {entry}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {(service.price || service.duration) && (
+                    <p className="mt-4 text-sm font-semibold text-[color:var(--agent-accent-strong)]">
+                      {[service.price, service.duration].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>

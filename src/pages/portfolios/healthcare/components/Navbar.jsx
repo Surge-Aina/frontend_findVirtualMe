@@ -7,9 +7,8 @@ import { FaHospitalUser } from "react-icons/fa6";
 import { RiMentalHealthFill } from "react-icons/ri";
 import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath';
 
-export default function Navbar({ userData, practiceId: practiceIdProp }) {
-  const { basePath, practiceId: practiceIdFromHook } = useHealthcareBasePath();
-  const practiceId = practiceIdProp ?? practiceIdFromHook;
+export default function Navbar({ userData, practiceId: _practiceId }) {
+  const { basePath } = useHealthcareBasePath();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();

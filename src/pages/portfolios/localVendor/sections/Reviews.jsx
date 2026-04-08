@@ -43,7 +43,7 @@ const Reviews = () => {
   const { vendorId } = useVendor();
   const api = useVendorApi();
   const { user } = useContext(AuthContext);
-  const canEdit = canEditPortfolio(vendorId); // unified permission check
+  const canEdit = canEditPortfolio(user, vendorId); // unified permission check
 
   const [reviews, setReviews] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);

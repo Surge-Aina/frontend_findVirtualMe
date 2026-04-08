@@ -1,5 +1,14 @@
 import { FaPhone } from "react-icons/fa";
 
+/** In-page anchors, mailto, tel stay same-tab; http(s) opens new tab. */
+function heroLinkProps(href) {
+  const h = (href && String(href).trim()) || "#";
+  if (/^https?:\/\//i.test(h)) {
+    return { href: h, target: "_blank", rel: "noopener noreferrer" };
+  }
+  return { href: h };
+}
+
 const healthcareVariant = (data) => (
   <section
     className="relative bg-gradient-to-br from-blue-700 to-blue-900 text-white pt-30 pb-20"
@@ -19,12 +28,18 @@ const healthcareVariant = (data) => (
       {data.description && <p className="text-lg max-w-2xl mx-auto mb-8 text-blue-100">{data.description}</p>}
       <div className="flex flex-wrap gap-4 justify-center">
         {data.primaryButtonText && (
-          <a href="#contact" className="bg-white text-blue-700 px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
+          <a
+            {...heroLinkProps(data.primaryButtonUrl || "#contact")}
+            className="bg-white text-blue-700 px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-transform"
+          >
             {data.primaryButtonText}
           </a>
         )}
         {data.secondaryButtonText && (
-          <a href="#services" className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors">
+          <a
+            {...heroLinkProps(data.secondaryButtonUrl || "#services")}
+            className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
+          >
             {data.secondaryButtonText}
           </a>
         )}
@@ -50,7 +65,10 @@ const handymanVariant = (data) => (
         )}
         <div className="flex flex-wrap gap-4 pt-2">
           {data.ctaText && (
-            <a href="#contact" className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+            <a
+              {...heroLinkProps(data.ctaUrl || "#contact")}
+              className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+            >
               {data.ctaText}
             </a>
           )}
@@ -83,13 +101,35 @@ const projectManagerVariant = (data) => (
   </section>
 );
 
+function resolveAgentPrimaryLabel(data) {
+  if (data.primaryButtonText !== undefined && data.primaryButtonText !== null) {
+    const t = String(data.primaryButtonText).trim();
+    return t === "" ? null : t;
+  }
+  if (data.ctaText !== undefined && data.ctaText !== null) {
+    const t = String(data.ctaText).trim();
+    return t === "" ? null : t;
+  }
+  return "Get in touch";
+}
+
+function resolveAgentSecondaryLabel(data) {
+  if (data.secondaryButtonText !== undefined && data.secondaryButtonText !== null) {
+    const t = String(data.secondaryButtonText).trim();
+    return t === "" ? null : t;
+  }
+  return "Explore work";
+}
+
 const agentVariant = (data) => {
   const title = data.title || data.practiceName || data.name || "Your custom portfolio";
   const subtitle = data.subtitle || data.tagline || data.summary || data.bio || "";
   const description = data.description || data.about || "";
   const image = data.imageUrl || data.profileImage || data.logoImage || "";
-  const primaryText = data.ctaText || data.primaryButtonText || "Get in touch";
-  const secondaryText = data.secondaryButtonText || "Explore work";
+  const primaryText = resolveAgentPrimaryLabel(data);
+  const secondaryText = resolveAgentSecondaryLabel(data);
+  const primaryHref = (data.primaryButtonUrl && String(data.primaryButtonUrl).trim()) || "#contact";
+  const secondaryHref = (data.secondaryButtonUrl && String(data.secondaryButtonUrl).trim()) || "#projects";
   const phone = data.phoneNumber || data.phone || "";
   const badges = [data.badge1Text, data.badge2Text, data.badge3Text].filter(Boolean);
 
@@ -97,7 +137,11 @@ const agentVariant = (data) => {
     <section className="py-16 md:py-24">
       <div className="max-w-6xl mx-auto px-4">
         <div className="agent-panel rounded-[1.75rem] overflow-hidden">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] px-6 py-8 md:px-10 md:py-12 items-center">
+          <div
+            className={`grid gap-10 px-6 py-8 md:px-10 md:py-12 items-center ${
+              image ? "lg:grid-cols-[1.2fr_0.8fr]" : "grid-cols-1"
+            }`}
+          >
             <div className="space-y-6">
               {badges.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -129,7 +173,7 @@ const agentVariant = (data) => {
               <div className="flex flex-wrap gap-4">
                 {primaryText && (
                   <a
-                    href="#contact"
+                    {...heroLinkProps(primaryHref)}
                     className="px-6 py-3 rounded-full font-semibold text-slate-950 transition-transform hover:-translate-y-0.5"
                     style={{ backgroundColor: "var(--agent-accent)" }}
                   >
@@ -138,7 +182,7 @@ const agentVariant = (data) => {
                 )}
                 {secondaryText && (
                   <a
-                    href="#projects"
+                    {...heroLinkProps(secondaryHref)}
                     className="px-6 py-3 rounded-full font-semibold border transition-colors text-[color:var(--agent-text)]"
                     style={{ borderColor: "var(--agent-border)" }}
                   >
@@ -156,21 +200,17 @@ const agentVariant = (data) => {
                 )}
               </div>
             </div>
-            <div>
-              <div className="agent-panel-alt rounded-[1.5rem] p-4 md:p-6">
-                {image ? (
+            {image && (
+              <div>
+                <div className="agent-panel-alt rounded-[1.5rem] p-4 md:p-6">
                   <img
                     src={image}
                     alt=""
                     className="w-full aspect-[4/3] rounded-[1.25rem] object-cover"
                   />
-                ) : (
-                  <div className="w-full aspect-[4/3] rounded-[1.25rem] border border-dashed border-[color:var(--agent-border)] flex items-center justify-center text-center px-6 text-sm text-[color:var(--agent-muted)]">
-                    Add an image, logo, or profile photo to personalize this hero section.
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

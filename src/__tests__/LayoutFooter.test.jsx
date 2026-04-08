@@ -77,11 +77,32 @@
 
     describe("Footer", () => {
     test("renders company name and copyright", () => {
-        render(<Footer />);
+        render(
+        <MemoryRouter>
+            <Footer />
+        </MemoryRouter>
+        );
 
         expect(screen.getAllByText("FindVirtual.me")[0]).toBeInTheDocument();
         expect(
         screen.getByText(/All rights reserved\./i)
         ).toBeInTheDocument();
+    });
+
+    test("links Privacy and Terms to legal routes", () => {
+        render(
+        <MemoryRouter>
+            <Footer />
+        </MemoryRouter>
+        );
+
+        expect(screen.getByRole("link", { name: /^Privacy$/i })).toHaveAttribute(
+        "href",
+        "/privacy"
+        );
+        expect(screen.getByRole("link", { name: /^Terms$/i })).toHaveAttribute(
+        "href",
+        "/terms"
+        );
     });
     });

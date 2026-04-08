@@ -1,11 +1,17 @@
-import { FieldEditor } from "./PortfolioEditorFields";
+import {
+  FieldEditor,
+  editorInputCompactClass,
+  editorMutedClass,
+  editorLinkBtnClass,
+  editorSubheadingClass,
+  editorLabelClass,
+} from "./PortfolioEditorFields";
+import { ImageFieldEditor } from "./ImageFieldEditor";
 
+/** Split textarea value into lines; preserve spaces and blank lines while typing (trim only at render time). */
 function linesToList(s) {
-  if (!s || typeof s !== "string") return [];
-  return s
-    .split(/\r?\n/)
-    .map((x) => x.trim())
-    .filter(Boolean);
+  if (typeof s !== "string") return [];
+  return s.split(/\r?\n/);
 }
 
 function listToLines(arr) {
@@ -15,11 +21,15 @@ function listToLines(arr) {
 
 function CardShell({ title, onRemove, children }) {
   return (
-    <div className="border border-gray-200 rounded-lg p-4 space-y-3 bg-gray-50/80">
+    <div className="border border-gray-200 dark:border-neutral-600 rounded-lg p-4 space-y-3 bg-gray-50/80 dark:bg-neutral-800/50">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium text-gray-800">{title}</span>
+        <span className="text-sm font-medium text-gray-800 dark:text-neutral-200">{title}</span>
         {onRemove && (
-          <button type="button" onClick={onRemove} className="text-xs text-red-600 hover:text-red-800">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+          >
             Remove
           </button>
         )}
@@ -43,14 +53,14 @@ export function StatsEditor({ data, onChange }) {
           checked={data.showStatsSection !== false}
           onChange={(e) => set("showStatsSection", e.target.checked)}
         />
-        <span className="text-sm font-medium text-gray-700">Show statistics section</span>
+        <span className="text-sm font-medium text-gray-700 dark:text-neutral-300">Show statistics section</span>
       </label>
       {["yearsExperience", "patientsServed", "successRate", "doctorsCount"].map((key) => (
         <div key={key} className="flex flex-wrap items-end gap-4">
           <div className="flex-1 min-w-[140px]">
             <FieldEditor label={key} value={data[key]} onChange={(v) => set(key, v)} />
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-600 pb-2">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-neutral-400 pb-2">
             <input
               type="checkbox"
               checked={vis[key] !== false}
@@ -100,7 +110,7 @@ export function SummarySectionEditor({ data, onChange }) {
       <FieldEditor label="Email" value={data.email} onChange={(v) => set("email", v)} type="email" />
       <FieldEditor label="Phone" value={data.phone} onChange={(v) => set("phone", v)} />
       <FieldEditor label="Location" value={data.location} onChange={(v) => set("location", v)} />
-      <FieldEditor label="Profile image URL" value={data.profileImage} onChange={(v) => set("profileImage", v)} />
+      <ImageFieldEditor label="Profile image URL" value={data.profileImage} onChange={(v) => set("profileImage", v)} />
       <FieldEditor label="Resume URL" value={data.resumeUrl} onChange={(v) => set("resumeUrl", v)} />
     </div>
   );
@@ -118,18 +128,18 @@ export function SkillsEditor({ data, onChange }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-600">Add one skill per row. These appear as tags or chips on your portfolio.</p>
+      <p className={editorMutedClass}>Add one skill per row. These appear as tags or chips on your portfolio.</p>
       {items.map((skill, i) => (
         <div key={i} className="flex gap-2 items-center">
           <input
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            className={`flex-1 ${editorInputCompactClass}`}
             value={typeof skill === "string" ? skill : ""}
             onChange={(e) => updateAt(i, e.target.value)}
             placeholder="e.g. React, Project management"
           />
           <button
             type="button"
-            className="text-sm text-red-600 shrink-0 px-2"
+            className="text-sm text-red-600 dark:text-red-400 shrink-0 px-2"
             onClick={() => setItems(items.filter((_, j) => j !== i))}
           >
             Remove
@@ -138,7 +148,7 @@ export function SkillsEditor({ data, onChange }) {
       ))}
       <button
         type="button"
-        className="text-sm text-blue-600 font-medium"
+        className={editorLinkBtnClass}
         onClick={() => setItems([...items, ""])}
       >
         + Add skill
@@ -159,7 +169,7 @@ export function ExperienceEditor({ data, onChange }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-600">Add each role with dates and a short impact summary.</p>
+      <p className={editorMutedClass}>Add each role with dates and a short impact summary.</p>
       {items.map((exp, i) => (
         <CardShell title={`Role ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
           <FieldEditor label="Job title" value={exp.title} onChange={(v) => patch(i, { title: v })} />
@@ -172,7 +182,7 @@ export function ExperienceEditor({ data, onChange }) {
           <FieldEditor label="Description" value={exp.description} onChange={(v) => patch(i, { description: v })} type="textarea" rows={4} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add experience
       </button>
     </div>
@@ -191,7 +201,7 @@ export function EducationEditor({ data, onChange }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-600">Schools, bootcamps, and certifications.</p>
+      <p className={editorMutedClass}>Schools, bootcamps, and certifications.</p>
       {items.map((edu, i) => (
         <CardShell title={`School ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
           <FieldEditor label="School" value={edu.school} onChange={(v) => patch(i, { school: v })} />
@@ -202,20 +212,20 @@ export function EducationEditor({ data, onChange }) {
             <FieldEditor label="End date" value={edu.endDate} onChange={(v) => patch(i, { endDate: v })} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Degrees (one per line)</label>
+            <label className={editorLabelClass}>Degrees (one per line)</label>
             <textarea
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className={editorInputCompactClass}
               value={listToLines(edu.degrees)}
               onChange={(e) => patch(i, { degrees: linesToList(e.target.value) })}
               placeholder="B.S. Computer Science"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Awards (one per line)</label>
+            <label className={editorLabelClass}>Awards (one per line)</label>
             <textarea
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className={editorInputCompactClass}
               value={listToLines(edu.awards)}
               onChange={(e) => patch(i, { awards: linesToList(e.target.value) })}
             />
@@ -223,7 +233,7 @@ export function EducationEditor({ data, onChange }) {
           <FieldEditor label="Description" value={edu.description} onChange={(v) => patch(i, { description: v })} type="textarea" rows={3} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add education
       </button>
     </div>
@@ -242,7 +252,7 @@ export function ProjectsEditor({ data, onChange }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-600">Projects with optional link to a demo or repo.</p>
+      <p className={editorMutedClass}>Projects with optional link to a demo or repo.</p>
       {items.map((p, i) => (
         <CardShell title={`Project ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
           <FieldEditor label="Name" value={p.name} onChange={(v) => patch(i, { name: v })} />
@@ -250,7 +260,7 @@ export function ProjectsEditor({ data, onChange }) {
           <FieldEditor label="Link URL" value={p.link} onChange={(v) => patch(i, { link: v })} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add project
       </button>
     </div>
@@ -265,17 +275,16 @@ function HealthcareServiceItemEditor({ item, onChange, onRemove }) {
     <CardShell title="Service" onRemove={onRemove}>
       <FieldEditor label="Title" value={item.title} onChange={(v) => patch("title", v)} />
       <FieldEditor label="Short description" value={item.description} onChange={(v) => patch("description", v)} type="textarea" rows={3} />
-      <FieldEditor label="Image URL" value={item.image} onChange={(v) => patch("image", v)} />
-      <FieldEditor label="Icon (emoji optional)" value={item.icon} onChange={(v) => patch("icon", v)} />
+      <ImageFieldEditor label="Image URL" value={item.image} onChange={(v) => patch("image", v)} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FieldEditor label="Price" value={item.price} onChange={(v) => patch("price", v)} />
         <FieldEditor label="Duration" value={item.duration} onChange={(v) => patch("duration", v)} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Features (one per line)</label>
+        <label className={editorLabelClass}>Features (one per line)</label>
         <textarea
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          className={editorInputCompactClass}
           value={featuresText}
           onChange={(e) => patch("features", linesToList(e.target.value))}
         />
@@ -289,15 +298,14 @@ function HandymanServiceItemEditor({ item, onChange, onRemove }) {
 
   return (
     <CardShell title="Service" onRemove={onRemove}>
-      <FieldEditor label="Icon (emoji)" value={item.icon} onChange={(v) => patch("icon", v)} />
       <FieldEditor label="Title" value={item.title} onChange={(v) => patch("title", v)} />
       <FieldEditor label="Description" value={item.description} onChange={(v) => patch("description", v)} type="textarea" rows={3} />
       <FieldEditor label="Price" value={item.price != null ? String(item.price) : ""} onChange={(v) => patch("price", v === "" ? undefined : Number(v) || v)} />
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Bullet points (one per line)</label>
+        <label className={editorLabelClass}>Bullet points (one per line)</label>
         <textarea
-          rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          rows={5}
+          className={`${editorInputCompactClass} resize-y min-h-[6rem]`}
           value={listToLines(item.bullets)}
           onChange={(e) => patch("bullets", linesToList(e.target.value))}
         />
@@ -315,7 +323,7 @@ export function ServicesDataEditor({ template, data, onChange }) {
       <div className="space-y-4">
         <FieldEditor label="View all button text" value={data.viewAllText} onChange={(v) => onChange({ ...data, viewAllText: v })} />
         <FieldEditor label="Book button text" value={data.bookButtonText} onChange={(v) => onChange({ ...data, bookButtonText: v })} />
-        <p className="text-sm text-gray-600 font-medium pt-2">Services</p>
+        <p className={`${editorSubheadingClass} pt-2`}>Services</p>
         {items.map((item, i) => (
           <HealthcareServiceItemEditor
             key={i}
@@ -328,7 +336,7 @@ export function ServicesDataEditor({ template, data, onChange }) {
             onRemove={() => setItems(items.filter((_, j) => j !== i))}
           />
         ))}
-        <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+        <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
           + Add service
         </button>
       </div>
@@ -351,7 +359,7 @@ export function ServicesDataEditor({ template, data, onChange }) {
           onRemove={() => setItems(items.filter((_, j) => j !== i))}
         />
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add service
       </button>
     </div>
@@ -368,15 +376,15 @@ function HealthcareGalleryEditor({ data, onChange }) {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-sm font-medium text-gray-800 mb-3">Facility photos</p>
-        <p className="text-sm text-gray-600 mb-3">Images of your space or team. Add a caption for accessibility.</p>
+        <p className={`${editorSubheadingClass} mb-3`}>Facility photos</p>
+        <p className={`${editorMutedClass} mb-3`}>Images of your space or team. Add a caption for accessibility.</p>
         {facilityImages.map((img, i) => (
           <CardShell
             key={i}
             title={`Photo ${i + 1}`}
             onRemove={() => setFacility(facilityImages.filter((_, j) => j !== i))}
           >
-            <FieldEditor label="Image URL" value={img.url} onChange={(v) => {
+            <ImageFieldEditor label="Image URL" value={img.url} onChange={(v) => {
               const next = [...facilityImages];
               next[i] = { ...next[i], url: v };
               setFacility(next);
@@ -388,13 +396,13 @@ function HealthcareGalleryEditor({ data, onChange }) {
             }} />
           </CardShell>
         ))}
-        <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setFacility([...facilityImages, { url: "", caption: "" }])}>
+        <button type="button" className={editorLinkBtnClass} onClick={() => setFacility([...facilityImages, { url: "", caption: "" }])}>
           + Add facility photo
         </button>
       </div>
 
       <div>
-        <p className="text-sm font-medium text-gray-800 mb-3">Before &amp; after cases</p>
+        <p className={`${editorSubheadingClass} mb-3`}>Before &amp; after cases</p>
         {beforeAfterCases.map((c, i) => (
           <CardShell
             key={i}
@@ -418,12 +426,12 @@ function HealthcareGalleryEditor({ data, onChange }) {
                 setCases(next);
               }} />
             </div>
-            <FieldEditor label="Before image URL" value={c.beforeImage} onChange={(v) => {
+            <ImageFieldEditor label="Before image URL" value={c.beforeImage} onChange={(v) => {
               const next = [...beforeAfterCases];
               next[i] = { ...next[i], beforeImage: v };
               setCases(next);
             }} />
-            <FieldEditor label="After image URL" value={c.afterImage} onChange={(v) => {
+            <ImageFieldEditor label="After image URL" value={c.afterImage} onChange={(v) => {
               const next = [...beforeAfterCases];
               next[i] = { ...next[i], afterImage: v };
               setCases(next);
@@ -435,7 +443,7 @@ function HealthcareGalleryEditor({ data, onChange }) {
             }} type="textarea" rows={3} />
           </CardShell>
         ))}
-        <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setCases([...beforeAfterCases, {}])}>
+        <button type="button" className={editorLinkBtnClass} onClick={() => setCases([...beforeAfterCases, {}])}>
           + Add before/after case
         </button>
       </div>
@@ -452,7 +460,7 @@ function HandymanGalleryEditor({ data, onChange }) {
       <FieldEditor label="Section title" value={data.sectionTitle} onChange={(v) => onChange({ ...data, sectionTitle: v })} />
       <FieldEditor label="Section subtitle" value={data.sectionSubtitle} onChange={(v) => onChange({ ...data, sectionSubtitle: v })} type="textarea" rows={2} />
       <FieldEditor label="&quot;All&quot; filter label" value={data.allLabel} onChange={(v) => onChange({ ...data, allLabel: v })} />
-      <p className="text-sm font-medium text-gray-800 pt-2">Gallery items</p>
+      <p className={`${editorSubheadingClass} pt-2`}>Gallery items</p>
       {items.map((item, i) => (
         <CardShell
           key={i}
@@ -474,19 +482,19 @@ function HandymanGalleryEditor({ data, onChange }) {
             next[i] = { ...next[i], subtitle: v };
             setItems(next);
           }} />
-          <FieldEditor label="Before image URL" value={item.beforeImageUrl} onChange={(v) => {
+          <ImageFieldEditor label="Before image URL" value={item.beforeImageUrl} onChange={(v) => {
             const next = [...items];
             next[i] = { ...next[i], beforeImageUrl: v };
             setItems(next);
           }} />
-          <FieldEditor label="After image URL" value={item.afterImageUrl} onChange={(v) => {
+          <ImageFieldEditor label="After image URL" value={item.afterImageUrl} onChange={(v) => {
             const next = [...items];
             next[i] = { ...next[i], afterImageUrl: v };
             setItems(next);
           }} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add gallery item
       </button>
     </div>
@@ -514,21 +522,21 @@ export function BlogDataEditor({ data, onChange }) {
     <div className="space-y-4">
       <FieldEditor label="Read more button text" value={data.readMoreText} onChange={(v) => onChange({ ...data, readMoreText: v })} />
       <FieldEditor label="View all text" value={data.viewAllText} onChange={(v) => onChange({ ...data, viewAllText: v })} />
-      <p className="text-sm text-gray-600">Blog posts appear as cards; readers can open the full text in a lightbox.</p>
+      <p className={editorMutedClass}>Blog posts appear as cards; readers can open the full text in a lightbox.</p>
       {posts.map((post, i) => (
         <CardShell title={`Post ${i + 1}`} onRemove={() => setPosts(posts.filter((_, j) => j !== i))} key={i}>
           <FieldEditor label="Title" value={post.title} onChange={(v) => patch(i, { title: v })} />
           <FieldEditor label="Category" value={post.category} onChange={(v) => patch(i, { category: v })} />
           <FieldEditor label="Excerpt" value={post.excerpt} onChange={(v) => patch(i, { excerpt: v })} type="textarea" rows={3} />
           <FieldEditor label="Full content (optional)" value={post.content} onChange={(v) => patch(i, { content: v })} type="textarea" rows={6} />
-          <FieldEditor label="Image URL" value={post.image} onChange={(v) => patch(i, { image: v })} />
+          <ImageFieldEditor label="Image URL" value={post.image} onChange={(v) => patch(i, { image: v })} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FieldEditor label="Publish date" value={post.publishDate} onChange={(v) => patch(i, { publishDate: v })} />
             <FieldEditor label="Read time" value={post.readTime} onChange={(v) => patch(i, { readTime: v })} placeholder="e.g. 5 min" />
           </div>
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setPosts([...posts, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setPosts([...posts, {}])}>
         + Add post
       </button>
     </div>
@@ -555,7 +563,7 @@ export function ProcessEditor({ data, onChange }) {
           <FieldEditor label="Description" value={step.description} onChange={(v) => patch(i, { description: v })} type="textarea" rows={3} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setSteps([...steps, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setSteps([...steps, {}])}>
         + Add step
       </button>
     </div>
@@ -585,7 +593,7 @@ export function TestimonialsEditor({ data, onChange }) {
           </div>
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add testimonial
       </button>
     </div>
@@ -612,7 +620,7 @@ export function FaqEditor({ data, onChange }) {
           <FieldEditor label="Answer" value={item.answer} onChange={(v) => patch(i, { answer: v })} type="textarea" rows={4} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add question
       </button>
     </div>
@@ -636,11 +644,11 @@ export function ClientLogosEditor({ data, onChange }) {
       {items.map((item, i) => (
         <CardShell title={`Logo ${i + 1}`} onRemove={() => setItems(items.filter((_, j) => j !== i))} key={i}>
           <FieldEditor label="Name" value={item.name} onChange={(v) => patch(i, { name: v })} />
-          <FieldEditor label="Logo URL" value={item.logoUrl} onChange={(v) => patch(i, { logoUrl: v })} />
+          <ImageFieldEditor label="Logo URL" value={item.logoUrl} onChange={(v) => patch(i, { logoUrl: v })} />
           <FieldEditor label="Link URL" value={item.url} onChange={(v) => patch(i, { url: v })} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add logo
       </button>
     </div>
@@ -672,7 +680,7 @@ export function CertificationsEditor({ data, onChange }) {
           <FieldEditor label="Verification URL" value={item.url} onChange={(v) => patch(i, { url: v })} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add credential
       </button>
     </div>
@@ -698,7 +706,7 @@ export function LanguagesEditor({ data, onChange }) {
           <FieldEditor label="Proficiency" value={item.proficiency} onChange={(v) => patch(i, { proficiency: v })} placeholder="Native, fluent, conversational" />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add language
       </button>
     </div>
@@ -724,11 +732,11 @@ export function TeamEditor({ data, onChange }) {
           <FieldEditor label="Name" value={item.name} onChange={(v) => patch(i, { name: v })} />
           <FieldEditor label="Role" value={item.role} onChange={(v) => patch(i, { role: v })} />
           <FieldEditor label="Bio" value={item.bio} onChange={(v) => patch(i, { bio: v })} type="textarea" rows={4} />
-          <FieldEditor label="Image URL" value={item.imageUrl} onChange={(v) => patch(i, { imageUrl: v })} />
+          <ImageFieldEditor label="Image URL" value={item.imageUrl} onChange={(v) => patch(i, { imageUrl: v })} />
           <FieldEditor label="Profile URL" value={item.profileUrl} onChange={(v) => patch(i, { profileUrl: v })} />
         </CardShell>
       ))}
-      <button type="button" className="text-sm text-blue-600 font-medium" onClick={() => setItems([...items, {}])}>
+      <button type="button" className={editorLinkBtnClass} onClick={() => setItems([...items, {}])}>
         + Add team member
       </button>
     </div>
@@ -744,9 +752,14 @@ export function VideoEmbedEditor({ data, onChange }) {
       <FieldEditor label="Title" value={data.title} onChange={(v) => set("title", v)} />
       <FieldEditor label="Description" value={data.description} onChange={(v) => set("description", v)} type="textarea" rows={3} />
       <FieldEditor label="Provider" value={data.provider} onChange={(v) => set("provider", v)} placeholder="YouTube, Vimeo, Loom" />
-      <FieldEditor label="Embed URL" value={data.embedUrl} onChange={(v) => set("embedUrl", v)} />
+      <FieldEditor
+        label="Embed URL"
+        value={data.embedUrl}
+        onChange={(v) => set("embedUrl", v)}
+        placeholder="https://www.youtube.com/watch?v=… or youtu.be/… (embed format not required)"
+      />
       <FieldEditor label="Hosted video URL" value={data.videoUrl} onChange={(v) => set("videoUrl", v)} />
-      <FieldEditor label="Poster image URL" value={data.posterImageUrl} onChange={(v) => set("posterImageUrl", v)} />
+      <ImageFieldEditor label="Poster image URL" value={data.posterImageUrl} onChange={(v) => set("posterImageUrl", v)} />
     </div>
   );
 }
@@ -767,31 +780,21 @@ export function CaseStudyEditor({ data, onChange }) {
       <FieldEditor label="Outcome" value={data.outcome} onChange={(v) => set("outcome", v)} type="textarea" rows={3} />
       <FieldEditor label="Link URL" value={data.link} onChange={(v) => set("link", v)} />
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Metrics (one per line)</label>
+        <label className={editorLabelClass}>Metrics (one per line)</label>
         <textarea
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          className={editorInputCompactClass}
           value={metrics}
-          onChange={(e) =>
-            set(
-              "metrics",
-              e.target.value.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)
-            )
-          }
+          onChange={(e) => set("metrics", linesToList(e.target.value))}
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Tools (one per line)</label>
+        <label className={editorLabelClass}>Tools (one per line)</label>
         <textarea
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          className={editorInputCompactClass}
           value={tools}
-          onChange={(e) =>
-            set(
-              "tools",
-              e.target.value.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)
-            )
-          }
+          onChange={(e) => set("tools", linesToList(e.target.value))}
         />
       </div>
     </div>

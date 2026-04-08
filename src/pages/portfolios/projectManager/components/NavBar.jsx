@@ -1,12 +1,6 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { AuthContext } from "../../../../context/AuthContext";
+import { useState } from "react";
 const NavBar = ({ onSelect }) => {
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  //const token = localStorage.getItem("token"); //no longer using token for authentication instead user from authContext
-  const { user } = useContext(AuthContext);
 
   //logout now handeled by authContext
   // const handleLogout = () => {

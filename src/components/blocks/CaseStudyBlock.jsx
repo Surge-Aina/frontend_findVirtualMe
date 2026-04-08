@@ -1,8 +1,8 @@
 import { FaArrowRight } from "react-icons/fa";
 
 export default function CaseStudyBlock({ template, ...data }) {
-  const metrics = Array.isArray(data.metrics) ? data.metrics : [];
-  const tools = Array.isArray(data.tools) ? data.tools : [];
+  const metrics = (Array.isArray(data.metrics) ? data.metrics : []).filter((m) => String(m).trim());
+  const tools = (Array.isArray(data.tools) ? data.tools : []).filter((t) => String(t).trim());
   const isAgent = template === "agent";
   const isDS = template === "dataScientist";
 

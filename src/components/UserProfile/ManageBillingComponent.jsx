@@ -26,30 +26,21 @@ const fetchBilling = async () => {
 };
 
 export default function ManageBillingComponent() {
-  const { user, refreshUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["billing", user?._id],
+    queryFn: fetchBilling,
+    enabled: !!user,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+  });
+
+  useEffect(() => {
+    if (data) console.log("Billing:", data);
+  }, [data]);
 
   if (!user) return null;
-
-  // // If no subscription ID, check with backend once
-  // useEffect(() => {
-  //   if (!user?._id) return;
-  //   fetchBilling();
-  // }, [user?._id]);\
-
-  
-  
-  //useQuery used for caching data
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["billing", user?._id], //id for this info cache, use this id elsewhere to use cached billing data
-    queryFn: fetchBilling,
-    enabled: !!user, //!! converts value to truthy so wont give error if null/undefined
-    staleTime: 1000 * 60 * 10, //10 min before data becomes stale and will refresh
-    cacheTime: 1000 * 60 * 30, // 30 minutes that data will stay in memory after becomes unmounted(unused)
-  });
-  
-  useEffect(() => {
-  if (data) console.log("Billing:", data);
-}, [data]);
   //take user to manage subscription
   const handleManageSubscriptions = async () => {
     try {
@@ -67,15 +58,25 @@ export default function ManageBillingComponent() {
     "Basic Plan": "bg-blue-200 text-blue-600",
   };
 
-  if (isLoading) return <p className="flex items-center justify-center mx-auto">Loading billing info...</p>;
-  if (error) return <p className="flex items-center justify-center mx-auto">Something went wrong</p>;
+  if (isLoading)
+    return (
+      <p className="flex items-center justify-center mx-auto text-slate-600 dark:text-neutral-400 py-8">
+        Loading billing info...
+      </p>
+    );
+  if (error)
+    return (
+      <p className="flex items-center justify-center mx-auto text-slate-600 dark:text-neutral-400 py-8">
+        Something went wrong
+      </p>
+    );
 
-  if (user && data.subscriptionList.length > 0) {
+  if (user && data?.subscriptionList?.length > 0) {
     const plan = data.subscriptionList[0]?.plan?.product?.name;
     return (
-      <div className="flex flex-col items-center gap-5 mx-auto my-[5vh]">
+      <div className="flex flex-col items-center gap-5 mx-auto my-[5vh] text-slate-800 dark:text-neutral-200">
         <div>
-          <h1 className="text-2xl font-semibold ">Subscription Information</h1>
+          <h1 className="text-2xl font-semibold">Subscription Information</h1>
         </div>
         <p className="font-semibold">Status: {data.subscriptionList[0].status}</p>
         <p className="font-semibold">Auto Renews: {data.subscriptionList[0].cancel_at_period_end ? "No" : "Yes"}</p>

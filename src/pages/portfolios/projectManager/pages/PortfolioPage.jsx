@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useContext, use } from "react";
-import { useQuery, useQueryClient  } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
@@ -15,7 +15,7 @@ import { usePortfolio } from "../../../../context/PortfolioContext";
 import Footer from "../components/Footer";
 // import emailjs from "@emailjs/browser";
 
-const PortfolioPage = ({portfolioId, portfolioType}) => {
+const PortfolioPage = ({ portfolioId, portfolioType: _portfolioType }) => {
   const {  
     setPortfolioId,  
     setPortfolioType, 
@@ -26,9 +26,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
   const [animating, setAnimating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
-  const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_BACKEND_API;
-  const userPortfolioId = localStorage.getItem("portfolioId");
 
   const fetchPortfolio = async (targetId) => {
     const res = await axios.get(`${apiUrl}/portfolio/id/${targetId}`);
@@ -85,52 +83,6 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
       setActiveSection(key);
     }
   };
-
-  const handleImageUpload = async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  // Optional: instant local preview
-  const localUrl = URL.createObjectURL(file);
-  setImagePreview(localUrl);
-
-  try {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const token = localStorage.getItem("token");
-
-    const response = await axios.post(
-      `${apiUrl}/portfolio/profile-image/${id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      }
-    );
-
-    const updatedPortfolio = response.data?.portfolio;
-      const s3Url =
-        response.data?.profileImage ||
-        updatedPortfolio?.profileImage;
-
-      if (s3Url) {
-        setImagePreview(s3Url);
-      }
-
-      // also update the cached portfolio so SummaryCard & others see it
-      if (updatedPortfolio) {
-        queryClient.setQueryData(["portfolio", id], updatedPortfolio);
-      }
-    } catch (err) {
-      console.error("Error uploading profile image:", err);
-      // fallback: you can optionally revert the preview
-      // setImagePreview(portfolio?.profileImage || null);
-    }
-  };
-
 
   // Contact form state
   const [contactName, setContactName] = useState("");
@@ -253,7 +205,7 @@ const PortfolioPage = ({portfolioId, portfolioType}) => {
       };
 
       // Send to backend API
-      const response = await axios.post(`${apiUrl}/portfolio/contact`, formData);
+      await axios.post(`${apiUrl}/portfolio/contact`, formData);
       // Send emails using EmailJS
       // await sendContactEmails(formData);
 

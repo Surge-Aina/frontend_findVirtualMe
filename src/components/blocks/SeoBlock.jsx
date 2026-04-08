@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function SeoBlock({ template, ...data }) {
+export default function SeoBlock({ template: _, ...data }) {
   useEffect(() => {
     if (data.siteTitle) {
       document.title = data.siteTitle;

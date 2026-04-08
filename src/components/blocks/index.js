@@ -13,7 +13,7 @@ import TestimonialsBlock from "./TestimonialsBlock";
 import ProcessBlock from "./ProcessBlock";
 import HoursBlock from "./HoursBlock";
 import SeoBlock from "./SeoBlock";
-import ChartBlock from "./ChartBlock";
+import DataVisualizationBlock from "./ChartBlock";
 import TableBlock from "./TableBlock";
 import FaqBlock from "./FaqBlock";
 import ClientLogosBlock from "./ClientLogosBlock";
@@ -39,7 +39,7 @@ const BLOCK_COMPONENTS = {
   process: ProcessBlock,
   hours: HoursBlock,
   seo: SeoBlock,
-  dashboardChart: ChartBlock,
+  dashboardChart: DataVisualizationBlock,
   dashboardTable: TableBlock,
   faq: FaqBlock,
   clientLogos: ClientLogosBlock,

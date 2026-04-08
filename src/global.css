@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
     --primary: #1a73e8;
     --secondary: #f6f3f3;
@@ -14,6 +16,11 @@ body {
     background: #ffffff;
     color: #212529;
     scroll-behavior: smooth;
+}
+
+html.dark body {
+    background: #0a0a0a;
+    color: #e5e5e5;
 }
 
 .btn {

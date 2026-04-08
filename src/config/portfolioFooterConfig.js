@@ -45,8 +45,8 @@ const SECTION_TO_LINK = {
   hours: { label: "Hours", path: "#hours" },
   process: { label: "Process", path: "#process" },
   seo: { label: "SEO", path: "#seo" },
-  dashboardChart: { label: "Chart", path: "#dashboardChart" },
-  dashboardTable: { label: "Table", path: "#dashboardTable" },
+  dashboardChart: { label: "Visualization", path: "#dashboardChart" },
+  dashboardTable: { label: "Data Table", path: "#dashboardTable" },
   faq: { label: "FAQ", path: "#faq" },
   clientLogos: { label: "Client Logos", path: "#clientLogos" },
   certifications: { label: "Certifications", path: "#certifications" },
@@ -67,9 +67,14 @@ const SECTION_TO_LINK = {
 export function getSiteMapLinks(portfolioType, basePath = "", sections) {
   // If sections are provided (unified model), derive links from them
   if (sections && Array.isArray(sections)) {
+    const sorted = [...sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const healthcareLike =
+      portfolioType === "healthcare" || portfolioType === "HealthcarePortfolio";
+    const hasHero = sorted.some((s) => s.type === "hero");
+    const sectionList =
+      healthcareLike && hasHero ? sorted.filter((s) => s.type !== "stats") : sorted;
     const seen = new Set();
-    return [...sections]
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    return sectionList
       .map((s) => SECTION_TO_LINK[s.type])
       .filter((link) => {
         if (!link) return false;

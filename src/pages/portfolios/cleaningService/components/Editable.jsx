@@ -5,7 +5,7 @@ const Editable = ({
   type,
   value,
   onChange,
-  field,
+  field: _field,
   options = [],
   tag: Tag = "div",
   className = "",

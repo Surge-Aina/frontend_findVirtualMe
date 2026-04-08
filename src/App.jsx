@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
@@ -58,9 +58,10 @@ import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import axios from "axios";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
-import { set } from "date-fns";
 import { PortfolioProvider } from "./context/PortfolioContext.jsx";
 import AiPortfolioCreatorPage from "./pages/portfolios/AiPortfolioCreatorPage.jsx";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
+import TermsOfServicePage from "./pages/TermsOfServicePage.jsx";
 
 // Unified portfolio (sections/blocks architecture)
 import PortfolioRenderer from "./components/PortfolioRenderer.jsx";
@@ -157,6 +158,8 @@ export default function App() {
           {/* payment */}
           <Route path="/payment" element={<Payment />} />
           <Route path="/success" element={<SuccessPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
           {/* Support */}
           <Route path="/support" element={<ITForm />} />
           {/* Onboarding */}

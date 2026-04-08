@@ -7,13 +7,6 @@ export default function RoadmapColumn({
 }) {
   const scroller = useRef(null);
 
-  const scrollByCard = (dir) => {
-    if (!scroller.current) return;
-    const first = scroller.current.firstElementChild;
-    const step = (first?.clientHeight || 100) + 12;
-    scroller.current.scrollBy({ top: dir * step, behavior: "smooth" });
-  };
-
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="flex items-center justify-between mb-3">
