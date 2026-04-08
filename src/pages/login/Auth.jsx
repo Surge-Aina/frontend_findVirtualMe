@@ -116,6 +116,19 @@ const Auth = ({ onClose }) => {
             />
           </div>
 
+          <div className="text-right -mt-3">
+            <button
+              type="button"
+              className="text-sm text-blue-600 hover:underline"
+              onClick={() => {
+                onClose(); // close modal
+                navigate("/forgot-password");
+              }}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           {error && <div className="text-red-500 text-sm text-center py-1">{error}</div>}
 
           <button
