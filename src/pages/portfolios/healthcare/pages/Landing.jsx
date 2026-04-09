@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../../../context/AuthContext';
 import { useEffect } from 'react';
@@ -19,7 +19,6 @@ import {
 
 export default function Landing() {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
   useEffect(() => {
     document.title = 'Healthcare Platform - Build Your Practice Website';
   }, []);

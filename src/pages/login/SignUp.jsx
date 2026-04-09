@@ -43,8 +43,8 @@ export default function SignUp() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
+    <div className="max-w-md mx-auto mt-20 p-6 bg-white dark:bg-neutral-900 rounded-xl shadow-md border border-transparent dark:border-neutral-700">
+      <h2 className="text-2xl font-semibold mb-4 text-center text-slate-800 dark:text-neutral-100">Sign Up</h2>
       <form className="space-y-4" onSubmit={handleSignUp}>
         <input
           type="text"
@@ -52,7 +52,7 @@ export default function SignUp() {
           placeholder="Name"
           value={form.name}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-slate-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <input
           type="text"
@@ -60,7 +60,7 @@ export default function SignUp() {
           placeholder="Username"
           value={form.username}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-slate-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <input
           type="email"
@@ -68,7 +68,7 @@ export default function SignUp() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-slate-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <input
           type="password"
@@ -76,18 +76,18 @@ export default function SignUp() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-slate-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           type="submit"
-          className="w-full bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+          className="w-full bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
         >
           Sign Up
         </button>
       </form>
       {success && (
-        <div className="mt-6 text-center text-blue-600 font-semibold">
-          <svg className="w-6 h-6 mx-auto mb-2 text-blue-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <div className="mt-6 text-center text-blue-600 dark:text-blue-400 font-semibold">
+          <svg className="w-6 h-6 mx-auto mb-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           Sign up successful! You can close this window.

@@ -42,7 +42,9 @@
             try {
                 const me = await handymanAPI.get('/api/user/me');
                 currentUserId = me?.data?.id || me?.data?._id;
-            } catch (_) {}
+            } catch {
+              /* ignore /user/me fetch errors */
+            }
             }
             const ownerId = data?.userId;
             const isOwner =
@@ -137,21 +139,13 @@
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleServiceChange = (index, e) => {
-        const { name, value } = e.target;
-        const next = [...formData.services];
-        next[index][name] = value;
-        setFormData(prev => ({ ...prev, services: next }));
-    };
-    // --- Services helpers (icon + bullets) ---
-    const ICON_OPTIONS = ['💧','💡','🔨','🚪','🔧','🌳'];
-
+    // --- Services helpers ---
     const addService = () =>
         setFormData(p => ({
         ...p,
         services: [
             ...p.services,
-            { icon: '🔧', title: '', description: '', bullets: [] }
+            { title: '', description: '', bullets: [] }
         ]
         }));
 
@@ -166,32 +160,9 @@
         });
     };
 
-    const addServiceBullet = (sIndex) => {
-        setFormData(prev => {
-        const next = [...prev.services];
-        const bullets = Array.isArray(next[sIndex].bullets) ? next[sIndex].bullets : [];
-        next[sIndex] = { ...next[sIndex], bullets: [...bullets, ''] };
-        return { ...prev, services: next };
-        });
-    };
-
-    const updateServiceBullet = (sIndex, bIndex, value) => {
-        setFormData(prev => {
-        const next = [...prev.services];
-        const bullets = [...(next[sIndex].bullets || [])];
-        bullets[bIndex] = value;
-        next[sIndex] = { ...next[sIndex], bullets };
-        return { ...prev, services: next };
-        });
-    };
-
-    const removeServiceBullet = (sIndex, bIndex) => {
-        setFormData(prev => {
-        const next = [...prev.services];
-        const bullets = [...(next[sIndex].bullets || [])].filter((_, i) => i !== bIndex);
-        next[sIndex] = { ...next[sIndex], bullets };
-        return { ...prev, services: next };
-        });
+    const parseServiceBulletsText = (text) => {
+        if (typeof text !== 'string') return [];
+        return text.split(/\r?\n/);
     };
 
 
@@ -428,22 +399,8 @@
                 {formData.services.map((service, index) => (
                 <div key={index} className="p-3 border rounded-md space-y-2">
                     <div className="grid grid-cols-12 gap-2 items-center">
-                    {/* Icon dropdown */}
-                    <div className="col-span-12 sm:col-span-2">
-                        <label className="block text-sm mb-1">Icon</label>
-                        <select
-                        className="w-full p-2 border rounded"
-                        value={service.icon || '🔧'}
-                        onChange={(e) => handleServiceField(index, 'icon', e.target.value)}
-                        >
-                        {['💧','💡','🔨','🚪','🔧','🌳'].map(ic => (
-                            <option key={ic} value={ic}>{ic}</option>
-                        ))}
-                        </select>
-                    </div>
-
                     {/* Title */}
-                    <div className="col-span-12 sm:col-span-5">
+                    <div className="col-span-12 sm:col-span-7">
                         <label className="block text-sm mb-1">Title</label>
                         <input
                         className="w-full p-2 border rounded"
@@ -493,34 +450,17 @@
 
                     {/* Bullets */}
                     <div>
-                    <label className="block text-sm mb-1">Bullets</label>
-                    <div className="space-y-2">
-                        {(service.bullets || []).map((b, bi) => (
-                        <div key={bi} className="flex gap-2">
-                            <input
-                            className="flex-1 p-2 border rounded"
-                            value={b}
-                            onChange={(e) => updateServiceBullet(index, bi, e.target.value)}
-                            placeholder={`Bullet ${bi + 1}`}
-                            />
-                            <button
-                            type="button"
-                            className="bg-gray-200 px-3 rounded"
-                            onClick={() => removeServiceBullet(index, bi)}
-                            title="Remove bullet"
-                            >
-                            ✕
-                            </button>
-                        </div>
-                        ))}
-                        <button
-                        type="button"
-                        className="bg-blue-500 text-white px-3 py-1 rounded"
-                        onClick={() => addServiceBullet(index)}
-                        >
-                        Add Bullet
-                        </button>
-                    </div>
+                    <label className="block text-sm mb-1">Bullet points (one per line)</label>
+                    <textarea
+                        rows={5}
+                        className="w-full p-2 border rounded resize-y min-h-[6rem]"
+                        value={Array.isArray(service.bullets) ? service.bullets.join('\n') : ''}
+                        onChange={(e) => handleServiceField(index, 'bullets', parseServiceBulletsText(e.target.value))}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.stopPropagation();
+                        }}
+                        placeholder={"e.g. Drywall repair\nDoor & window fixes"}
+                    />
                     </div>
                 </div>
                 ))}

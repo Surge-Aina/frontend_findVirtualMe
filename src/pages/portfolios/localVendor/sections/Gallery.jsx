@@ -39,7 +39,7 @@ const Gallery = () => {
   const imgRef = useRef(null);
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-  const canEdit = canEditPortfolio(vendorId);
+  const canEdit = canEditPortfolio(user, vendorId);
 
   useEffect(() => {
     if (!vendorId) return; // don’t fetch until a vendor is set
@@ -128,7 +128,9 @@ const Gallery = () => {
       im.src = url;
       if (im.decode) await im.decode();
       else await new Promise((r) => (im.onload = r));
-    } catch {}
+    } catch {
+      /* ignore decode errors */
+    }
     setLoading(false);
   }, [current, galleryItems]);
 

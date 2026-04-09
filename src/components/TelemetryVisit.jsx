@@ -31,7 +31,7 @@ export default function TelemetryVisit() {
       credentials: "include",
     })
       .then(async (r) => {
-        const txt = await r.text();
+        void (await r.text());
         // console.log("[TelemetryVisit] resp:", r.status, txt);
       })
       .catch((e) => console.warn("[TelemetryVisit] fetch failed:", e));

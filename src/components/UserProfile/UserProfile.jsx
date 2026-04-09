@@ -1,7 +1,6 @@
 import {
   User,
   Edit2,
-  KeyRound,
   ChevronRight,
   Bell,
   Shield,
@@ -11,22 +10,22 @@ import {
   PanelsTopLeft,
 } from "lucide-react";
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import ManageBillingComponent from "./ManageBillingComponent";
 import { AuthContext } from "../../context/AuthContext";
 import axiosAuth from "../../utils/axiosAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useHandleCardClick } from "../../utils/useHandleCardClick";
 import DomainLookup from "./DomainLookup";
 import QRWidgetSettings from "./QRWidgetSettings";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import PortfolioBranding from "./PortfolioBranding";
+import AppThemeSegmentedToggle from "../AppThemeSegmentedToggle";
 import { Eye, EyeOff } from "lucide-react";
 
+const LEGACY_LEGAL_TABS = new Set(["Privacy Policy", "Terms of Service"]);
+
 export default function UserProfile() {
-  const { handleCardClick } = useHandleCardClick();
   const apiUrl = import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -56,8 +55,21 @@ export default function UserProfile() {
 
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Get tab from URL or default to "Profile Information"
-  const [currentTab, setCurrentTab] = useState(searchParams.get("tab") || "Profile Information");
+  // Get tab from URL or default to "Profile Information" (map legacy legal tabs to one)
+  const [currentTab, setCurrentTab] = useState(() => {
+    const t = searchParams.get("tab");
+    if (LEGACY_LEGAL_TABS.has(t)) return "Privacy & Terms";
+    return t || "Profile Information";
+  });
+
+  // Rewrite legacy ?tab= values to the combined legal tab
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (LEGACY_LEGAL_TABS.has(t)) {
+      setCurrentTab("Privacy & Terms");
+      setSearchParams({ tab: "Privacy & Terms" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Update URL when tab changes
   const handleTabChange = (newTab) => {
@@ -263,35 +275,35 @@ export default function UserProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center bg-gray-50">
-        <div className="text-slate-500">Loading...</div>
+      <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 dark:bg-neutral-950">
+        <div className="text-slate-500 dark:text-neutral-400">Loading...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center bg-gray-50">
-        <div className="text-red-500">{error}</div>
+      <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 dark:bg-neutral-950">
+        <div className="text-red-500 dark:text-red-400">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[80vh] bg-gray-50 flex flex-col md:flex-row">
+    <div className="min-h-[80vh] bg-gray-50 dark:bg-neutral-950 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full md:w-80 border-r border-gray-200 bg-white flex-shrink-0 flex flex-col">
-        <div className="flex flex-col items-center py-10 px-6 border-b border-gray-100">
-          <div className="bg-blue-100 rounded-full p-4 mb-3">
-            <User className="w-10 h-10 text-blue-500" />
+      <aside className="w-full md:w-80 border-r border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex-shrink-0 flex flex-col">
+        <div className="flex flex-col items-center py-10 px-6 border-b border-gray-100 dark:border-neutral-700">
+          <div className="bg-blue-100 dark:bg-blue-950/80 rounded-full p-4 mb-3">
+            <User className="w-10 h-10 text-blue-500 dark:text-blue-400" />
           </div>
-          <div className="text-xl font-semibold text-gray-800">
+          <div className="text-xl font-semibold text-gray-800 dark:text-neutral-100">
             {(profile.firstName || "") + " " + (profile.lastName || "")}
           </div>
-          <div className="text-gray-500 text-sm">{profile.email || "—"}</div>
+          <div className="text-gray-500 dark:text-neutral-400 text-sm">{profile.email || "—"}</div>
           <div className="flex items-center mt-2">
             <span className="h-2 w-2 rounded-full bg-green-500 mr-2"></span>
-            <span className="text-green-600 text-xs">Online</span>
+            <span className="text-green-600 dark:text-green-400 text-xs">Online</span>
           </div>
         </div>
         <nav className="flex-1 px-2 py-6 space-y-1">
@@ -333,13 +345,7 @@ export default function UserProfile() {
           /> */}
           <SidebarItem
             icon={<Shield className="w-5 h-5" />}
-            label="Privacy Policy"
-            currentTab={currentTab}
-            setCurrentTab={handleTabChange}
-          />
-          <SidebarItem
-            icon={<Shield className="w-5 h-5" />}
-            label="Terms of Service"
+            label="Privacy & Terms"
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
           />
@@ -356,21 +362,18 @@ export default function UserProfile() {
             setCurrentTab={handleTabChange}
           /> */}
         </nav>
-        <div className="px-6 pb-6">
-          <button className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-gray-700 hover:bg-gray-100 transition">
-            <KeyRound className="w-4 h-4" />
-            Change Password
-          </button>
+        <div className="px-6 pb-6 space-y-4 mt-auto">
+          <AppThemeSegmentedToggle />
         </div>
       </aside>
       {/* Main Content */}
       {currentTab === "Profile Information" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
-          <section className="w-full max-w-3xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50 dark:bg-neutral-950">
+          <section className="w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-neutral-100">Personal Information</h2>
               <button
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
                 onClick={() => {
                   setEditMode((v) => !v);
                   setEditData(profile);
@@ -435,7 +438,7 @@ export default function UserProfile() {
                 <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"
-                    className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+                    className="px-5 py-2 rounded-lg border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
                     onClick={() => setEditMode(false)}
                     disabled={saving}
                   >
@@ -450,30 +453,30 @@ export default function UserProfile() {
                   </button>
                 </div>
               )}
-              {success && <div className="text-green-600 text-center">{success}</div>}
-              {error && <div className="text-red-500 text-center">{error}</div>}
+              {success && <div className="text-green-600 dark:text-green-400 text-center">{success}</div>}
+              {error && <div className="text-red-500 dark:text-red-400 text-center">{error}</div>}
             </form>
           </section>
         </main>
       )}
       {/* Account Settings */}
       {currentTab === "Account Settings" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
-          <section className="w-full max-w-3xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50 dark:bg-neutral-950">
+          <section className="w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8">
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Account Settings</h2>
-              <p className="text-gray-600">Manage your account preferences and privacy settings.</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-2">Account Settings</h2>
+              <p className="text-gray-600 dark:text-neutral-400">Manage your account preferences and privacy settings.</p>
             </div>
 
             {/* Privacy Settings */}
             <div className="space-y-6">
-              <div className="border-b border-gray-200 pb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Privacy Settings</h3>
+              <div className="border-b border-gray-200 dark:border-neutral-700 pb-6">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-4">Privacy Settings</h3>
 
-                <div className="flex items-center justify-between gap-4 p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between gap-4 p-4 border border-gray-200 dark:border-neutral-600 rounded-lg dark:bg-neutral-800/50">
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-sm font-medium text-gray-900">Portfolio Visibility</h4>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-neutral-100">Portfolio Visibility</h4>
+                    <p className="text-sm text-gray-600 dark:text-neutral-400 mt-1">
                       Allow your portfolios to be visible to the public. When disabled, only you can view your
                       portfolios.
                     </p>
@@ -483,15 +486,15 @@ export default function UserProfile() {
                   </div>
                 </div>
 
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-gray-500 dark:text-neutral-500">
                   {portfolioVisible
                     ? "✓ Your portfolios are currently visible to everyone"
                     : "⚠ Your portfolios are currently private"}
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Portfolio Branding</h3>
+              <div className="pt-4 border-t border-gray-200 dark:border-neutral-700">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-4">Portfolio Branding</h3>
                 <PortfolioBranding />
               </div>
             </div>
@@ -502,29 +505,29 @@ export default function UserProfile() {
       {currentTab === "Billing" && <ManageBillingComponent />}
       {/* Domain Management */}
       {currentTab === "Domain Management" && (
-        <main className="flex flex-col justify-center items-start py-12 px-4 md:px-12 bg-gray-50 w-full min-w-0">
+        <main className="flex flex-col justify-center items-start py-12 px-4 md:px-12 bg-gray-50 dark:bg-neutral-950 w-full min-w-0">
           {/* Domain lookup */}
           <section className="w-full min-w-0">
             <DomainLookup />
           </section>
 
-          <section className="w-full max-w-4xl min-w-0 bg-white rounded-2xl shadow border border-gray-200 p-4 sm:p-8">
+          <section className="w-full max-w-4xl min-w-0 bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4 sm:p-8">
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Domain Management</h2>
-              <p className="text-gray-600">Connect custom domains to your portfolios and manage DNS settings.</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-2">Domain Management</h2>
+              <p className="text-gray-600 dark:text-neutral-400">Connect custom domains to your portfolios and manage DNS settings.</p>
             </div>
 
             {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* Add New Domain */}
-            <div className="border border-gray-200 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Domain</h3>
+            <div className="border border-gray-200 dark:border-neutral-600 rounded-lg p-6 mb-6 dark:bg-neutral-800/30">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-4">Add New Domain</h3>
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   placeholder="Enter your domain (e.g., myportfolio.com)"
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
-                  className="flex-1 min-w-0 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 min-w-0 rounded-lg border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 px-4 py-2 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   onKeyDown={(e) => e.key === "Enter" && handleAddDomain()}
                 />
                 <button
@@ -535,24 +538,24 @@ export default function UserProfile() {
                   {addingDomain ? "Adding..." : "Add Domain"}
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 dark:text-neutral-500 mt-2">
                 Make sure you own this domain and can configure its DNS settings.
               </p>
             </div>
 
             {/* Existing Domains */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Your Domains</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100">Your Domains</h3>
 
               {loadingDomains ? (
                 <div className="text-center py-12">
-                  <div className="text-gray-500">Loading domains...</div>
+                  <div className="text-gray-500 dark:text-neutral-400">Loading domains...</div>
                 </div>
               ) : !Array.isArray(domains) || domains.length === 0 ? (
-                <div className="text-center py-12 border border-gray-200 rounded-lg">
-                  <PanelsTopLeft className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">No domains added yet</h4>
-                  <p className="text-gray-600">Add your first custom domain to get started.</p>
+                <div className="text-center py-12 border border-gray-200 dark:border-neutral-600 rounded-lg dark:bg-neutral-800/30">
+                  <PanelsTopLeft className="w-12 h-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-2">No domains added yet</h4>
+                  <p className="text-gray-600 dark:text-neutral-400">Add your first custom domain to get started.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -571,22 +574,22 @@ export default function UserProfile() {
             {/* =============== removed for now -- possible addition later on -carlosG==============*/}
             {/* DNS Instructions */}
             {domains.length > 0 && (
-              <div className="mt-8 border border-blue-200 bg-blue-50 rounded-lg p-6">
-                <h3 className="text-lg font-medium text-blue-900 mb-3">DNS Configuration Instructions</h3>
+              <div className="mt-8 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 rounded-lg p-6">
+                <h3 className="text-lg font-medium text-blue-900 dark:text-blue-200 mb-3">DNS Configuration Instructions</h3>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <strong className="text-blue-800">1. Add CNAME Record:</strong>
-                    <div className="mt-1 font-mono bg-white border border-blue-200 rounded px-3 py-2">
+                    <strong className="text-blue-800 dark:text-blue-300">1. Add CNAME Record:</strong>
+                    <div className="mt-1 font-mono bg-white dark:bg-neutral-900 border border-blue-200 dark:border-blue-800 rounded px-3 py-2 text-gray-900 dark:text-neutral-200">
                       Type: CNAME | Name: www | Value: cname.vercel-dns.com
                     </div>
                   </div>
                   <div>
-                    <strong className="text-blue-800">2. Add A Record (optional):</strong>
-                    <div className="mt-1 font-mono bg-white border border-blue-200 rounded px-3 py-2">
+                    <strong className="text-blue-800 dark:text-blue-300">2. Add A Record (optional):</strong>
+                    <div className="mt-1 font-mono bg-white dark:bg-neutral-900 border border-blue-200 dark:border-blue-800 rounded px-3 py-2 text-gray-900 dark:text-neutral-200">
                       Type: A | Name: @ | Value: 76.76.21.21
                     </div>
                   </div>
-                  <p className="text-blue-700 mt-3">DNS changes may take up to 24 hours to propagate.</p>
+                  <p className="text-blue-700 dark:text-blue-300/90 mt-3">DNS changes may take up to 24 hours to propagate.</p>
                 </div>
               </div>
             )}
@@ -594,19 +597,19 @@ export default function UserProfile() {
         </main>
       )}
       {/* {currentTab === "QR Customization" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
-          <section className="w-full max-w-4xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50 dark:bg-neutral-950">
+          <section className="w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8">
             <QRWidgetSettings />
           </section>
         </main>
       )}
       {/* Security - password reset */}
       {currentTab === "Security" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
-          <section className="w-full max-w-3xl bg-white rounded-2xl shadow border border-gray-200 p-8">
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50 dark:bg-neutral-950">
+          <section className="w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8">
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Security</h2>
-              <p className="text-gray-600">Update your password</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-neutral-100 mb-2">Security</h2>
+              <p className="text-gray-600 dark:text-neutral-400">Update your password</p>
             </div>
 
             <div className="space-y-6">
@@ -616,13 +619,13 @@ export default function UserProfile() {
                   placeholder="Current Password"
                   value={passwordForm.currentPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10"
+                  className="w-full rounded-lg border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 px-4 py-2 pr-10 text-gray-900 dark:text-neutral-100"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => ({ ...prev, current: !prev.current }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-neutral-400"
                 >
                   {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -636,13 +639,13 @@ export default function UserProfile() {
                     placeholder="New Password"
                     value={passwordForm.newPassword}
                     onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10"
+                    className="w-full rounded-lg border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 px-4 py-2 pr-10 text-gray-900 dark:text-neutral-100"
                   />
 
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => ({ ...prev, new: !prev.new }))}
-                    className="absolute right-3 inset-y-0 flex items-center text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 inset-y-0 flex items-center text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200"
                   >
                     {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -664,13 +667,13 @@ export default function UserProfile() {
                   placeholder="Confirm New Password"
                   value={passwordForm.confirmPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10"
+                  className="w-full rounded-lg border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 px-4 py-2 pr-10 text-gray-900 dark:text-neutral-100"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => ({ ...prev, confirm: !prev.confirm }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-neutral-400"
                 >
                   {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -679,7 +682,7 @@ export default function UserProfile() {
               <button
                 onClick={handlePasswordChange}
                 disabled={passwordLoading}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 dark:disabled:bg-neutral-600"
               >
                 {passwordLoading ? "Updating..." : "Update Password"}
               </button>
@@ -687,18 +690,18 @@ export default function UserProfile() {
           </section>
         </main>
       )}
-      {currentTab === "Privacy Policy" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
-          <section className="w-full max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-8">
-            <PrivacyPolicy />
-          </section>
-        </main>
-      )}
-      {currentTab === "Terms of Service" && (
-        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50">
-          <section className="w-full max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-8">
-            <TermsOfService />
-          </section>
+      {currentTab === "Privacy & Terms" && (
+        <main className="flex-1 flex justify-center items-start py-12 px-4 md:px-12 bg-gray-50 dark:bg-neutral-950">
+          <div className="w-full max-w-5xl space-y-10">
+            <section className="bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-6">Portfolio privacy policies</h2>
+              <PrivacyPolicy />
+            </section>
+            <section className="bg-white dark:bg-neutral-900 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-6">Portfolio terms of service</h2>
+              <TermsOfService />
+            </section>
+          </div>
         </main>
       )}
     </div>
@@ -711,14 +714,16 @@ function SidebarItem({ icon, label, currentTab, setCurrentTab }) {
     <button
       onClick={() => setCurrentTab(label)}
       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition ${
-        label === currentTab ? "bg-gray-100 text-blue-700 font-semibold" : "text-gray-700 hover:bg-gray-50"
+        label === currentTab
+          ? "bg-gray-100 dark:bg-neutral-800 text-blue-700 dark:text-blue-400 font-semibold"
+          : "text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800/80"
       }`}
       type="button"
     >
       <span className="flex items-center gap-3">
         {icon} {label}
       </span>
-      <ChevronRight className="w-4 h-4 text-gray-400" />
+      <ChevronRight className="w-4 h-4 text-gray-400 dark:text-neutral-500" />
     </button>
   );
 }
@@ -728,16 +733,16 @@ function ProfileField({ label, name, value, editable, onChange }) {
   const displayValue = value !== undefined && value !== null && value !== "" ? value : "—";
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">{label}</label>
       {editable ? (
         <input
-          className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded-lg border border-gray-200 dark:border-neutral-600 bg-gray-100 dark:bg-neutral-800 px-4 py-2 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800"
           name={name}
           value={value ?? ""}
           onChange={onChange}
         />
       ) : (
-        <div className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900">
+        <div className="w-full rounded-lg border border-gray-200 dark:border-neutral-600 bg-gray-100 dark:bg-neutral-800 px-4 py-2 text-gray-900 dark:text-neutral-100">
           {displayValue}
         </div>
       )}
@@ -757,8 +762,8 @@ function ToggleSwitch({ enabled, onChange }) {
         minHeight: "24px",
         maxHeight: "24px",
       }}
-      className={`relative inline-flex shrink-0 flex-none items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-        enabled ? "bg-blue-600" : "bg-gray-200"
+      className={`relative inline-flex shrink-0 flex-none items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 ${
+        enabled ? "bg-blue-600" : "bg-gray-200 dark:bg-neutral-600"
       }`}
       onClick={() => onChange(!enabled)}
     >
@@ -773,35 +778,10 @@ function ToggleSwitch({ enabled, onChange }) {
 }
 
 // domain card component
-function DomainCard({ domain, onRemove, onVerify }) {
+function DomainCard({ domain, onRemove, onVerify: _onVerify }) {
   const { user } = useContext(AuthContext);
   // const [domains, setDomains] = useState([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState(domain.portfolioId || "");
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "pending_verification":
-        return "bg-yellow-100 text-yellow-800";
-      case "failed_registration":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status?.toLowerCase()) {
-      case "active":
-        return "✓";
-      case "pending_verification":
-        return "⏳";
-      case "failed_registration":
-        return "⚠";
-      default:
-        return "○";
-    }
-  };
 
   const onConnectProject = async (domainName, portfolioId) => {
     // Implement the logic to connect the domain to the selected portfolio type
@@ -819,16 +799,16 @@ function DomainCard({ domain, onRemove, onVerify }) {
   // const selectedPortfolio = user?.portfolios?.find(p => p.portfolioId === domain.portfolioId);
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition">
+    <div className="border border-gray-200 dark:border-neutral-600 rounded-lg p-4 hover:border-gray-300 dark:hover:border-neutral-500 transition dark:bg-neutral-800/40">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <h4 className="font-medium text-gray-900">
+            <h4 className="font-medium text-gray-900 dark:text-neutral-100">
               <a
                 href={`https://${domain.domain}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-600 hover:underline"
+                className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
               >
                 {domain.domain}
               </a>
@@ -842,7 +822,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
               {domain.status ? domain.status.charAt(0).toUpperCase() + domain.status.slice(1) : "Unknown"}
             </span> */}
           </div>
-          <div className="text-sm text-gray-600 space-y-1">
+          <div className="text-sm text-gray-600 dark:text-neutral-400 space-y-1">
             <p>Added: {new Date(domain.createdAt).toLocaleDateString()}</p>
             {domain.lastVerified && <p>Last verified: {new Date(domain.lastVerified).toLocaleDateString()}</p>}
             {domain.connectedProject && <p>Connected to: {domain.connectedProject}</p>}
@@ -859,7 +839,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
           {/* Domain Portfolio */}
           {user.portfolios?.length > 0 && (
             <select
-              className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:border-gray-400 transition min-w-0"
+              className="px-2 py-1 text-sm border border-gray-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-800 dark:text-neutral-200 hover:border-gray-400 dark:hover:border-neutral-500 transition min-w-0"
               value={selectedPortfolio}
               onChange={(e) => onConnectProject(domain.domain, e.target.value)}
             >
@@ -882,7 +862,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
 
           <button
             onClick={() => onRemove(domain._id)}
-            className="px-3 py-1 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50 transition"
+            className="px-3 py-1 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800 rounded hover:bg-red-50 dark:hover:bg-red-950/50 transition"
           >
             Remove
           </button>
@@ -894,7 +874,7 @@ function DomainCard({ domain, onRemove, onVerify }) {
 
 function PasswordRule({ valid, label }) {
   return (
-    <div className={`flex items-center gap-2 ${valid ? "text-green-600" : "text-gray-500"}`}>
+    <div className={`flex items-center gap-2 ${valid ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-neutral-500"}`}>
       <span>{valid ? "✔" : "•"}</span>
       <span>{label}</span>
     </div>

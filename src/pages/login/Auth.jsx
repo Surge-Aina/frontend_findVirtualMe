@@ -1,13 +1,10 @@
-import { toast } from "react-toastify";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import SignUp from "./SignUp";
 import GoogleLoginButton from "./GoogleLoginButton";
 
 const Auth = ({ onClose }) => {
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -43,17 +40,17 @@ const Auth = ({ onClose }) => {
   return (
     <div
       data-testid="backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 min-h-screen"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 min-h-screen"
       style={{ backdropFilter: "blur(2px)" }}
       onClick={onClose}
     >
       <div
-        className="relative max-w-md mx-4 sm:mx-auto bg-gradient-to-br from-slate-100 to-slate-300 border border-slate-300 rounded-2xl shadow-2xl px-14 py-8 sm:px-10 sm:py-12 z-10"
+        className="relative max-w-md mx-4 sm:mx-auto bg-gradient-to-br from-slate-100 to-slate-300 dark:from-neutral-800 dark:to-neutral-900 border border-slate-300 dark:border-neutral-600 rounded-2xl shadow-2xl px-14 py-8 sm:px-10 sm:py-12 z-10"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-700 text-xl font-bold"
+          className="absolute top-4 right-4 text-slate-700 dark:text-neutral-300 text-xl font-bold hover:text-slate-900 dark:hover:text-white"
           aria-label="Close"
         >
           ×
@@ -63,16 +60,18 @@ const Auth = ({ onClose }) => {
             <span className="text-white text-lg font-bold">FV</span>
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-slate-800 mb-2 text-center">Welcome</h1>
-        <p className="text-center text-slate-600 mb-8">{user ? "Hello" : "Sign in to manage your portfolio"}</p>
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-neutral-100 mb-2 text-center">Welcome</h1>
+        <p className="text-center text-slate-600 dark:text-neutral-400 mb-8">
+          {user ? "Hello" : "Sign in to manage your portfolio"}
+        </p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="relative">
             <label
               htmlFor="email"
               className={`absolute left-4 text-sm transition-all duration-300 ${
                 focusedField === "email" || form.email
-                  ? "transform -translate-y-5 text-blue-600 text-xs"
-                  : "top-3 text-slate-500"
+                  ? "transform -translate-y-5 text-blue-600 dark:text-blue-400 text-xs"
+                  : "top-3 text-slate-500 dark:text-neutral-400"
               }`}
             >
               Email
@@ -86,7 +85,7 @@ const Auth = ({ onClose }) => {
               onFocus={() => setFocusedField("email")}
               onBlur={() => setFocusedField(null)}
               required
-              className="w-full px-4 pt-5 pb-2 bg-slate-200 border-b-2 border-slate-400 text-slate-800 rounded-lg focus:outline-none focus:border-blue-600 transition-colors"
+              className="w-full px-4 pt-5 pb-2 bg-slate-200 dark:bg-neutral-700/80 border-b-2 border-slate-400 dark:border-neutral-500 text-slate-800 dark:text-neutral-100 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
               autoComplete="email"
             />
           </div>
@@ -96,8 +95,8 @@ const Auth = ({ onClose }) => {
               htmlFor="password"
               className={`absolute left-4 text-sm transition-all duration-300 ${
                 focusedField === "password" || form.password
-                  ? "transform -translate-y-5 text-blue-600 text-xs"
-                  : "top-3 text-slate-500"
+                  ? "transform -translate-y-5 text-blue-600 dark:text-blue-400 text-xs"
+                  : "top-3 text-slate-500 dark:text-neutral-400"
               }`}
             >
               Password
@@ -111,7 +110,7 @@ const Auth = ({ onClose }) => {
               onFocus={() => setFocusedField("password")}
               onBlur={() => setFocusedField(null)}
               required
-              className="w-full px-4 pt-5 pb-2 bg-slate-200 border-b-2 border-slate-400 text-slate-800 rounded-lg focus:outline-none focus:border-blue-600 transition-colors"
+              className="w-full px-4 pt-5 pb-2 bg-slate-200 dark:bg-neutral-700/80 border-b-2 border-slate-400 dark:border-neutral-500 text-slate-800 dark:text-neutral-100 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
               autoComplete="current-password"
             />
           </div>
@@ -119,7 +118,7 @@ const Auth = ({ onClose }) => {
           <div className="text-right -mt-3">
             <button
               type="button"
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               onClick={() => {
                 onClose(); // close modal
                 navigate("/forgot-password");
@@ -129,7 +128,7 @@ const Auth = ({ onClose }) => {
             </button>
           </div>
 
-          {error && <div className="text-red-500 text-sm text-center py-1">{error}</div>}
+          {error && <div className="text-red-500 dark:text-red-400 text-sm text-center py-1">{error}</div>}
 
           <button
             type="submit"
@@ -151,7 +150,7 @@ const Auth = ({ onClose }) => {
             <button
               type="button"
               onClick={handleLogout}
-              className="w-full px-6 py-3 bg-transparent border border-slate-600 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 hover:border-slate-700 transition-all duration-300"
+              className="w-full px-6 py-3 bg-transparent border border-slate-600 dark:border-neutral-500 text-slate-700 dark:text-neutral-200 rounded-xl font-semibold hover:bg-slate-200 dark:hover:bg-neutral-700 hover:border-slate-700 dark:hover:border-neutral-400 transition-all duration-300"
             >
               Sign Out
             </button>
@@ -159,7 +158,7 @@ const Auth = ({ onClose }) => {
 
           <button
             type="button"
-            className="relative w-full px-6 py-3 mt-2 bg-slate-200 border border-slate-600 text-slate-700 rounded-xl font-semibold hover:bg-slate-300 hover:border-slate-700 transition-all duration-300 overflow-hidden group"
+            className="relative w-full px-6 py-3 mt-2 bg-slate-200 dark:bg-neutral-700 border border-slate-600 dark:border-neutral-500 text-slate-700 dark:text-neutral-200 rounded-xl font-semibold hover:bg-slate-300 dark:hover:bg-neutral-600 hover:border-slate-700 dark:hover:border-neutral-400 transition-all duration-300 overflow-hidden group"
             onClick={() => {
               onClose();
               navigate("/onboarding");

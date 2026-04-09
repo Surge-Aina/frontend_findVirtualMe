@@ -11,34 +11,43 @@ export function useHandleCardClick() {
       return;
     }
 
-    const portfolioType = p.portfolioType;
+    const portfolioType = p.portfolioType || p.template;
 
+    // Unified sections/blocks portfolios use /portfolios/view/:id
+    if (p.sections || p.template) {
+      navigate(`/portfolios/view/${p._id}`);
+      return;
+    }
+
+    // Legacy routes for un-migrated portfolios
     switch (portfolioType) {
       case "Handyman":
+      case "handyman":
         navigate(`/portfolios/handyman/${p._id}`);
         break;
-        
+
       case "CleaningLady":
         navigate(`/portfolios/cleaningService/${p._id}/about`);
         break;
-        
-      case "LocalVendor":
+
+      case "LocalVendor": {
         const username = (p.name || p.email || "vendor").toLowerCase().replace(/\s+/g, "-");
         navigate(`/portfolios/vendor/${username}/${p._id}`);
         break;
-        
+      }
+
       case "ProjectManager":
+      case "projectManager":
         navigate(`/portfolios/ProjectManager/${p._id}`);
         break;
-        
+
       case "Healthcare":
-        // ✅ Use _id consistently (same as other portfolios)
-        console.log("🏥 Navigating to Healthcare portfolio:", p._id);
+      case "healthcare":
         navigate(`/portfolios/healthcare/${p._id}`);
         break;
-        
+
       default:
-        toast.error("Portfolio type not found");
+        navigate(`/portfolios/view/${p._id}`);
     }
   };
 

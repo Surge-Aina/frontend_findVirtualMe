@@ -55,7 +55,7 @@ export default function QRCodeWidget({
     //delete QR code function
     const deleteQRCode = async (qrId) => {
         try {
-        const res = await authAxios.delete(`${import.meta.env.VITE_BACKEND_API}/qrCode/${qrId}`);
+        await authAxios.delete(`${import.meta.env.VITE_BACKEND_API}/qrCode/${qrId}`);
         setQRCodes((prev) => prev.filter(qr => qr._id !== qrId));
         toast.success('QR code deleted successfully');
         }

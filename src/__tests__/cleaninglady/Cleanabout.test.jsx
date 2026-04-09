@@ -65,14 +65,6 @@ jest.mock('../../pages/portfolios/cleaningService/components/Editable', () => {
 
 // Mock AuthContext - check component's import path: ../context/AuthContext
 // This means it's in cleaningService/context/ NOT src/context/
-const mockSetCurrentPortfolioId = jest.fn();
-const mockContextValue = {
-  isAdmin: false,
-  isOwner: false,
-  user: { id: '123' },
-  setCurrentPortfolioId: mockSetCurrentPortfolioId,
-};
-
 jest.mock('../../pages/portfolios/cleaningService/context/AuthContext', () => {
   const React = require('react');
   return {

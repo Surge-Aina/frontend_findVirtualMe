@@ -40,8 +40,7 @@ export default function CleanAbout() {
   const { portfolioId } = useParams();
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_API;
-  const authContext = useContext(AuthContext);
-  
+
   const { isAdmin, setCurrentPortfolioId, isOwner, user } = useContext(AuthContext);
   
   useEffect(() => {
@@ -92,8 +91,11 @@ export default function CleanAbout() {
       
       try {
         console.log('🔍 FETCHING portfolio ID:', portfolioId);
-        
-        const res = await fetch(`${backendUrl}/api/portfolios/${portfolioId}?t=${Date.now()}`);
+
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${backendUrl}/api/portfolios/${portfolioId}?t=${Date.now()}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (!res.ok) throw new Error('Failed to fetch portfolio');
         
         const response = await res.json();

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Github,
   Twitter,
@@ -20,15 +20,6 @@ const SOCIAL_ICONS = {
   website: Globe,
 };
 
-function handleAnchorClick(e, path) {
-  if (!path.startsWith("#")) return;
-  e.preventDefault();
-  const target = document.querySelector(path);
-  if (target) {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}
-
 export default function PortfolioFooter({
   portfolioType,
   basePath = "",
@@ -37,9 +28,31 @@ export default function PortfolioFooter({
   socialLinks = null,
   className = "",
   variant = "dark",
+  sections,
+  /** "scroll" = scroll to #id on page; "hash" = update URL hash (single-section portfolio views). */
+  siteMapAnchorBehavior = "scroll",
 }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
-  const siteMapLinks = getSiteMapLinks(portfolioType, basePath);
+  const siteMapLinks = getSiteMapLinks(portfolioType, basePath, sections);
+
+  function handleAnchorClick(e, path) {
+    if (!path.startsWith("#")) return;
+    e.preventDefault();
+    if (siteMapAnchorBehavior === "hash") {
+      navigate({
+        pathname: location.pathname,
+        search: location.search,
+        hash: path,
+      });
+      return;
+    }
+    const target = document.querySelector(path);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
   const hasSocialLinks =
     socialLinks &&
     Object.values(socialLinks).some((v) => v && typeof v === "string");
@@ -55,11 +68,11 @@ export default function PortfolioFooter({
           {/* Site Map */}
           {siteMapLinks.length > 0 && (
             <nav
-              className="portfolio-footer__section"
+              className="portfolio-footer__section portfolio-footer__section--sitemap"
               aria-label="Site map"
             >
               <h3 className="portfolio-footer__heading">Site Map</h3>
-              <ul className="portfolio-footer__links">
+              <ul className="portfolio-footer__links portfolio-footer__links--sitemap">
                 {siteMapLinks.map(({ label, path }) => {
                   const isAnchor = path.startsWith("#");
                   const href = isAnchor ? path : path;
@@ -88,53 +101,58 @@ export default function PortfolioFooter({
             </nav>
           )}
 
-          {/* Legal */}
-          <div className="portfolio-footer__section" aria-label="Legal">
-            <h3 className="portfolio-footer__heading">Legal</h3>
-            <ul className="portfolio-footer__links">
-              <li>
-                <PrivacyPolicyFooterLink
-                  className="portfolio-footer__link"
-                  label="Privacy Policy"
-                />
-              </li>
-              <li>
-                <TermsOfServiceFooterLink
-                  className="portfolio-footer__link"
-                  label="Terms of Service"
-                />
-              </li>
-            </ul>
-          </div>
-
-          {/* Social Links */}
-          {hasSocialLinks && (
+          <div className="portfolio-footer__meta-row">
+            {/* Legal */}
             <div
-              className="portfolio-footer__section"
-              aria-label="Social links"
+              className="portfolio-footer__section portfolio-footer__section--legal"
+              aria-label="Legal"
             >
-              <h3 className="portfolio-footer__heading">Connect</h3>
-              <ul className="portfolio-footer__social">
-                {Object.entries(SOCIAL_ICONS).map(([key, Icon]) => {
-                  const url = socialLinks?.[key];
-                  if (!url) return null;
-                  return (
-                    <li key={key}>
-                      <a
-                        href={url.startsWith("http") ? url : `https://${url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="portfolio-footer__social-link"
-                        aria-label={`${key} profile`}
-                      >
-                        <Icon className="portfolio-footer__social-icon" />
-                      </a>
-                    </li>
-                  );
-                })}
+              <h3 className="portfolio-footer__heading">Legal</h3>
+              <ul className="portfolio-footer__links">
+                <li>
+                  <PrivacyPolicyFooterLink
+                    className="portfolio-footer__link"
+                    label="Privacy Policy"
+                  />
+                </li>
+                <li>
+                  <TermsOfServiceFooterLink
+                    className="portfolio-footer__link"
+                    label="Terms of Service"
+                  />
+                </li>
               </ul>
             </div>
-          )}
+
+            {/* Social Links */}
+            {hasSocialLinks && (
+              <div
+                className="portfolio-footer__section portfolio-footer__section--connect"
+                aria-label="Social links"
+              >
+                <h3 className="portfolio-footer__heading">Connect</h3>
+                <ul className="portfolio-footer__social">
+                  {Object.entries(SOCIAL_ICONS).map(([key, SocialIcon]) => {
+                    const url = socialLinks?.[key];
+                    if (!url) return null;
+                    return (
+                      <li key={key}>
+                        <a
+                          href={url.startsWith("http") ? url : `https://${url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="portfolio-footer__social-link"
+                          aria-label={`${key} profile`}
+                        >
+                          <SocialIcon className="portfolio-footer__social-icon" />
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="portfolio-footer__bottom">

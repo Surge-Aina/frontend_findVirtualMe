@@ -103,27 +103,6 @@ const trustIndicators = [
   { metric: "30 Days", label: "Money-Back Guarantee" }
 ];
 
-const testimonials = [
-  {
-    quote: "FindVirtual.me transformed our operations. We reduced food waste by up to 40% and increased our profit margins significantly.",
-    author: "Maria Santos",
-    restaurant: "Casa Italiana",
-    location: "New York, NY"
-  },
-  {
-    quote: "The staff scheduling feature alone saved us up to 10 hours per week. Our team is happier and more productive.",
-    author: "James Chen",
-    restaurant: "Dragon Palace",
-    location: "San Francisco, CA"
-  },
-  {
-    quote: "Customer loyalty has never been stronger. The automated marketing campaigns brought back up to 60% more repeat customers.",
-    author: "Sarah Williams",
-    restaurant: "The Cozy Corner",
-    location: "Austin, TX"
-  }
-];
-
 export default function Restaurant() {
   return (
     <div className="min-h-screen bg-gray-50">

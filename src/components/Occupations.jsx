@@ -54,17 +54,17 @@ export default function PortfolioShowcase() {
       {/* Hero Section */}
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden w-full">
         {/* Background gradient */}
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-sky-50 via-white to-blue-50"></div>
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:from-slate-950 dark:via-neutral-950 dark:to-slate-900"></div>
 
         {/* Floating elements */}
         <div className="absolute inset-0 overflow-hidden w-full h-full">
           <motion.div
-            className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-blue-100/30 to-sky-100/20 rounded-full blur-3xl"
+            className="absolute -top-10 -right-10 w-72 h-72 bg-gradient-to-br from-blue-100/30 to-sky-100/20 dark:from-blue-900/20 dark:to-sky-900/10 rounded-full blur-3xl"
             animate={{ y: [0, -20, 0], x: [0, 10, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-sky-100/20 to-blue-100/30 rounded-full blur-3xl"
+            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gradient-to-tr from-sky-100/20 to-blue-100/30 dark:from-sky-900/15 dark:to-blue-900/20 rounded-full blur-3xl"
             animate={{ y: [0, 20, 0], x: [0, -15, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -77,29 +77,29 @@ export default function PortfolioShowcase() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="flex items-center justify-center mb-6"
           >
-            <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-              <Sparkles className="w-4 h-4 text-slate-600" />
-              <span className="text-sm text-slate-600">
+            <div className="flex items-center space-x-2 bg-white/60 dark:bg-neutral-800/80 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20 dark:border-neutral-600">
+              <Sparkles className="w-4 h-4 text-slate-600 dark:text-neutral-300" />
+              <span className="text-sm text-slate-600 dark:text-neutral-300">
                 Share your craft with the world
               </span>
             </div>
           </motion.div>
 
           <motion.h1
-            className="text-5xl md:text-7xl font-light text-slate-800 mb-6 leading-tight"
+            className="text-5xl md:text-7xl font-light text-slate-800 dark:text-neutral-100 mb-6 leading-tight"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             Your work,
             <br />
-            <span className="bg-gradient-to-r from-sky-700 to-slate-900 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-sky-700 to-slate-900 dark:from-sky-400 dark:to-neutral-300 bg-clip-text text-transparent">
               beautifully displayed
             </span>
           </motion.h1>
 
           <motion.p
-            className="text-lg md:text-xl text-slate-800 mb-12 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl text-slate-800 dark:text-neutral-300 mb-12 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -128,14 +128,14 @@ export default function PortfolioShowcase() {
 
             <button
               onClick={() => navigate("/portfolios", { state: { from: "occupations" } })}
-              className="text-slate-600 hover:text-slate-800 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 border border-white/20 w-full sm:w-auto mx-2"
+              className="text-slate-600 hover:text-slate-800 dark:text-neutral-300 dark:hover:text-neutral-100 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-white/40 hover:bg-white/60 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/80 border border-white/20 dark:border-neutral-600 w-full sm:w-auto mx-2"
             >
               View examples
             </button>
           </motion.div>
 
           <motion.div
-            className="mt-16 text-sm text-slate-500"
+            className="mt-16 text-sm text-slate-500 dark:text-neutral-500"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.2 }}
@@ -148,7 +148,7 @@ export default function PortfolioShowcase() {
       {/* Features Section */}
       <section
         id="features"
-        className="py-24 bg-white/50 backdrop-blur-sm w-full"
+        className="py-24 bg-white/50 dark:bg-neutral-900/80 backdrop-blur-sm w-full"
       >
         <div className="w-full">
           <motion.div
@@ -158,20 +158,20 @@ export default function PortfolioShowcase() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
+            <h2 className="text-3xl md:text-4xl font-light text-slate-800 dark:text-neutral-100 mb-4">
               Tools to{" "}
-              <span className="bg-gradient-to-r from-sky-700 to-slate-900 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-sky-700 to-slate-900 dark:from-sky-400 dark:to-neutral-300 bg-clip-text text-transparent">
                 showcase your work
               </span>
             </h2>
-            <p className="text-lg text-slate-800 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-800 dark:text-neutral-300 max-w-2xl mx-auto">
               From photographers to street food vendors, our platform gives you
               everything you need to create a portfolio that tells your story
               and attracts the right audience.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center">
               <motion.div
-                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 max-w-xl"
+                className="bg-gradient-to-br from-blue-100 via-slate-100 to-blue-200 dark:from-blue-950/50 dark:via-neutral-800 dark:to-slate-900 rounded-2xl px-8 py-6 shadow-xl border border-blue-200/40 dark:border-blue-800/50 max-w-xl"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -180,10 +180,10 @@ export default function PortfolioShowcase() {
                 <div className="flex items-center justify-center mb-3">
                 <Sparkles className="w-7 h-7 text-blue-500 animate-pulse" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-2 text-center">
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-neutral-100 mb-2 text-center">
                 Portfolio Insights
                 </h3>
-                <p className="text-slate-700 text-center">
+                <p className="text-slate-700 dark:text-neutral-300 text-center">
                 A stunning portfolio is just the start.  
                 We give you <span className="font-semibold">deep insights</span> into how visitors engage with your work — which sections capture attention, which get skipped, and how they navigate your content.  
                 <span className="font-semibold">Get personalized tips</span> to refine your portfolio, keep visitors hooked, and leave a lasting impression.
@@ -203,14 +203,14 @@ export default function PortfolioShowcase() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-sky-200/50 group-hover:-translate-y-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-sky-100 to-blue-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                      <feature.icon className="w-6 h-6 text-sky-700" />
+                  <div className="bg-white/60 dark:bg-neutral-800/70 backdrop-blur-sm rounded-2xl p-8 border border-white/20 dark:border-neutral-600 hover:bg-white/80 dark:hover:bg-neutral-800/90 transition-all duration-300 hover:shadow-xl hover:shadow-sky-200/50 dark:hover:shadow-neutral-900/50 group-hover:-translate-y-2">
+                    <div className="w-12 h-12 bg-gradient-to-br from-sky-100 to-blue-200 dark:from-sky-900/50 dark:to-blue-950/50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="w-6 h-6 text-sky-700 dark:text-sky-300" />
                     </div>
-                    <h3 className="text-lg font-medium text-slate-800 mb-3">
+                    <h3 className="text-lg font-medium text-slate-800 dark:text-neutral-100 mb-3">
                       {feature.title}
                     </h3>
-                    <p className="text-slate-800 leading-relaxed">
+                    <p className="text-slate-800 dark:text-neutral-300 leading-relaxed">
                       {feature.description}
                     </p>
                   </div>

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { FaCalendarCheck, FaUsers, FaChartLine, FaUserMd } from 'react-icons/fa'
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Mosaic({photos, renderPhoto, isAdmin = false}) {
+export default function Mosaic({ photos, renderPhoto, isAdmin: _isAdmin = false }) {
     return (
         <section className="mb-16">
           <div className="columns-3 gap-4">

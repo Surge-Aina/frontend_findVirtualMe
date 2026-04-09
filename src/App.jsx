@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import About from "./components/About";
@@ -34,7 +34,6 @@ import ITForm from "./components/ITForm";
 import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
 import UserProfile from "./components/UserProfile/UserProfile.jsx";
 import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
-import ITAdminPage from "./components/ITAdminPage.jsx";
 import TicketingPage from "./pages/ticketing/TicketingPage.jsx";
 import PortfolioEditLogViewer from "./components/PortfolioEditLogViewer.jsx";
 import { VendorProvider } from "./context/VendorContext.jsx";
@@ -56,12 +55,16 @@ import HealthcareSearch from "./pages/portfolios/healthcare/pages/SearchResults.
 import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
 import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import axios from "axios";
-import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
 import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
-import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
-import { set } from "date-fns";
 import { PortfolioProvider } from "./context/PortfolioContext.jsx";
+import AiPortfolioCreatorPage from "./pages/portfolios/AiPortfolioCreatorPage.jsx";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
+import TermsOfServicePage from "./pages/TermsOfServicePage.jsx";
+
+// Unified portfolio (sections/blocks architecture)
+import PortfolioRenderer from "./components/PortfolioRenderer.jsx";
+import PortfolioEditor from "./components/PortfolioEditor.jsx";
 import ForgotPassword from "./components/PasswordReset/ForgotPassword";
 import ResetPassword from "./components/PasswordReset/ResetPassword";
 
@@ -130,7 +133,8 @@ export default function App() {
   const isPortfolioWithOwnFooter =
     location.pathname.startsWith("/portfolios/ProjectManager") ||
     location.pathname.startsWith("/portfolios/handyman") ||
-    location.pathname.startsWith("/portfolios/healthcare/");
+    location.pathname.startsWith("/portfolios/healthcare/") ||
+    location.pathname.startsWith("/portfolios/view/");
 
   const handleGetStarted = () => {
     // Show tip/suggestion for plus button
@@ -154,6 +158,8 @@ export default function App() {
           {/* payment */}
           <Route path="/payment" element={<Payment />} />
           <Route path="/success" element={<SuccessPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
           {/* Support */}
           <Route path="/support" element={<ITForm />} />
           {/* Onboarding */}
@@ -162,6 +168,17 @@ export default function App() {
           <Route path="/profile" element={<UserProfile />} />
           {/* example portfolios */}
           <Route path="/portfolios" element={<ExamplePortfolios />} />
+          <Route path="/portfolios/create/ai" element={<AiPortfolioCreatorPage />} />
+          {/* ============ Unified portfolio route (sections/blocks) ============ */}
+          <Route path="/portfolios/view" element={
+            <PortfolioProvider>
+              <WidgetOverlayWrapper />
+            </PortfolioProvider>
+          }>
+            <Route path=":id" element={<PortfolioRenderer />} />
+            <Route path=":id/edit" element={<PortfolioEditor />} />
+          </Route>
+
           {/* Project manager =======================Widget Overlay========================= */}
           <Route
             path="/portfolios/ProjectManager"
@@ -190,7 +207,7 @@ export default function App() {
               </AdminRoute>
             }
           />
-          <Route path="/admin_page" element={<ITAdminPage />} />
+          <Route path="/admin_page" element={<Navigate to="/admin-choice" replace />} />
           <Route
             path="/admin-choice"
             element={
@@ -347,7 +364,7 @@ export default function App() {
             />
           </Route>
 
-          <Route path="/editor/*" element={<OnlineEditor />} />
+          <Route path="/editor/*" element={<ResumeUpload />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-signup" element={<VisitorSignup />} />
