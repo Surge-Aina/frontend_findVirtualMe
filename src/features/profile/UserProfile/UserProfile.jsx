@@ -20,7 +20,7 @@ import QRWidgetSettings from "./QRWidgetSettings";
 import PrivacyPolicy from "./PrivacyPolicy";
 import TermsOfService from "./TermsOfService";
 import PortfolioBranding from "./PortfolioBranding";
-import AppThemeSegmentedToggle from "@/components/AppThemeSegmentedToggle";
+import AppThemeSegmentedToggle from "@/features/portfolios/unified/AppThemeSegmentedToggle";
 import { Eye, EyeOff } from "lucide-react";
 
 const LEGACY_LEGAL_TABS = new Set(["Privacy Policy", "Terms of Service"]);

@@ -5,7 +5,7 @@ import { portfolioApi } from "@/shared/api/portfolioApi";
 import PortfolioFooter from "./PortfolioFooter/PortfolioFooter";
 import WidgetOverlay from "./WidgetOverlay/WidgetOverlay";
 import { usePortfolio } from "@/shared/context/PortfolioContext";
-import { PortfolioViewProvider } from "../context/PortfolioViewContext";
+import { PortfolioViewProvider } from "./context/PortfolioViewContext";
 import PortfolioSectionNav from "./PortfolioSectionNav";
 import SectionPageBanner from "./SectionPageBanner";
 import { AuthContext } from "@/shared/context/AuthContext";

@@ -4,19 +4,19 @@ import {
   FaLock,
   FaMagic,
 } from "react-icons/fa";
-import { FieldEditor } from "./PortfolioEditorFields";
+import { FieldEditor } from "../PortfolioEditorFields";
 import { AgentDesignPreview } from "./AgentDesignPreview";
-import { themeColorToHexForInput } from "./portfolioThemes/agentThemeResolver";
+import { themeColorToHexForInput } from "../portfolioThemes/agentThemeResolver";
 import {
   AGENT_THEME_OPTIONS,
   LAYOUT_MODE_OPTIONS,
-} from "./portfolioEditorConfig";
+} from "../portfolioEditorConfig";
 import {
   DEFAULT_NAV_BRAND_ICON_KEY,
   mergeNavBrandDefaults,
   NAV_BRAND_ICON_OPTIONS,
   NavBrandIconPreview,
-} from "./PortfolioNavBrand";
+} from "../PortfolioNavBrand";
 
 export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, setSocialLink }) {
   return (

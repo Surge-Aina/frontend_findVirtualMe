@@ -25,17 +25,17 @@ jest.mock("@/shared/api/portfolioApi.js", () => ({
   },
 }));
 
-jest.mock("../components/WidgetOverlay/WidgetOverlay.jsx", () => ({
+jest.mock("@/features/portfolios/unified/WidgetOverlay/WidgetOverlay.jsx", () => ({
   __esModule: true,
   default: () => <div data-testid="widget-overlay" />,
 }));
 
-jest.mock("../components/PortfolioRenderer.jsx", () => ({
+jest.mock("@/features/portfolios/unified/PortfolioRenderer.jsx", () => ({
   __esModule: true,
   default: () => <div data-testid="portfolio-renderer">Renderer</div>,
 }));
 
-jest.mock("../components/PortfolioEditor.jsx", () => ({
+jest.mock("@/features/portfolios/unified/PortfolioEditor.jsx", () => ({
   __esModule: true,
   default: () => <div data-testid="portfolio-editor">Editor</div>,
 }));

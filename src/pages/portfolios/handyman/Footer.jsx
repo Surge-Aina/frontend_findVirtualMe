@@ -1,5 +1,5 @@
 import React from "react";
-import PortfolioFooter from "../../../components/PortfolioFooter/PortfolioFooter";
+import PortfolioFooter from "../../../features/portfolios/unified/PortfolioFooter/PortfolioFooter";
 import "./Footer.css";
 
 export default function Footer({ siteName, showBranding = true, socialLinks }) {

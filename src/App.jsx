@@ -7,7 +7,7 @@ import Tip from "@/shared/components/Tip";
 import Footer from "@/shared/components/Footer";
 import "./App.css";
 import EmailMvpApp from "./emailmvp/App";
-import ResumeUpload from "./components/ResumeUpload";
+import ResumeUpload from "@/features/portfolios/unified/ResumeUpload";
 import ErrorBoundary from "@/shared/components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
 import VisitorLogin from "@/features/auth/GuestAuth/VisitorLogin.jsx";
@@ -56,15 +56,15 @@ import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/
 import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import axios from "axios";
 import AdminChoicePanel from "@/features/admin/AdminChoicePanel.jsx";
-import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
+import WidgetOverlay from "@/features/portfolios/unified/WidgetOverlay/WidgetOverlay.jsx";
 import { PortfolioProvider } from "@/shared/context/PortfolioContext.jsx";
-import AiPortfolioCreatorPage from "./pages/portfolios/AiPortfolioCreatorPage.jsx";
+import AiPortfolioCreatorPage from "@/features/portfolios/unified/ai-creator/AiPortfolioCreatorPage.jsx";
 import PrivacyPolicyPage from "@/features/legal/PrivacyPolicyPage.jsx";
 import TermsOfServicePage from "@/features/legal/TermsOfServicePage.jsx";
 
 // Unified portfolio (sections/blocks architecture)
-import PortfolioRenderer from "./components/PortfolioRenderer.jsx";
-import PortfolioEditor from "./components/PortfolioEditor.jsx";
+import PortfolioRenderer from "@/features/portfolios/unified/PortfolioRenderer.jsx";
+import PortfolioEditor from "@/features/portfolios/unified/PortfolioEditor.jsx";
 import ForgotPassword from "@/features/auth/PasswordReset/ForgotPassword";
 import ResetPassword from "@/features/auth/PasswordReset/ResetPassword";
 

@@ -1,5 +1,5 @@
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFileAlt } from "react-icons/fa";
-import { usePortfolioView } from "../../context/PortfolioViewContext";
+import { usePortfolioView } from "../context/PortfolioViewContext";
 
 function SocialRow({ socialLinks, variant = "pm" }) {
   if (!socialLinks) return null;

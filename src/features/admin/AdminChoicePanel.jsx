@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AdminSubscriptionTable from "@/components/AdminSubscriptionTable";
+import AdminSubscriptionTable from "@/features/portfolios/unified/AdminSubscriptionTable";
 import PortfolioEditLogViewer from "./PortfolioEditLogViewer.jsx";
 import TicketingPage from "@/features/support/ticketing/TicketingPage.jsx";
 

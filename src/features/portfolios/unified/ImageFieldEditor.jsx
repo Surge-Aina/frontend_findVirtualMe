@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import axiosAuth from "@/shared/api/axiosAuth";
-import { usePortfolioEditorId } from "../context/PortfolioEditorContext";
+import { usePortfolioEditorId } from "./context/PortfolioEditorContext";
 import { editorLabelClass, editorInputClass } from "./portfolioEditorFieldClasses";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/gif";

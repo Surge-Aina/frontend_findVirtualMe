@@ -1,4 +1,4 @@
-import PortfolioFooter from "../../../../components/PortfolioFooter/PortfolioFooter";
+import PortfolioFooter from "../../../../features/portfolios/unified/PortfolioFooter/PortfolioFooter";
 import { useHealthcareBasePath } from '../../../../hooks/useHealthcareBasePath';
 
 export default function Footer({ userData, practiceId: practiceIdProp }) {

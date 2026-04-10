@@ -7,7 +7,7 @@ import {
   Linkedin,
   Globe,
 } from "lucide-react";
-import { getSiteMapLinks } from "../../config/portfolioFooterConfig";
+import { getSiteMapLinks } from "../../../../config/portfolioFooterConfig";
 import PrivacyPolicyFooterLink from "@/features/legal/PrivacyPolicy/PrivacyPolicyFooterLink";
 import TermsOfServiceFooterLink from "@/features/legal/TermsOfService/TermsOfServiceFooterLink";
 import "./PortfolioFooter.css";

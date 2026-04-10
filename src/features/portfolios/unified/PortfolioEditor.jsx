@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { HeroEditor, ContactEditor, JsonEditor } from "./PortfolioEditorFields";
-import { PortfolioEditorContext } from "../context/PortfolioEditorContext";
+import { PortfolioEditorContext } from "./context/PortfolioEditorContext";
 import {
   StatsEditor,
   HoursEditor,
@@ -49,14 +49,14 @@ import {
   getReadinessReport,
   toCreateSections,
 } from "./portfolioEditorConfig";
-import { AgentDesignPreview } from "./AgentDesignPreview";
+import { AgentDesignPreview } from "./ai-creator/AgentDesignPreview";
 import PageBannersPanel from "./PageBannersPanel";
 import {
   PortfolioAgentAiPanel,
   PortfolioAgentDesignPanel,
   PortfolioPublishReadinessPanel,
   PortfolioSiteSettingsPanel,
-} from "./PortfolioEditorWorkspacePanels";
+} from "./ai-creator/PortfolioEditorWorkspacePanels";
 import { mergeNavBrandDefaults } from "./PortfolioNavBrand";
 
 function clonePortfolio(value) {

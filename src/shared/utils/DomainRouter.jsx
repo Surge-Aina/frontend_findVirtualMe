@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import axios from 'axios';
-import WidgetOverlay from '../../components/WidgetOverlay/WidgetOverlay.jsx';
+import WidgetOverlay from '@/features/portfolios/unified/WidgetOverlay/WidgetOverlay.jsx';
 import { PortfolioProvider } from '../context/PortfolioContext.jsx';
-import PortfolioRenderer from '../../components/PortfolioRenderer.jsx';
-import PortfolioEditor from '../../components/PortfolioEditor.jsx';
+import PortfolioRenderer from '@/features/portfolios/unified/PortfolioRenderer.jsx';
+import PortfolioEditor from '@/features/portfolios/unified/PortfolioEditor.jsx';
 import { portfolioApi } from '../api/portfolioApi.js';
 import { getBrowserHostname } from './windowHost.js';
 

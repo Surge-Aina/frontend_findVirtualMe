@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaWhatsapp } from "react-icons/fa";
-import { usePortfolioView } from "../../context/PortfolioViewContext";
+import { usePortfolioView } from "../context/PortfolioViewContext";
 
 function HealthcareContact(data) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
