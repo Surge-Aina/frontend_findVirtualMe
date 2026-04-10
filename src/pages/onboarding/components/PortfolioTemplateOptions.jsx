@@ -7,7 +7,6 @@ import { portfolioApi } from "../../../api/portfolioApi.js";
 import { useNavigate } from "react-router-dom";
 
 export default function PortfolioTemplateOptions() {
-  const [creatingVendor] = useState(false);
   const [creatingHealthcare, setCreatingHealthcare] = useState(false);
   const [creatingHandyman, setCreatingHandyman] = useState(false);
   const [creatingDataScientist, setCreatingDataScientist] = useState(false);
@@ -74,73 +73,6 @@ export default function PortfolioTemplateOptions() {
         }
         break;
       }
-
-      // case 3: // Local Food Vendor
-      //   try {
-      //     setCreatingVendor(true);
-      //     let res;
-      //     const fileToSend = user?.file || pendingFile;
-      //     if (fileToSend) {
-      //       console.log("Injecting vendor file:", fileToSend.name);
-      //       const formData = new FormData();
-      //       formData.append("file", fileToSend);
-
-      //       formData.append("name", `${user.firstName} ${user.lastName}`);
-      //       formData.append("email", user.email);
-      //       formData.append("phone", user.phone || "");
-      //       formData.append("description", user.bio || "My business portfolio");
-
-      //       toast.info("We're generating your site using your uploaded file. This may take a few moments...");
-
-      //       res = await axios.post(`${backendUrl}/vendor/inject`, formData, {
-      //         headers: { "Content-Type": "multipart/form-data" },
-      //       });
-      //       if (res.status === 201 || res.status === 200) {
-      //         toast.success("Vendor portfolio created successfully!");
-      //       }
-
-      //       console.log("inject response:", res.data);
-      //     } else {
-      //       const vendorData = {
-      //         name: `${user.firstName} ${user.lastName}`,
-      //         email: user.email,
-      //         phone: user.phone || "",
-      //         description: user.bio || "My business portfolio",
-      //       };
-      //       res = await axios.post(`${backendUrl}/vendor`, vendorData);
-      //       toast.info("Vendor created without uploaded file.");
-      //     }
-
-        //   if (res.status === 200 || res.status === 201) {
-        //     const vendor = res.data.vendor || res.data;
-        //     const username = vendor.username || vendor.name.toLowerCase().replace(/\s+/g, "-");
-
-        //     setVendorId(vendor._id);
-        //     setPendingFile(null);
-
-        //     toast.success("Vendor portfolio created successfully!");
-        //     navigate(`/portfolios/vendor/${username}/${vendor._id}`);
-
-        //     const response = await axiosAuth.patch("/user/addPortfolioId", {
-        //       portfolioId: vendor._id,
-        //       portfolioType: "LocalVendor",
-        //       isPublic: false,
-        //     });
-
-        //     if (response.status === 200) {
-        //       toast.success("Portfolio successfully linked to user");
-        //     } else {
-        //       toast.error("Unexpected response from server");
-        //       console.log(response.message);
-        //     }
-        //   }
-        // } catch (err) {
-        //   console.error("Vendor portfolio creation failed:", err);
-        //   toast.error("Could not create vendor portfolio");
-        // } finally {
-        //   setCreatingVendor(false);
-        // }
-        // break;
 
       case 2: {
         try {
@@ -296,51 +228,6 @@ export default function PortfolioTemplateOptions() {
         break;
       }
 
-      // case 6: // Cleaning Lady Portfolio
-      //   try {
-      //     const token = localStorage.getItem("token");
-
-      //     const createResponse = await axios.post(
-      //       `${backendUrl}/api/portfolios/new-portfolio`,
-      //       {
-      //         slug: `${user.firstName?.toLowerCase() || "user"}-cleaning-${Date.now()}`,
-      //         templateType: "cleaning-service",
-      //         businessName: `${user.firstName || "My"} Cleaning Service`,
-      //         contactInfo: {
-      //           phone: user.phone || "",
-      //           email: user.email || "",
-      //         },
-      //         roomPricing: [
-      //           { roomType: "bedroom", price: 50 },
-      //           { roomType: "kitchen", price: 70 },
-      //           { roomType: "bathroom", price: 40 },
-      //           { roomType: "livingRoom", price: 60 },
-      //         ],
-      //       },
-      //       { headers: { Authorization: `Bearer ${token}` } }
-      //     );
-
-      //     const newPortfolioId = createResponse.data.portfolio._id;
-      //     const response = await axiosAuth.patch("/user/addPortfolioId", {
-      //       portfolioId: newPortfolioId,
-      //       portfolioType: "CleaningLady",
-      //       isPublic: false,
-      //     });
-
-      //     if (response.status === 200) {
-      //       toast.success("Portfolio successfully linked to user");
-      //     } else {
-      //       toast.error("Unexpected response from server");
-      //       console.log(response.message);
-      //     }
-      //     navigate(`/portfolios/cleaningService/${newPortfolioId}/about`);
-      //     toast.success("Your cleaning portfolio has been created!");
-      //   } catch (error) {
-      //     console.error("Error creating cleaning portfolio:", error);
-      //     toast.error(error.response?.data?.message || "Could not create portfolio");
-      //   }
-      //   break;
-
       case 1: // ✅ Healthcare Professional - UPDATED
         try {
           setCreatingHealthcare(true);
@@ -466,24 +353,6 @@ export default function PortfolioTemplateOptions() {
       name: "AI Portfolio Creator",
       description: "Describe the portfolio you want and generate an editable block-based portfolio from your prompt.",
     },
-    // {
-    //   name: "Software Engineer",
-    //   description: "Display your coding projects, apps, and technical expertise.",
-    // },
-    // {
-    //   name: "Local Food Vendor",
-    //   description: "Share your menu, business story, and customer favorites.",
-    // },
-    // {
-    //   name: "Photographer",
-    //   description: "Showcase your portfolio, shoots, and artistic style.",
-    // },
-    
-    // {
-    //   name: "Cleaning Lady Portfolio",
-    //   description: "Demonstrate your services, skills and expand your business.",
-    // },
-    
   ];
 
   const cards = [
@@ -495,30 +364,26 @@ export default function PortfolioTemplateOptions() {
     { bg: "bg-slate-100 border-slate-300", text: "text-slate-800" },
   ];
 
-  if (creatingVendor || creatingHealthcare || creatingHandyman || creatingDataScientist || creatingAgentPortfolio) {
+  if (creatingHealthcare || creatingHandyman || creatingDataScientist || creatingAgentPortfolio) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
         <h2 className="text-lg font-semibold text-slate-700 animate-pulse">
-          {creatingVendor
-            ? "Creating your vendor site..."
-            : creatingHandyman
-              ? "Creating your handyman portfolio..."
-              : creatingDataScientist
-                ? "Creating your data science portfolio..."
-                : creatingAgentPortfolio
-                  ? "Opening AI portfolio creator..."
+          {creatingHandyman
+            ? "Creating your handyman portfolio..."
+            : creatingDataScientist
+              ? "Creating your data science portfolio..."
+              : creatingAgentPortfolio
+                ? "Opening AI portfolio creator..."
                 : "Creating your healthcare practice..."}
         </h2>
         <p className="text-slate-500 text-sm mt-2">
-          {creatingVendor
-            ? "This may take up to a minute as we process your file."
-            : creatingHandyman
-              ? "Setting up your services and contact sections..."
-              : creatingDataScientist
-                ? "Setting up sections, charts, and your contact block..."
-                : creatingAgentPortfolio
-                  ? "Getting your prompt-based creator ready..."
+          {creatingHandyman
+            ? "Setting up your services and contact sections..."
+            : creatingDataScientist
+              ? "Setting up sections, charts, and your contact block..."
+              : creatingAgentPortfolio
+                ? "Getting your prompt-based creator ready..."
                 : "Setting up your professional healthcare website..."}
         </p>
       </div>

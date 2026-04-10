@@ -1,4 +1,4 @@
-export default function Farmers() {
+export default function Property() {
   const cardInfo = [
     {
       heading: "Custom Websites",

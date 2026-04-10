@@ -222,8 +222,6 @@ export default function App() {
           <Route path="/solutions/restaurant" element={<Restaurant />} />
           <Route path="/solutions/property" element={<Property />} />
           <Route path="/solutions/farmers" element={<Farmers />} />
-          {/* Software Engineer */}
-          <Route path="/portfolios/software-engineer" />
           {/* Data Scientist */}
           <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
           {/* Cleaning Service */}
@@ -372,7 +370,6 @@ export default function App() {
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
-          {/* <Route path="/testPage" element={<QRCodeForm />} /> */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
