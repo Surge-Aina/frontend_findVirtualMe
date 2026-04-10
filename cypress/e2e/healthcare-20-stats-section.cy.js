@@ -49,7 +49,7 @@ describe("FE-E2E-HC-VENDOR-9 — Stats Section", () => {
       body: mockPractice,
     }).as("getAdminData");
 
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
         user: { id: ownerId, _id: ownerId, email: "owner@test.com", name: "Owner" },

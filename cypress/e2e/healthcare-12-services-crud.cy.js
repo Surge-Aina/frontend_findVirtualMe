@@ -47,7 +47,7 @@ describe("FE-E2E-HC-VENDOR-5 — Admin Dashboard Content", () => {
       body: mockPractice,
     }).as("getAdminData");
 
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
         user: { id: ownerId, _id: ownerId, email: "owner@test.com" },

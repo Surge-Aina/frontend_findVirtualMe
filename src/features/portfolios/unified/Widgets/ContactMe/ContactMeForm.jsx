@@ -25,7 +25,7 @@ export default function ContactMeForm({ onSuccess, portfolioId, portfolioType, o
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        await axios.post(`${import.meta.env.VITE_BACKEND_API}/contactMe/contactMeForm`, formData);
+        await axios.post(`${import.meta.env.VITE_BACKEND_API}/api/contact`, formData);
         if (onSuccess) onSuccess();
         setFormData(initialFormState);
         if (onClose) onClose();

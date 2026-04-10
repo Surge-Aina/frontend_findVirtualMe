@@ -39,7 +39,7 @@ const AdminSubscriptionTable = () => {
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BACKEND_API}/subscriptions`);
+      const response = await axios.get(`${BACKEND_API}/api/payments/subscriptions`);
       const data = response.data;
       console.log("Subscription data:", data);
       setSubscriptions(data);
@@ -66,7 +66,7 @@ const AdminSubscriptionTable = () => {
   // Update subscription
   const handleUpdateSubscription = async (subscriptionId, newPlan) => {
     try {
-      const response = await axios.put(`${BACKEND_API}/subscriptions/update`, { subscriptionId, newPlan });
+      const response = await axios.put(`${BACKEND_API}/api/payments/subscriptions/update`, { subscriptionId, newPlan });
 
       fetchSubscriptionsAfterWebhook(); // Refresh data
       setShowUpdateModal(false);
@@ -79,7 +79,7 @@ const AdminSubscriptionTable = () => {
   };
   const handleConfirmCancel = async (subscriptionId) => {
     try {
-      const res = await axios.put(`${BACKEND_API}/subscriptions/cancel`, { subscriptionId });
+      const res = await axios.put(`${BACKEND_API}/api/payments/subscriptions/cancel`, { subscriptionId });
       fetchSubscriptionsAfterWebhook(); // Refresh data
       setShowCancelConfirm(false);
       setSelectedSub(null);
@@ -104,7 +104,7 @@ const AdminSubscriptionTable = () => {
         body.amount = parseInt(parseFloat(amount) * 100);
       }
 
-      const response = await axios.post(`${BACKEND_API}/subscriptions/refund`, body);
+      const response = await axios.post(`${BACKEND_API}/api/payments/subscriptions/refund`, body);
 
       setShowRefundModal(false);
       setSelectedSub(null);
@@ -124,7 +124,7 @@ const AdminSubscriptionTable = () => {
   // Get payment history
   const fetchPaymentHistory = async (customerId) => {
     try {
-      const response = await axios.get(`${BACKEND_API}/subscriptions/payments/${customerId}`);
+      const response = await axios.get(`${BACKEND_API}/api/payments/subscriptions/payments/${customerId}`);
       const data = response.data;
       setPaymentHistory(data.charges || []);
       setShowPaymentHistory(true);
@@ -170,7 +170,7 @@ const AdminSubscriptionTable = () => {
 
   const handleReactivateSub = async (subscriptionId) => {
     try {
-      await axios.put(`${BACKEND_API}/subscriptions/reactivate`, { subscriptionId });
+      await axios.put(`${BACKEND_API}/api/payments/subscriptions/reactivate`, { subscriptionId });
       fetchSubscriptionsAfterWebhook();
       setShowUpdateModal(false);
       setSelectedSub(null);

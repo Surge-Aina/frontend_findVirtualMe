@@ -42,7 +42,7 @@ export default function PrivacyPolicy() {
   const loadPolicies = async () => {
     setLoading(true);
     try {
-      const res = await axiosAuth.get("/privacy-policy");
+      const res = await axiosAuth.get("/api/legal/privacy-policy");
       setPolicies(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load privacy policies", err);
@@ -141,14 +141,14 @@ export default function PrivacyPolicy() {
       let res;
       if (selectedPolicyId) {
         res = await axiosAuth.patch(
-          `/privacy-policy/${selectedPolicyId}`,
+          `/api/legal/privacy-policy/${selectedPolicyId}`,
           payload,
         );
         setPolicies((prev) =>
           prev.map((p) => (p._id === selectedPolicyId ? res.data : p)),
         );
       } else {
-        res = await axiosAuth.post("/privacy-policy", payload);
+        res = await axiosAuth.post("/api/legal/privacy-policy", payload);
         setPolicies((prev) => [...prev, res.data]);
         setSelectedPolicyId(res.data._id);
       }
@@ -169,7 +169,7 @@ export default function PrivacyPolicy() {
 
     setDeleting(true);
     try {
-      await axiosAuth.delete(`/privacy-policy/${selectedPolicyId}`);
+      await axiosAuth.delete(`/api/legal/privacy-policy/${selectedPolicyId}`);
       setPolicies((prev) =>
         prev.filter((p) => p._id !== selectedPolicyId),
       );

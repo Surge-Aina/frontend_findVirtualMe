@@ -177,7 +177,7 @@ export default function OnboardingFlow() {
       //send data to backend
         const sendData = async () => {
         try {
-          const res = await axios.post(`${backendUrl}/user/addUser`, {
+          const res = await axios.post(`${backendUrl}/api/users`, {
             data,
           });
           login(res.data.user.email, data.userInfo.password);

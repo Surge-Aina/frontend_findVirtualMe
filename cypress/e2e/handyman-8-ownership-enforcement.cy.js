@@ -42,7 +42,7 @@
         }).as("getTemplate");
 
         // Edit page calls /api/user/me only if context user isn't present AND token exists
-        cy.intercept("GET", "**/api/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: { id: nonOwnerId, email: "nonowner@test.com", name: "Non Owner" },
         }).as("getMe");

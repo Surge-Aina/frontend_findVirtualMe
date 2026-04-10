@@ -29,7 +29,7 @@ export default function VisitorsData() {
   const fetchVisitors = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/guestAdminPanel/getAllUsers?portfolioId=${portfolioId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/api/auth/guest-admin/users?portfolioId=${portfolioId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -87,7 +87,7 @@ export default function VisitorsData() {
       if (editedData.phone) updateData.phone = editedData.phone;
       if (editedData.loyaltyPoints !== '') updateData.loyaltyPoints = parseInt(editedData.loyaltyPoints);
 
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/guestAdminPanel/editUser/${visitorId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/api/auth/guest-admin/users/${visitorId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -40,7 +40,7 @@ describe("FE-E2E-HC-VENDOR-1 — Portfolio Admin Access", () => {
       body: mockPractice,
     }).as("getAdminData");
 
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
         user: { id: ownerId, _id: ownerId, email: "owner@test.com", name: "Owner" },
@@ -62,7 +62,7 @@ describe("FE-E2E-HC-VENDOR-1 — Portfolio Admin Access", () => {
   });
 
   it("unauthenticated user is redirected from admin dashboard", () => {
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 401,
       body: { message: "Unauthorized" },
     }).as("getMeUnauth");

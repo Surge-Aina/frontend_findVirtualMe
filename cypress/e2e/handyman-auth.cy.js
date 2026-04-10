@@ -48,9 +48,9 @@
         cy.contains("button", /^continue$/i).click();
 
         // Intercepts (before submit)
-        cy.intercept("POST", "**/user/addUser").as("signup");
-        cy.intercept("POST", "**/user/login").as("login");
-        cy.intercept("GET", "**/user/me").as("me");
+        cy.intercept("POST", "**/api/users").as("signup");
+        cy.intercept("POST", "**/api/auth/login").as("login");
+        cy.intercept("GET", "**/api/users/me").as("me");
 
         cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
 
@@ -82,7 +82,7 @@
         const token = win.localStorage.getItem("token");
         cy.request({
             method: "GET",
-            url: `${backendUrl}/user/me`,
+            url: `${backendUrl}/api/users/me`,
             headers: { Authorization: `Bearer ${token}` },
             failOnStatusCode: false,
         }).then((res) => {
@@ -94,7 +94,7 @@
         cy.contains(/choose a template/i, { timeout: 20000 }).should("be.visible");
 
         cy.intercept("POST", "**/api/handyman-template").as("createHandymanTemplate");
-        cy.intercept("PATCH", "**/user/addPortfolioId").as("addPortfolioId");
+        cy.intercept("PATCH", "**/api/users/portfolio-id").as("addPortfolioId");
         cy.intercept("POST", "**/api/portfolio-edit-log").as("editLog");
 
         cy.contains(/handyman\s*\/\s*local repair services/i, { timeout: 20000 })
@@ -147,7 +147,7 @@
         // ✅ FIX: don’t require button[type="button"] — just find the “Log in” action
         cy.contains("button, a", /^sign in$/i, { timeout: 20000 }).click();
 
-        cy.intercept("POST", "**/user/login").as("login");
+        cy.intercept("POST", "**/api/auth/login").as("login");
 
         fillLoginForm(user.email, user.password);
 

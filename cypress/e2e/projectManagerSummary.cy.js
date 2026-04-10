@@ -36,7 +36,7 @@
         cy.resetAppState();
 
         // Logged-in user
-        cy.intercept("GET", "**/user/**", {
+        cy.intercept("GET", "**/api/users/**", {
         statusCode: 200,
         body: {
             user: {

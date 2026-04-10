@@ -48,7 +48,7 @@ export default function PortfolioTemplateOptions() {
           }
 
           try {
-            const response = await axiosAuth.patch("/user/addPortfolioId", {
+            const response = await axiosAuth.patch("/api/users/portfolio-id", {
               portfolioId: id,
               portfolioType: "ProjectManager",
               isPublic: false,
@@ -101,7 +101,7 @@ export default function PortfolioTemplateOptions() {
           }
 
           try {
-            const response = await axiosAuth.patch("/user/addPortfolioId", {
+            const response = await axiosAuth.patch("/api/users/portfolio-id", {
               portfolioId: id,
               portfolioType: "Handyman",
               isPublic: false,
@@ -166,7 +166,7 @@ export default function PortfolioTemplateOptions() {
           }
 
           try {
-            const response = await axiosAuth.patch("/user/addPortfolioId", {
+            const response = await axiosAuth.patch("/api/users/portfolio-id", {
               portfolioId: id,
               portfolioType: "DataScientist",
               isPublic: false,
@@ -263,7 +263,7 @@ export default function PortfolioTemplateOptions() {
           }
 
           try {
-            const portfolioResponse = await axiosAuth.patch("/user/addPortfolioId", {
+            const portfolioResponse = await axiosAuth.patch("/api/users/portfolio-id", {
               portfolioId: practiceId,
               portfolioType: "Healthcare",
               isPublic: false,

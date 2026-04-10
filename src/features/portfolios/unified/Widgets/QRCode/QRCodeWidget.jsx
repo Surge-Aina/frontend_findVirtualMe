@@ -32,14 +32,14 @@ export default function QRCodeWidget({
             let res;
             if(user) {
             res = await authAxios.get(
-                `${import.meta.env.VITE_BACKEND_API}/qrCode/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
+                `${import.meta.env.VITE_BACKEND_API}/api/qr-codes/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
             );
             setQRCodes(res.data);
             console.log('Fetched QR codes:', res.data);
             return;
             }else {
             res = await axios.get(
-                `${import.meta.env.VITE_BACKEND_API}/qrCode/public/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
+                `${import.meta.env.VITE_BACKEND_API}/api/qr-codes/public/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
             );
             }
             console.log('API response:', res.data);
@@ -55,7 +55,7 @@ export default function QRCodeWidget({
     //delete QR code function
     const deleteQRCode = async (qrId) => {
         try {
-        await authAxios.delete(`${import.meta.env.VITE_BACKEND_API}/qrCode/${qrId}`);
+        await authAxios.delete(`${import.meta.env.VITE_BACKEND_API}/api/qr-codes/${qrId}`);
         setQRCodes((prev) => prev.filter(qr => qr._id !== qrId));
         toast.success('QR code deleted successfully');
         }
@@ -68,7 +68,7 @@ export default function QRCodeWidget({
     //toggle QR code active state
     const toggleActive = async (QRCode) => {
         try {
-        const res = await authAxios.patch(`${import.meta.env.VITE_BACKEND_API}/qrCode/${QRCode._id}/toggleActive`);
+        const res = await authAxios.patch(`${import.meta.env.VITE_BACKEND_API}/api/qr-codes/${QRCode._id}/toggleActive`);
         setQRCodes((prev) => prev.map(qr => qr._id === QRCode._id ? { ...qr, active: res.data.active } : qr));
         toast.success(`QR code ${res.data.active ? 'activated' : 'deactivated'} successfully`);
         } catch (error) {

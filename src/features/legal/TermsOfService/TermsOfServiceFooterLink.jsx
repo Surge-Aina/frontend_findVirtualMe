@@ -35,7 +35,7 @@ export default function TermsOfServiceFooterLink({
         const backendUrl =
           import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
         const res = await axios.get(
-          `${backendUrl}/terms-of-service/public/byPortfolio`,
+          `${backendUrl}/api/legal/terms-of-service/public/byPortfolio`,
           { params: { portfolioId, type: modelType } },
         );
         setTerms(res.data || null);

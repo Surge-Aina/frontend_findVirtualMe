@@ -18,7 +18,7 @@ export default function QRWidgetSettings() {
       try {
         setLoading(true);
 
-        const res = await axiosAuth.get("/qrCode");
+        const res = await axiosAuth.get("/api/qr-codes");
         const allQrs = res.data || [];
 
         console.log("Selected portfolio:", selectedPortfolio);
@@ -65,7 +65,7 @@ export default function QRWidgetSettings() {
       console.log("Updating to:", newState);
 
       if (portfolioQrs.length > 0) {
-        await Promise.all(portfolioQrs.map((qr) => axiosAuth.put(`/qrCode/${qr._id}`, { active: newState })));
+        await Promise.all(portfolioQrs.map((qr) => axiosAuth.put(`/api/qr-codes/${qr._id}`, { active: newState })));
       }
 
       setQrActive(newState);

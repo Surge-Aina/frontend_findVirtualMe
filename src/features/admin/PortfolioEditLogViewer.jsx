@@ -23,15 +23,15 @@ export default function PortfolioEditLogViewer() {
     setLoading(true);
     setError(null);
     try {
-      let url = `${API_URL}/api/portfolio-edit-log?page=${page}&limit=50`;
+      let url = `${API_URL}/api/portfolios/edit-log?page=${page}&limit=50`;
       
       // Apply filter if provided
       if (filter.type === 'userId' && filter.value) {
-        url = `${API_URL}/api/portfolio-edit-log/user/${filter.value}`;
+        url = `${API_URL}/api/portfolios/edit-log/user/${filter.value}`;
       } else if (filter.type === 'portfolioID' && filter.value) {
-        url = `${API_URL}/api/portfolio-edit-log/portfolio/${filter.value}`;
+        url = `${API_URL}/api/portfolios/edit-log/portfolio/${filter.value}`;
       } else if (filter.type === 'sessionId' && filter.value) {
-        url = `${API_URL}/api/portfolio-edit-log/session/${filter.value}`;
+        url = `${API_URL}/api/portfolios/edit-log/session/${filter.value}`;
       }
 
       const token = localStorage.getItem('token');

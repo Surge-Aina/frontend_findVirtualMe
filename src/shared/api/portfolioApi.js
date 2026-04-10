@@ -9,7 +9,7 @@ export const portfolioApi = {
   getBySlug: (slug, config) => axiosAuth.get(`${BASE}/slug/${slug}`, config),
   listPublic: (template) => {
     const params = template ? `?template=${template}` : "";
-    return axios.get(`${import.meta.env.VITE_BACKEND_API}${BASE}/public${params}`);
+    return axios.get(`${import.meta.env.VITE_BACKEND_API}${BASE}/public/list${params}`);
   },
   getBlockTypes: (template, options = {}) => {
     const query = new URLSearchParams();

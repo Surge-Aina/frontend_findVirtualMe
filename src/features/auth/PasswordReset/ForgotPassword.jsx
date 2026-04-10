@@ -19,7 +19,7 @@ export default function ForgotPassword() {
       setLoading(true);
       setMessage("");
 
-      const res = axios.post(`${apiUrl}/user/forgot-password`, { email });
+      const res = axios.post(`${apiUrl}/api/auth/forgot-password`, { email });
       console.log("API SUCCESS:", res);
 
       setMessage(res.data?.message || "Reset link sent successfully");

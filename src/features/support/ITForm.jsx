@@ -68,7 +68,7 @@ export default function ITForm() {
       }
 
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/support-form/with-email`, {
+      const res = await fetch(`${API_BASE}/api/support/with-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

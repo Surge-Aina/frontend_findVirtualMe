@@ -127,7 +127,7 @@ export default function UserProfile() {
     try {
       setPasswordLoading(true);
 
-      await axiosAuth.patch("/user/change-password", {
+      await axiosAuth.patch("/api/users/change-password", {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
       });
@@ -162,7 +162,7 @@ export default function UserProfile() {
       // const response = await axiosAuth.get(`${apiUrl}/api/domains/myDomains`);
       // // always set an array, even if the response structure is different
       // const domainsData = response.data?.domains || response.data || [];
-      const response = await axiosAuth.get(`/domainRouter`);
+      const response = await axiosAuth.get(`/api/domains/router`);
       const domainsData = response.data;
       setDomains(Array.isArray(domainsData) ? domainsData : []);
     } catch (error) {
@@ -210,7 +210,7 @@ export default function UserProfile() {
       //delete from users domain array
       const userArrayResponse = await axiosAuth.delete(`${apiUrl}/api/domains/${domainId}`);
       //delete from domain collection
-      const domainRouterResponse = await axiosAuth.delete(`/domainRouter/${domainId}`);
+      const domainRouterResponse = await axiosAuth.delete(`/api/domains/router/${domainId}`);
       console.log("remove domain responses", { userArrayResponse, domainRouterResponse });
 
       setDomains((prev) => prev.filter((domain) => domain._id !== domainId));
@@ -256,7 +256,7 @@ export default function UserProfile() {
     setSuccess("");
 
     try {
-      const res = await axiosAuth.patch(`${apiUrl}/user/updateUser`, editData);
+      const res = await axiosAuth.patch(`/api/users`, editData);
 
       const updatedUser = res.data.user;
 
@@ -785,7 +785,7 @@ function DomainCard({ domain, onRemove, onVerify: _onVerify }) {
 
   const onConnectProject = async (domainName, portfolioId) => {
     // Implement the logic to connect the domain to the selected portfolio type
-    const res = await axiosAuth.patch(`/domainRouter/${domain._id}`, {
+    const res = await axiosAuth.patch(`/api/domains/router/${domain._id}`, {
       domain: domain.domain,
       portfolioId: portfolioId,
       //optional: notes(String)

@@ -35,7 +35,7 @@ export default function QRCodeForm({ onSuccess, portfolioId, portfolioType, onCl
     setError("");
 
     try {
-      const res = await axiosAuth.post(`/qrCode`, formData);
+      const res = await axiosAuth.post(`/api/qr-codes`, formData);
       setLoading(false);
       if (onSuccess) onSuccess(res.data);
       setFormData(initialFormState);

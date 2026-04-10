@@ -23,7 +23,7 @@ export default function QRDisplay({ qrId, qrObject }) {
                 setLoading(true);
                 if (qrId) {
                     console.log("Qr ID", qrId);
-                    const res = await axios.get(`${apiBaseUrl}/qrCode/public/${qrId}`);
+                    const res = await axios.get(`${apiBaseUrl}/api/qr-codes/public/${qrId}`);
                     setQrData(res.data);
                     console.log("Fetched QR data:", res.data);
                 } else {

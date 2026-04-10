@@ -25,7 +25,7 @@ export default function SignUp() {
     }
 
     try {
-      const res = await axios.post(`${apiUrl}/user/signup`, form);
+      const res = await axios.post(`${apiUrl}/api/auth/signup`, form);
       const { token, email } = res.data;
 
       // Save token & email to local storage

@@ -49,7 +49,7 @@
         body: template,
         }).as("getTemplate");
 
-        cy.intercept("GET", "**/api/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: { id: ownerId, email: "owner@test.com", name: "Owner" },
         }).as("getMe");

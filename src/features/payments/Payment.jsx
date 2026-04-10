@@ -77,7 +77,7 @@ const handleCheckout = async (planID) => {
     return;
   }
   try {
-    const response = await axios.post(`${backendUrl}/checkout/checkout-session`, {
+    const response = await axios.post(`${backendUrl}/api/payments/checkout/session`, {
       plan: planID,
     });
     window.location.href = response.data.checkoutUrl;

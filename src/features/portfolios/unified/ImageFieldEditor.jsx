@@ -38,7 +38,7 @@ export function ImageFieldEditor({ label, value, onChange, placeholder }) {
     setError(null);
     setUploading(true);
     try {
-      const { data } = await axiosAuth.post("/s3-upload-url", {
+      const { data } = await axiosAuth.post("/api/media/s3-upload-url", {
         fileType: file.type,
         portfolioId,
         contentLength: file.size,

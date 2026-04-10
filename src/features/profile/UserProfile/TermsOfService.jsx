@@ -53,7 +53,7 @@ export default function TermsOfService() {
   const loadTerms = async () => {
     setLoading(true);
     try {
-      const res = await axiosAuth.get("/terms-of-service");
+      const res = await axiosAuth.get("/api/legal/terms-of-service");
       setTermsList(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to load terms of service", err);
@@ -149,14 +149,14 @@ export default function TermsOfService() {
       let res;
       if (selectedTermsId) {
         res = await axiosAuth.patch(
-          `/terms-of-service/${selectedTermsId}`,
+          `/api/legal/terms-of-service/${selectedTermsId}`,
           payload,
         );
         setTermsList((prev) =>
           prev.map((t) => (t._id === selectedTermsId ? res.data : t)),
         );
       } else {
-        res = await axiosAuth.post("/terms-of-service", payload);
+        res = await axiosAuth.post("/api/legal/terms-of-service", payload);
         setTermsList((prev) => [...prev, res.data]);
         setSelectedTermsId(res.data._id);
       }
@@ -177,7 +177,7 @@ export default function TermsOfService() {
 
     setDeleting(true);
     try {
-      await axiosAuth.delete(`/terms-of-service/${selectedTermsId}`);
+      await axiosAuth.delete(`/api/legal/terms-of-service/${selectedTermsId}`);
       setTermsList((prev) =>
         prev.filter((t) => t._id !== selectedTermsId),
       );

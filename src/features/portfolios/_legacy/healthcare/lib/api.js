@@ -212,7 +212,7 @@ export const api = {
 
   // form data requires: name, email, message, portfolioId, ownerEmail, ownerName
   async contactMe(formData){
-    const res = await fetch(`${API_BASE_URL}/contactMe/contactMeForm`, {
+    const res = await fetch(`${API_BASE_URL}/api/contact`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -239,7 +239,7 @@ export const api = {
       body.contentLength = contentLength;
     }
 
-    const res = await fetch(`${API_BASE_URL}/s3-upload-url`, {
+    const res = await fetch(`${API_BASE_URL}/api/media/s3-upload-url`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

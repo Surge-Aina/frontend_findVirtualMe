@@ -25,7 +25,7 @@ export default function VisitorLogin() {
     setMessage('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/guestUser/login`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/api/auth/guest/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

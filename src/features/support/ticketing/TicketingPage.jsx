@@ -16,7 +16,7 @@ export default function TicketingPage() {
       try {
         setLoading(true);
         setErr("");
-        const { data } = await axios.get(`${API_BASE}/support-form`, {
+        const { data } = await axios.get(`${API_BASE}/api/support`, {
           headers: { "Content-Type": "application/json" },
         });
         setTickets(Array.isArray(data) ? data : []);
@@ -59,7 +59,7 @@ export default function TicketingPage() {
 
     try {
       const { data } = await axios.put(
-        `${API_BASE}/support-form/${ticketID}`,
+        `${API_BASE}/api/support/${ticketID}`,
         { status: nextStatus },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -100,7 +100,7 @@ export default function TicketingPage() {
     setTickets(optimistic);
 
     try {
-      await axios.delete(`${API_BASE}/support-form/${ticketID}`, {
+      await axios.delete(`${API_BASE}/api/support/${ticketID}`, {
         headers: { "Content-Type": "application/json" },
       });
     } catch (e) {
@@ -128,7 +128,7 @@ export default function TicketingPage() {
 
     try {
       const { data } = await axios.post(
-        `${API_BASE}/support-form/${ticketID}/replies`,
+        `${API_BASE}/api/support/${ticketID}/replies`,
         { message: msg },
         { headers: { "Content-Type": "application/json" } }
       );

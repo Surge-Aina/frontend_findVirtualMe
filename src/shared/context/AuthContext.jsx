@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
     }
 
     axios
-      .get(`${backendUrl}/user/me`, {
+      .get(`${backendUrl}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post(`${backendUrl}/user/login`, {
+      const res = await axios.post(`${backendUrl}/api/auth/login`, {
         email,
         password,
       });
@@ -127,7 +127,7 @@ export function AuthProvider({ children }) {
   const refreshUser = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${backendUrl}/user/me`, {
+      const res = await axios.get(`${backendUrl}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data.user);

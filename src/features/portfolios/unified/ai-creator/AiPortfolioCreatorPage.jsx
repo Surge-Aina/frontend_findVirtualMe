@@ -65,7 +65,7 @@ export default function AiPortfolioCreatorPage() {
       }
 
       try {
-        await axiosAuth.patch("/user/addPortfolioId", {
+        await axiosAuth.patch("/api/users/portfolio-id", {
           portfolioId: id,
           portfolioType: "agent",
           isPublic: false,

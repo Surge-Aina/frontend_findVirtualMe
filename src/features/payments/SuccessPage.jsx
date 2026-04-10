@@ -13,7 +13,7 @@ function SuccessPage() {
 
     if (sessionId) {
       axios
-        .get(`${backendUrl}/checkout/session/${sessionId}`)
+        .get(`${backendUrl}/api/payments/checkout/session/${sessionId}`)
         .then((res) => setSessionData(res.data))
         .catch((err) => console.error(err));
     }

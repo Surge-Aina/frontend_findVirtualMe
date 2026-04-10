@@ -12,7 +12,7 @@ export default function GoogleLoginButton({ onClose }) {
   const navigate = useNavigate();
   const handleSuccess = async (credentialResponse) => {
     try {
-      const res = await axios.post(`${backendURL}/google-login/auth/google`, {
+      const res = await axios.post(`${backendURL}/api/auth/google`, {
         idToken: credentialResponse.credential,
       });
       if (onClose) onClose();

@@ -126,7 +126,7 @@ export const logPortfolioAction = async (action, options = {}) => {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    await axios.post(`${API_URL}/api/portfolio-edit-log`, logData, { headers });
+    await axios.post(`${API_URL}/api/portfolios/edit-log`, logData, { headers });
     
     console.log('✅ Portfolio action logged:', action, logData);
     

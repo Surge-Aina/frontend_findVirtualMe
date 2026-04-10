@@ -20,7 +20,7 @@ const DomainLookup = () => {
   */
   const fetchDomain = async () => {
     const res = await axiosAuth.get(
-      `${backendUrl}/api/domainPayment/pricecheck/${submittedDomain}`
+      `${backendUrl}/api/payments/domain-pricecheck/${submittedDomain}`
     );
     return res.data;
   };
@@ -44,7 +44,7 @@ const DomainLookup = () => {
   =========================
   */
   const fetchVouchers = async () => {
-    const res = await axiosAuth.get(`${backendUrl}/vouchers/my`);
+    const res = await axiosAuth.get(`/api/vouchers/my`);
     return res.data;
   };
 
@@ -101,7 +101,7 @@ const DomainLookup = () => {
       };
 
       const response = await axiosAuth.post(
-        `${backendUrl}/api/domainPayment/checkout`,
+        `${backendUrl}/api/payments/domain-checkout`,
         payload
       );
 

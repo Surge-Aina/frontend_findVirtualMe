@@ -82,7 +82,7 @@ describe("FE-E2E-HC-EDGE-3 — Refresh, Back Button & Deep Linking", () => {
       body: mockPractice,
     }).as("getAdminData");
 
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
         user: { id: ownerId, _id: ownerId, email: "owner@test.com" },

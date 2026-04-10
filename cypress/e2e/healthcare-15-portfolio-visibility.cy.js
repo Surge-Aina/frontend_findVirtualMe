@@ -69,7 +69,7 @@ describe("FE-E2E-HC-ADMIN-1 — Portfolio Visibility", () => {
   });
 
   it("owner can see portfolio on main dashboard", () => {
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
         user: { 
@@ -82,7 +82,7 @@ describe("FE-E2E-HC-ADMIN-1 — Portfolio Visibility", () => {
       },
     }).as("getMe");
 
-    cy.intercept("GET", "**/publicPortfolios/public", {
+    cy.intercept("GET", "**/api/portfolios/public/list", {
       statusCode: 200,
       body: { portfolios: [] },
     }).as("getPublicPortfolios");

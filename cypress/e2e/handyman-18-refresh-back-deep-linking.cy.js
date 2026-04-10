@@ -30,8 +30,8 @@
     cy.contains(/^customer service$/i).click();
     cy.contains("button", /^continue$/i).click();
 
-    cy.intercept("POST", "**/user/addUser").as("signup");
-    cy.intercept("POST", "**/user/login").as("login");
+    cy.intercept("POST", "**/api/users").as("signup");
+    cy.intercept("POST", "**/api/auth/login").as("login");
 
     cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
     cy.get('input[placeholder="Enter your first name"]').type(user.firstName);

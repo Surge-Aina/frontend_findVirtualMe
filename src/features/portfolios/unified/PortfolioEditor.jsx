@@ -430,7 +430,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
     setAiAccessLoading(true);
     axiosAuth
-      .get("/user/ai-edit-access")
+      .get("/api/users/ai-edit-access")
       .then((res) => {
         if (!cancelled) {
           setHasAiAccess(Boolean(res.data?.hasAccess));
@@ -692,7 +692,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       }
 
       try {
-        await axiosAuth.patch("/user/addPortfolioId", {
+        await axiosAuth.patch("/api/users/portfolio-id", {
           portfolioId: createdId,
           portfolioType: current.template,
           isPublic: false,

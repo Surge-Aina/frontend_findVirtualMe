@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const backendUrl = import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
 
 const fetchBilling = async () => {
-  const { data } = await axios.get(`${backendUrl}/user/subInfo`, {
+  const { data } = await axios.get(`${backendUrl}/api/users/subscription-info`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },

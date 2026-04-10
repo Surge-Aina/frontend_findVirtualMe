@@ -69,13 +69,13 @@
         name: "Owner",
         };
 
-        cy.intercept("GET", "**/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: mePayload,
         }).as("getMeLegacy");
 
         // Some codepaths might call /api/user/me; we stub but don't wait for it.
-        cy.intercept("GET", "**/api/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: mePayload,
         }).as("getMeApi");

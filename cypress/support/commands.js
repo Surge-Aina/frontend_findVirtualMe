@@ -26,7 +26,7 @@ Cypress.Commands.add("apiLogin", (email, password = "Password123!") => {
   return cy
     .request({
       method: "POST",
-      url: `${backendUrl}/user/login`,
+      url: `${backendUrl}/api/auth/login`,
       body: { email, password },
       failOnStatusCode: false,
     })
@@ -34,7 +34,7 @@ Cypress.Commands.add("apiLogin", (email, password = "Password123!") => {
       // Make failures obvious + readable
       expect(
         [200, 201],
-        `Login should succeed (POST ${backendUrl}/user/login). Got status=${res.status} body=${JSON.stringify(res.body)}`,
+        `Login should succeed (POST ${backendUrl}/api/auth/login). Got status=${res.status} body=${JSON.stringify(res.body)}`,
       ).to.include(res.status);
 
       const token = res.body?.token;
@@ -70,14 +70,14 @@ Cypress.Commands.add("apiSignup", (overrides = {}) => {
   return cy
     .request({
       method: "POST",
-      url: `${backendUrl}/user/signup`,
+      url: `${backendUrl}/api/auth/signup`,
       body: payload,
       failOnStatusCode: false,
     })
     .then((res) => {
       expect(
         [200, 201],
-        `Signup should succeed (POST ${backendUrl}/user/signup). Got status=${res.status} body=${JSON.stringify(res.body)}`,
+        `Signup should succeed (POST ${backendUrl}/api/auth/signup). Got status=${res.status} body=${JSON.stringify(res.body)}`,
       ).to.include(res.status);
 
       const token = res.body?.token;
@@ -105,7 +105,7 @@ Cypress.Commands.add("ensurePMUserExists", () => {
 
   cy.request({
     method: "POST",
-    url: `${backendUrl}/user/signup`,
+    url: `${backendUrl}/api/auth/signup`,
     body: user,
     failOnStatusCode: false,
   });
@@ -114,7 +114,7 @@ Cypress.Commands.add("ensurePMUserExists", () => {
 Cypress.Commands.add("loginPMUser", () => {
   const backendUrl = getBackendUrl();
 
-  cy.request("POST", `${backendUrl}/user/login`, {
+  cy.request("POST", `${backendUrl}/api/auth/login`, {
     email: "pm_test_user@example.com",
     password: "StrongPass123",
   })
@@ -124,7 +124,7 @@ Cypress.Commands.add("loginPMUser", () => {
 
       return cy.request({
         method: "GET",
-        url: `${backendUrl}/user/me`,
+        url: `${backendUrl}/api/users/me`,
         headers: {
           Authorization: `Bearer ${token}`,
         },

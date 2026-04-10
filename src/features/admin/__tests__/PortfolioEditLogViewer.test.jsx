@@ -96,7 +96,7 @@ describe('PortfolioEditLogViewer', () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(
-          expect.stringContaining('/api/portfolio-edit-log?page=1&limit=50'),
+          expect.stringContaining('/api/portfolios/edit-log?page=1&limit=50'),
           expect.objectContaining({ headers: {} })
         );
       });
@@ -199,7 +199,7 @@ describe('PortfolioEditLogViewer', () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith(
-          expect.stringContaining('/api/portfolio-edit-log/user/user123'),
+          expect.stringContaining('/api/portfolios/edit-log/user/user123'),
           expect.any(Object)
         );
       });

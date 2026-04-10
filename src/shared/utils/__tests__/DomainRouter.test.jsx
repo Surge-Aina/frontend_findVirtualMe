@@ -72,7 +72,7 @@ describe("DomainRouter", () => {
     const err = new Error("Request failed");
     err.isAxiosError = true;
     err.response = { status: 404 };
-    err.config = { url: "http://localhost:5001/domainRouter/domainLookup?domain=unknown.custom.test" };
+    err.config = { url: "http://localhost:5001/api/domains/router/lookup?domain=unknown.custom.test" };
     axios.get.mockRejectedValue(err);
 
     render(

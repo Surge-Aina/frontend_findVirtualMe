@@ -10,7 +10,7 @@
         cy.resetAppState();
 
         // Pretend the user is logged in & AuthContext knows them
-        cy.intercept("GET", "**/user/**", {
+        cy.intercept("GET", "**/api/users/**", {
         statusCode: 200,
         body: {
             user: {

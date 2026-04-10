@@ -369,7 +369,7 @@ Cypress.Commands.add("startHealthcareAsOwner", (options = {}) => {
   const practiceName = options.practiceName || "Test Healthcare Practice";
 
   // Stub auth
-  cy.intercept("GET", "**/user/me", {
+  cy.intercept("GET", "**/api/users/me", {
     statusCode: 200,
     body: {
       user: {

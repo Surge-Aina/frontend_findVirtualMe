@@ -37,7 +37,7 @@ export function PortfolioProvider({ children, initialPortfolioId, initialPortfol
     const fetchOwner = async () => {
       try {
         console.log("Fetching portfolio owner details for ID:", portfolioOwner.id);
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API}/user/getUser/${portfolioOwner.id}`);
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API}/api/users/${portfolioOwner.id}`);
         setPortfolioOwner(prev => ({
           ...prev,
           name: prev.name || res.data.user.username || res.data.user.name || "",

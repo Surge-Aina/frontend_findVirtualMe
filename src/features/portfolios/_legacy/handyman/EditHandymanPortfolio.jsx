@@ -40,7 +40,7 @@
             let currentUserId = user?.id || user?._id;
             if (!currentUserId && localStorage.getItem('token')) {
             try {
-                const me = await handymanAPI.get('/api/user/me');
+                const me = await handymanAPI.get('/api/users/me');
                 currentUserId = me?.data?.id || me?.data?._id;
             } catch {
               /* ignore /user/me fetch errors */

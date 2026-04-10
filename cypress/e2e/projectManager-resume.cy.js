@@ -33,7 +33,7 @@
 
     const stubAuthAndPortfolioApi = () => {
     // Logged-in owner
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: {
         user: {

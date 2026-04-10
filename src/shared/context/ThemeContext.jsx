@@ -60,7 +60,7 @@ export function ThemeProvider({ children }) {
       if (!token) return;
       axios
         .patch(
-          `${backendUrl}/user/app-theme`,
+          `${backendUrl}/api/users/app-theme`,
           { appTheme: next },
           { headers: { Authorization: `Bearer ${token}` } },
         )

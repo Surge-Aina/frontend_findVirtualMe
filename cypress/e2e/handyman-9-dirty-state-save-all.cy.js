@@ -56,12 +56,12 @@
         }).as("getTemplate");
 
         // Your app hits /user/me (401 in log) AND /api/user/me (200 in log) depending on code path
-        cy.intercept("GET", "**/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: { id: ownerId, email: "owner@test.com", name: "Owner" },
         }).as("getMeLegacy");
 
-        cy.intercept("GET", "**/api/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: { id: ownerId, email: "owner@test.com", name: "Owner" },
         }).as("getMe");

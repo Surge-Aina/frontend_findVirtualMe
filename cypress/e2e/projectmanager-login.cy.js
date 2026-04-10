@@ -31,7 +31,7 @@ describe("Project Manager Login Modal - True UI Flow", () => {
   });
 
   it("logs in successfully and redirects to profile", () => {
-    cy.intercept("POST", "**/user/login").as("loginRequest");
+    cy.intercept("POST", "**/api/auth/login").as("loginRequest");
 
     cy.get("#email").type(TEST_EMAIL);
     cy.get("#password").type(TEST_PASSWORD);

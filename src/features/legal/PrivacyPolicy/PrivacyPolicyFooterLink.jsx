@@ -33,7 +33,7 @@ export default function PrivacyPolicyFooterLink({
         const backendUrl =
           import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
         const res = await axios.get(
-          `${backendUrl}/privacy-policy/public/byPortfolio`,
+          `${backendUrl}/api/legal/privacy-policy/public/byPortfolio`,
           { params: { portfolioId, type: modelType } },
         );
         setPolicy(res.data || null);

@@ -60,7 +60,7 @@ function DomainRouter({ children }) {
 
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_API}/domainRouter/domainLookup?domain=${hostname}`
+          `${import.meta.env.VITE_BACKEND_API}/api/domains/router/lookup?domain=${hostname}`
         );
         const portfolioId = response.data?.portfolioId;
         if (!portfolioId) {

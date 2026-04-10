@@ -5,7 +5,7 @@
         // --- INTERCEPTS FOR STABILITY ON EDIT PAGE ---
         // Your app sometimes calls /api/user/me and gets 404, which causes a redirect.
         // We stub it as a valid admin user so the edit page stays mounted.
-        cy.intercept("GET", "**/api/user/me", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: {
             _id: "admin-stub-id",
