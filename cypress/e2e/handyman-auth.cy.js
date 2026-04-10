@@ -95,7 +95,7 @@
 
         cy.intercept("POST", "**/api/handyman-template").as("createHandymanTemplate");
         cy.intercept("PATCH", "**/api/users/portfolio-id").as("addPortfolioId");
-        cy.intercept("POST", "**/api/portfolio-edit-log").as("editLog");
+        cy.intercept("POST", "**/api/portfolios/edit-log").as("editLog");
 
         cy.contains(/handyman\s*\/\s*local repair services/i, { timeout: 20000 })
         .scrollIntoView()
