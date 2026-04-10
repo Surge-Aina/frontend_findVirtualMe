@@ -1,4 +1,3 @@
-// src/api.js
 const API_URL = import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
 export async function apiRequest(path, { method = "GET", body, token } = {}) {
   const headers = {

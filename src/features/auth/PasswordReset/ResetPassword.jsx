@@ -56,7 +56,7 @@ export default function ResetPassword() {
       setLoading(true);
       setMessage("");
 
-      const res = await axios.post(`${apiUrl}/user/reset-password/${token}`, { password });
+      await axios.post(`${apiUrl}/user/reset-password/${token}`, { password });
 
       setMessage("Password reset successful! Redirecting...");
 

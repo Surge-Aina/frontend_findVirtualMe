@@ -1,4 +1,3 @@
-// src/pages/EmailAccounts.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 

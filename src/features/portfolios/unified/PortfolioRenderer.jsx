@@ -9,9 +9,9 @@ import { PortfolioViewProvider } from "./context/PortfolioViewContext";
 import PortfolioSectionNav from "./PortfolioSectionNav";
 import SectionPageBanner from "./SectionPageBanner";
 import { AuthContext } from "@/shared/context/AuthContext";
-import "./portfolioThemes/dataScientist.css";
-import "./portfolioThemes/agent.css";
-import { resolveAgentTheme } from "./portfolioThemes/agentThemeResolver";
+import "./portfolio-themes/dataScientist.css";
+import "./portfolio-themes/agent.css";
+import { resolveAgentTheme } from "./portfolio-themes/agentThemeResolver";
 
 const SINGLE_SECTION_VIEW_TEMPLATES = new Set(["healthcare", "projectManager", "dataScientist"]);
 

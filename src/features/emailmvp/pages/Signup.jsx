@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { apiRequest } from "../api";

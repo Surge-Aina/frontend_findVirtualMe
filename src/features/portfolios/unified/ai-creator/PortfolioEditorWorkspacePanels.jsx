@@ -6,7 +6,7 @@ import {
 } from "react-icons/fa";
 import { FieldEditor } from "../PortfolioEditorFields";
 import { AgentDesignPreview } from "./AgentDesignPreview";
-import { themeColorToHexForInput } from "../portfolioThemes/agentThemeResolver";
+import { themeColorToHexForInput } from "../portfolio-themes/agentThemeResolver";
 import {
   AGENT_THEME_OPTIONS,
   LAYOUT_MODE_OPTIONS,

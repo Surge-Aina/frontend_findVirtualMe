@@ -13,7 +13,7 @@ import TestimonialsBlock from "./TestimonialsBlock";
 import ProcessBlock from "./ProcessBlock";
 import HoursBlock from "./HoursBlock";
 import SeoBlock from "./SeoBlock";
-import DataVisualizationBlock from "./ChartBlock";
+import DataVisualizationBlock from "./DataVisualizationBlock";
 import TableBlock from "./TableBlock";
 import FaqBlock from "./FaqBlock";
 import ClientLogosBlock from "./ClientLogosBlock";

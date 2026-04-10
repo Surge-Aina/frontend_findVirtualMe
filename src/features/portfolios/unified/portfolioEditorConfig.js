@@ -1,4 +1,4 @@
-import { AGENT_THEME_PRESETS } from "./portfolioThemes/agentThemeResolver";
+import { AGENT_THEME_PRESETS } from "./portfolio-themes/agentThemeResolver";
 
 export const BLOCK_LABELS = {
   hero: "Hero",

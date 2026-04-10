@@ -1,4 +1,3 @@
-// src/pages/Inbox.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";

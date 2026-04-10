@@ -41,7 +41,7 @@ import {
 import { DashboardChartEditor, DashboardTableEditor } from "./DashboardBlockEditors";
 import axiosAuth from "@/shared/api/axiosAuth";
 import { AuthContext } from "@/shared/context/AuthContext";
-import { AGENT_THEME_PRESETS } from "./portfolioThemes/agentThemeResolver";
+import { AGENT_THEME_PRESETS } from "./portfolio-themes/agentThemeResolver";
 import {
   BLOCK_LABELS,
   getAiProposalDiff,

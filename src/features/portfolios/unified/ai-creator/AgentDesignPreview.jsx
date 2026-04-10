@@ -1,4 +1,4 @@
-import { resolveAgentTheme } from "../portfolioThemes/agentThemeResolver";
+import { resolveAgentTheme } from "../portfolio-themes/agentThemeResolver";
 
 /**
  * Small abstract preview of agent theme colors + layout mode (not real portfolio content).
