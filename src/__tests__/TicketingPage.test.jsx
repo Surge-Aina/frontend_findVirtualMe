@@ -8,7 +8,7 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
-import TicketingPage from "../pages/ticketing/TicketingPage";
+import TicketingPage from "@/features/support/ticketing/TicketingPage";
 
 // mock axios globally
 jest.mock("axios");

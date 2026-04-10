@@ -17,13 +17,13 @@
     });
 
     // Mock Auth and SignUp so we don't pull in their full logic
-    jest.mock("../pages/login/Auth.jsx", () => (props) => (
+    jest.mock("@/features/auth/Auth.jsx", () => (props) => (
     <div data-testid="auth-modal" onClick={props.onSignUpClick}>
         Auth Component
     </div>
     ));
 
-    jest.mock("../pages/login/SignUp.jsx", () => (props) => (
+    jest.mock("@/features/auth/SignUp.jsx", () => (props) => (
     <div data-testid="signup-modal" onClick={props.onLoginClick}>
         SignUp Component
     </div>

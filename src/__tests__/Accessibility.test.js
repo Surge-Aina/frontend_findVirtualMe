@@ -63,10 +63,10 @@ jest.mock('react-toastify', () => ({
 }));
 
 // Import components after mocks
-import Dashboard from '../components/Dashboard';
+import Dashboard from '@/features/dashboard/Dashboard';
 import Navbar from '@/shared/components/Navbar';
-import Auth from '../pages/login/Auth';
-import SignUp from '../pages/login/SignUp';
+import Auth from '@/features/auth/Auth';
+import SignUp from '@/features/auth/SignUp';
 
 describe('Accessibility (a11y) Tests', () => {
   let queryClient;

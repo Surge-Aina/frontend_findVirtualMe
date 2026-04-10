@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import RoadmapColumn from "../pages/ticketing/components/RoadmapColumn";
+import RoadmapColumn from "@/features/support/ticketing/components/RoadmapColumn";
 
 const items = [
   { ticketID: "T1", requestType: "Bug", message: "Broken button" },

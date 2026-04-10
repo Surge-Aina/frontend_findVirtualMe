@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import AdminRoute from '../components/AdminRoute';
+import AdminRoute from '@/features/admin/AdminRoute';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthContext, AuthProvider } from '@/shared/context/AuthContext';
 import axios from 'axios';

@@ -67,11 +67,11 @@ jest.mock('react-toastify', () => ({
 }));
 
 // Import components after mocks
-import Dashboard from '../components/Dashboard';
-import ExamplePortfolios from '../components/examplePortfolios';
+import Dashboard from '@/features/dashboard/Dashboard';
+import ExamplePortfolios from '@/features/landing/ExamplePortfolios';
 import Navbar from '@/shared/components/Navbar';
-import Auth from '../pages/login/Auth';
-import SignUp from '../pages/login/SignUp';
+import Auth from '@/features/auth/Auth';
+import SignUp from '@/features/auth/SignUp';
 
 describe('Performance Smoke Tests', () => {
   let consoleSpy;

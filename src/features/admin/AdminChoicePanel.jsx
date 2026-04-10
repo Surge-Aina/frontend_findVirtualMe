@@ -1,7 +1,7 @@
 import { useState } from "react";
-import AdminSubscriptionTable from "./AdminSubscriptionTable";
+import AdminSubscriptionTable from "@/components/AdminSubscriptionTable";
 import PortfolioEditLogViewer from "./PortfolioEditLogViewer.jsx";
-import TicketingPage from "../pages/ticketing/TicketingPage.jsx";
+import TicketingPage from "@/features/support/ticketing/TicketingPage.jsx";
 
 const AdminChoicePanel = () => {
   const [activeTab, setActiveTab] = useState("subscription");

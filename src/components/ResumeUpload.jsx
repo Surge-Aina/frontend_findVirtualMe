@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { startTracking, stopTracking, logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
-import PortfolioTemplateOptions from "../pages/onboarding/components/PortfolioTemplateOptions";
+import PortfolioTemplateOptions from "@/features/onboarding/components/PortfolioTemplateOptions";
 
 export default function ResumeUpload() {
   const apiUrl = import.meta.env.VITE_BACKEND_API;

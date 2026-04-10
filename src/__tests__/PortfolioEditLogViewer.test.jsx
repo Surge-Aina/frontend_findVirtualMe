@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import PortfolioEditLogViewer from '../components/PortfolioEditLogViewer';
+import PortfolioEditLogViewer from '@/features/admin/PortfolioEditLogViewer';
 
 jest.mock('axios');
 

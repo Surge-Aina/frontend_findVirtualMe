@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import Auth from "../pages/login/Auth";
+import Auth from "@/features/auth/Auth";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import userEvent from "@testing-library/user-event";

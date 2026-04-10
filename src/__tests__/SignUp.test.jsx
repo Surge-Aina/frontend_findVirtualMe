@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import SignUp from "../pages/login/SignUp";
+import SignUp from "@/features/auth/SignUp";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axios from "axios";
 import { toast } from "react-toastify";

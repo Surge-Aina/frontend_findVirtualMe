@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Card from "../pages/ticketing/components/Card";
+import Card from "@/features/support/ticketing/components/Card";
 
 const baseTicket = {
   ticketID: "T00001",

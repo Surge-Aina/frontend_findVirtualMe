@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { AuthContext } from "@/shared/context/AuthContext";
-import Payment from "../Payment";
+import Payment from "@/features/payments/Payment";
 import { useContext, useEffect } from "react";
 import { toast } from "react-toastify";
 import { CircleArrowRight } from "lucide-react";

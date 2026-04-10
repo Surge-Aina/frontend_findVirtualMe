@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import Layout from "@/shared/components/Layout";
-import About from "./components/About";
-import Dashboard from "./components/Dashboard";
+import About from "@/features/landing/About";
+import Dashboard from "@/features/dashboard/Dashboard";
 import Tip from "@/shared/components/Tip";
 import Footer from "@/shared/components/Footer";
 import "./App.css";
@@ -10,39 +10,39 @@ import EmailMvpApp from "./emailmvp/App";
 import ResumeUpload from "./components/ResumeUpload";
 import ErrorBoundary from "@/shared/components/ErrorBoundary";
 import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
-import VisitorLogin from "./components/GuestAuth/VisitorLogin.jsx";
-import VisitorSignup from "./components/GuestAuth/VisitorSignup.jsx";
-import VisitorProfile from "./components/GuestAuth/VisitorProfile.jsx";
+import VisitorLogin from "@/features/auth/GuestAuth/VisitorLogin.jsx";
+import VisitorSignup from "@/features/auth/GuestAuth/VisitorSignup.jsx";
+import VisitorProfile from "@/features/auth/GuestAuth/VisitorProfile.jsx";
 import VisitorData from "./pages/portfolios/cleaningService/components/VisitorData";
 import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
 import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx";
-import ExamplePortfolios from "./components/examplePortfolios";
+import ExamplePortfolios from "@/features/landing/ExamplePortfolios";
 import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
-import SignUp from "./pages/login/SignUp";
+import SignUp from "@/features/auth/SignUp";
 import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
 import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
 import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
-import Occupations from "./components/Occupations";
+import Occupations from "@/features/solutions/Occupations";
 import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
 import CookieConsent from "@/shared/components/CookieConsent";
 import CookieSettings from "@/shared/components/CookieSettings";
 import TelemetryVisit from "@/shared/components/TelemetryVisit";
-import Payment from "./components/Payment";
-import SuccessPage from "./components/SuccessPage.jsx";
+import Payment from "@/features/payments/Payment";
+import SuccessPage from "@/features/payments/SuccessPage.jsx";
 import FloatingHelpButton from "@/shared/components/FloatingHelpButton";
-import ITForm from "./components/ITForm";
-import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
-import UserProfile from "./components/UserProfile/UserProfile.jsx";
-import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
-import TicketingPage from "./pages/ticketing/TicketingPage.jsx";
-import PortfolioEditLogViewer from "./components/PortfolioEditLogViewer.jsx";
+import ITForm from "@/features/support/ITForm";
+import OnboardingFlow from "@/features/onboarding/components/OnboardingFlow";
+import UserProfile from "@/features/profile/UserProfile/UserProfile.jsx";
+import OnboardingInfoPage from "@/features/onboarding/OnboardingInfoPage";
+import TicketingPage from "@/features/support/ticketing/TicketingPage.jsx";
+import PortfolioEditLogViewer from "@/features/admin/PortfolioEditLogViewer.jsx";
 import { VendorProvider } from "./context/VendorContext.jsx";
-import Solutions from "./components/Solutions/Solutions.jsx";
-import Vendors from "./components/Solutions/Vendors";
-import Restaurant from "./components/Solutions/Restaurant";
-import Property from "./components/Solutions/Property";
-import Farmers from "./components/Solutions/Farmers";
-import AdminRoute from "./components/AdminRoute.jsx";
+import Solutions from "@/features/solutions/Solutions/Solutions.jsx";
+import Vendors from "@/features/solutions/Solutions/Vendors";
+import Restaurant from "@/features/solutions/Solutions/Restaurant";
+import Property from "@/features/solutions/Solutions/Property";
+import Farmers from "@/features/solutions/Solutions/Farmers";
+import AdminRoute from "@/features/admin/AdminRoute.jsx";
 
 // Healthcare imports
 import HealthcareHome from "./pages/portfolios/healthcare/pages/Home.jsx";
@@ -55,18 +55,18 @@ import HealthcareSearch from "./pages/portfolios/healthcare/pages/SearchResults.
 import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
 import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
 import axios from "axios";
-import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
+import AdminChoicePanel from "@/features/admin/AdminChoicePanel.jsx";
 import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
 import { PortfolioProvider } from "@/shared/context/PortfolioContext.jsx";
 import AiPortfolioCreatorPage from "./pages/portfolios/AiPortfolioCreatorPage.jsx";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
-import TermsOfServicePage from "./pages/TermsOfServicePage.jsx";
+import PrivacyPolicyPage from "@/features/legal/PrivacyPolicyPage.jsx";
+import TermsOfServicePage from "@/features/legal/TermsOfServicePage.jsx";
 
 // Unified portfolio (sections/blocks architecture)
 import PortfolioRenderer from "./components/PortfolioRenderer.jsx";
 import PortfolioEditor from "./components/PortfolioEditor.jsx";
-import ForgotPassword from "./components/PasswordReset/ForgotPassword";
-import ResetPassword from "./components/PasswordReset/ResetPassword";
+import ForgotPassword from "@/features/auth/PasswordReset/ForgotPassword";
+import ResetPassword from "@/features/auth/PasswordReset/ResetPassword";
 
 // ✅ Protected Route Component for Healthcare (uses _id from URL)
 function ProtectedHealthcareRoute({ children }) {

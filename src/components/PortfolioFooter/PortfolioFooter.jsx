@@ -8,8 +8,8 @@ import {
   Globe,
 } from "lucide-react";
 import { getSiteMapLinks } from "../../config/portfolioFooterConfig";
-import PrivacyPolicyFooterLink from "../PrivacyPolicy/PrivacyPolicyFooterLink";
-import TermsOfServiceFooterLink from "../TermsOfService/TermsOfServiceFooterLink";
+import PrivacyPolicyFooterLink from "@/features/legal/PrivacyPolicy/PrivacyPolicyFooterLink";
+import TermsOfServiceFooterLink from "@/features/legal/TermsOfService/TermsOfServiceFooterLink";
 import "./PortfolioFooter.css";
 
 const SOCIAL_ICONS = {
