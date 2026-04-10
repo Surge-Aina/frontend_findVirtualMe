@@ -26,6 +26,7 @@ export default {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
     "\\.(css|scss|sass|less)$": "identity-obj-proxy",
-    "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js",
+    "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/src/__mocks__/fileMock.js",
+    "^.+\\.html\\?raw$": "<rootDir>/src/__mocks__/htmlRaw.js",
   },
 };
