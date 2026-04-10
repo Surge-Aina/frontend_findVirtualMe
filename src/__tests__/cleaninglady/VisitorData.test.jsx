@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import VisitorsData from '../../pages/portfolios/cleaningService/components/VisitorData';
+import VisitorsData from '../../features/portfolios/_legacy/cleaning-service/components/VisitorData';
 
 // Mock useParams and useNavigate
 const mockNavigate = jest.fn();

@@ -38,7 +38,7 @@ export default function VisitorProfile() {
     try {
       const token = localStorage.getItem('visitorToken');
       
-      const response = await fetch('http://localhost:5000/guestUser/editProfile', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/guestUser/editProfile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export default function VisitorProfile() {
     try {
       const token = localStorage.getItem('visitorToken');
       
-      const response = await fetch('http://localhost:5000/guestUser/deleteProfile', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/guestUser/deleteProfile`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

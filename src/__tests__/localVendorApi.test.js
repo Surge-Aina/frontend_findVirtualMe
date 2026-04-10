@@ -11,7 +11,7 @@
     };
     });
 
-    jest.mock("../context/VendorContext", () => ({
+    jest.mock("../features/portfolios/_legacy/local-vendor/context/VendorContext", () => ({
     __esModule: true,
     useVendor: jest.fn(),
     }));
@@ -31,13 +31,13 @@
     beforeAll(() => {
         // Get the mocked axios + VendorContext
         const axios = require("axios").default;
-        ({ useVendor } = require("../context/VendorContext"));
+        ({ useVendor } = require("../features/portfolios/_legacy/local-vendor/context/VendorContext"));
 
         // When api.js calls axios.create(...), return our mock client
         axios.create.mockReturnValue(mockClient);
 
         // Now import the module under test AFTER axios.create is configured
-        ({ useVendorApi } = require("../pages/portfolios/localVendor/services/api"));
+        ({ useVendorApi } = require("../features/portfolios/_legacy/local-vendor/services/api"));
     });
 
     beforeEach(() => {

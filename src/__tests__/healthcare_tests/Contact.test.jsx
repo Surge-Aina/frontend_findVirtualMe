@@ -9,14 +9,14 @@ jest.mock('react-router-dom', () => ({
   Link: ({ children, to }) => <a href={to}>{children}</a>
 }));
 
-jest.mock("../../pages/portfolios/healthcare/lib/api", () => ({
+jest.mock("../../features/portfolios/_legacy/healthcare/lib/api", () => ({
   api: {
     getPracticeData: jest.fn()
   }
 }));
 
-const Contact = require("../../pages/portfolios/healthcare/pages/Contact").default;
-const { api } = require("../../pages/portfolios/healthcare/lib/api");
+const Contact = require("../../features/portfolios/_legacy/healthcare/pages/Contact").default;
+const { api } = require("../../features/portfolios/_legacy/healthcare/lib/api");
 
 const mockUserData = {
   practiceId: 'practice_123',

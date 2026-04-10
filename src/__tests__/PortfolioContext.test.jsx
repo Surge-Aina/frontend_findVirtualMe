@@ -1,9 +1,9 @@
 import { render, waitFor } from "@testing-library/react";
-import { PortfolioProvider, usePortfolio } from "../pages/dataScientist/context/PortfolioContext";
-import { portfolioAPI } from "../pages/dataScientist/utils/api";
+import { PortfolioProvider, usePortfolio } from "../features/portfolios/_legacy/data-scientist/context/PortfolioContext";
+import { portfolioAPI } from "../features/portfolios/_legacy/data-scientist/utils/api";
 
 // ---- MOCKS ----
-jest.mock("../pages/dataScientist/utils/api", () => ({
+jest.mock("../features/portfolios/_legacy/data-scientist/utils/api", () => ({
   portfolioAPI: {
     getPortfolio: jest.fn(),
     addPortfolioItem: jest.fn(),

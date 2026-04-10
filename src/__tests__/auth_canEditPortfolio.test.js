@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import { AuthContext } from "@/shared/context/AuthContext";
-import { canEditPortfolio } from "../pages/portfolios/localVendor/services/auth";
+import { canEditPortfolio } from "../features/portfolios/_legacy/local-vendor/services/auth";
 
 const renderWithUser = (user, vendorId, callback) => {
   const Result = () => {

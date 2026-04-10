@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Navbar from '../../pages/portfolios/cleaningService/components/cleanNavbar';
+import Navbar from '../../features/portfolios/_legacy/cleaning-service/components/cleanNavbar';
 
 // Mock react-router-dom
 const mockNavigate = jest.fn();

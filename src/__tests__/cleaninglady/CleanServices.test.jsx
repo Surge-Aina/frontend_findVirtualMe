@@ -35,17 +35,17 @@ jest.mock('@react-three/drei', () => ({
   Environment: () => null,
 }));
 
-jest.mock('../../pages/portfolios/cleaningService/models/RoomModels', () => ({
+jest.mock('../../features/portfolios/_legacy/cleaning-service/models/RoomModels', () => ({
   RoomModel: () => null,
 }));
 
-jest.mock('../../pages/portfolios/cleaningService/components/Editable', () => {
+jest.mock('../../features/portfolios/_legacy/cleaning-service/components/Editable', () => {
   return function MockEditable({ value, onChange }) {
     return <div data-testid="editable-mock" onClick={() => onChange?.('edited')}>{value}</div>;
   };
 });
 
-jest.mock('../../pages/portfolios/cleaningService/context/AuthContext', () => {
+jest.mock('../../features/portfolios/_legacy/cleaning-service/context/AuthContext', () => {
   const React = require('react');
   return {
     AuthContext: React.createContext({
@@ -58,7 +58,7 @@ jest.mock('../../pages/portfolios/cleaningService/context/AuthContext', () => {
 // ============================================
 // IMPORTS
 // ============================================
-import Services from '../../pages/portfolios/cleaningService/components/cleanServices';
+import Services from '../../features/portfolios/_legacy/cleaning-service/components/cleanServices';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 

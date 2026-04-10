@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
-import AdminDashboard from "../../pages/portfolios/healthcare/pages/admin/AdminDashboard";
-import { api } from "../../pages/portfolios/healthcare/lib/api";
+import AdminDashboard from "../../features/portfolios/_legacy/healthcare/pages/admin/AdminDashboard";
+import { api } from "../../features/portfolios/_legacy/healthcare/lib/api";
 
 // -------------------------
 // MOCK REACT ROUTER DOM
@@ -15,7 +15,7 @@ jest.mock("react-router-dom", () => ({
 // -------------------------
 // MOCK API FILE
 // -------------------------
-jest.mock("../../pages/portfolios/healthcare/lib/api", () => ({
+jest.mock("../../features/portfolios/_legacy/healthcare/lib/api", () => ({
   api: {
     getAdminData: jest.fn(),
     saveAdminData: jest.fn(),
@@ -39,13 +39,13 @@ Object.defineProperty(window, "localStorage", { value: localStorageMock });
 // -------------------------
 // MOCK LAZY-LOADED COMPONENTS
 // -------------------------
-jest.mock("../../pages/portfolios/healthcare/components/admin/ServicesEditor", () => () => (
+jest.mock("../../features/portfolios/_legacy/healthcare/components/admin/ServicesEditor", () => () => (
   <div>Services Editor Loaded</div>
 ));
-jest.mock("../../pages/portfolios/healthcare/components/admin/BlogEditor", () => () => (
+jest.mock("../../features/portfolios/_legacy/healthcare/components/admin/BlogEditor", () => () => (
     <div>Blog Editor Loaded</div>
 ));
-jest.mock("../../pages/portfolios/healthcare/components/admin/GalleryEditor", () => () => (
+jest.mock("../../features/portfolios/_legacy/healthcare/components/admin/GalleryEditor", () => () => (
   <div>Gallery Editor Loaded</div>
 ));
 

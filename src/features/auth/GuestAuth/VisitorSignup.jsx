@@ -39,7 +39,7 @@ export default function VisitorSignup() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/guestUser/signUp', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/guestUser/signUp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

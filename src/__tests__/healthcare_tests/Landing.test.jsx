@@ -27,7 +27,7 @@ jest.mock('react-icons/fa', () => ({
   FaSearch: () => <span data-testid="icon-search">Search</span>,
 }));
 
-const Landing = require('../../pages/portfolios/healthcare/pages/Landing').default;
+const Landing = require('../../features/portfolios/_legacy/healthcare/pages/Landing').default;
 
 const renderLanding = () => {
   return render(

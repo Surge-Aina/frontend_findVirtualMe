@@ -15,7 +15,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the API
-jest.mock('../../pages/portfolios/healthcare/lib/api', () => ({
+jest.mock('../../features/portfolios/_legacy/healthcare/lib/api', () => ({
   api: {
     register: jest.fn()
   }
@@ -30,8 +30,8 @@ jest.mock('react-icons/fa', () => ({
   FaArrowLeft: () => <span data-testid="icon-arrow">Back</span>,
 }));
 
-const Register = require('../../pages/portfolios/healthcare/pages/auth/Register').default;
-const { api } = require('../../pages/portfolios/healthcare/lib/api');
+const Register = require('../../features/portfolios/_legacy/healthcare/pages/auth/Register').default;
+const { api } = require('../../features/portfolios/_legacy/healthcare/lib/api');
 
 const renderRegister = () => {
   return render(

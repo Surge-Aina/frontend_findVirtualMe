@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-const GalleryEditor = require("../../pages/portfolios/healthcare/components/admin/GalleryEditor").default;
+const GalleryEditor = require("../../features/portfolios/_legacy/healthcare/components/admin/GalleryEditor").default;
 
 const mockGallery = {
   facilityImages: [

@@ -2,7 +2,7 @@
     validateImageFile,
     MAX_FILE_SIZE_MB,
     ALLOWED_IMAGE_TYPES,
-    } from "../pages/portfolios/localVendor/services/fileValidator";
+    } from "../features/portfolios/_legacy/local-vendor/services/fileValidator";
 
     const makeFile = (overrides = {}) => ({
     size: 1000,

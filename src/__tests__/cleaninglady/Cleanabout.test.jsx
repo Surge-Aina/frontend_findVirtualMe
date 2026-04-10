@@ -45,12 +45,12 @@ jest.mock('framer-motion', () => {
 });
 
 // Mock models (path from component: ../models/X)
-jest.mock('../../pages/portfolios/cleaningService/models/CleaningLady', () => () => <div data-testid="cleaning-lady" />);
-jest.mock('../../pages/portfolios/cleaningService/models/HouseModel', () => () => <div data-testid="house-model" />);
-jest.mock('../../pages/portfolios/cleaningService/models/FamilyModel', () => () => <div data-testid="family-model" />);
+jest.mock('../../features/portfolios/_legacy/cleaning-service/models/CleaningLady', () => () => <div data-testid="cleaning-lady" />);
+jest.mock('../../features/portfolios/_legacy/cleaning-service/models/HouseModel', () => () => <div data-testid="house-model" />);
+jest.mock('../../features/portfolios/_legacy/cleaning-service/models/FamilyModel', () => () => <div data-testid="family-model" />);
 
 // Mock Editable
-jest.mock('../../pages/portfolios/cleaningService/components/Editable', () => {
+jest.mock('../../features/portfolios/_legacy/cleaning-service/components/Editable', () => {
   return function MockEditable({ value, onChange }) {
     return (
       <div 
@@ -65,7 +65,7 @@ jest.mock('../../pages/portfolios/cleaningService/components/Editable', () => {
 
 // Mock AuthContext - check component's import path: ../context/AuthContext
 // This means it's in cleaningService/context/ NOT src/context/
-jest.mock('../../pages/portfolios/cleaningService/context/AuthContext', () => {
+jest.mock('../../features/portfolios/_legacy/cleaning-service/context/AuthContext', () => {
   const React = require('react');
   return {
     AuthContext: React.createContext({
@@ -82,7 +82,7 @@ jest.mock('../../pages/portfolios/cleaningService/context/AuthContext', () => {
 // ============================================
 // IMPORT COMPONENT
 // ============================================
-import CleanAbout from '../../pages/portfolios/cleaningService/components/cleanAbout';
+import CleanAbout from '../../features/portfolios/_legacy/cleaning-service/components/cleanAbout';
 
 // ============================================
 // UTILITY FUNCTION TESTS (These are safe - no React needed)

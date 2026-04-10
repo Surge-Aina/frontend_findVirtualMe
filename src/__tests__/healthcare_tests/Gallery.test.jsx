@@ -13,7 +13,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the API
-jest.mock('../../pages/portfolios/healthcare/lib/api', () => ({
+jest.mock('../../features/portfolios/_legacy/healthcare/lib/api', () => ({
   api: {
     getPracticeData: jest.fn()
   }
@@ -30,8 +30,8 @@ jest.mock('react-icons/fa', () => ({
   FaArrowUp: () => <span data-testid="icon-arrow-up">ArrowUp</span>,
 }));
 
-const Gallery = require('../../pages/portfolios/healthcare/pages/Gallery').default;
-const { api } = require('../../pages/portfolios/healthcare/lib/api');
+const Gallery = require('../../features/portfolios/_legacy/healthcare/pages/Gallery').default;
+const { api } = require('../../features/portfolios/_legacy/healthcare/lib/api');
 
 const mockUserData = {
   practiceId: 'practice_123',

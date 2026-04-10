@@ -17,7 +17,7 @@ jest.mock('react-icons/fa', () => ({
   FaCamera: () => <span data-testid="icon-camera">Cam</span>,
 }));
 
-const BlogEditor = require('../../pages/portfolios/healthcare/components/admin/BlogEditor').default;
+const BlogEditor = require('../../features/portfolios/_legacy/healthcare/components/admin/BlogEditor').default;
 
 const mockBlogPosts = [
   {

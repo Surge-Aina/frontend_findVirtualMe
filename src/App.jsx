@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import Layout from "@/shared/components/Layout";
 import About from "@/features/landing/About";
 import Dashboard from "@/features/dashboard/Dashboard";
 import Tip from "@/shared/components/Tip";
 import Footer from "@/shared/components/Footer";
 import "./App.css";
-import EmailMvpApp from "./emailmvp/App";
+import EmailMvpApp from "@/features/emailmvp/App";
 import ResumeUpload from "@/features/portfolios/unified/ResumeUpload";
 import ErrorBoundary from "@/shared/components/ErrorBoundary";
-import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
+import CleaningPage from "@/features/portfolios/_legacy/cleaning-service/src/App.jsx";
 import VisitorLogin from "@/features/auth/GuestAuth/VisitorLogin.jsx";
 import VisitorSignup from "@/features/auth/GuestAuth/VisitorSignup.jsx";
 import VisitorProfile from "@/features/auth/GuestAuth/VisitorProfile.jsx";
-import VisitorData from "./pages/portfolios/cleaningService/components/VisitorData";
-import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
-import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx";
+import VisitorData from "@/features/portfolios/_legacy/cleaning-service/components/VisitorData";
+import PortfolioPage from "@/features/portfolios/_legacy/project-manager/pages/PortfolioPage";
+import PhotographerPage from "@/features/portfolios/_legacy/photographer/PhotographerApp.jsx";
 import ExamplePortfolios from "@/features/landing/ExamplePortfolios";
-import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
+import DataScientistPage from "@/features/portfolios/_legacy/data-scientist/pages/DataScientistPage";
 import SignUp from "@/features/auth/SignUp";
-import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
-import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
-import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
+import HandymanShowcasePage from "@/features/portfolios/_legacy/handyman/HandyManShowcasePage.jsx";
+import HandymanPage from "@/features/portfolios/_legacy/handyman/HandyManPage.jsx";
+import EditHandymanPortfolio from "@/features/portfolios/_legacy/handyman/EditHandymanPortfolio.jsx";
 import Occupations from "@/features/solutions/Occupations";
-import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
+import LocalVendorApp from "@/features/portfolios/_legacy/local-vendor/LocalVendorApp.jsx";
 import CookieConsent from "@/shared/components/CookieConsent";
 import CookieSettings from "@/shared/components/CookieSettings";
 import TelemetryVisit from "@/shared/components/TelemetryVisit";
@@ -36,7 +36,7 @@ import UserProfile from "@/features/profile/UserProfile/UserProfile.jsx";
 import OnboardingInfoPage from "@/features/onboarding/OnboardingInfoPage";
 import TicketingPage from "@/features/support/ticketing/TicketingPage.jsx";
 import PortfolioEditLogViewer from "@/features/admin/PortfolioEditLogViewer.jsx";
-import { VendorProvider } from "./context/VendorContext.jsx";
+import { VendorProvider } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext.jsx";
 import Solutions from "@/features/solutions/Solutions/Solutions.jsx";
 import Vendors from "@/features/solutions/Solutions/Vendors";
 import Restaurant from "@/features/solutions/Solutions/Restaurant";
@@ -45,16 +45,15 @@ import Farmers from "@/features/solutions/Solutions/Farmers";
 import AdminRoute from "@/features/admin/AdminRoute.jsx";
 
 // Healthcare imports
-import HealthcareHome from "./pages/portfolios/healthcare/pages/Home.jsx";
-import HealthcareServices from "./pages/portfolios/healthcare/pages/Services.jsx";
-import HealthcareBlog from "./pages/portfolios/healthcare/pages/blog/Blog.jsx";
-import HealthcareBlogPost from "./pages/portfolios/healthcare/pages/blog/BlogPost.jsx";
-import HealthcareContact from "./pages/portfolios/healthcare/pages/Contact.jsx";
-import HealthcareGallery from "./pages/portfolios/healthcare/pages/Gallery.jsx";
-import HealthcareSearch from "./pages/portfolios/healthcare/pages/SearchResults.jsx";
-import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
-import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
-import axios from "axios";
+import HealthcareHome from "@/features/portfolios/_legacy/healthcare/pages/Home.jsx";
+import HealthcareServices from "@/features/portfolios/_legacy/healthcare/pages/Services.jsx";
+import HealthcareBlog from "@/features/portfolios/_legacy/healthcare/pages/blog/Blog.jsx";
+import HealthcareBlogPost from "@/features/portfolios/_legacy/healthcare/pages/blog/BlogPost.jsx";
+import HealthcareContact from "@/features/portfolios/_legacy/healthcare/pages/Contact.jsx";
+import HealthcareGallery from "@/features/portfolios/_legacy/healthcare/pages/Gallery.jsx";
+import HealthcareSearch from "@/features/portfolios/_legacy/healthcare/pages/SearchResults.jsx";
+import HealthcareAdminDashboard from "@/features/portfolios/_legacy/healthcare/pages/admin/AdminDashboard.jsx";
+import Landing from "@/features/portfolios/_legacy/healthcare/pages/Landing.jsx";
 import AdminChoicePanel from "@/features/admin/AdminChoicePanel.jsx";
 import WidgetOverlay from "@/features/portfolios/unified/WidgetOverlay/WidgetOverlay.jsx";
 import { PortfolioProvider } from "@/shared/context/PortfolioContext.jsx";
@@ -67,54 +66,7 @@ import PortfolioRenderer from "@/features/portfolios/unified/PortfolioRenderer.j
 import PortfolioEditor from "@/features/portfolios/unified/PortfolioEditor.jsx";
 import ForgotPassword from "@/features/auth/PasswordReset/ForgotPassword";
 import ResetPassword from "@/features/auth/PasswordReset/ResetPassword";
-
-// ✅ Protected Route Component for Healthcare (uses _id from URL)
-function ProtectedHealthcareRoute({ children }) {
-  const { practiceId } = useParams(); // This is actually the MongoDB _id
-  const [isPublic, setIsPublic] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
-
-  useEffect(() => {
-    const checkPublicStatus = async () => {
-      if (!practiceId) {
-        setIsPublic(false);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // ✅ Fetch by _id (practiceId param is the MongoDB _id)
-        const response = await axios.get(`${backendUrl}/healthcare/practice/${practiceId}`);
-        setIsPublic(response.data.isPublic);
-      } catch (error) {
-        setIsPublic(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkPublicStatus();
-  }, [practiceId, backendUrl]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  // Public portfolio → Allow
-  if (isPublic) return children;
-
-  // Private + logged in → Allow
-  if (token) return children;
-
-  // Private + not logged in → Block
-  return <Navigate to="/signup" replace />;
-}
+import ProtectedHealthcareRoute from "@/features/portfolios/_legacy/healthcare/ProtectedHealthcareRoute.jsx";
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -261,8 +213,7 @@ export default function App() {
           />
           {/* Photographer */}
           <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
-          {/* Handyman =======================Widget Overlay========================= */}
-          <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
+          {/* Handyman: index = showcase; :id and :id/edit use widget overlay */}
           <Route
             path="/portfolios/handyman"
             element={
@@ -271,6 +222,7 @@ export default function App() {
               </PortfolioProvider>
             }
           >
+            <Route index element={<HandymanShowcasePage />} />
             <Route path=":id" element={<HandymanPage />} />
             <Route path=":id/edit" element={<EditHandymanPortfolio />} />
           </Route>

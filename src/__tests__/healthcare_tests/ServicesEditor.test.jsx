@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-const ServicesEditor = require("../../pages/portfolios/healthcare/components/admin/ServicesEditor").default;
+const ServicesEditor = require("../../features/portfolios/_legacy/healthcare/components/admin/ServicesEditor").default;
 
 const mockServices = [
   {
