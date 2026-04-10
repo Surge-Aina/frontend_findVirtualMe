@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { motion } from "framer-motion";
 import { canEditPortfolio } from "../services/auth";
-import { AuthContext } from "../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import { useVendorApi } from "../services/api";
 import { useVendor } from "../../../../context/VendorContext";
 

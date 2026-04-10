@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '@/shared/context/AuthContext';
 
 // Mocks (same as your smoke test)
 jest.mock('react-router-dom', () => ({
@@ -64,7 +64,7 @@ jest.mock('react-toastify', () => ({
 
 // Import components after mocks
 import Dashboard from '../components/Dashboard';
-import Navbar from '../components/Navbar';
+import Navbar from '@/shared/components/Navbar';
 import Auth from '../pages/login/Auth';
 import SignUp from '../pages/login/SignUp';
 

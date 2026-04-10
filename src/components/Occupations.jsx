@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext.jsx";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
 
 const features = [
   {

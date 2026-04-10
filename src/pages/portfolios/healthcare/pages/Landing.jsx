@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useContext } from 'react';
-import { AuthContext } from '../../../../context/AuthContext';
+import { AuthContext } from "@/shared/context/AuthContext";
 import { useEffect } from 'react';
 import { 
   FaHospital, 

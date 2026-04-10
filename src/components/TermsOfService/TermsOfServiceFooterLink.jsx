@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { createPortal } from "react-dom";
-import { usePortfolio } from "../../context/PortfolioContext";
-import { portfolioTypeToModel } from "../../utils/portfolioTypeToModel";
+import { usePortfolio } from "@/shared/context/PortfolioContext";
+import { portfolioTypeToModel } from "@/shared/utils/portfolioTypeToModel";
 import {
   PLATFORM_TERMS_OF_SERVICE_TEXT,
-} from "../../legal/platformLegalContent";
+} from "@/shared/legal/platformLegalContent";
 
 export default function TermsOfServiceFooterLink({
   className = "hover:text-white transition-colors",

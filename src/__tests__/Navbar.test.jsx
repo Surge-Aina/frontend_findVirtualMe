@@ -1,8 +1,8 @@
     import React from "react";
     import { render, screen, fireEvent } from "@testing-library/react";
     import { MemoryRouter } from "react-router-dom";
-    import Navbar from "../components/Navbar";
-    import { AuthContext } from "../context/AuthContext";
+    import Navbar from "@/shared/components/Navbar";
+    import { AuthContext } from "@/shared/context/AuthContext";
 
     const mockNavigate = jest.fn();
 

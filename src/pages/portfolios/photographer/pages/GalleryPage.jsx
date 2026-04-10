@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Editable from "../components/Editable";
-import { AuthContext } from "../components/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 
 const GalleryPage = () => {
   const navigate = useNavigate();

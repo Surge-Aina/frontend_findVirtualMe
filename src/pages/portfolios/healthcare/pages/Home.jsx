@@ -15,7 +15,7 @@ import {
 import Navbar from "../components/Navbar";
 import ScrollToTop from "../components/ScrollToTop";
 import Footer from "../components/Footer";
-import { usePortfolio } from "../../../../context/PortfolioContext";
+import { usePortfolio } from "@/shared/context/PortfolioContext";
 import { useHealthcareBasePath } from "../../../../hooks/useHealthcareBasePath";
 
 export default function Home({ portfolioId: portfolioIdProp }) {

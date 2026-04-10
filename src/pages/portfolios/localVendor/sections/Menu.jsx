@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import { canEditPortfolio } from "../services/auth";
-import { AuthContext } from "../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
 import { useVendorApi } from "../services/api";

@@ -23,7 +23,7 @@ export default function PlatformPrivacyPolicyEmbed({
         <p className="mt-2 text-amber-900/90 leading-relaxed">
           Paste your Termly HTML export into{" "}
           <code className="text-xs bg-amber-100/90 px-1.5 py-0.5 rounded font-mono">
-            frontend_findVirtualMe/src/legal/termlyPrivacyPolicy.html
+            frontend_findVirtualMe/src/shared/legal/termlyPrivacyPolicy.html
           </code>
           , save the file, then restart <code className="text-xs font-mono">npm run dev</code> so
           Vite picks up the change.

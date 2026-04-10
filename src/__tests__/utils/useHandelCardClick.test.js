@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { useNavigate } from "react-router-dom";
-import { useHandleCardClick } from "../../utils/useHandleCardClick";
+import { useHandleCardClick } from "@/shared/utils/useHandleCardClick";
 import { toast } from "react-toastify";
 
 jest.mock("react-router-dom", () => ({

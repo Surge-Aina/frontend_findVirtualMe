@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { AuthContext } from "../../context/AuthContext.jsx";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

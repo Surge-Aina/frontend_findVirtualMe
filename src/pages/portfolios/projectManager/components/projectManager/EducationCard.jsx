@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { FaPen, FaPlus, FaTimes, FaTrash, FaSave } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import axios from "axios";
 
 //attach token to each axios request

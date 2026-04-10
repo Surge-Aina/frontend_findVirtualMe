@@ -2,9 +2,9 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import axios from "axios";
-import { portfolioApi } from "../api/portfolioApi.js";
+import { portfolioApi } from "@/shared/api/portfolioApi.js";
 
-jest.mock("../utils/windowHost.js", () => ({
+jest.mock("@/shared/utils/windowHost.js", () => ({
   getBrowserHostname: jest.fn(() => "localhost"),
 }));
 
@@ -19,7 +19,7 @@ jest.mock("axios", () => {
   };
 });
 
-jest.mock("../api/portfolioApi.js", () => ({
+jest.mock("@/shared/api/portfolioApi.js", () => ({
   portfolioApi: {
     getById: jest.fn(),
   },
@@ -40,8 +40,8 @@ jest.mock("../components/PortfolioEditor.jsx", () => ({
   default: () => <div data-testid="portfolio-editor">Editor</div>,
 }));
 
-import { getBrowserHostname } from "../utils/windowHost.js";
-import DomainRouter from "../utils/DomainRouter.jsx";
+import { getBrowserHostname } from "@/shared/utils/windowHost.js";
+import DomainRouter from "@/shared/utils/DomainRouter.jsx";
 
 describe("DomainRouter", () => {
   beforeEach(() => {

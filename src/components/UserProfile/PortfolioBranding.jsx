@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { AuthContext } from "../../context/AuthContext";
-import { portfolioApi } from "../../api/portfolioApi";
+import { AuthContext } from "@/shared/context/AuthContext";
+import { portfolioApi } from "@/shared/api/portfolioApi";
 import { toast } from "react-toastify";
 
 const backendUrl = import.meta.env.VITE_BACKEND_API || "http://localhost:5000";

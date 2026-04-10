@@ -2,7 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import { VendorProvider, useVendor } from "../context/VendorContext";
 import { useParams } from "react-router-dom";
 import { canEditPortfolio } from "../pages/portfolios/localVendor/services/auth";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 // ---- MOCKS ----
 jest.mock("react-router-dom", () => ({
   useParams: jest.fn(),

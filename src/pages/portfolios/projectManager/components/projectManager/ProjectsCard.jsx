@@ -3,7 +3,7 @@ import { FaPen, FaPlus, FaTimes, FaTrash, FaSave, FaExternalLinkAlt } from "reac
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { AuthContext } from "../../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 
 //attach token to each axios request
 axios.interceptors.request.use(

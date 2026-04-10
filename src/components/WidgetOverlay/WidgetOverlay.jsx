@@ -1,9 +1,9 @@
 import { useState, useContext, useEffect } from 'react';
 import { FaPlus as PlusIcon } from 'react-icons/fa';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from "@/shared/context/AuthContext";
 import QRCodeWidget from '../Widgets/QRCode/QRCodeWidget';
 import ContactMeWidget from '../Widgets/ContactMe/ContactMeWidget';
-import { usePortfolio } from '../../context/PortfolioContext';
+import { usePortfolio } from "@/shared/context/PortfolioContext";
 
 export default function WidgetOverlay() {
   const [isOpen, setIsOpen] = useState(false);

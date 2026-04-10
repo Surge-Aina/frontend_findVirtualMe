@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import axiosAuth from "../utils/axiosAuth";
+import axiosAuth from "@/shared/api/axiosAuth";
 import { usePortfolioEditorId } from "../context/PortfolioEditorContext";
 import { editorLabelClass, editorInputClass } from "./portfolioEditorFieldClasses";
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { ImageFieldEditor } from "./ImageFieldEditor";
 import { BLOCK_LABELS } from "./portfolioEditorConfig";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "@/shared/context/ThemeContext";
 import {
   editorLabelClass,
   editorInputClass,

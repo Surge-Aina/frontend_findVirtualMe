@@ -1,5 +1,5 @@
-import { PLATFORM_PRIVACY_POLICY_LAST_UPDATED } from "../legal/platformLegalContent";
-import PlatformPrivacyPolicyEmbed from "../legal/PlatformPrivacyPolicyEmbed";
+import { PLATFORM_PRIVACY_POLICY_LAST_UPDATED } from "@/shared/legal/platformLegalContent";
+import PlatformPrivacyPolicyEmbed from "@/shared/legal/PlatformPrivacyPolicyEmbed";
 
 export default function PrivacyPolicyPage() {
   return (

@@ -1,7 +1,7 @@
 import {
   PLATFORM_TERMS_LAST_UPDATED,
   PLATFORM_TERMS_OF_SERVICE_TEXT,
-} from "../legal/platformLegalContent";
+} from "@/shared/legal/platformLegalContent";
 
 export default function TermsOfServicePage() {
   return (

@@ -8,7 +8,7 @@ import UserInfoForm from "./UserInfoForm";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 
 // main onboarding flow component
 const backendUrl = import.meta.env.VITE_BACKEND_API;

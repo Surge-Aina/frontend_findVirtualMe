@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import { Search, TrendingUp, Briefcase, Users, ChevronRight } from "lucide-react";
 const goals = [
   {

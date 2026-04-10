@@ -1,5 +1,5 @@
 import axios from "axios";
-import axiosAuth from "../utils/axiosAuth";
+import axiosAuth from "./axiosAuth";
 
 const BASE = "/api/portfolios";
 

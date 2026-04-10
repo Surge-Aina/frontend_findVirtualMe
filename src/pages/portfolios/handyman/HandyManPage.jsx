@@ -2,8 +2,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import handymanAPI from './api.js';
-import { AuthContext } from '../../../context/AuthContext';
-import { usePortfolio } from '../../../context/PortfolioContext.jsx';
+import { AuthContext } from "@/shared/context/AuthContext";
+import { usePortfolio } from "@/shared/context/PortfolioContext.jsx";
 
 import Hero from './Hero.jsx';
 import Services from './Services.jsx';

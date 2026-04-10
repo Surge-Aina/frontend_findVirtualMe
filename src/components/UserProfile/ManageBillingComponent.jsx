@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import Payment from "../Payment";
 import { useContext, useEffect } from "react";
 import { toast } from "react-toastify";

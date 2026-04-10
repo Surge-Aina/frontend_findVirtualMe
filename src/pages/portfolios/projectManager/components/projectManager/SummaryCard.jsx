@@ -10,13 +10,13 @@ import {
 } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import axios from "axios";
 import {
   startTracking,
   stopTracking,
   logPortfolioAction,
-} from "../../../../../utils/portfolioEditLogger";
+} from "@/shared/utils/portfolioEditLogger";
 
 // attach token to each axios request
 axios.interceptors.request.use(

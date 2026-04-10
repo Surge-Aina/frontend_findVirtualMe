@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import PortfolioTemplateOptions from "./components/PortfolioTemplateOptions";
 
 export default function OnboardingInfoPage() {

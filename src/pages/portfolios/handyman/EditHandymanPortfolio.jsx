@@ -3,8 +3,8 @@
     import { useParams, useNavigate } from 'react-router-dom';
     import { toast } from 'react-toastify';
     import handymanAPI from './api.js';
-    import { AuthContext } from '../../../context/AuthContext';
-    import { startTracking, stopTracking, logPortfolioAction } from '../../../utils/portfolioEditLogger';
+    import { AuthContext } from "@/shared/context/AuthContext";
+    import { startTracking, stopTracking, logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 
     const EditHandymanPortfolio = () => {
     const { id } = useParams();

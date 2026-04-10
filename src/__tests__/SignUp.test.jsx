@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SignUp from "../pages/login/SignUp";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";

@@ -11,7 +11,7 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import { useVendorApi } from "../services/api";
 import { useVendor } from "../../../../context/VendorContext";
 import { canEditPortfolio } from "../services/auth";
-import { AuthContext } from "../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
 

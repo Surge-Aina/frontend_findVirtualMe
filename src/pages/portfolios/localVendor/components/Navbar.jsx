@@ -3,7 +3,7 @@ import { useState, useContext } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { canEditPortfolio } from "../services/auth";
 import VendorSelector from "./VendorSelector";
-import { AuthContext } from "../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);

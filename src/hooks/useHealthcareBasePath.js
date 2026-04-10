@@ -1,5 +1,5 @@
 import { useParams, useLocation } from 'react-router-dom';
-import { usePortfolio } from '../context/PortfolioContext';
+import { usePortfolio } from "@/shared/context/PortfolioContext";
 
 /**
  * Returns basePath and practiceId for healthcare portfolio links.

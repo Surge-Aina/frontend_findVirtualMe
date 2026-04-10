@@ -11,7 +11,7 @@ import SkillsCard from "../components/projectManager/SkillsCard";
 import FileUploader from "../components/FileUploader";
 import { useParams } from "react-router-dom";
 import "../style.css";
-import { usePortfolio } from "../../../../context/PortfolioContext";
+import { usePortfolio } from "@/shared/context/PortfolioContext";
 import Footer from "../components/Footer";
 
 const PortfolioPage = ({ portfolioId, portfolioType: _portfolioType }) => {

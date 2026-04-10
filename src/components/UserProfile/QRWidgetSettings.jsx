@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../../context/AuthContext";
-import axiosAuth from "../../utils/axiosAuth";
+import { AuthContext } from "@/shared/context/AuthContext";
+import axiosAuth from "@/shared/api/axiosAuth";
 
 export default function QRWidgetSettings() {
   const { user } = useContext(AuthContext);

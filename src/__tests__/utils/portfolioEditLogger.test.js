@@ -5,7 +5,7 @@ import {
   logPortfolioAction,
   getSessionId,
   updatePortfolioInfo,
-} from '../../utils/portfolioEditLogger';
+} from '../../shared/utils/portfolioEditLogger';
 
 jest.mock('axios');
 

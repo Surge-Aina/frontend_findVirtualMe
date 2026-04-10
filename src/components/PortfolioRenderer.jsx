@@ -1,14 +1,14 @@
 import { useEffect, useState, useContext, useMemo } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import BLOCK_COMPONENTS from "./blocks";
-import { portfolioApi } from "../api/portfolioApi";
+import { portfolioApi } from "@/shared/api/portfolioApi";
 import PortfolioFooter from "./PortfolioFooter/PortfolioFooter";
 import WidgetOverlay from "./WidgetOverlay/WidgetOverlay";
-import { usePortfolio } from "../context/PortfolioContext";
+import { usePortfolio } from "@/shared/context/PortfolioContext";
 import { PortfolioViewProvider } from "../context/PortfolioViewContext";
 import PortfolioSectionNav from "./PortfolioSectionNav";
 import SectionPageBanner from "./SectionPageBanner";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import "./portfolioThemes/dataScientist.css";
 import "./portfolioThemes/agent.css";
 import { resolveAgentTheme } from "./portfolioThemes/agentThemeResolver";

@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../../context/AuthContext";
-import axiosAuth from "../../utils/axiosAuth";
+import { AuthContext } from "@/shared/context/AuthContext";
+import axiosAuth from "@/shared/api/axiosAuth";
 
 const DomainLookup = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_API;

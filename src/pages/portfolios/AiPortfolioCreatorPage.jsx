@@ -2,10 +2,10 @@ import { useContext, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { portfolioApi } from "../../api/portfolioApi";
-import { AuthContext } from "../../context/AuthContext.jsx";
-import axiosAuth from "../../utils/axiosAuth.js";
-import { logPortfolioAction } from "../../utils/portfolioEditLogger";
+import { portfolioApi } from "@/shared/api/portfolioApi";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
+import axiosAuth from "@/shared/api/axiosAuth.js";
+import { logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 
 const PROMPT_EXAMPLES = [
   "Create a warm consulting portfolio for a product strategist with one standout case study, service packages, and a clear contact section.",

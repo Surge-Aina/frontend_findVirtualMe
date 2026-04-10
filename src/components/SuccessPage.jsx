@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_API;
 

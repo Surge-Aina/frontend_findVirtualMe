@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, useMemo } from "react";
-import { AuthContext } from "../context/AuthContext.jsx";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
 // import emailjs from "@emailjs/browser";
 import { toast } from "react-toastify";
 

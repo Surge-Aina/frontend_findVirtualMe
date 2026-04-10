@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { createPortal } from "react-dom";
-import { usePortfolio } from "../../context/PortfolioContext";
-import { portfolioTypeToModel } from "../../utils/portfolioTypeToModel";
-import PlatformPrivacyPolicyEmbed from "../../legal/PlatformPrivacyPolicyEmbed";
+import { usePortfolio } from "@/shared/context/PortfolioContext";
+import { portfolioTypeToModel } from "@/shared/utils/portfolioTypeToModel";
+import PlatformPrivacyPolicyEmbed from "@/shared/legal/PlatformPrivacyPolicyEmbed";
 
 export default function PrivacyPolicyFooterLink({
   className = "hover:text-white transition-colors",

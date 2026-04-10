@@ -1,6 +1,6 @@
 // QRCodeForm.jsx
 import { useState } from "react";
-import axiosAuth from "../../../utils/axiosAuth";
+import axiosAuth from "@/shared/api/axiosAuth";
 
 export default function QRCodeForm({ onSuccess, portfolioId, portfolioType, onClose }) {
   const initialFormState = {

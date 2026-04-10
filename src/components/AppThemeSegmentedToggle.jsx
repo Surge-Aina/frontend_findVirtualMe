@@ -1,5 +1,5 @@
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "@/shared/context/ThemeContext";
 
 /**
  * Two-segment Light / Dark control with a sliding pill (respects prefers-reduced-motion).

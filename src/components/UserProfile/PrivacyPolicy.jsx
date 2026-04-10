@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../context/AuthContext";
-import axiosAuth from "../../utils/axiosAuth";
+import { AuthContext } from "@/shared/context/AuthContext";
+import axiosAuth from "@/shared/api/axiosAuth";
 import { toast } from "react-toastify";
 
 const DEFAULT_PRIVACY_TEXT = `

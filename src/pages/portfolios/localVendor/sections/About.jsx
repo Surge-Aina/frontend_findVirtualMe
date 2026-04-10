@@ -4,7 +4,7 @@ import { useVendor } from "../../../../context/VendorContext";
 import { useVendorApi } from "../services/api";
 import FileUploader from "../components/FileUploader";
 import { canEditPortfolio } from "../services/auth";
-import { AuthContext } from "../../../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 
 const MAX_IMAGES = 4;
 

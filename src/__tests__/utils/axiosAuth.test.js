@@ -31,19 +31,19 @@ describe('axiosAuth', () => {
 
  it('creates axios instance', () => {
   const axios = require('axios');
-  require('../../utils/axiosAuth');
+  require('../../shared/api/axiosAuth');
   
   expect(axios.create).toHaveBeenCalled();
 });
 
   it('registers request interceptor', () => {
-    require('../../utils/axiosAuth');
+    require('../../shared/api/axiosAuth');
     expect(mockInterceptorUse).toHaveBeenCalled();
   });
 
   describe('request interceptor', () => {
     beforeEach(() => {
-      require('../../utils/axiosAuth');
+      require('../../shared/api/axiosAuth');
     });
 
     it('adds Authorization header when token exists', () => {

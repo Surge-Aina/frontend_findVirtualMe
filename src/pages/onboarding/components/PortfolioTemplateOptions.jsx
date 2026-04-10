@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
-import { AuthContext } from "../../../context/AuthContext.jsx";
-import { logPortfolioAction } from "../../../utils/portfolioEditLogger";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
+import { logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 import { toast } from "react-toastify";
-import axiosAuth from "../../../utils/axiosAuth.js";
-import { portfolioApi } from "../../../api/portfolioApi.js";
+import axiosAuth from "@/shared/api/axiosAuth.js";
+import { portfolioApi } from "@/shared/api/portfolioApi.js";
 import { useNavigate } from "react-router-dom";
 
 export default function PortfolioTemplateOptions() {

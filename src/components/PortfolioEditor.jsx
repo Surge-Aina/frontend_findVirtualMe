@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useContext, useSyncExternalStore } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { portfolioApi } from "../api/portfolioApi";
+import { portfolioApi } from "@/shared/api/portfolioApi";
 import {
   FaSave,
   FaEye,
@@ -39,8 +39,8 @@ import {
   CaseStudyEditor,
 } from "./portfolioSectionEditors";
 import { DashboardChartEditor, DashboardTableEditor } from "./DashboardBlockEditors";
-import axiosAuth from "../utils/axiosAuth";
-import { AuthContext } from "../context/AuthContext";
+import axiosAuth from "@/shared/api/axiosAuth";
+import { AuthContext } from "@/shared/context/AuthContext";
 import { AGENT_THEME_PRESETS } from "./portfolioThemes/agentThemeResolver";
 import {
   BLOCK_LABELS,

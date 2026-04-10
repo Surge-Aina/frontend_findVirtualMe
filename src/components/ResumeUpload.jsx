@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { startTracking, stopTracking, logPortfolioAction } from "../utils/portfolioEditLogger";
+import { startTracking, stopTracking, logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 import PortfolioTemplateOptions from "../pages/onboarding/components/PortfolioTemplateOptions";
 
 export default function ResumeUpload() {

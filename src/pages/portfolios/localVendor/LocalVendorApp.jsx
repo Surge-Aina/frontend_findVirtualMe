@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import { VendorProvider, useVendor } from "../../../context/VendorContext.jsx";
 import API from "./services/api";
-import { AuthContext } from "../../../context/AuthContext.jsx";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
 
 function LocalVendorApp() {
   const { id: paramId } = useParams();

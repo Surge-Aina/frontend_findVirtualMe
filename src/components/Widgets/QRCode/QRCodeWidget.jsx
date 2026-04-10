@@ -6,8 +6,8 @@ import {BsQrCodeScan as QRIcon} from 'react-icons/bs';
 import { FaPlus as PlusIcon } from 'react-icons/fa';
 import { Trash2Icon } from 'lucide-react';
 import { toast } from 'react-toastify';
-import authAxios from '../../../utils/axiosAuth';
-import { AuthContext } from '../../../context/AuthContext';
+import authAxios from "@/shared/api/axiosAuth";
+import { AuthContext } from "@/shared/context/AuthContext";
 import axios from 'axios';
 import { createPortal } from 'react-dom';
 

@@ -12,8 +12,8 @@ import {
 import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 import ManageBillingComponent from "./ManageBillingComponent";
-import { AuthContext } from "../../context/AuthContext";
-import axiosAuth from "../../utils/axiosAuth";
+import { AuthContext } from "@/shared/context/AuthContext";
+import axiosAuth from "@/shared/api/axiosAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DomainLookup from "./DomainLookup";
 import QRWidgetSettings from "./QRWidgetSettings";

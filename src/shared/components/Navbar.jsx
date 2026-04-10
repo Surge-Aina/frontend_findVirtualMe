@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
-import Auth from "../pages/login/Auth.jsx";
-import SignUp from "../pages/login/SignUp.jsx";
+import Auth from "@/pages/login/Auth.jsx";
+import SignUp from "@/pages/login/SignUp.jsx";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";

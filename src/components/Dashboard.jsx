@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { toast } from "react-toastify";
 
-import { AuthContext } from "../context/AuthContext.jsx";
-import { useHandleCardClick } from "../utils/useHandleCardClick";
-import { portfolioApi } from "../api/portfolioApi.js";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
+import { useHandleCardClick } from "@/shared/utils/useHandleCardClick";
+import { portfolioApi } from "@/shared/api/portfolioApi.js";
 
 function getPortfolioDisplayName(portfolio) {
   if (portfolio.portfolioType === "Healthcare") {

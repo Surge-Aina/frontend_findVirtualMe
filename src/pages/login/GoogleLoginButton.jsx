@@ -1,7 +1,7 @@
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "@/shared/context/AuthContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
