@@ -30,6 +30,8 @@ const modelY = [-2, 2.7, -2.0];
 const modelZ = [2, -2, 2];
 const normalize = (a) => ((a % 360) + 360) % 360;
 
+export { clamp, easeInOut, degToRad, normalize };
+
 const defaultTaglines = [
   "DOM's Cleaning – We bring sparkle to your space.",
   'From roof to floor – Every detail matters.',

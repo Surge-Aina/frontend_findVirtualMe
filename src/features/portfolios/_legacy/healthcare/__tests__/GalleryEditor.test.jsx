@@ -1,5 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import React, { useState } from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
+jest.mock("../lib/api", () => ({
+  api: {
+    uploadImageToS3: jest.fn(),
+  },
+}));
+
+const { api } = require("../lib/api");
 const GalleryEditor = require("../components/admin/GalleryEditor").default;
 
 const mockGallery = {
@@ -417,5 +426,125 @@ describe('GalleryEditor Component', () => {
     
     const caseCard = screen.getByText('Dental Whitening').closest('.bg-white');
     expect(caseCard).toHaveClass('border', 'border-gray-200', 'rounded-lg');
+  });
+
+  describe("stateful interactions", () => {
+    function GalleryHarness({ initial }) {
+      const [g, setG] = useState(initial);
+      return <GalleryEditor gallery={g} onUpdate={setG} />;
+    }
+
+    beforeEach(() => {
+      window.confirm = jest.fn(() => true);
+      jest.clearAllMocks();
+    });
+
+    test("add facility image opens edit form with caption field", async () => {
+      const user = userEvent.setup();
+      render(
+        <GalleryHarness initial={{ facilityImages: [], beforeAfterCases: [] }} />
+      );
+      await user.click(screen.getByRole("button", { name: /add facility image/i }));
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText("Image caption")).toBeInTheDocument();
+      });
+    });
+
+    test("upload facility image calls api.uploadImageToS3", async () => {
+      api.uploadImageToS3.mockResolvedValue("https://cdn.example/facility.jpg");
+      const user = userEvent.setup();
+      render(
+        <GalleryHarness initial={{ facilityImages: [], beforeAfterCases: [] }} />
+      );
+      await user.click(screen.getByRole("button", { name: /add facility image/i }));
+      const file = new File(["x"], "f.png", { type: "image/png" });
+      fireEvent.change(document.querySelector('input[type="file"]'), {
+        target: { files: [file] },
+      });
+      await waitFor(() => expect(api.uploadImageToS3).toHaveBeenCalledWith(file));
+    });
+
+    test("deleting facility image updates gallery when confirmed", async () => {
+      const user = userEvent.setup();
+      const initial = {
+        facilityImages: [
+          { url: "https://example.com/a.jpg", caption: "A", description: "d" },
+        ],
+        beforeAfterCases: [],
+      };
+      const { container } = render(<GalleryHarness initial={initial} />);
+      const deleteBtn = container.querySelector("button.text-red-600");
+      await user.click(deleteBtn);
+      expect(window.confirm).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(screen.queryByText("A")).not.toBeInTheDocument();
+      });
+    });
+
+    test("does not delete facility image when confirm is cancelled", async () => {
+      window.confirm = jest.fn(() => false);
+      const user = userEvent.setup();
+      const initial = {
+        facilityImages: [
+          { url: "https://example.com/a.jpg", caption: "KeepMe", description: "d" },
+        ],
+        beforeAfterCases: [],
+      };
+      const { container } = render(<GalleryHarness initial={initial} />);
+      await user.click(container.querySelector("button.text-red-600"));
+      expect(screen.getByText("KeepMe")).toBeInTheDocument();
+    });
+
+    test("add before/after case opens edit form with case title field", async () => {
+      const user = userEvent.setup();
+      render(<GalleryHarness initial={{ facilityImages: [], beforeAfterCases: [] }} />);
+      await user.click(screen.getByRole("button", { name: /add before\/after case/i }));
+      expect(screen.getByPlaceholderText("Case title")).toBeInTheDocument();
+    });
+
+    test("editing facility caption calls onUpdate with merged gallery", async () => {
+      const user = userEvent.setup();
+      const onUpdate = jest.fn();
+      const initial = {
+        facilityImages: [{ url: "https://example.com/a.jpg", caption: "Old", description: "" }],
+        beforeAfterCases: [],
+      };
+      render(<GalleryEditor gallery={initial} onUpdate={onUpdate} />);
+      const card = screen.getByText("Old").closest(".bg-white");
+      await user.click(card.querySelector("button.text-blue-600"));
+      const caption = screen.getByPlaceholderText("Image caption");
+      fireEvent.change(caption, { target: { value: "NewCap" } });
+      expect(onUpdate).toHaveBeenCalled();
+      const last = onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0];
+      expect(last.facilityImages[0].caption).toBe("NewCap");
+    });
+
+    test("upload before image on case calls uploadImageToS3 and updates case field", async () => {
+      api.uploadImageToS3.mockResolvedValue("https://cdn.example/before.png");
+      const user = userEvent.setup();
+      render(<GalleryHarness initial={{ facilityImages: [], beforeAfterCases: [] }} />);
+      await user.click(screen.getByRole("button", { name: /add before\/after case/i }));
+      const file = new File(["x"], "b.png", { type: "image/png" });
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      expect(fileInputs.length).toBeGreaterThan(0);
+      fireEvent.change(fileInputs[0], { target: { files: [file] } });
+      await waitFor(() => expect(api.uploadImageToS3).toHaveBeenCalledWith(file));
+    });
+
+    test("save on new facility dismisses cancel without deleting when not isAddingFacility", async () => {
+      window.confirm = jest.fn();
+      const user = userEvent.setup();
+      const initial = {
+        facilityImages: [{ url: "https://example.com/a.jpg", caption: "Keep", description: "" }],
+        beforeAfterCases: [],
+      };
+      render(<GalleryEditor gallery={initial} onUpdate={mockOnUpdate} />);
+      const card = screen.getByText("Keep").closest(".bg-white");
+      await user.click(card.querySelector("button.text-blue-600"));
+      const cancelButtons = screen.getAllByRole("button", { name: /cancel/i });
+      await user.click(cancelButtons[0]);
+      expect(window.confirm).not.toHaveBeenCalled();
+      expect(screen.getByText("Keep")).toBeInTheDocument();
+    });
   });
 });

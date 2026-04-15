@@ -123,4 +123,200 @@
         expect(mockClient.post).toHaveBeenCalledWith("/menu/abc", formData);
         expect(data).toEqual({ id: "item-1" });
     });
+
+    test("getBanner hits /banner/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-banner" });
+        mockClient.get.mockResolvedValueOnce({ data: { image: "x" } });
+        const api = useVendorApi();
+        const data = await api.getBanner();
+        expect(mockClient.get).toHaveBeenCalledWith("/banner/v-banner");
+        expect(data).toEqual({ image: "x" });
+    });
+
+    test("uploadAboutImages posts multipart to /about/:id/upload-grid-images", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-ab" });
+        const fd = new FormData();
+        mockClient.post.mockResolvedValueOnce({ data: { ok: true } });
+        const api = useVendorApi();
+        const data = await api.uploadAboutImages(fd);
+        expect(mockClient.post).toHaveBeenCalledWith(
+            "/about/v-ab/upload-grid-images",
+            fd,
+            { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        expect(data).toEqual({ ok: true });
+    });
+
+    test("getMenuByCategory includes category query", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-m" });
+        mockClient.get.mockResolvedValueOnce({ data: [] });
+        const api = useVendorApi();
+        await api.getMenuByCategory("Drinks");
+        expect(mockClient.get).toHaveBeenCalledWith(
+            "/menu/v-m?category=Drinks"
+        );
+    });
+
+    test("getReviews hits /reviews/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-r" });
+        mockClient.get.mockResolvedValueOnce({ data: [{ id: 1 }] });
+        const api = useVendorApi();
+        const data = await api.getReviews();
+        expect(mockClient.get).toHaveBeenCalledWith("/reviews/v-r");
+        expect(data).toEqual([{ id: 1 }]);
+    });
+
+    test("createGalleryImage posts to /gallery/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-g" });
+        const fd = new FormData();
+        mockClient.post.mockResolvedValueOnce({ data: { id: "img1" } });
+        const api = useVendorApi();
+        await api.createGalleryImage(fd);
+        expect(mockClient.post).toHaveBeenCalledWith("/gallery/v-g", fd, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    });
+
+    test("getTaggedImages hits /tagged/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-t" });
+        mockClient.get.mockResolvedValueOnce({ data: [] });
+        const api = useVendorApi();
+        await api.getTaggedImages();
+        expect(mockClient.get).toHaveBeenCalledWith("/tagged/v-t");
+    });
+
+    test("createBanner posts to /banner/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-b" });
+        const fd = new FormData();
+        mockClient.post.mockResolvedValueOnce({ data: { id: "b1" } });
+        const api = useVendorApi();
+        const data = await api.createBanner(fd);
+        expect(mockClient.post).toHaveBeenCalledWith("/banner/v-b", fd);
+        expect(data).toEqual({ id: "b1" });
+    });
+
+    test("updateBanner puts /banner/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-b" });
+        const fd = new FormData();
+        mockClient.put.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.updateBanner("bid", fd);
+        expect(mockClient.put).toHaveBeenCalledWith("/banner/v-b/bid", fd);
+    });
+
+    test("deleteBanner deletes /banner/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-b" });
+        mockClient.delete.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.deleteBanner("bid");
+        expect(mockClient.delete).toHaveBeenCalledWith("/banner/v-b/bid");
+    });
+
+    test("getAbout hits /about/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-a" });
+        mockClient.get.mockResolvedValueOnce({ data: { text: "x" } });
+        const api = useVendorApi();
+        const data = await api.getAbout();
+        expect(mockClient.get).toHaveBeenCalledWith("/about/v-a");
+        expect(data).toEqual({ text: "x" });
+    });
+
+    test("updateMenuItem puts multipart to /menu/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-mu" });
+        const fd = new FormData();
+        mockClient.put.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.updateMenuItem("mid", fd);
+        expect(mockClient.put).toHaveBeenCalledWith("/menu/v-mu/mid", fd, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    });
+
+    test("updateGalleryImage puts multipart to /gallery/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-gu" });
+        const fd = new FormData();
+        mockClient.put.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.updateGalleryImage("gid", fd);
+        expect(mockClient.put).toHaveBeenCalledWith("/gallery/v-gu/gid", fd, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    });
+
+    test("deleteGalleryImage deletes /gallery/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-gd" });
+        mockClient.delete.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.deleteGalleryImage("gid");
+        expect(mockClient.delete).toHaveBeenCalledWith("/gallery/v-gd/gid");
+    });
+
+    test("createReview posts to /reviews/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-rc" });
+        mockClient.post.mockResolvedValueOnce({ data: { id: "r1" } });
+        const api = useVendorApi();
+        const payload = { stars: 5 };
+        const data = await api.createReview(payload);
+        expect(mockClient.post).toHaveBeenCalledWith("/reviews/v-rc", payload);
+        expect(data).toEqual({ id: "r1" });
+    });
+
+    test("updateReview puts /reviews/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-ru" });
+        mockClient.put.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.updateReview("r1", { stars: 4 });
+        expect(mockClient.put).toHaveBeenCalledWith("/reviews/v-ru/r1", { stars: 4 });
+    });
+
+    test("deleteReview deletes /reviews/:vendor/:id", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-rd" });
+        mockClient.delete.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.deleteReview("r1");
+        expect(mockClient.delete).toHaveBeenCalledWith("/reviews/v-rd/r1");
+    });
+
+    test("uploadTaggedImage posts multipart to /tagged/:id/upload", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-tu" });
+        const fd = new FormData();
+        mockClient.post.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.uploadTaggedImage(fd);
+        expect(mockClient.post).toHaveBeenCalledWith("/tagged/v-tu/upload", fd, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    });
+
+    test("createTag posts to tagged tags endpoint", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-tc" });
+        mockClient.post.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        const payload = { x: 1 };
+        await api.createTag("tid", payload);
+        expect(mockClient.post).toHaveBeenCalledWith(
+            "/tagged/v-tc/tid/tags",
+            payload
+        );
+    });
+
+    test("deleteTag deletes tag index on tagged image", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-td" });
+        mockClient.delete.mockResolvedValueOnce({ data: { ok: 1 } });
+        const api = useVendorApi();
+        await api.deleteTag("tid", 2);
+        expect(mockClient.delete).toHaveBeenCalledWith(
+            "/tagged/v-td/tid/tags/2"
+        );
+    });
+
+    test("getMenuByCategory encodes category in query string", async () => {
+        useVendor.mockReturnValue({ vendorId: "v-mc" });
+        mockClient.get.mockResolvedValueOnce({ data: [] });
+        const api = useVendorApi();
+        await api.getMenuByCategory("A & B");
+        expect(mockClient.get).toHaveBeenCalledWith(
+            "/menu/v-mc?category=" + encodeURIComponent("A & B")
+        );
+    });
     });

@@ -103,6 +103,17 @@ function portfolioPageRange(page, total, pageSize) {
   return { start, end };
 }
 
+export {
+  getPortfolioDisplayName,
+  getPortfolioTypeLabel,
+  isAiPortfolio,
+  collectStringsFromValue,
+  stringsFromPortfolioSections,
+  portfolioMatchesSearch,
+  sortPortfolios,
+  portfolioPageRange,
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { handleCardClick } = useHandleCardClick();

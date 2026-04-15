@@ -60,4 +60,11 @@
         const afterLink = screen.getByRole('link', { name: /kitchen reno after/i });
         expect(afterLink).toHaveAttribute('href', 'a1.jpg');
     });
+
+    it('shows an empty state when there are no projects', () => {
+        render(<Portfolio allLabel="All" items={[]} />);
+
+        expect(screen.getByText(/no projects yet/i)).toBeInTheDocument();
+        expect(screen.queryAllByRole('article')).toHaveLength(0);
+    });
     });

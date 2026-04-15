@@ -77,6 +77,24 @@ describe("useHandleCardClick", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/portfolios/ProjectManager/101");
   });
 
+  it("navigates to healthcare legacy route when portfolioType is Healthcare", () => {
+    const { result } = renderHook(() => useHandleCardClick());
+    result.current.handleCardClick({
+      portfolioType: "Healthcare",
+      _id: "hc-1",
+    });
+    expect(mockNavigate).toHaveBeenCalledWith("/portfolios/healthcare/hc-1");
+  });
+
+  it("navigates to healthcare legacy route when portfolioType is healthcare", () => {
+    const { result } = renderHook(() => useHandleCardClick());
+    result.current.handleCardClick({
+      portfolioType: "healthcare",
+      _id: "hc-2",
+    });
+    expect(mockNavigate).toHaveBeenCalledWith("/portfolios/healthcare/hc-2");
+  });
+
   it("navigates to unified view by default when type unknown", () => {
     const { result } = renderHook(() => useHandleCardClick());
     result.current.handleCardClick({ _id: "zzz" });

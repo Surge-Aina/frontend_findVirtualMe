@@ -146,7 +146,7 @@ describe('VisitorData Component', () => {
 
       await waitFor(() => {
         expect(fetch).toHaveBeenCalledWith(
-          expect.stringContaining('getAllUsers'),
+          expect.stringContaining('/api/auth/guest-admin/users?portfolioId=test-portfolio-123'),
           expect.objectContaining({
             headers: expect.objectContaining({
               'Authorization': 'Bearer fake-token'
@@ -332,9 +332,9 @@ describe('VisitorData Component', () => {
       
       await waitFor(() => {
         expect(fetch).toHaveBeenLastCalledWith(
-          expect.stringContaining('editUser'),
+          expect.stringContaining('/api/auth/guest-admin/users/1'),
           expect.objectContaining({
-            body: expect.not.stringContaining('email')
+            body: expect.not.stringContaining('"email"')
           })
         );
       });
@@ -840,15 +840,8 @@ describe('VisitorData Component', () => {
       
       // First visitor should be in edit mode
       expect(screen.getByDisplayValue('john@test.com')).toBeInTheDocument();
-      
-      // Click edit on second visitor
-      const editButtons = screen.getAllByText(/Edit/i);
-      if (editButtons.length > 0) {
-        fireEvent.click(editButtons[0]);
-      }
-      
-      // Component should handle this case
-      expect(screen.getByTestId ? true : true).toBeTruthy();
+      // Second visitor row still shows email as text (not editing)
+      expect(screen.getByText('jane@test.com')).toBeInTheDocument();
     });
 
     it('should edit second visitor successfully', async () => {
@@ -1068,7 +1061,7 @@ describe('VisitorData Component', () => {
       
       await waitFor(() => {
         expect(fetch).toHaveBeenLastCalledWith(
-          expect.stringContaining('editUser'),
+          expect.stringContaining('/api/auth/guest-admin/users/1'),
           expect.objectContaining({
             method: 'PUT'
           })
@@ -1110,7 +1103,7 @@ describe('VisitorData Component', () => {
 
       await waitFor(() => {
         expect(fetch).toHaveBeenCalledWith(
-          expect.stringContaining('/editUser/1'),
+          expect.stringContaining('/api/auth/guest-admin/users/1'),
           expect.objectContaining({
             method: 'PUT',
             body: expect.stringContaining('updated@test.com')

@@ -2,7 +2,25 @@ import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
-export const AuthContext = createContext();
+
+/** Default for consumers/tests when no Provider wraps the tree */
+export const defaultAuthContextValue = {
+  user: null,
+  setUser: () => {},
+  setUserAfterLogin: () => {},
+  token: null,
+  login: async () => {},
+  logout: () => {},
+  loading: false,
+  refreshUser: async () => {},
+  pendingFile: null,
+  setPendingFile: () => {},
+  contextLoggedIn: false,
+  contextLogin: () => {},
+  contextLogout: () => {},
+};
+
+export const AuthContext = createContext(defaultAuthContextValue);
 
 export function AuthProvider({ children }) {
   //do not use this anymore will be phased out-----------------

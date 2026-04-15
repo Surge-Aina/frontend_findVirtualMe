@@ -1,5 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import React, { useState } from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
+jest.mock("../lib/api", () => ({
+  api: {
+    uploadImageToS3: jest.fn(),
+  },
+}));
+
+const { api } = require("../lib/api");
 const ServicesEditor = require("../components/admin/ServicesEditor").default;
 
 const mockServices = [
@@ -282,5 +291,69 @@ describe('ServicesEditor Component', () => {
     
     const servicesContainer = document.querySelector('.space-y-4');
     expect(servicesContainer).toBeInTheDocument();
+  });
+
+  test('does not delete service when user cancels confirm', async () => {
+    window.confirm = jest.fn(() => false);
+    const user = userEvent.setup();
+    const { container } = render(
+      <ServicesEditor services={mockServices} onUpdate={mockOnUpdate} />
+    );
+    const deleteBtn = container.querySelector("button.text-red-600");
+    await user.click(deleteBtn);
+    expect(mockOnUpdate).not.toHaveBeenCalled();
+  });
+
+  describe("stateful interactions", () => {
+    function ServicesHarness({ initial = [] }) {
+      const [services, setServices] = useState(initial);
+      return <ServicesEditor services={services} onUpdate={setServices} />;
+    }
+
+    beforeEach(() => {
+      window.confirm = jest.fn(() => true);
+      jest.clearAllMocks();
+    });
+
+    test("add service opens edit form with title field", async () => {
+      const user = userEvent.setup();
+      render(<ServicesHarness initial={[]} />);
+      await user.click(screen.getByRole("button", { name: /add service/i }));
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/enter service title/i)).toBeInTheDocument();
+      });
+    });
+
+    test("upload service image calls api.uploadImageToS3 and sets image URL", async () => {
+      api.uploadImageToS3.mockResolvedValue("https://cdn.example/svc.jpg");
+      const user = userEvent.setup();
+      const initial = [
+        {
+          id: "s1",
+          title: "T",
+          description: "D",
+          image: "",
+          features: [],
+        },
+      ];
+      const { container } = render(<ServicesHarness initial={initial} />);
+      await user.click(container.querySelector("button.text-blue-600"));
+      const file = new File(["x"], "s.png", { type: "image/png" });
+      fireEvent.change(document.querySelector('input[type="file"]'), {
+        target: { files: [file] },
+      });
+      await waitFor(() => expect(api.uploadImageToS3).toHaveBeenCalledWith(file));
+    });
+
+    test("add feature appends a feature row", async () => {
+      const user = userEvent.setup();
+      const initial = [
+        { id: "s1", title: "T", description: "D", features: [] },
+      ];
+      const { container } = render(<ServicesHarness initial={initial} />);
+      await user.click(container.querySelector("button.text-blue-600"));
+      await user.click(screen.getByRole("button", { name: /\+ add feature/i }));
+      expect(screen.getByPlaceholderText(/enter feature/i)).toBeInTheDocument();
+    });
   });
 });

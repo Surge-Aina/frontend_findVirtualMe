@@ -82,18 +82,18 @@ jest.mock('../context/AuthContext', () => {
 // ============================================
 // IMPORT COMPONENT
 // ============================================
-import CleanAbout from '../components/cleanAbout';
+import CleanAbout, {
+  clamp,
+  easeInOut,
+  degToRad,
+  normalize,
+} from '../components/cleanAbout';
 
 // ============================================
 // UTILITY FUNCTION TESTS (These are safe - no React needed)
 // ============================================
 
 describe('Utility Functions', () => {
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  const easeInOut = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
-  const degToRad = (deg) => (deg * Math.PI) / 180;
-  const normalize = (a) => ((a % 360) + 360) % 360;
-
   describe('clamp', () => {
     it('returns value within range', () => {
       expect(clamp(5, 0, 10)).toBe(5);

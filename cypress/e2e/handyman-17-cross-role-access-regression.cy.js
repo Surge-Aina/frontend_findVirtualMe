@@ -92,9 +92,9 @@
         // Admin-only navigation visible
         cy.contains("a,button", /^admin$/i).should("exist");
 
-        // Admin can access /admin (admin choice page)
-        cy.visit("/admin");
-        cy.url({ timeout: 15000 }).should("include", "/admin");
+        // Admin can access /admin-choice
+        cy.visit("/admin-choice");
+        cy.url({ timeout: 15000 }).should("include", "/admin-choice");
 
         // confirm admin access without depending on brittle page copy
         cy.contains("button, a", /log in.*sign up/i).should("not.exist");

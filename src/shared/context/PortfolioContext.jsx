@@ -8,7 +8,20 @@ const defaultPortfolioOwner = {
   email: "",
 };
 
-export const PortfolioContext = createContext();
+/** Default for consumers/tests when no Provider wraps the tree */
+export const defaultPortfolioContextValue = {
+  portfolioId: null,
+  setPortfolioId: () => {},
+  portfolioType: null,
+  setPortfolioType: () => {},
+  portfolioOwner: { ...defaultPortfolioOwner },
+  setPortfolioOwner: () => {},
+  isOwnerReady: false,
+  isCustomDomain: false,
+  clearPortfolio: () => {},
+};
+
+export const PortfolioContext = createContext(defaultPortfolioContextValue);
 
 export function PortfolioProvider({ children, initialPortfolioId, initialPortfolioType, isCustomDomain = false }) {
   const [portfolioId, setPortfolioId] = useState(initialPortfolioId ?? null);

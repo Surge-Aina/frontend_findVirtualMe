@@ -32,7 +32,7 @@
     // --- API stubs --------------------------------------------------------------
 
     const stubAuthAndPortfolioApi = () => {
-    // Stub /user/me so the app thinks the owner is logged in
+    // Stub /users/me so the app thinks the owner is logged in
     cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: {
@@ -41,6 +41,7 @@
             name: "vendor JK",
             email: ownerEmail,
             role: "VENDOR",
+            portfolios: [{ portfolioId: pmPortfolioId, portfolioType: "ProjectManager" }],
         },
         },
     }).as("getUser");
@@ -103,12 +104,13 @@
         visitPmPortfolioAsOwner();
 
         // Open the summary edit form (pencil icon)
-        cy.get('button[aria-label="Edit"]').click();
+        cy.get('[data-testid="tab-summary"]').click();
+        cy.get('button[aria-label="Edit"]', { timeout: 8000 }).click();
 
         // Update social link fields
         cy.get('input[placeholder="GitHub URL"]').clear().type(githubUrl);
         cy.get('input[placeholder="LinkedIn URL"]').clear().type(linkedinUrl);
-        cy.get('input[placeholder="Website URL"]').clear().type(websiteUrl);
+        cy.get('input[placeholder="Portfolio URL"]').clear().type(websiteUrl);
 
         // Save changes
         cy.contains("button", /^Save$/).click();

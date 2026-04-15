@@ -3,7 +3,17 @@
  */
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+
+const mockHealthcarePath = jest.fn(() => ({
+  basePath: '/portfolios/healthcare/practice_123',
+  practiceId: 'practice_123',
+}));
+
+jest.mock('@/features/portfolios/_legacy/healthcare/hooks/useHealthcareBasePath', () => ({
+  useHealthcareBasePath: () => mockHealthcarePath(),
+}));
 
 // Mock react-router-dom
 jest.mock('react-router-dom', () => ({
@@ -15,7 +25,8 @@ jest.mock('react-router-dom', () => ({
 // Mock the API
 jest.mock('../lib/api', () => ({
   api: {
-    getPracticeData: jest.fn()
+    getPracticeData: jest.fn(),
+    getDemoData: jest.fn(),
   }
 }));
 
@@ -28,6 +39,8 @@ jest.mock('react-icons/fa', () => ({
   FaTooth: () => <span data-testid="icon-tooth">Tooth</span>,
   FaSearch: () => <span data-testid="icon-search">Search</span>,
   FaArrowUp: () => <span data-testid="icon-arrow-up">ArrowUp</span>,
+  FaCamera: () => <span data-testid="icon-camera">Camera</span>,
+  FaSpinner: () => <span data-testid="icon-spinner">Spinner</span>,
 }));
 
 const Gallery = require('../pages/Gallery').default;
@@ -73,6 +86,10 @@ const renderGallery = () => {
 describe('Healthcare Gallery Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockHealthcarePath.mockImplementation(() => ({
+      basePath: '/portfolios/healthcare/practice_123',
+      practiceId: 'practice_123',
+    }));
   });
 
   test('should render loading state initially', () => {
@@ -80,7 +97,7 @@ describe('Healthcare Gallery Page', () => {
     
     renderGallery();
     
-    expect(screen.getByText(/loading gallery/i)).toBeInTheDocument();
+    expect(screen.getByTestId('icon-spinner')).toBeInTheDocument();
   });
 
   test('should render Gallery heading', async () => {
@@ -89,7 +106,7 @@ describe('Healthcare Gallery Page', () => {
     renderGallery();
     
     await waitFor(() => {
-      expect(screen.getByText('Our Gallery')).toBeInTheDocument();
+      expect(screen.getByText('Our Facility & Results')).toBeInTheDocument();
     });
   });
 
@@ -166,7 +183,7 @@ describe('Healthcare Gallery Page', () => {
     renderGallery();
     
     await waitFor(() => {
-      expect(screen.getByText(/no gallery images yet/i)).toBeInTheDocument();
+      expect(screen.getByText(/Gallery Coming Soon/i)).toBeInTheDocument();
     });
   });
 
@@ -189,5 +206,37 @@ describe('Healthcare Gallery Page', () => {
       expect(screen.getByText('Before')).toBeInTheDocument();
       expect(screen.getByText('After')).toBeInTheDocument();
     });
+  });
+
+  test('loads demo data when practiceId is demo', async () => {
+    mockHealthcarePath.mockImplementation(() => ({
+      basePath: '/portfolios/healthcare/demo',
+      practiceId: 'demo',
+    }));
+    api.getDemoData.mockResolvedValue(mockUserData);
+
+    renderGallery();
+
+    await waitFor(() => {
+      expect(api.getDemoData).toHaveBeenCalled();
+    });
+    expect(api.getPracticeData).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText('Reception Area')).toBeInTheDocument();
+    });
+  });
+
+  test('opens lightbox when a facility image card is clicked', async () => {
+    const user = userEvent.setup();
+    api.getPracticeData.mockResolvedValue(mockUserData);
+    renderGallery();
+
+    await waitFor(() => {
+      expect(screen.getByAltText('Reception Area')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByAltText('Reception Area'));
+
+    expect(screen.getAllByAltText('Reception Area')).toHaveLength(2);
   });
 });

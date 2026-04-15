@@ -62,28 +62,24 @@ jest.mock('react-toastify', () => ({
   },
 }));
 
+jest.mock('@react-oauth/google', () => ({
+  GoogleOAuthProvider: ({ children }) => children,
+  GoogleLogin: () => null,
+}));
+
 // Import components after mocks
 import Dashboard from '@/features/dashboard/Dashboard';
 import Navbar from '@/shared/components/Navbar';
 import Auth from '@/features/auth/Auth';
 import SignUp from '@/features/auth/SignUp';
+import { createSmokeAuthContext } from '@/shared/test/createSmokeAuthContext.js';
 
 describe('Accessibility (a11y) Tests', () => {
   let queryClient;
-
-  const mockAuthContext = {
-    user: null,
-    token: null,
-    login: jest.fn(),
-    logout: jest.fn(),
-    contextLoggedIn: false,
-    contextLogin: jest.fn(),
-    contextLogout: jest.fn(),
-    setUser: jest.fn(),
-    refreshUser: jest.fn(),
-  };
+  let mockAuthContext;
 
   beforeEach(() => {
+    mockAuthContext = createSmokeAuthContext();
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'log').mockImplementation(() => {});
     queryClient = new QueryClient({
@@ -160,12 +156,13 @@ describe('Accessibility (a11y) Tests', () => {
       expect(screen.getByLabelText('Open menu')).toBeInTheDocument();
     });
 
-   it('has accessible navigation links as buttons', () => {
-  renderWithProviders(Navbar);
-  expect(screen.getAllByRole('button', { name: 'Creators' }).length).toBeGreaterThan(0);
-  expect(screen.getAllByRole('button', { name: 'Dashboard' }).length).toBeGreaterThan(0);
-  expect(screen.getAllByRole('button', { name: 'Solutions' }).length).toBeGreaterThan(0);
-});
+    it('has accessible navigation links as buttons', () => {
+      renderWithProviders(Navbar);
+      expect(screen.getAllByRole('button', { name: 'Job Seekers' }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: 'Creators' }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: 'Dashboard' }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: 'Solutions' }).length).toBeGreaterThan(0);
+    });
   });
 
   // ===================== DASHBOARD PAGE =====================

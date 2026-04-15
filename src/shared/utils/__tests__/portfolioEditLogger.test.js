@@ -30,6 +30,7 @@ describe('portfolioEditLogger', () => {
 
   describe('startTracking', () => {
     it('starts tracking with all provided options', () => {
+      const addSpy = jest.spyOn(document, 'addEventListener');
       startTracking({
         sessionId: 'test-session',
         userId: 'user-123',
@@ -39,35 +40,43 @@ describe('portfolioEditLogger', () => {
         email: 'test@example.com',
       });
 
-      expect(console.log).toHaveBeenCalled();
+      expect(addSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(addSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
+      expect(addSpy).toHaveBeenCalledWith('mouseover', expect.any(Function));
+      addSpy.mockRestore();
     });
 
     it('uses localStorage sessionId as fallback', () => {
       localStorage.setItem('onboardingSessionId', 'stored-session');
+      const addSpy = jest.spyOn(document, 'addEventListener');
       startTracking({});
-
-      expect(console.log).toHaveBeenCalled();
+      expect(getSessionId()).toBe('stored-session');
+      expect(addSpy).toHaveBeenCalled();
+      addSpy.mockRestore();
     });
 
     it('uses localStorage userId as fallback', () => {
       localStorage.setItem('userId', 'stored-user');
+      const addSpy = jest.spyOn(document, 'addEventListener');
       startTracking({});
-
-      expect(console.log).toHaveBeenCalled();
+      expect(addSpy).toHaveBeenCalled();
+      addSpy.mockRestore();
     });
 
     it('uses localStorage name as fallback', () => {
       localStorage.setItem('name', 'Stored Name');
+      const addSpy = jest.spyOn(document, 'addEventListener');
       startTracking({});
-
-      expect(console.log).toHaveBeenCalled();
+      expect(addSpy).toHaveBeenCalled();
+      addSpy.mockRestore();
     });
 
     it('uses localStorage email as fallback', () => {
       localStorage.setItem('email', 'stored@example.com');
+      const addSpy = jest.spyOn(document, 'addEventListener');
       startTracking({});
-
-      expect(console.log).toHaveBeenCalled();
+      expect(addSpy).toHaveBeenCalled();
+      addSpy.mockRestore();
     });
 
     it('generates session ID when none provided', () => {
@@ -78,8 +87,10 @@ describe('portfolioEditLogger', () => {
     });
 
     it('uses anonymous when no userId available', () => {
+      const addSpy = jest.spyOn(document, 'addEventListener');
       startTracking({});
-      expect(console.log).toHaveBeenCalled();
+      expect(addSpy).toHaveBeenCalled();
+      addSpy.mockRestore();
     });
   });
 
@@ -111,7 +122,14 @@ describe('portfolioEditLogger', () => {
       
       await logPortfolioAction('created', { portfolioID: 'p-123' });
 
-      expect(axios.post).toHaveBeenCalled();
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.stringContaining('/api/portfolios/edit-log'),
+        expect.objectContaining({
+          action: 'created',
+          portfolioID: 'p-123',
+        }),
+        expect.any(Object)
+      );
     });
 
     it('uses sessionId from options', async () => {

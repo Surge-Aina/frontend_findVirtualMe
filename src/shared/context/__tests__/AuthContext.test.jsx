@@ -53,6 +53,10 @@ describe("AuthContext", () => {
     expect(contextValue.user).toBe(null);
     expect(typeof contextValue.login).toBe("function");
     expect(typeof contextValue.logout).toBe("function");
+    expect(contextValue.loading).toBe(false);
+    expect(contextValue.token).toBe(null);
+    expect(typeof contextValue.setUserAfterLogin).toBe("function");
+    expect(typeof contextValue.setPendingFile).toBe("function");
   });
 
   test("login updates user, token and localStorage", async () => {
@@ -69,7 +73,7 @@ describe("AuthContext", () => {
     let contextValue;
 
     render(
-      <AuthProvider backendUrl="http://localhost:3000">
+      <AuthProvider>
         <TestConsumer callback={(v) => (contextValue = v)} />
       </AuthProvider>
     );
@@ -81,7 +85,52 @@ describe("AuthContext", () => {
 
     expect(contextValue.user.email).toBe("test@test.com");
     expect(localStorage.getItem("token")).toBe(fakeToken);
+    expect(localStorage.getItem("userPortfolios")).toBe(
+      JSON.stringify(["abc", "xyz"])
+    );
     expect(toast.success).toHaveBeenCalledWith("Logged In!");
+  });
+
+  test("setUserAfterLogin merges user and stores portfolioIds", async () => {
+    let contextValue;
+    axios.post.mockResolvedValue({ data: {} });
+    axios.get.mockResolvedValue({
+      data: { user: { email: "a@b.com" }, portfolioIds: ["p1"] },
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer callback={(v) => (contextValue = v)} />
+      </AuthProvider>
+    );
+
+    await waitFor(() => expect(contextValue.setUserAfterLogin).toBeDefined());
+
+    contextValue.setUserAfterLogin({
+      user: { email: "a@b.com", _id: "u1" },
+      token: "t1",
+      portfolioIds: ["p1", "p2"],
+    });
+
+    expect(localStorage.getItem("token")).toBe("t1");
+    expect(localStorage.getItem("userPortfolios")).toBe(
+      JSON.stringify(["p1", "p2"])
+    );
+  });
+
+  test("setPendingFile updates pendingFile", async () => {
+    let contextValue;
+    render(
+      <AuthProvider>
+        <TestConsumer callback={(v) => (contextValue = v)} />
+      </AuthProvider>
+    );
+
+    await waitFor(() => expect(contextValue.setPendingFile).toBeDefined());
+    const file = new File(["x"], "doc.pdf", { type: "application/pdf" });
+    contextValue.setPendingFile(file);
+
+    await waitFor(() => expect(contextValue.pendingFile).toBe(file));
   });
 
   test("logout clears user state, token, localStorage and query cache", () => {

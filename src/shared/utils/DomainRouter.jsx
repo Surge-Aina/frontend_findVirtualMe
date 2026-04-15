@@ -76,7 +76,9 @@ function DomainRouter({ children }) {
       } catch (err) {
         if (axios.isAxiosError(err)) {
           if (isAxiosStatus(err, 404)) {
-            if (err.config?.url?.includes('domainLookup')) {
+            // Domain lookup uses `/api/domains/router/lookup`; portfolio fetch uses `/api/portfolios/:id`
+            const url = err.config?.url ?? '';
+            if (url.includes('/api/domains/router/lookup')) {
               console.log('Domain not found');
               setLoadError('not_found');
             } else {

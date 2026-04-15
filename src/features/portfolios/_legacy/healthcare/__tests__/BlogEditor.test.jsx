@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import React, { useState } from 'react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Mock react-icons
@@ -17,6 +17,13 @@ jest.mock('react-icons/fa', () => ({
   FaCamera: () => <span data-testid="icon-camera">Cam</span>,
 }));
 
+jest.mock('../lib/api', () => ({
+  api: {
+    uploadImageToS3: jest.fn(),
+  },
+}));
+
+const { api } = require('../lib/api');
 const BlogEditor = require('../components/admin/BlogEditor').default;
 
 const mockBlogPosts = [
@@ -274,6 +281,16 @@ describe('BlogEditor Component', () => {
     expect(screen.getByText(/Create Your First Blog Post/i)).toBeInTheDocument();
   });
 
+  test('does not delete post when user cancels confirm', async () => {
+    window.confirm = jest.fn(() => false);
+    const user = userEvent.setup();
+    render(
+      <BlogEditor blogPosts={mockBlogPosts} onUpdate={mockOnUpdate} />
+    );
+    await user.click(screen.getAllByTestId("icon-trash")[0].closest("button"));
+    expect(mockOnUpdate).not.toHaveBeenCalled();
+  });
+
   test('should save and close edit form', async () => {
     const user = userEvent.setup();
     
@@ -300,6 +317,74 @@ describe('BlogEditor Component', () => {
     // Form should close
     await waitFor(() => {
       expect(screen.queryByLabelText(/Excerpt/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("stateful interactions", () => {
+    function BlogHarness({ initial = [] }) {
+      const [posts, setPosts] = useState(initial);
+      return <BlogEditor blogPosts={posts} onUpdate={setPosts} />;
+    }
+
+    beforeEach(() => {
+      window.confirm = jest.fn(() => true);
+      jest.clearAllMocks();
+    });
+
+    test("opens edit form when adding first post from empty state", async () => {
+      const user = userEvent.setup();
+      render(<BlogHarness initial={[]} />);
+      await user.click(screen.getByRole("button", { name: /create your first blog post/i }));
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/enter blog post title/i)).toBeInTheDocument();
+      });
+    });
+
+    test("parses tags in edit mode", async () => {
+      const user = userEvent.setup();
+      const initial = [
+        {
+          id: 1,
+          title: "T",
+          slug: "t",
+          excerpt: "e",
+          content: "c",
+          author: { name: "", id: "" },
+          tags: [],
+          featured: false,
+        },
+      ];
+      render(<BlogHarness initial={initial} />);
+      await user.click(screen.getAllByTestId("icon-edit")[0].closest("button"));
+      const tagsInput = screen.getByPlaceholderText(/health, wellness, tips/i);
+      fireEvent.change(tagsInput, { target: { value: "alpha, beta" } });
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText(/health, wellness, tips/i)).toHaveValue("alpha, beta");
+      });
+    });
+
+    test("calls api.uploadImageToS3 when file selected in edit mode", async () => {
+      api.uploadImageToS3.mockResolvedValue("https://cdn.example/img.jpg");
+      const user = userEvent.setup();
+      const initial = [
+        {
+          id: 1,
+          title: "T",
+          slug: "t",
+          excerpt: "e",
+          content: "c",
+          author: {},
+          tags: [],
+          image: "",
+        },
+      ];
+      render(<BlogHarness initial={initial} />);
+      await user.click(screen.getAllByTestId("icon-edit")[0].closest("button"));
+      const file = new File(["x"], "p.png", { type: "image/png" });
+      fireEvent.change(document.querySelector('input[type="file"]'), {
+        target: { files: [file] },
+      });
+      await waitFor(() => expect(api.uploadImageToS3).toHaveBeenCalledWith(file));
     });
   });
 });

@@ -25,15 +25,4 @@ export default defineConfig({
     port:5173,
     allowedHosts: ["mytestdomain.local", "localhost"],
   },
-
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./setupTests.js"],
-    globals: true,
-    css: true,
-    coverage: {
-      reporter: ["text", "html"],
-      reportsDirectory: "coverage",
-    },
-  },
 });

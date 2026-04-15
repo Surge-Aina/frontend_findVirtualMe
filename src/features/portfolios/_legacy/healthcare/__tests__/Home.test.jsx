@@ -5,6 +5,24 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
+const mockHealthcarePath = jest.fn(() => ({
+  basePath: '/portfolios/healthcare/practice_123',
+  practiceId: 'practice_123',
+}));
+
+jest.mock('@/features/portfolios/_legacy/healthcare/hooks/useHealthcareBasePath', () => ({
+  useHealthcareBasePath: () => mockHealthcarePath(),
+}));
+
+jest.mock('@/shared/context/PortfolioContext', () => ({
+  usePortfolio: () => ({
+    setPortfolioId: jest.fn(),
+    setPortfolioType: jest.fn(),
+    setPortfolioOwner: jest.fn(),
+    clearPortfolio: jest.fn(),
+  }),
+}));
+
 // Mock react-router-dom
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -17,7 +35,8 @@ jest.mock('react-router-dom', () => ({
 // Mock the API
 jest.mock('../lib/api', () => ({
   api: {
-    getPracticeData: jest.fn()
+    getPracticeData: jest.fn(),
+    getDemoData: jest.fn(),
   }
 }));
 
@@ -81,6 +100,10 @@ const renderHome = () => {
 describe('Healthcare Home Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockHealthcarePath.mockImplementation(() => ({
+      basePath: '/portfolios/healthcare/practice_123',
+      practiceId: 'practice_123',
+    }));
   });
 
   test('should render loading state initially', () => {
@@ -139,7 +162,9 @@ describe('Healthcare Home Page', () => {
     renderHome();
     
     await waitFor(() => {
-      expect(screen.getByText(/practice not found/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /practice not found/i })
+      ).toBeInTheDocument();
     });
   });
 
@@ -153,26 +178,31 @@ describe('Healthcare Home Page', () => {
     });
   });
 
-  test('should redirect if no practiceId', () => {
-    // Reset the mock to return empty practiceId
-    jest.doMock('react-router-dom', () => ({
-      ...jest.requireActual('react-router-dom'),
-      useNavigate: () => mockNavigate,
-      useParams: () => ({ practiceId: null }),
-      Link: ({ children, to }) => <a href={to}>{children}</a>
+  test('loads demo portfolio when practiceId is demo', async () => {
+    mockHealthcarePath.mockImplementation(() => ({
+      basePath: '/portfolios/healthcare/demo',
+      practiceId: 'demo',
     }));
-    
-    // This test verifies the redirect logic exists
-    expect(true).toBe(true);
+    api.getDemoData.mockResolvedValue(mockUserData);
+
+    renderHome();
+
+    await waitFor(() => {
+      expect(api.getDemoData).toHaveBeenCalled();
+    });
+    expect(api.getPracticeData).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText('Your Health First')).toBeInTheDocument();
+    });
   });
 
-  test('should display View All Services button', async () => {
+  test('should display secondary hero button (Learn More)', async () => {
     api.getPracticeData.mockResolvedValue(mockUserData);
     
     renderHome();
     
     await waitFor(() => {
-      expect(screen.getByText(/View All Services/i)).toBeInTheDocument();
+      expect(screen.getByText(/Learn More/i)).toBeInTheDocument();
     });
   });
 });

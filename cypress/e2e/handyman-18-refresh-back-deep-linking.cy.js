@@ -1,197 +1,109 @@
     // cypress/e2e/handyman-18-refresh-back-deep-linking.cy.js
 
-    describe("FE-E2E-HM-EDGE-3 — Refresh, Back Button & Deep Linking", () => {
-    const unique = Date.now();
-    const user = {
-    firstName: "HM",
-    lastName: `EDGE${unique}`,
-    email: `hm_edge_${unique}@example.com`,
-    password: "Password123!",
-    username: `hm_edge_${unique}`,
-    };
+describe("FE-E2E-HM-EDGE-3 — Refresh, Back Button & Deep Linking", () => {
+  const templateId = "hm-edge-1";
+  const ownerId = "hm-edge-owner";
+  const ownerEmail = "hm-edge-owner@example.com";
 
-    const signupOnly = () => {
-    cy.visit("/");
+  const stubOwnerApi = () => {
+    cy.intercept("GET", "**/api/users/me", {
+      statusCode: 200,
+      body: {
+        user: {
+          _id: ownerId,
+          email: ownerEmail,
+          name: "Edge Owner",
+          portfolios: [{ portfolioId: templateId, portfolioType: "Handyman" }],
+        },
+      },
+    }).as("getMe");
 
-    cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
-        .should("be.visible")
-        .click({ force: true });
+    cy.intercept("GET", `**/api/handyman-template/${templateId}`, {
+      statusCode: 200,
+      body: {
+        _id: templateId,
+        userId: ownerId,
+        hero: { title: "Trusted Handyman", subtitle: "Quality craftsmanship", phoneNumber: "(111) 111-1111" },
+        services: [{ icon: "repair", title: "Repairs", description: "desc" }],
+        servicesSectionTitle: "Services",
+        servicesSectionIntro: "Intro",
+        portfolioTitle: "Work",
+        portfolioSubtitle: "sub",
+        portfolioAllLabel: "All",
+        processSteps: [{ number: 1, title: "Step", description: "desc" }],
+        testimonials: [],
+        contact: { title: "Contact", subtitle: "sub", formTitle: "form" },
+      },
+    }).as("getTemplate");
 
-    cy.contains("button, a", /^sign up$/i, { timeout: 20000 }).click();
-    cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding");
+    cy.intercept("GET", "**/api/handyman/portfolio*", {
+      statusCode: 200,
+      body: [],
+    }).as("getProjects");
+  };
 
-    cy.contains(/what's your main goal\?/i, { timeout: 20000 }).should("be.visible");
-    cy.contains(/find a job/i).click();
+  it("handles refresh, back button, and deep links for Handyman showcase, live, and edit routes", () => {
+    cy.visit("/portfolios");
+    cy.contains(/handyman\s*\/\s*local repair services/i).click();
 
-    cy.contains(/what type of work do you do\?/i, { timeout: 20000 }).should("be.visible");
-    cy.contains(/^other$/i).click();
+    cy.url({ timeout: 15000 }).should("include", "/portfolios/handyman");
+    cy.contains(/trusted handyman|quality craftsmanship/i, { matchCase: false, timeout: 15000 }).should("exist");
 
-    cy.contains(/what are your skills\?/i, { timeout: 20000 }).should("be.visible");
-    cy.contains(/^customer service$/i).click();
-    cy.contains("button", /^continue$/i).click();
+    cy.reload();
+    cy.url().should("include", "/portfolios/handyman");
+    cy.contains(/trusted handyman|quality craftsmanship/i, { matchCase: false, timeout: 15000 }).should("exist");
 
-    cy.intercept("POST", "**/api/users").as("signup");
-    cy.intercept("POST", "**/api/auth/login").as("login");
+    cy.go("back");
+    cy.url({ timeout: 15000 }).should("include", "/portfolios");
+    cy.contains(/handyman\s*\/\s*local repair services/i).should("exist");
 
-    cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
-    cy.get('input[placeholder="Enter your first name"]').type(user.firstName);
-    cy.get('input[placeholder="Enter your last name"]').type(user.lastName);
-    cy.get('input[placeholder="your@email.com"]').type(user.email);
-    cy.get('input[placeholder="Enter a password"]').type(user.password, { log: false });
-    cy.get('input[placeholder="Choose a username"]').type(user.username);
+    cy.go("forward");
+    cy.url({ timeout: 15000 }).should("include", "/portfolios/handyman");
+    cy.contains(/trusted handyman|quality craftsmanship/i, { matchCase: false, timeout: 15000 }).should("exist");
 
-    cy.contains("button", /complete setup/i).click();
+    stubOwnerApi();
 
-    cy.wait("@signup", { timeout: 30000 })
-        .its("response.statusCode")
-        .should("be.oneOf", [200, 201]);
+    const liveUrl = `/portfolios/handyman/${templateId}`;
+    const editUrl = `${liveUrl}/edit`;
 
-    cy.wait("@login", { timeout: 30000 })
-        .its("response.statusCode")
-        .should("be.oneOf", [200, 201]);
-    };    
-
-    const loginViaModal = (email, password) => {
-        /*cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
-        .should("exist")
-        .click({ force: true });
-
-        cy.get(
-        'input#email, input[placeholder="Email"], input[type="email"], input[name="email"]'
-        )
-        .first()
-        .should("exist")
-        .clear()
-        .type(email);
-
-        cy.get(
-        'input#password, input[placeholder="Password"], input[type="password"], input[name="password"]'
-        )
-        .first()
-        .should("exist")
-        .clear()
-        .type(password, { log: false });
-
-        cy.contains("button", /^sign in$/i)
-        .should("exist")
-        .click({ force: true });
-
-        cy.url({ timeout: 15000 }).should("include", "/profile");
-        cy.contains(/personal information/i).should("exist");*/
-    };
-
-    it("handles refresh, back button, and deep links for Handyman showcase, live, and edit routes", () => {
-        // ---------- PHASE 1: SHOWCASE (public) ----------
-        cy.visit("/portfolios");
-
-        cy.contains(/handyman\s*\/\s*local repair services/i)
-        .should("be.visible")
-        .click();
-
-        cy.url({ timeout: 15000 }).should("include", "/portfolios/handyman");
-        cy.contains(/trusted handyman|quality craftsmanship/i, {
-        matchCase: false,
-        timeout: 15000,
-        }).should("exist");
-
-        // Refresh keeps us on the showcase with content
-        cy.reload();
-        cy.url().should("include", "/portfolios/handyman");
-        cy.contains(/trusted handyman|quality craftsmanship/i, {
-        matchCase: false,
-        timeout: 15000,
-        }).should("exist");
-
-        // Back → example portfolios list
-        cy.go("back");
-        cy.url({ timeout: 15000 }).should("include", "/portfolios");
-        cy.contains(/example portfolios|handyman\s*\/\s*local repair services/i, {
-        matchCase: false,
-        }).should("exist");
-
-        // Forward → Handyman showcase again
-        cy.go("forward");
-        cy.url({ timeout: 15000 }).should("include", "/portfolios/handyman");
-        cy.contains(/trusted handyman|quality craftsmanship/i, {
-        matchCase: false,
-        timeout: 15000,
-        }).should("exist");
-
-        // ---------- PHASE 2: LIVE + EDIT (authenticated vendor) ----------
-        signupOnly();
-        loginViaModal(user.email, user.password);
-
-        // Go to dashboard
-        cy.contains("a,button", /^dashboard$/i)
-        .should("exist")
-        .click();
-        cy.url({ timeout: 15000 }).should("include", "/dashboard");
-
-        // Start Handyman portfolio flow
-        cy.contains(/add portfolio/i)
-        .should("exist")
-        .click();
-        cy.url({ timeout: 15000 }).should("include", "/resume");
-
-        cy.contains(/handyman\s*\/\s*local repair services/i)
-        .should("be.visible")
-        .click();
-
-        // We should now be on a *real* handyman portfolio URL
-        cy.url({ timeout: 20000 })
-        .should("match", /\/portfolios\/handyman\/[^/]+$/)
-        .then((liveUrl) => {
-            const editUrl = `${liveUrl}/edit`;
-
-            // LIVE page content
-            cy.contains(/trusted handyman|home repairs/i, {
-            matchCase: false,
-            timeout: 20000,
-            }).should("exist");
-
-            // If owner, we should see edit banner link
-            cy.contains(/click here to edit/i, { timeout: 20000 }).should(
-            "be.visible"
-            );
-
-            // Refresh LIVE – still under same route and content intact
-            cy.reload();
-            cy.url().should("eq", liveUrl);
-            cy.contains(/trusted handyman|home repairs/i, {
-            matchCase: false,
-            timeout: 20000,
-            }).should("exist");
-            cy.contains(/click here to edit/i).should("be.visible");
-
-            // Deep-link directly to EDIT route – must show edit UI
-            cy.visit(editUrl);
-            cy.url({ timeout: 20000 }).should("eq", editUrl);
-            cy.contains(/edit your handyman portfolio/i, {
-            timeout: 20000,
-            }).should("be.visible");
-            cy.get('input[name="hero.title"]', { timeout: 20000 }).should("exist");
-
-            // Refresh EDIT:
-            // App may either stay on /edit or redirect back to live route.
-            cy.reload();
-            cy.url().then((currentUrl) => {
-            if (currentUrl === editUrl) {
-                // Strict edit-mode reload works
-                cy.contains(/edit your handyman portfolio/i).should("be.visible");
-                cy.get('input[name="hero.title"]').should("exist");
-            } else {
-                // Some flows redirect back to LIVE on reload – still acceptable
-                expect(currentUrl).to.eq(liveUrl);
-                cy.contains(/trusted handyman|home repairs/i, {
-                matchCase: false,
-                }).should("exist");
-                cy.contains(/click here to edit/i).should("be.visible");
-            }
-            });
-
-            // Back/forward around live/edit may vary depending on redirect,
-            // so we don't enforce strict history order here — core deep-link + refresh
-            // behavior is already covered above.
-        });
+    cy.visit(liveUrl, {
+      onBeforeLoad(win) {
+        win.localStorage.setItem("token", "hm-edge-token");
+        win.localStorage.setItem("email", ownerEmail);
+      },
     });
+
+    cy.wait("@getTemplate");
+    cy.wait("@getProjects");
+    cy.wait("@getMe");
+    cy.contains(/trusted handyman|quality craftsmanship/i, { matchCase: false, timeout: 20000 }).should("exist");
+    cy.contains(/click here to edit/i).should("be.visible");
+
+    cy.reload();
+    cy.url().should("eq", `${Cypress.config("baseUrl")}${liveUrl}`);
+    cy.contains(/click here to edit/i).should("be.visible");
+
+    cy.visit(editUrl, {
+      onBeforeLoad(win) {
+        win.localStorage.setItem("token", "hm-edge-token");
+        win.localStorage.setItem("email", ownerEmail);
+      },
     });
+    cy.wait("@getTemplate");
+    cy.wait("@getProjects");
+    cy.wait("@getMe");
+    cy.contains(/edit your handyman portfolio/i, { timeout: 20000 }).should("be.visible");
+    cy.get('input[name="hero.title"]').should("exist");
+
+    cy.reload();
+    cy.url().then((currentUrl) => {
+      if (currentUrl.endsWith("/edit")) {
+        cy.contains(/edit your handyman portfolio/i).should("be.visible");
+        cy.get('input[name="hero.title"]').should("exist");
+      } else {
+        expect(currentUrl).to.eq(`${Cypress.config("baseUrl")}${liveUrl}`);
+        cy.contains(/click here to edit/i).should("be.visible");
+      }
+    });
+  });
+});

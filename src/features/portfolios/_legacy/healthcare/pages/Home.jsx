@@ -50,7 +50,11 @@ export default function Home({ portfolioId: portfolioIdProp }) {
     } else {
       setPortfolioId(userData?._id || practiceId); // Use userId if available, otherwise fallback to practiceId
       setPortfolioType("HealthcarePortfolio");
-      setPortfolioOwner({id: userData?.userId, name: userData?.practice.name, email: userData?.contact.email });
+      setPortfolioOwner({
+        id: userData?.userId,
+        name: userData?.practice?.name,
+        email: userData?.contact?.email,
+      });
     }
   }, [practiceId, userData]);
 

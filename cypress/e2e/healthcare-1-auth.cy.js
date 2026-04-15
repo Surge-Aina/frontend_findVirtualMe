@@ -71,8 +71,9 @@ describe("FE-E2E-HC-AUTH-1 — Healthcare Portfolio auth", () => {
     // Submit the form
     cy.contains("button", /complete setup/i).click();
 
-    // Wait a bit for signup to process
-    cy.wait(8000);
+    cy.wait("@signup", { timeout: 45000 })
+      .its("response.statusCode")
+      .should("be.oneOf", [200, 201]);
 
     // Check current state
     cy.location("pathname", { timeout: 10000 }).then((pathname) => {

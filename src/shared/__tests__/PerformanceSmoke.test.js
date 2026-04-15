@@ -66,30 +66,27 @@ jest.mock('react-toastify', () => ({
   },
 }));
 
+jest.mock('@react-oauth/google', () => ({
+  GoogleOAuthProvider: ({ children }) => children,
+  GoogleLogin: () => null,
+}));
+
 // Import components after mocks
 import Dashboard from '@/features/dashboard/Dashboard';
 import ExamplePortfolios from '@/features/landing/ExamplePortfolios';
 import Navbar from '@/shared/components/Navbar';
 import Auth from '@/features/auth/Auth';
 import SignUp from '@/features/auth/SignUp';
+import { createSmokeAuthContext } from '@/shared/test/createSmokeAuthContext.js';
 
 describe('Performance Smoke Tests', () => {
   let consoleSpy;
   let queryClient;
 
-  const mockAuthContext = {
-    user: null,
-    token: null,
-    login: jest.fn(),
-    logout: jest.fn(),
-    contextLoggedIn: false,
-    contextLogin: jest.fn(),
-    contextLogout: jest.fn(),
-    setUser: jest.fn(),
-    refreshUser: jest.fn(),
-  };
+  let mockAuthContext;
 
   beforeEach(() => {
+    mockAuthContext = createSmokeAuthContext();
     consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'log').mockImplementation(() => {});
     queryClient = new QueryClient({

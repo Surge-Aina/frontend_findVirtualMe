@@ -147,4 +147,70 @@ describe("DomainRouter", () => {
     });
     expect(screen.queryByTestId("main-app")).toBeNull();
   });
+
+  test("renders children on staging.findvirtual.me without domain lookup", async () => {
+    getBrowserHostname.mockReturnValue("staging.findvirtual.me");
+
+    render(
+      <MemoryRouter>
+        <DomainRouter>
+          <div data-testid="main-app">App</div>
+        </DomainRouter>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("main-app")).toBeInTheDocument();
+    });
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  test("shows portfolio_unavailable when getById returns 403", async () => {
+    getBrowserHostname.mockReturnValue("forbidden.custom.test");
+
+    axios.get.mockResolvedValue({
+      data: { portfolioId: "507f1f77bcf86cd799439011" },
+    });
+    const err = new Error("Forbidden");
+    err.isAxiosError = true;
+    err.response = { status: 403 };
+    err.config = { url: "http://localhost:5001/api/portfolios/507f1f77bcf86cd799439011" };
+    portfolioApi.getById.mockRejectedValue(err);
+
+    render(
+      <MemoryRouter>
+        <DomainRouter>
+          <div data-testid="main-app">App</div>
+        </DomainRouter>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("This portfolio is not available.")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("main-app")).toBeNull();
+  });
+
+  test("shows network error when lookup throws non-404 axios error", async () => {
+    getBrowserHostname.mockReturnValue("bad.custom.test");
+
+    const err = new Error("Server error");
+    err.isAxiosError = true;
+    err.response = { status: 500 };
+    axios.get.mockRejectedValue(err);
+
+    render(
+      <MemoryRouter>
+        <DomainRouter>
+          <div data-testid="main-app">App</div>
+        </DomainRouter>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Could not load this site. Please try again later.")
+      ).toBeInTheDocument();
+    });
+  });
 });
