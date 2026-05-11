@@ -83,7 +83,7 @@ export default defineConfig([
 
   // Jest manual mocks (CommonJS + jest.fn)
   {
-    files: ['src/__mocks__/**/*.js'],
+    files: ['src/__mocks__/**/*.js', 'src/**/__mocks__/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.node,

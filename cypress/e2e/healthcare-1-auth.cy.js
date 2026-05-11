@@ -28,11 +28,11 @@ describe("FE-E2E-HC-AUTH-1 — Healthcare Portfolio auth", () => {
 
   it("registers through onboarding, creates Healthcare portfolio, and reaches the portfolio page", () => {
     // Set up intercepts to observe (not modify) requests
-    cy.intercept("POST", /\/user\/addUser/).as("signup");
-    cy.intercept("POST", /\/user\/login/).as("login");
-    cy.intercept("GET", /\/user\/me/).as("me");
+    cy.intercept("POST", /\/api\/users$/).as("signup");
+    cy.intercept("POST", /\/api\/auth\/login$/).as("login");
+    cy.intercept("GET", /\/api\/users\/me$/).as("me");
     cy.intercept("POST", /\/healthcare\/create/).as("createHealthcare");
-    cy.intercept("PATCH", /\/user\/addPortfolioId/).as("addPortfolioId");
+    cy.intercept("PATCH", /\/api\/users\/portfolio-id$/).as("addPortfolioId");
 
     cy.visit("/");
 
@@ -71,8 +71,9 @@ describe("FE-E2E-HC-AUTH-1 — Healthcare Portfolio auth", () => {
     // Submit the form
     cy.contains("button", /complete setup/i).click();
 
-    // Wait a bit for signup to process
-    cy.wait(8000);
+    cy.wait("@signup", { timeout: 45000 })
+      .its("response.statusCode")
+      .should("be.oneOf", [200, 201]);
 
     // Check current state
     cy.location("pathname", { timeout: 10000 }).then((pathname) => {
@@ -145,7 +146,7 @@ describe("FE-E2E-HC-AUTH-1 — Healthcare Portfolio auth", () => {
 
     cy.contains("button, a", /^sign in$/i, { timeout: 20000 }).click();
 
-    cy.intercept("POST", "**/user/login").as("login");
+    cy.intercept("POST", "**/api/auth/login").as("login");
 
     fillLoginForm(user.email, user.password);
 

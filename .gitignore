@@ -25,3 +25,6 @@ dist-ssr
 
 .envcoverage/
 .env
+cypress/screenshots/
+
+coverage/

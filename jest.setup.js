@@ -41,3 +41,13 @@ if (!window.matchMedia) {
 if (!Element.prototype.scrollBy) {
   Element.prototype.scrollBy = function () {};
 }
+
+// Google OAuth: tests render Auth without GoogleOAuthProvider
+jest.mock("@react-oauth/google", () => ({
+  __esModule: true,
+  GoogleOAuthProvider: ({ children }) => children,
+  GoogleLogin: () => null,
+  googleLogout: jest.fn(),
+  useGoogleLogin: () => ({ login: jest.fn() }),
+  useGoogleOneTapLogin: () => {},
+}));

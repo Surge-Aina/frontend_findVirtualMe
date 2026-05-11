@@ -1,18 +1,69 @@
 describe("Project Manager - Experience Card", () => {
-  before(() => {
-    cy.ensurePMUserExists();
-    cy.loginPMUser().then(() => {
-      cy.ensurePMPortfolio();
-    });
-  });
+  const portfolioId = "pm-experience-e2e";
+  const ownerEmail = "pm-owner@example.com";
+  let serverPortfolio;
+
+  const initServerPortfolio = () => {
+    serverPortfolio = {
+      _id: portfolioId,
+      id: portfolioId,
+      portfolioType: "projectManager",
+      email: ownerEmail,
+      name: "PM Owner",
+      experiences: [],
+    };
+  };
+
+  const stubPortfolioApi = () => {
+    cy.intercept("GET", "**/portfolio/id/*", (req) => {
+      req.reply({
+        statusCode: 200,
+        body: serverPortfolio,
+      });
+    }).as("getPortfolio");
+
+    cy.intercept("PATCH", "**/portfolio/edit", (req) => {
+      const incoming = req.body?.portfolio || {};
+      serverPortfolio = {
+        ...serverPortfolio,
+        ...incoming,
+        experiences: incoming.experiences || serverPortfolio.experiences,
+      };
+
+      req.reply({
+        statusCode: 200,
+        body: serverPortfolio,
+      });
+    }).as("savePortfolio");
+  };
+
+  const stubOwnerSession = () => {
+    cy.intercept("GET", "**/api/users/me", {
+      statusCode: 200,
+      body: {
+        user: {
+          _id: "pm-owner-1",
+          email: ownerEmail,
+          role: "USER",
+          portfolios: [{ portfolioId, portfolioType: "ProjectManager" }],
+        },
+      },
+    }).as("getUser");
+  };
 
   beforeEach(() => {
-    const portfolioId = Cypress.env("pmPortfolioId");
+    initServerPortfolio();
+    stubOwnerSession();
+    stubPortfolioApi();
+
     cy.visit(`/portfolios/ProjectManager/${portfolioId}`, {
       onBeforeLoad(win) {
-        win.localStorage.setItem("token", Cypress.env("pmToken"));
+        win.localStorage.setItem("token", "pm-experience-token");
+        win.localStorage.setItem("email", ownerEmail);
       },
     });
+    cy.wait("@getUser");
+    cy.wait("@getPortfolio");
     cy.viewport(1280, 900);
     cy.get('[data-testid="tab-experience"]').click();
   });
@@ -26,12 +77,21 @@ describe("Project Manager - Experience Card", () => {
   });
 
   it("does not show owner controls for non-owner", () => {
-    const portfolioId = Cypress.env("pmPortfolioId");
-
-    cy.clearLocalStorage();
-    cy.clearCookies();
+    cy.intercept("GET", "**/api/users/me", {
+      statusCode: 200,
+      body: {
+        user: {
+          _id: "pm-guest-1",
+          email: "guest@example.com",
+          role: "USER",
+          portfolios: [],
+        },
+      },
+    }).as("getGuestUser");
 
     cy.visit(`/portfolios/ProjectManager/${portfolioId}`);
+    cy.wait("@getGuestUser");
+    cy.wait("@getPortfolio");
     cy.get('[data-testid="tab-experience"]').click();
 
     cy.get('[data-testid="add-experience-btn"]').should("not.exist");

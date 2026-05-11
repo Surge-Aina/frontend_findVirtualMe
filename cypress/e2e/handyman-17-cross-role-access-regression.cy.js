@@ -61,8 +61,8 @@
     cy.contains(/^customer service$/i).click();
     cy.contains("button", /^continue$/i).click();
 
-    cy.intercept("POST", "**/user/addUser").as("signup");
-    cy.intercept("POST", "**/user/login").as("login");
+    cy.intercept("POST", "**/api/users").as("signup");
+    cy.intercept("POST", "**/api/auth/login").as("login");
 
     cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
     cy.get('input[placeholder="Enter your first name"]').type(user.firstName);
@@ -92,9 +92,9 @@
         // Admin-only navigation visible
         cy.contains("a,button", /^admin$/i).should("exist");
 
-        // Admin can access /admin (admin choice page)
-        cy.visit("/admin");
-        cy.url({ timeout: 15000 }).should("include", "/admin");
+        // Admin can access /admin-choice
+        cy.visit("/admin-choice");
+        cy.url({ timeout: 15000 }).should("include", "/admin-choice");
 
         // confirm admin access without depending on brittle page copy
         cy.contains("button, a", /log in.*sign up/i).should("not.exist");
