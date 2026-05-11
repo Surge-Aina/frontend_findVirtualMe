@@ -10,8 +10,7 @@
     /**
      * Your app currently triggers uncaught Axios promise rejections for
      * endpoints that return 404 in local env (example seen in your logs):
-     *  - GET /publicPortfolios/public
-     *  - GET /api/publicProjects
+     *  - GET /api/portfolios/public/list
      *
      * Cypress fails the test on uncaught exceptions by default.
      * We ignore ONLY these known 404 cases so we don't hide real bugs.
@@ -20,8 +19,7 @@
     const msg = err?.message || "";
 
     const known = [
-        "publicPortfolios/public",
-        "/api/publicProjects",
+        "api/portfolios/public/list",
         "Request failed with status code 404",
     ];
 

@@ -5,9 +5,10 @@ import "./global.css";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "@/shared/context/AuthContext";
+import { ThemeProvider } from "@/shared/context/ThemeContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import DomainRouter from "./utils/DomainRouter.jsx";
+import DomainRouter from "@/shared/utils/DomainRouter.jsx";
 
 const queryClient = new QueryClient();
 
@@ -17,10 +18,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         <BrowserRouter> {/* Wrap everything in ONE router */}
           <AuthProvider>
-            <ToastContainer position="top-right" autoClose={3000} />
-            <DomainRouter>
+            <ThemeProvider>
+              <ToastContainer position="top-right" autoClose={3000} />
+              <DomainRouter>
                 <App />
-            </DomainRouter>
+              </DomainRouter>
+            </ThemeProvider>
           </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>

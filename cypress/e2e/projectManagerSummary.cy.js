@@ -36,13 +36,14 @@
         cy.resetAppState();
 
         // Logged-in user
-        cy.intercept("GET", "**/user/**", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: {
             user: {
             _id: "e2e-user-1",
             email: ownerEmail,
             role: "USER",
+            portfolios: [{ portfolioId: testPortfolioId, portfolioType: "ProjectManager" }],
             },
         },
         }).as("getUser");
@@ -80,6 +81,7 @@
         },
         });
 
+        cy.wait("@getUser");
         cy.wait("@getPortfolio");
     };
 
@@ -87,7 +89,7 @@
      * Ensure we're on the Summary tab and the summary card is visible.
      */
     const openSummaryTab = () => {
-        cy.contains("button", "Summary").click();
+        cy.get('[data-testid="tab-summary"]').click();
 
         // Headings inside the editable Summary card
         cy.contains("h3", "About").should("be.visible");

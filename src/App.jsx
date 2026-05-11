@@ -1,116 +1,78 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Routes, Route, Navigate, useParams, Outlet, useLocation } from "react-router-dom";
-import Layout from "./components/Layout";
-import About from "./components/About";
-import Dashboard from "./components/Dashboard";
-import Tip from "./components/Tip";
-import Footer from "./components/Footer";
+import React, { useState } from "react";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
+import Layout from "@/shared/components/Layout";
+import About from "@/features/landing/About";
+import Dashboard from "@/features/dashboard/Dashboard";
+import Tip from "@/shared/components/Tip";
+import Footer from "@/shared/components/Footer";
 import "./App.css";
-import EmailMvpApp from "./emailmvp/App";
-import ResumeUpload from "./components/ResumeUpload";
-import ErrorBoundary from "./components/ErrorBoundary";
-import CleaningPage from "./pages/portfolios/cleaningService/src/App.jsx";
-import VisitorLogin from "./components/GuestAuth/VisitorLogin.jsx";
-import VisitorSignup from "./components/GuestAuth/VisitorSignup.jsx";
-import VisitorProfile from "./components/GuestAuth/VisitorProfile.jsx";
-import VisitorData from "./pages/portfolios/cleaningService/components/VisitorData";
-import PortfolioPage from "./pages/portfolios/projectManager/pages/PortfolioPage";
-import PhotographerPage from "./pages/portfolios/photographer/PhotographerApp.jsx";
-import ExamplePortfolios from "./components/examplePortfolios";
-import DataScientistPage from "./pages/dataScientist/pages/DataScientistPage";
-import SignUp from "./pages/login/SignUp";
-import HandymanShowcasePage from "./pages/portfolios/handyman/HandyManShowcasePage.jsx";
-import HandymanPage from "./pages/portfolios/handyman/HandyManPage.jsx";
-import EditHandymanPortfolio from "./pages/portfolios/handyman/EditHandymanPortfolio.jsx";
-import Occupations from "./components/Occupations";
-import LocalVendorApp from "./pages/portfolios/localVendor/LocalVendorApp.jsx";
-import CookieConsent from "./components/CookieConsent";
-import CookieSettings from "./components/CookieSettings";
-import TelemetryVisit from "./components/TelemetryVisit";
-import Payment from "./components/Payment";
-import SuccessPage from "./components/SuccessPage.jsx";
-import FloatingHelpButton from "./components/FloatingHelpButton";
-import ITForm from "./components/ITForm";
-import OnboardingFlow from "./pages/onboarding/components/OnboardingFlow";
-import UserProfile from "./components/UserProfile/UserProfile.jsx";
-import OnboardingInfoPage from "./pages/onboarding/OnboardingInfoPage";
-import ITAdminPage from "./components/ITAdminPage.jsx";
-import TicketingPage from "./pages/ticketing/TicketingPage.jsx";
-import PortfolioEditLogViewer from "./components/PortfolioEditLogViewer.jsx";
-import { VendorProvider } from "./context/VendorContext.jsx";
-import Solutions from "./components/Solutions/Solutions.jsx";
-import Vendors from "./components/Solutions/Vendors";
-import Restaurant from "./components/Solutions/Restaurant";
-import Property from "./components/Solutions/Property";
-import Farmers from "./components/Solutions/Farmers";
-import AdminRoute from "./components/AdminRoute.jsx";
+import EmailMvpApp from "@/features/emailmvp/App";
+import ResumeUpload from "@/features/portfolios/unified/ResumeUpload";
+import ErrorBoundary from "@/shared/components/ErrorBoundary";
+import CleaningPage from "@/features/portfolios/_legacy/cleaning-service/src/App.jsx";
+import VisitorLogin from "@/features/auth/GuestAuth/VisitorLogin.jsx";
+import VisitorSignup from "@/features/auth/GuestAuth/VisitorSignup.jsx";
+import VisitorProfile from "@/features/auth/GuestAuth/VisitorProfile.jsx";
+import VisitorData from "@/features/portfolios/_legacy/cleaning-service/components/VisitorData";
+import PortfolioPage from "@/features/portfolios/_legacy/project-manager/pages/PortfolioPage";
+import PhotographerPage from "@/features/portfolios/_legacy/photographer/PhotographerApp.jsx";
+import ExamplePortfolios from "@/features/landing/ExamplePortfolios";
+import DataScientistPage from "@/features/portfolios/_legacy/data-scientist/pages/DataScientistPage";
+import SignUp from "@/features/auth/SignUp";
+import HandymanShowcasePage from "@/features/portfolios/_legacy/handyman/HandyManShowcasePage.jsx";
+import HandymanPage from "@/features/portfolios/_legacy/handyman/HandyManPage.jsx";
+import EditHandymanPortfolio from "@/features/portfolios/_legacy/handyman/EditHandymanPortfolio.jsx";
+import Occupations from "@/features/solutions/Occupations";
+import LocalVendorApp from "@/features/portfolios/_legacy/local-vendor/LocalVendorApp.jsx";
+import CookieConsent from "@/shared/components/CookieConsent";
+import CookieSettings from "@/shared/components/CookieSettings";
+import TelemetryVisit from "@/shared/components/TelemetryVisit";
+import Payment from "@/features/payments/Payment";
+import SuccessPage from "@/features/payments/SuccessPage.jsx";
+import FloatingHelpButton from "@/shared/components/FloatingHelpButton";
+import ITForm from "@/features/support/ITForm";
+import OnboardingFlow from "@/features/onboarding/components/OnboardingFlow";
+import UserProfile from "@/features/profile/UserProfile/UserProfile.jsx";
+import OnboardingInfoPage from "@/features/onboarding/OnboardingInfoPage";
+import TicketingPage from "@/features/support/ticketing/TicketingPage.jsx";
+import PortfolioEditLogViewer from "@/features/admin/PortfolioEditLogViewer.jsx";
+import { VendorProvider } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext.jsx";
+import Solutions from "@/features/solutions/Solutions/Solutions.jsx";
+import Vendors from "@/features/solutions/Solutions/Vendors";
+import Restaurant from "@/features/solutions/Solutions/Restaurant";
+import Property from "@/features/solutions/Solutions/Property";
+import Farmers from "@/features/solutions/Solutions/Farmers";
+import AdminRoute from "@/features/admin/AdminRoute.jsx";
 
 // Healthcare imports
-import HealthcareHome from "./pages/portfolios/healthcare/pages/Home.jsx";
-import HealthcareServices from "./pages/portfolios/healthcare/pages/Services.jsx";
-import HealthcareBlog from "./pages/portfolios/healthcare/pages/blog/Blog.jsx";
-import HealthcareBlogPost from "./pages/portfolios/healthcare/pages/blog/BlogPost.jsx";
-import HealthcareContact from "./pages/portfolios/healthcare/pages/Contact.jsx";
-import HealthcareGallery from "./pages/portfolios/healthcare/pages/Gallery.jsx";
-import HealthcareSearch from "./pages/portfolios/healthcare/pages/SearchResults.jsx";
-import HealthcareAdminDashboard from "./pages/portfolios/healthcare/pages/admin/AdminDashboard.jsx";
-import Landing from "./pages/portfolios/healthcare/pages/Landing.jsx";
-import axios from "axios";
-import OnlineEditor from "./pages/onlineEditor/onlineEditor.jsx";
-import AdminChoicePanel from "./components/AdminChoicePanel.jsx";
-import FullStackEditor from "./pages/onlineEditor/webContainerTest.jsx";
-import WidgetOverlay from "./components/WidgetOverlay/WidgetOverlay.jsx";
-import { set } from "date-fns";
-import { PortfolioProvider } from "./context/PortfolioContext.jsx";
+import HealthcareHome from "@/features/portfolios/_legacy/healthcare/pages/Home.jsx";
+import HealthcareServices from "@/features/portfolios/_legacy/healthcare/pages/Services.jsx";
+import HealthcareBlog from "@/features/portfolios/_legacy/healthcare/pages/blog/Blog.jsx";
+import HealthcareBlogPost from "@/features/portfolios/_legacy/healthcare/pages/blog/BlogPost.jsx";
+import HealthcareContact from "@/features/portfolios/_legacy/healthcare/pages/Contact.jsx";
+import HealthcareGallery from "@/features/portfolios/_legacy/healthcare/pages/Gallery.jsx";
+import HealthcareSearch from "@/features/portfolios/_legacy/healthcare/pages/SearchResults.jsx";
+import HealthcareAdminDashboard from "@/features/portfolios/_legacy/healthcare/pages/admin/AdminDashboard.jsx";
+import Landing from "@/features/portfolios/_legacy/healthcare/pages/Landing.jsx";
+import AdminChoicePanel from "@/features/admin/AdminChoicePanel.jsx";
+import WidgetOverlay from "@/features/portfolios/unified/WidgetOverlay/WidgetOverlay.jsx";
+import { PortfolioProvider } from "@/shared/context/PortfolioContext.jsx";
+import AiPortfolioCreatorPage from "@/features/portfolios/unified/ai-creator/AiPortfolioCreatorPage.jsx";
+import PrivacyPolicyPage from "@/features/legal/PrivacyPolicyPage.jsx";
+import TermsOfServicePage from "@/features/legal/TermsOfServicePage.jsx";
 
-// ✅ Protected Route Component for Healthcare (uses _id from URL)
-function ProtectedHealthcareRoute({ children }) {
-  const { practiceId } = useParams(); // This is actually the MongoDB _id
-  const [isPublic, setIsPublic] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
+// Unified portfolio (sections/blocks architecture)
+import PortfolioRenderer from "@/features/portfolios/unified/PortfolioRenderer.jsx";
+import PortfolioEditor from "@/features/portfolios/unified/PortfolioEditor.jsx";
+import ForgotPassword from "@/features/auth/PasswordReset/ForgotPassword";
+import ResetPassword from "@/features/auth/PasswordReset/ResetPassword";
+import ProtectedHealthcareRoute from "@/features/portfolios/_legacy/healthcare/ProtectedHealthcareRoute.jsx";
 
-  useEffect(() => {
-    const checkPublicStatus = async () => {
-      if (!practiceId) {
-        setIsPublic(false);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // ✅ Fetch by _id (practiceId param is the MongoDB _id)
-        const response = await axios.get(`${backendUrl}/healthcare/practice/${practiceId}`);
-        setIsPublic(response.data.isPublic);
-      } catch (error) {
-        setIsPublic(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkPublicStatus();
-  }, [practiceId, backendUrl]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  // Public portfolio → Allow
-  if (isPublic) return children;
-  
-  // Private + logged in → Allow
-  if (token) return children;
-  
-  // Private + not logged in → Block
-  return <Navigate to="/signup" replace />;
-}
-
+// Portfolio sub-user ("My Account") dashboard
+import MyAccountLayout from "@/features/portfolio-users/MyAccountLayout.jsx";
+import ProfileTab from "@/features/portfolio-users/tabs/ProfileTab.jsx";
+import HistoryTab from "@/features/portfolio-users/tabs/HistoryTab.jsx";
+import BookingsTab from "@/features/portfolio-users/tabs/BookingsTab.jsx";
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -129,7 +91,8 @@ export default function App() {
   const isPortfolioWithOwnFooter =
     location.pathname.startsWith("/portfolios/ProjectManager") ||
     location.pathname.startsWith("/portfolios/handyman") ||
-    location.pathname.startsWith("/portfolios/healthcare/");
+    location.pathname.startsWith("/portfolios/healthcare/") ||
+    location.pathname.startsWith("/portfolios/view/");
 
   const handleGetStarted = () => {
     // Show tip/suggestion for plus button
@@ -153,6 +116,8 @@ export default function App() {
           {/* payment */}
           <Route path="/payment" element={<Payment />} />
           <Route path="/success" element={<SuccessPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
           {/* Support */}
           <Route path="/support" element={<ITForm />} />
           {/* Onboarding */}
@@ -161,12 +126,26 @@ export default function App() {
           <Route path="/profile" element={<UserProfile />} />
           {/* example portfolios */}
           <Route path="/portfolios" element={<ExamplePortfolios />} />
-          {/* Project manager =======================Widget Overlay========================= */}
-          <Route path="/portfolios/ProjectManager" element={
+          <Route path="/portfolios/create/ai" element={<AiPortfolioCreatorPage />} />
+          {/* ============ Unified portfolio route (sections/blocks) ============ */}
+          <Route path="/portfolios/view" element={
             <PortfolioProvider>
               <WidgetOverlayWrapper />
             </PortfolioProvider>
           }>
+            <Route path=":id" element={<PortfolioRenderer />} />
+            <Route path=":id/edit" element={<PortfolioEditor />} />
+          </Route>
+
+          {/* Project manager =======================Widget Overlay========================= */}
+          <Route
+            path="/portfolios/ProjectManager"
+            element={
+              <PortfolioProvider>
+                <WidgetOverlayWrapper />
+              </PortfolioProvider>
+            }
+          >
             <Route path=":id" element={<PortfolioPage />} />
           </Route>
           {/* IT Admin Routes */}
@@ -186,7 +165,7 @@ export default function App() {
               </AdminRoute>
             }
           />
-          <Route path="/admin_page" element={<ITAdminPage />} />
+          <Route path="/admin_page" element={<Navigate to="/admin-choice" replace />} />
           <Route
             path="/admin-choice"
             element={
@@ -201,8 +180,6 @@ export default function App() {
           <Route path="/solutions/restaurant" element={<Restaurant />} />
           <Route path="/solutions/property" element={<Property />} />
           <Route path="/solutions/farmers" element={<Farmers />} />
-          {/* Software Engineer */}
-          <Route path="/portfolios/software-engineer" />
           {/* Data Scientist */}
           <Route path="/portfolios/data-scientist/*" element={<DataScientistPage />} />
           {/* Cleaning Service */}
@@ -242,13 +219,16 @@ export default function App() {
           />
           {/* Photographer */}
           <Route path="/portfolios/photographer/*" element={<PhotographerPage />} />
-          {/* Handyman =======================Widget Overlay========================= */}
-          <Route path="/portfolios/handyman" element={<HandymanShowcasePage />} />
-          <Route path="/portfolios/handyman" element={
-            <PortfolioProvider>
-              <WidgetOverlayWrapper />
-            </PortfolioProvider>
-          }>
+          {/* Handyman: index = showcase; :id and :id/edit use widget overlay */}
+          <Route
+            path="/portfolios/handyman"
+            element={
+              <PortfolioProvider>
+                <WidgetOverlayWrapper />
+              </PortfolioProvider>
+            }
+          >
+            <Route index element={<HandymanShowcasePage />} />
             <Route path=":id" element={<HandymanPage />} />
             <Route path=":id/edit" element={<EditHandymanPortfolio />} />
           </Route>
@@ -257,11 +237,11 @@ export default function App() {
               HEALTHCARE ROUTES
               practiceId param = MongoDB _id (like other portfolios)
               ========================================== */}
-          
+
           {/* Public Routes - No Auth */}
           <Route path="/portfolios/healthcare" element={<Landing />} />
           <Route path="/portfolios/healthcare/search" element={<HealthcareSearch />} />
-          
+
           {/* Demo Routes - No Auth */}
           <Route path="/portfolios/healthcare/demo" element={<HealthcareHome />} />
           <Route path="/portfolios/healthcare/demo/services" element={<HealthcareServices />} />
@@ -269,75 +249,78 @@ export default function App() {
           <Route path="/portfolios/healthcare/demo/blog/:id" element={<HealthcareBlogPost />} />
           <Route path="/portfolios/healthcare/demo/gallery" element={<HealthcareGallery />} />
           <Route path="/portfolios/healthcare/demo/contact" element={<HealthcareContact />} />
-          
+
           {/* ✅ User Portfolio Routes - :practiceId is the MongoDB _id */}
           {/* Healthcare ====================== Widget Overlay ========================= */}
-          <Route path="/portfolios/healthcare/:practiceId" element={
-            <ProtectedHealthcareRoute>
-              <PortfolioProvider>
-                <WidgetOverlayWrapper />  
-              </PortfolioProvider>
-            </ProtectedHealthcareRoute>
-          }>
-            <Route 
-              index 
+          <Route
+            path="/portfolios/healthcare/:practiceId"
+            element={
+              <ProtectedHealthcareRoute>
+                <PortfolioProvider>
+                  <WidgetOverlayWrapper />
+                </PortfolioProvider>
+              </ProtectedHealthcareRoute>
+            }
+          >
+            <Route
+              index
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareHome />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="services" 
+            <Route
+              path="services"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareServices />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="blog" 
+            <Route
+              path="blog"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareBlog />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="blog/:id" 
+            <Route
+              path="blog/:id"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareBlogPost />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="gallery" 
+            <Route
+              path="gallery"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareGallery />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="contact" 
+            <Route
+              path="contact"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareContact />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
-            <Route 
-              path="admin/dashboard" 
+            <Route
+              path="admin/dashboard"
               element={
                 <ProtectedHealthcareRoute>
                   <HealthcareAdminDashboard />
                 </ProtectedHealthcareRoute>
-              } 
+              }
             />
           </Route>
-          
-          <Route path="/editor/*" element={<OnlineEditor />} />
+
+          <Route path="/editor/*" element={<ResumeUpload />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/visitor-login" element={<VisitorLogin />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-signup" element={<VisitorSignup />} />
@@ -345,7 +328,15 @@ export default function App() {
           <Route path="/portfolios/cleaningService/:portfolioId/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/visitor-profile" element={<VisitorProfile />} />
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
-          {/* <Route path="/testPage" element={<QRCodeForm />} /> */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+          {/* Portfolio sub-user dashboard (platform slug URL). */}
+          <Route path="/p/:slug/my-account" element={<MyAccountLayout mode="platform" />}>
+            <Route index element={<ProfileTab />} />
+            <Route path="history" element={<HistoryTab />} />
+            <Route path="bookings" element={<BookingsTab />} />
+          </Route>
         </Routes>
       </ErrorBoundary>
       <FloatingHelpButton />
