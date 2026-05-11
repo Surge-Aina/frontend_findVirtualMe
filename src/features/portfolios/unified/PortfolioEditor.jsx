@@ -37,6 +37,7 @@ import {
   TeamEditor,
   VideoEmbedEditor,
   CaseStudyEditor,
+  AccountEditor,
 } from "./portfolioSectionEditors";
 import { DashboardChartEditor, DashboardTableEditor } from "./DashboardBlockEditors";
 import axiosAuth from "@/shared/api/axiosAuth";
@@ -58,6 +59,7 @@ import {
   PortfolioSiteSettingsPanel,
 } from "./ai-creator/PortfolioEditorWorkspacePanels";
 import { mergeNavBrandDefaults } from "./PortfolioNavBrand";
+import OwnerSubUsersPanel from "@/features/portfolio-users/OwnerSubUsersPanel";
 
 function clonePortfolio(value) {
   return value ? JSON.parse(JSON.stringify(value)) : null;
@@ -83,7 +85,10 @@ const INSPECTOR_TAB_LABELS = {
   design: "Design",
   publish: "Publish",
   ai: "AI",
+  customers: "Customers",
 };
+
+const TEMPLATES_WITH_SUB_USERS = new Set(["healthcare"]);
 
 const AI_EDIT_SHORTCUTS = [
   "Make it more minimal",
@@ -180,6 +185,8 @@ function SectionEditor({ section, template, onDataChange, portfolioSections }) {
         return <VideoEmbedEditor data={data} onChange={onDataChange} />;
       case "caseStudy":
         return <CaseStudyEditor data={data} onChange={onDataChange} />;
+      case "account":
+        return <AccountEditor data={data} onChange={onDataChange} />;
       default:
         return (
           <div>
@@ -385,10 +392,15 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
   const isAgentTemplate = portfolio?.template === "agent";
 
+  const supportsSubUsers = TEMPLATES_WITH_SUB_USERS.has(portfolio?.template);
+
   const inspectorTabIds = useMemo(() => {
-    if (isAgentTemplate) return ["sections", "site", "banners", "design", "publish", "ai"];
-    return ["sections", "site", "banners", "publish"];
-  }, [isAgentTemplate]);
+    const base = isAgentTemplate
+      ? ["sections", "site", "banners", "design", "publish", "ai"]
+      : ["sections", "site", "banners", "publish"];
+    if (supportsSubUsers) base.push("customers");
+    return base;
+  }, [isAgentTemplate, supportsSubUsers]);
 
   useEffect(() => {
     if (!inspectorTabIds.includes(inspectorTab)) {
@@ -1041,6 +1053,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
               {inspectorTab === "publish" && (
                 <div className="w-full max-w-4xl mx-auto">
                   <PortfolioPublishReadinessPanel readiness={readiness} />
+                </div>
+              )}
+              {inspectorTab === "customers" && supportsSubUsers && (
+                <div className="w-full max-w-4xl mx-auto">
+                  <OwnerSubUsersPanel portfolioId={portfolio?._id} />
                 </div>
               )}
               {isAgentTemplate && inspectorTab === "ai" && (

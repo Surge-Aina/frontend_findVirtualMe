@@ -21,16 +21,16 @@ import {
 export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, setSocialLink }) {
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
-        <h3 className="font-semibold text-gray-900 text-sm">Settings</h3>
-        <p className="text-xs text-gray-500 leading-relaxed">
-          <span className="font-medium text-gray-700">Public / private:</span> use the visibility toggle on the
+      <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4 space-y-3">
+        <h3 className="font-semibold text-gray-900 dark:text-neutral-100 text-sm">Settings</h3>
+        <p className="text-xs text-gray-500 dark:text-neutral-400 leading-relaxed">
+          <span className="font-medium text-gray-700 dark:text-neutral-300">Public / private:</span> use the visibility toggle on the
           Dashboard for this portfolio. It is not changed from this screen.
         </p>
 
-        <div className="text-xs font-semibold text-gray-700 pt-3 border-t space-y-2">
+        <div className="text-xs font-semibold text-gray-700 dark:text-neutral-300 pt-3 border-t border-gray-200 dark:border-neutral-700 space-y-2">
           <p>Navbar logo</p>
-          <p className="text-xs font-normal text-gray-500">
+          <p className="text-xs font-normal text-gray-500 dark:text-neutral-400">
             Optional icon or initials shown beside the portfolio title in the sticky section navigation.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -54,8 +54,8 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
                 }
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium border ${
                   nb.mode === mode
-                    ? "border-blue-600 bg-blue-50 text-blue-800"
-                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                    ? "border-blue-600 bg-blue-50 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800"
+                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                 }`}
               >
                 {label}
@@ -63,7 +63,7 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
             ))}
           </div>
           {nb.mode === "icon" ? (
-            <div className="max-h-52 overflow-y-auto rounded-lg border border-gray-200 p-2 grid grid-cols-4 gap-1.5">
+            <div className="max-h-52 overflow-y-auto rounded-lg border border-gray-200 dark:border-neutral-700 p-2 grid grid-cols-4 gap-1.5">
               {NAV_BRAND_ICON_OPTIONS.map(({ key, label }) => {
                 const selected = nb.iconKey === key;
                 return (
@@ -79,8 +79,8 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
                     }
                     className={`flex h-11 items-center justify-center rounded-md border text-lg ${
                       selected
-                        ? "border-blue-600 bg-blue-50 text-blue-800"
-                        : "border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-300"
+                        ? "border-blue-600 bg-blue-50 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800"
+                        : "border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-500"
                     }`}
                   >
                     <span className="sr-only">{label}</span>
@@ -93,11 +93,11 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
           {nb.mode === "initials" ? (
             <div className="space-y-2">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Letters (max 2)</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Letters (max 2)</label>
                 <input
                   type="text"
                   maxLength={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 rounded-lg text-sm"
                   value={nb.initialsText}
                   onChange={(e) =>
                     setPortfolio((p) => ({
@@ -128,8 +128,8 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
                     }
                     className={`rounded-lg px-2.5 py-1 text-xs font-medium border ${
                       nb.initialsFill === fill
-                        ? "border-blue-600 bg-blue-50 text-blue-800"
-                        : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                        ? "border-blue-600 bg-blue-50 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800"
+                        : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                     }`}
                   >
                     {label}
@@ -138,11 +138,11 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
               </div>
               {nb.initialsFill === "color" ? (
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Background color</label>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Background color</label>
                   <div className="flex gap-2 items-center">
                     <input
                       type="color"
-                      className="h-9 w-12 cursor-pointer rounded border border-gray-300 bg-white p-0.5"
+                      className="h-9 w-12 cursor-pointer rounded border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 p-0.5"
                       value={
                         /^#[0-9A-Fa-f]{6}$/.test(nb.initialsBgColor || "")
                           ? nb.initialsBgColor
@@ -161,7 +161,7 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
                     />
                     <input
                       type="text"
-                      className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                      className="flex-1 min-w-0 px-3 py-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 rounded-lg text-sm font-mono"
                       placeholder="#2563eb or rgb(...)"
                       value={nb.initialsBgColor}
                       onChange={(e) =>
@@ -199,7 +199,7 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
           ) : null}
         </div>
 
-        <p className="text-xs font-semibold text-gray-700 pt-2 border-t">Social links</p>
+        <p className="text-xs font-semibold text-gray-700 dark:text-neutral-300 pt-2 border-t border-gray-200 dark:border-neutral-700">Social links</p>
         <FieldEditor label="GitHub" value={sl.github} onChange={(v) => setSocialLink("github", v)} />
         <FieldEditor label="LinkedIn" value={sl.linkedin} onChange={(v) => setSocialLink("linkedin", v)} />
         <FieldEditor label="Twitter" value={sl.twitter} onChange={(v) => setSocialLink("twitter", v)} />
@@ -207,9 +207,9 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
         <FieldEditor label="Website" value={sl.website} onChange={(v) => setSocialLink("website", v)} />
       </div>
 
-      <div className="pt-3 border-t border-gray-100 space-y-2">
-        <p className="text-xs font-semibold text-gray-700">Page banner defaults</p>
-        <p className="text-xs text-gray-500">
+      <div className="pt-3 border-t border-gray-100 dark:border-neutral-700 space-y-2">
+        <p className="text-xs font-semibold text-gray-700 dark:text-neutral-300">Page banner defaults</p>
+        <p className="text-xs text-gray-500 dark:text-neutral-400">
           Optional background image and gradient applied to any section with a page banner when that section does not set
           its own.
         </p>
@@ -226,10 +226,10 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Default gradient from (hex)</label>
+            <label className="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Default gradient from (hex)</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 rounded-lg text-sm"
               placeholder="#1d4ed8"
               value={(portfolio.pageBannerDefaults && portfolio.pageBannerDefaults.gradientFrom) || ""}
               onChange={(e) =>
@@ -241,10 +241,10 @@ export function PortfolioSiteSettingsPanel({ portfolio, setPortfolio, nb, sl, se
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Default gradient to (hex)</label>
+            <label className="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Default gradient to (hex)</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 rounded-lg text-sm"
               placeholder="#1e3a8a"
               value={(portfolio.pageBannerDefaults && portfolio.pageBannerDefaults.gradientTo) || ""}
               onChange={(e) =>
@@ -413,16 +413,16 @@ export function PortfolioAgentDesignPanel({
 
 export function PortfolioPublishReadinessPanel({ readiness }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+    <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="font-semibold text-gray-900 text-sm">Publish readiness</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-neutral-100 text-sm">Publish readiness</h3>
         <span
           className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
             readiness.score >= 85
-              ? "bg-emerald-100 text-emerald-800"
+              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
               : readiness.score >= 60
-                ? "bg-amber-100 text-amber-800"
-                : "bg-red-100 text-red-800"
+                ? "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
+                : "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300"
           }`}
         >
           Score {readiness.score}
@@ -431,19 +431,19 @@ export function PortfolioPublishReadinessPanel({ readiness }) {
       {readiness.issues.length > 0 ? (
         <div className="space-y-2">
           {readiness.issues.map((issue) => (
-            <div key={issue} className="flex items-start gap-2 text-sm text-amber-900">
+            <div key={issue} className="flex items-start gap-2 text-sm text-amber-900 dark:text-amber-300">
               <FaExclamationTriangle className="mt-0.5 shrink-0 text-amber-500" />
               <span>{issue}</span>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-emerald-700">No major readiness issues found.</p>
+        <p className="text-sm text-emerald-700 dark:text-emerald-400">No major readiness issues found.</p>
       )}
       {readiness.positives.length > 0 && (
-        <div className="pt-2 border-t border-gray-100 space-y-2">
+        <div className="pt-2 border-t border-gray-100 dark:border-neutral-700 space-y-2">
           {readiness.positives.slice(0, 3).map((positive) => (
-            <div key={positive} className="flex items-start gap-2 text-sm text-emerald-800">
+            <div key={positive} className="flex items-start gap-2 text-sm text-emerald-800 dark:text-emerald-400">
               <FaCheckCircle className="mt-0.5 shrink-0 text-emerald-500" />
               <span>{positive}</span>
             </div>

@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { portfolioUserApi } from '@/shared/api/portfolioUserApi';
 import './styles/VisitorLogin.css';
 
 export default function VisitorLogin() {
@@ -8,11 +8,10 @@ export default function VisitorLogin() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  
+
   const navigate = useNavigate();
   const { portfolioId } = useParams();
 
-  // Redirect to demo if no portfolioId
   useEffect(() => {
     if (!portfolioId) {
       navigate('/portfolios/cleaningService/about');
@@ -25,37 +24,31 @@ export default function VisitorLogin() {
     setMessage('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/api/auth/guest/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          portfolioType: 'cleaning_services',
-          portfolioId: portfolioId,
-
-        })
+      const res = await portfolioUserApi.login({
+        email,
+        password,
+        portfolioType: 'cleaning_services',
+        portfolioId,
       });
+      const { token, user } = res.data;
 
-      const data = await response.json();
+      // New per-portfolio keyed session (read by PortfolioUserContext).
+      localStorage.setItem(`portfolioUserToken:${portfolioId}`, token);
+      localStorage.setItem(`portfolioUser:${portfolioId}`, JSON.stringify(user));
 
-      if (response.ok) {
-        localStorage.setItem('visitor', JSON.stringify(data.user));
-        localStorage.setItem('visitorToken', data.token);
-        window.dispatchEvent(new Event('visitor-auth-change'));
-        
-        setMessage('Login successful! Redirecting...');
-        
-        setTimeout(() => {
-          navigate(`/portfolios/cleaningService/${portfolioId}/about`);
-        }, 1000);
-      } else {
-        setMessage(data.message || 'Invalid email or password');
-      }
+      // Legacy keys kept for the existing cleaning-service pages.
+      localStorage.setItem('visitor', JSON.stringify(user));
+      localStorage.setItem('visitorToken', token);
+      window.dispatchEvent(new Event('visitor-auth-change'));
+
+      setMessage('Login successful! Redirecting...');
+      setTimeout(() => {
+        navigate(`/portfolios/cleaningService/${portfolioId}/about`);
+      }, 1000);
     } catch (error) {
-      setMessage('Could not connect to server. Please try again later.');
+      const errMsg =
+        error?.response?.data?.message || 'Invalid email or password';
+      setMessage(errMsg);
       console.error('Login error:', error);
     } finally {
       setLoading(false);
@@ -70,7 +63,7 @@ export default function VisitorLogin() {
     <div className="login-container">
       <div className="login-box">
         {portfolioId && (
-          <button 
+          <button
             className="back-button"
             onClick={() => {
               navigate(`/portfolios/cleaningService/${portfolioId}/about`);
@@ -79,7 +72,7 @@ export default function VisitorLogin() {
             ← Back to Portfolio
           </button>
         )}
-        
+
         <div className="login-header">
           <div className="login-icon">
             <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
@@ -90,13 +83,13 @@ export default function VisitorLogin() {
           <h1>Welcome Back</h1>
           <p>Sign in to your account</p>
         </div>
-        
+
         {message && (
           <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
             {message}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
@@ -128,8 +121,8 @@ export default function VisitorLogin() {
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="login-button"
             disabled={loading}
           >

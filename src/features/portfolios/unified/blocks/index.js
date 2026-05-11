@@ -22,6 +22,7 @@ import LanguagesBlock from "./LanguagesBlock";
 import TeamBlock from "./TeamBlock";
 import VideoEmbedBlock from "./VideoEmbedBlock";
 import CaseStudyBlock from "./CaseStudyBlock";
+import AccountBlock from "./AccountBlock";
 
 const BLOCK_COMPONENTS = {
   hero: HeroBlock,
@@ -48,6 +49,7 @@ const BLOCK_COMPONENTS = {
   team: TeamBlock,
   videoEmbed: VideoEmbedBlock,
   caseStudy: CaseStudyBlock,
+  account: AccountBlock,
 };
 
 export default BLOCK_COMPONENTS;

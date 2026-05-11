@@ -764,6 +764,45 @@ export function VideoEmbedEditor({ data, onChange }) {
   );
 }
 
+export function AccountEditor({ data, onChange }) {
+  const set = (key, value) => onChange({ ...data, [key]: value });
+
+  return (
+    <div className="space-y-4">
+      <p className={editorMutedClass}>
+        This block shows a sign-in / sign-up form for your customers on the public portfolio page.
+        When a customer is already signed in, it shows a welcome message with a link to their account.
+      </p>
+      <FieldEditor
+        label="Heading"
+        value={data.title}
+        onChange={(v) => set("title", v)}
+        placeholder="Customer Account"
+      />
+      <FieldEditor
+        label="Subtitle"
+        value={data.subtitle}
+        onChange={(v) => set("subtitle", v)}
+        type="textarea"
+        rows={2}
+        placeholder="Sign in or create an account to access your dashboard."
+      />
+      <FieldEditor
+        label="Sign-in button text (shown when signed out)"
+        value={data.ctaLoggedOut}
+        onChange={(v) => set("ctaLoggedOut", v)}
+        placeholder="Sign in"
+      />
+      <FieldEditor
+        label="Dashboard button text (shown when signed in)"
+        value={data.ctaLoggedIn}
+        onChange={(v) => set("ctaLoggedIn", v)}
+        placeholder="Open my account"
+      />
+    </div>
+  );
+}
+
 export function CaseStudyEditor({ data, onChange }) {
   const set = (key, value) => onChange({ ...data, [key]: value });
 

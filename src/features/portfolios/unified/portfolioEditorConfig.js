@@ -25,6 +25,7 @@ export const BLOCK_LABELS = {
   team: "Team",
   videoEmbed: "Video Embed",
   caseStudy: "Case Study",
+  account: "Customer Account",
 };
 
 export const LAYOUT_MODE_OPTIONS = [
@@ -259,6 +260,13 @@ function getDefaultBlockDataInner(type, template = "agent") {
         embedUrl: "",
         videoUrl: "",
         posterImageUrl: "",
+      };
+    case "account":
+      return {
+        title: "Customer Account",
+        subtitle: "Sign in or create an account to access your dashboard.",
+        ctaLoggedOut: "Sign in",
+        ctaLoggedIn: "Open my account",
       };
     case "caseStudy":
       return {

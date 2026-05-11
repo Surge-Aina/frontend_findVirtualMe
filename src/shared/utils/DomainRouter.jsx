@@ -5,6 +5,10 @@ import WidgetOverlay from '@/features/portfolios/unified/WidgetOverlay/WidgetOve
 import { PortfolioProvider } from '../context/PortfolioContext.jsx';
 import PortfolioRenderer from '@/features/portfolios/unified/PortfolioRenderer.jsx';
 import PortfolioEditor from '@/features/portfolios/unified/PortfolioEditor.jsx';
+import MyAccountLayout from '@/features/portfolio-users/MyAccountLayout.jsx';
+import ProfileTab from '@/features/portfolio-users/tabs/ProfileTab.jsx';
+import HistoryTab from '@/features/portfolio-users/tabs/HistoryTab.jsx';
+import BookingsTab from '@/features/portfolio-users/tabs/BookingsTab.jsx';
 import { portfolioApi } from '../api/portfolioApi.js';
 import { getBrowserHostname } from './windowHost.js';
 
@@ -123,6 +127,11 @@ function DomainRouter({ children }) {
           <Route path="/" element={<WidgetOverlayWrapper />}>
             <Route index element={<PortfolioRenderer portfolioData={portfolioData} />} />
             <Route path="edit" element={<PortfolioEditor portfolioData={portfolioData} />} />
+          </Route>
+          <Route path="my-account" element={<MyAccountLayout mode="custom-domain" />}>
+            <Route index element={<ProfileTab />} />
+            <Route path="history" element={<HistoryTab />} />
+            <Route path="bookings" element={<BookingsTab />} />
           </Route>
         </Routes>
       </PortfolioProvider>

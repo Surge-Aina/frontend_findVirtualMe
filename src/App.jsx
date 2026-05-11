@@ -68,6 +68,12 @@ import ForgotPassword from "@/features/auth/PasswordReset/ForgotPassword";
 import ResetPassword from "@/features/auth/PasswordReset/ResetPassword";
 import ProtectedHealthcareRoute from "@/features/portfolios/_legacy/healthcare/ProtectedHealthcareRoute.jsx";
 
+// Portfolio sub-user ("My Account") dashboard
+import MyAccountLayout from "@/features/portfolio-users/MyAccountLayout.jsx";
+import ProfileTab from "@/features/portfolio-users/tabs/ProfileTab.jsx";
+import HistoryTab from "@/features/portfolio-users/tabs/HistoryTab.jsx";
+import BookingsTab from "@/features/portfolio-users/tabs/BookingsTab.jsx";
+
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
 function WidgetOverlayWrapper() {
@@ -324,6 +330,13 @@ export default function App() {
           <Route path="/portfolios/cleaningService/:portfolioId/visitors" element={<VisitorData />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+          {/* Portfolio sub-user dashboard (platform slug URL). */}
+          <Route path="/p/:slug/my-account" element={<MyAccountLayout mode="platform" />}>
+            <Route index element={<ProfileTab />} />
+            <Route path="history" element={<HistoryTab />} />
+            <Route path="bookings" element={<BookingsTab />} />
+          </Route>
         </Routes>
       </ErrorBoundary>
       <FloatingHelpButton />
