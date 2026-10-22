@@ -1,177 +1,185 @@
-// cypress/e2e/healthcare/healthcare-auth.cy.js
+// FE-E2E-HC-AUTH-1 — Healthcare Portfolio auth
+//
+// Account creation and login are stubbed with cy.intercept. The preview build
+// points at a closed local port, so this spec never calls a real backend and
+// never sends an auth-bypass header.
+
+const SYNTHETIC_PASSWORD = "Cypress-Only-1!";
+const practiceId = "cypress-hc-portfolio-1";
+
+const user = {
+  _id: "cypress-hc-user",
+  firstName: "Cypress",
+  lastName: "Clinician",
+  email: "cypress-hc@example.invalid",
+  username: "cypress_clinician",
+  role: "user",
+  goal: "grow-business",
+  portfolios: [],
+};
+
+const meResponse = {
+  user,
+  portfolioIds: [],
+};
+
+const stubAuth = () => {
+  cy.intercept("POST", "**/api/users", {
+    statusCode: 201,
+    body: { user },
+  }).as("signup");
+
+  cy.intercept("POST", "**/api/auth/login", {
+    statusCode: 200,
+    body: {
+      token: "cypress-hc-token",
+      ...meResponse,
+    },
+  }).as("login");
+
+  cy.intercept("GET", "**/api/users/me", {
+    statusCode: 200,
+    body: meResponse,
+  }).as("getMe");
+};
+
+const openSignup = () => {
+  cy.visit("/");
+  cy.contains("button", /log in\s*\/\s*sign up/i, { timeout: 20000 }).should("be.visible").click();
+  cy.contains("button", /^sign up$/i, { timeout: 20000 }).click();
+  cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding");
+};
 
 describe("FE-E2E-HC-AUTH-1 — Healthcare Portfolio auth", () => {
-  const backendUrl = Cypress.env("backendUrl");
-
-  const unique = Date.now();
-  const user = {
-    firstName: "HC",
-    lastName: `E2E${unique}`,
-    email: `hc_e2e_${unique}@example.com`,
-    password: "Password123!",
-    username: `hc_e2e_${unique}`,
-  };
-
-  let createdHealthcareId = null;
-
-  const fillLoginForm = (email, password) => {
-    cy.get('input[name="email"], input[type="email"], input[placeholder*="email" i]')
-      .first()
-      .clear()
-      .type(email);
-
-    cy.get('input[name="password"], input[type="password"], input[placeholder*="password" i]')
-      .first()
-      .clear()
-      .type(password, { log: false });
-  };
-
   it("registers through onboarding, creates Healthcare portfolio, and reaches the portfolio page", () => {
-    // Set up intercepts to observe (not modify) requests
-    cy.intercept("POST", /\/api\/users$/).as("signup");
-    cy.intercept("POST", /\/api\/auth\/login$/).as("login");
-    cy.intercept("GET", /\/api\/users\/me$/).as("me");
-    cy.intercept("POST", /\/healthcare\/create/).as("createHealthcare");
-    cy.intercept("PATCH", /\/api\/users\/portfolio-id$/).as("addPortfolioId");
+    stubAuth();
 
-    cy.visit("/");
+    cy.intercept("POST", "**/api/portfolios", {
+      statusCode: 201,
+      body: {
+        portfolio: {
+          _id: practiceId,
+          template: "healthcare",
+          title: "Cypress Practice",
+        },
+      },
+    }).as("createPortfolio");
 
-    cy.contains("button", /log in\s*\/\s*sign up/i, { timeout: 20000 })
-      .should("be.visible")
-      .click();
+    cy.intercept("PATCH", "**/api/users/portfolio-id", {
+      statusCode: 200,
+      body: { ok: true },
+    }).as("linkPortfolio");
 
-    cy.contains("button", /^sign up$/i, { timeout: 20000 }).click();
+    cy.intercept("POST", "**/api/portfolios/edit-log", {
+      statusCode: 201,
+      body: { success: true },
+    }).as("editLog");
 
-    cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding");
+    openSignup();
 
-    // Onboarding flow for business user (healthcare)
-    cy.contains(/what's your main goal\?/i, { timeout: 20000 }).should("be.visible");
-    
-    // Click on "grow-business" goal
-    cy.get('[data-cy=goal-card-grow-business]').click();
-
-    // Business flow skips directly to user info
+    cy.get("[data-cy=goal-card-grow-business]").click();
     cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
 
-    // Fill out the user info form - ensure each field is properly filled
-    cy.get('input[placeholder="Enter your first name"]').clear().type(user.firstName);
-    cy.get('input[placeholder="Enter your last name"]').clear().type(user.lastName);
-    cy.get('input[placeholder="your@email.com"]').clear().type(user.email);
-    
-    // Password field - make sure it's filled
-    cy.get('input[placeholder="Enter a password"]').clear().type(user.password);
-    cy.get('input[placeholder="Enter a password"]').should("have.value", user.password);
-    
-    cy.get('input[placeholder="Choose a username"]').clear().type(user.username);
-
-    // Verify all fields are filled before submitting
-    cy.get('input[placeholder="Enter your first name"]').should("have.value", user.firstName);
-    cy.get('input[placeholder="your@email.com"]').should("have.value", user.email);
-
-    // Submit the form
+    cy.get("#firstName").type(user.firstName);
+    cy.get("#lastName").type(user.lastName);
+    cy.get("#email").type(user.email);
+    cy.get("#password").type(SYNTHETIC_PASSWORD, { log: false });
+    cy.get("#username").type(user.username);
     cy.contains("button", /complete setup/i).click();
 
-    cy.wait("@signup", { timeout: 45000 })
-      .its("response.statusCode")
-      .should("be.oneOf", [200, 201]);
+    cy.wait("@signup").its("response.statusCode").should("eq", 201);
+    cy.wait("@login").its("response.statusCode").should("eq", 200);
 
-    // Check current state
-    cy.location("pathname", { timeout: 10000 }).then((pathname) => {
-      cy.log("Current pathname after signup attempt:", pathname);
-      
-      if (pathname === "/onboarding_info") {
-        // Success - signup worked
-        cy.log("Signup successful!");
-        
-        // Verify we're logged in
-        cy.window().then((win) => {
-          expect(win.localStorage.getItem("token")).to.be.a("string").and.not.be.empty;
-        });
-
-        // Create Healthcare portfolio
-        cy.contains(/choose a template/i, { timeout: 20000 }).should("be.visible");
-
-        // Click healthcare template
-        cy.contains(/healthcare/i, { timeout: 20000 })
-          .scrollIntoView()
-          .click();
-
-        // Wait for navigation to healthcare portfolio
-        cy.location("pathname", { timeout: 60000 }).should("match", /^\/portfolios\/healthcare\/[a-f0-9]{24}/i);
-
-        cy.location("pathname").then((path) => {
-          const pathParts = path.split("/");
-          const idIndex = pathParts.indexOf("healthcare") + 1;
-          createdHealthcareId = pathParts[idIndex];
-          expect(createdHealthcareId).to.match(/^[a-f0-9]{24}$/i);
-        });
-
-        // Healthcare portfolio should show content
-        cy.get("nav, input, button", { timeout: 20000 }).should("be.visible");
-      } else {
-        // Signup didn't complete as expected
-        cy.log("NOTE: Signup did not navigate to /onboarding_info");
-        cy.log("Current path:", pathname);
-        
-        // Log what's on the page for debugging
-        cy.get("body").then(($body) => {
-          cy.log("Page content preview:", $body.text().substring(0, 200));
-        });
-        
-        // The test verifies the onboarding flow up to form submission works
-        // Backend signup is a separate concern
-        cy.log("Onboarding form flow completed successfully (backend signup is separate)");
-      }
+    cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding_info");
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem("token")).to.eq("cypress-hc-token");
+      expect(win.localStorage.getItem("email")).to.eq(user.email);
     });
+
+    cy.contains("Choose a Template").should("be.visible");
+    cy.contains("Healthcare Professional").click();
+
+    cy.wait("@createPortfolio");
+    cy.wait("@linkPortfolio");
+    cy.wait("@editLog");
+    cy.wait("@getMe");
+
+    cy.location("pathname", { timeout: 20000 }).should("eq", `/portfolios/view/${practiceId}/edit`);
   });
 
-  it("logs out, logs back in via UI, navigates to Dashboard, and opens the created Healthcare portfolio", function() {
-    // Skip if test 1 failed
-    if (!createdHealthcareId) {
-      this.skip();
-    }
+  it("logs out, logs back in via UI, navigates to Dashboard, and opens the created Healthcare portfolio", () => {
+    stubAuth();
 
-    cy.visit("/");
+    cy.intercept("GET", "**/api/portfolios/mine", {
+      statusCode: 200,
+      body: {
+        portfolios: [
+          {
+            _id: practiceId,
+            template: "healthcare",
+            title: "Cypress Practice",
+            portfolioName: "Cypress Practice",
+            practice: { name: "Cypress Practice" },
+            portfolioType: "Healthcare",
+            visibility: "private",
+          },
+        ],
+      },
+    }).as("getMine");
 
-    // If logged in, logout (safe)
-    cy.get("body").then(($body) => {
-      const hasLogout = $body.find('button:contains("Logout"), a:contains("Logout")').length > 0;
-      if (hasLogout) cy.contains("button, a", /logout/i).click({ force: true });
+    cy.intercept("GET", "**/api/portfolios/public/list*", {
+      statusCode: 200,
+      body: { portfolios: [] },
+    }).as("getPublicList");
+
+    cy.visit("/", {
+      onBeforeLoad(win) {
+        win.localStorage.setItem("token", "cypress-hc-token");
+        win.localStorage.setItem("email", user.email);
+      },
     });
 
-    // Open auth modal
-    cy.contains("button", /log in\s*\/\s*sign up/i, { timeout: 20000 })
-      .should("be.visible")
-      .click();
+    cy.contains("button", /^logout$/i, { timeout: 20000 }).should("be.visible").click();
+    cy.contains("button", /log in\s*\/\s*sign up/i, { timeout: 20000 }).should("be.visible").click();
 
-    cy.contains("button, a", /^sign in$/i, { timeout: 20000 }).click();
+    cy.get("#email").type(user.email);
+    cy.get("#password").type(SYNTHETIC_PASSWORD, { log: false });
+    cy.contains("button", /^sign in$/i).click();
 
-    cy.intercept("POST", "**/api/auth/login").as("login");
+    cy.wait("@login");
+    cy.wait("@getMe");
+    cy.location("pathname", { timeout: 20000 }).should("eq", "/profile");
 
-    fillLoginForm(user.email, user.password);
+    cy.contains("button, a", /^dashboard$/i).click();
+    cy.wait("@getMine");
+    cy.contains(/my portfolios/i).should("be.visible");
+    cy.contains("Cypress Practice").should("be.visible");
 
-    cy.contains("button", /^sign in$/i, { timeout: 20000 }).click();
+    cy.contains("Cypress Practice")
+      .parentsUntil("body")
+      .first()
+      .within(() => {
+        cy.contains("button", /^edit$/i).click();
+      });
 
-    cy.wait("@login", { timeout: 30000 })
-      .its("response.statusCode")
-      .should("be.oneOf", [200, 201]);
+    cy.location("pathname", { timeout: 20000 }).should("eq", `/portfolios/view/${practiceId}/edit`);
+  });
 
-    // After login it goes to profile
-    cy.location("pathname", { timeout: 30000 }).should("eq", "/profile");
+  it("shows a setup error when account creation cannot reach the API", () => {
+    cy.intercept("POST", "**/api/users", { forceNetworkError: true }).as("signup");
 
-    // Go to dashboard
-    cy.contains("a, button", /^dashboard$/i, { timeout: 20000 }).click();
-    cy.location("pathname", { timeout: 30000 }).should("eq", "/dashboard");
-    cy.contains(/my portfolios/i, { timeout: 20000 }).should("be.visible");
+    openSignup();
+    cy.get("[data-cy=goal-card-grow-business]").click();
+    cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
 
-    // Open created Healthcare portfolio by id text (as shown on cards)
-    cy.contains(createdHealthcareId, { timeout: 20000 })
-      .scrollIntoView()
-      .click({ force: true });
+    cy.get("#firstName").type(user.firstName);
+    cy.get("#lastName").type(user.lastName);
+    cy.get("#email").type(user.email);
+    cy.get("#password").type(SYNTHETIC_PASSWORD, { log: false });
+    cy.get("#username").type(user.username);
+    cy.contains("button", /complete setup/i).click();
 
-    cy.location("pathname", { timeout: 30000 }).should("eq", `/portfolios/healthcare/${createdHealthcareId}`);
-
-    // Healthcare portfolio content should be visible
-    cy.get("nav", { timeout: 20000 }).should("be.visible");
+    cy.contains(/could not finish account setup/i, { timeout: 20000 }).should("be.visible");
+    cy.location("pathname").should("eq", "/onboarding");
   });
 });

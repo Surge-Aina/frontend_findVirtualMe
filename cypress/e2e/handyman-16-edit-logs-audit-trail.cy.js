@@ -1,7 +1,7 @@
 describe("FE-E2E-HM-ADMIN-2 — Portfolio Edit Logs & Audit Trail", () => {
   const templateId = "hm-audit-1";
   const ownerId = "admin-stub-id";
-  const ownerEmail = "admin@test.com";
+  const ownerEmail = "admin@example.invalid";
   let logs;
 
   const resetLogs = () => {

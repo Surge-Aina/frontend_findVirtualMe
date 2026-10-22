@@ -1,8 +1,8 @@
-  {
-    "_id": "guest-1",            
-    "name": "Guest User",
-    "username": "guest_user",
-    "email": "guest@example.com",
-    "password": "Password123!",
-    "role": "GUEST"
-  }
+{
+  "_id": "cypress-guest-fixture",
+  "name": "Cypress Guest",
+  "username": "cypress_guest",
+  "email": "cypress-guest@example.invalid",
+  "password": "not-a-real-password",
+  "role": "GUEST"
+}

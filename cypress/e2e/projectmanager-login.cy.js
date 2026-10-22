@@ -1,5 +1,5 @@
 describe("Project Manager Login Modal - True UI Flow", () => {
-  const TEST_EMAIL = "pm@test.com";
+  const TEST_EMAIL = "pm@example.invalid";
   const TEST_PASSWORD = "Test@123";
 
   beforeEach(() => {

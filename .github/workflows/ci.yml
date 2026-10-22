@@ -46,6 +46,9 @@ jobs:
     env:
       CI: "true"
       CYPRESS_baseUrl: http://127.0.0.1:4173
+      # Nothing listens here. Browsers block low ports such as 9, so this is an ordinary closed port.
+      # Specs stub HTTP with cy.intercept and must not call a real API.
+      VITE_BACKEND_API: http://127.0.0.1:4010
 
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +64,7 @@ jobs:
 
       - name: Configure env for app
         run: |
-          echo "VITE_BACKEND_API=${{ vars.VITE_BACKEND_API }}" >> .env
+          echo "VITE_BACKEND_API=${VITE_BACKEND_API}" >> .env
 
       - name: Build app
         run: npm run build

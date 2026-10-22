@@ -4,8 +4,8 @@ describe("FE-E2E-HM-AUTH-1 — Handyman Studio auth", () => {
   const user = {
     firstName: "HM",
     lastName: `E2E${unique}`,
-    email: `hm_e2e_${unique}@example.com`,
-    password: "Password123!",
+    email: `hm_e2e_${unique}@example.invalid`,
+    password: "Cypress-Only-1!",
     username: `hm_e2e_${unique}`,
   };
 

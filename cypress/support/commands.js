@@ -20,7 +20,7 @@ Cypress.Commands.add("resetAppState", () => {
  * - Does NOT auto-visit /dashboard (dashboard currently causes 404 Axios errors in your env).
  * - Stores token/email/userId in localStorage in the same browser context as the test.
  */
-Cypress.Commands.add("apiLogin", (email, password = "Password123!") => {
+Cypress.Commands.add("apiLogin", (email, password = "Cypress-Only-1!") => {
   const backendUrl = getBackendUrl();
 
   return cy
@@ -34,7 +34,7 @@ Cypress.Commands.add("apiLogin", (email, password = "Password123!") => {
       // Make failures obvious + readable
       expect(
         [200, 201],
-        `Login should succeed (POST ${backendUrl}/api/auth/login). Got status=${res.status} body=${JSON.stringify(res.body)}`,
+        `Login should succeed (POST ${backendUrl}/api/auth/login). Got status=${res.status}`,
       ).to.include(res.status);
 
       const token = res.body?.token;
@@ -63,8 +63,8 @@ Cypress.Commands.add("apiSignup", (overrides = {}) => {
   const payload = {
     name: overrides.name || `E2E User ${unique}`,
     username: overrides.username || `e2e_${unique}`,
-    email: overrides.email || `e2e_${unique}@example.com`,
-    password: overrides.password || "Password123!",
+    email: overrides.email || `e2e_${unique}@example.invalid`,
+    password: overrides.password || "Cypress-Only-1!",
   };
 
   return cy
@@ -77,7 +77,7 @@ Cypress.Commands.add("apiSignup", (overrides = {}) => {
     .then((res) => {
       expect(
         [200, 201],
-        `Signup should succeed (POST ${backendUrl}/api/auth/signup). Got status=${res.status} body=${JSON.stringify(res.body)}`,
+        `Signup should succeed (POST ${backendUrl}/api/auth/signup). Got status=${res.status}`,
       ).to.include(res.status);
 
       const token = res.body?.token;
@@ -97,10 +97,10 @@ Cypress.Commands.add("ensurePMUserExists", () => {
   const backendUrl = getBackendUrl();
 
   const user = {
-    name: "Allan Walker",
-    email: "pm_test_user@example.com",
-    password: "StrongPass123",
-    username: "pm_test_user",
+    name: "Cypress PM",
+    email: "cypress-pm@example.invalid",
+    password: "Cypress-Only-1!",
+    username: "cypress_pm",
   };
 
   cy.request({
@@ -115,8 +115,8 @@ Cypress.Commands.add("loginPMUser", () => {
   const backendUrl = getBackendUrl();
 
   cy.request("POST", `${backendUrl}/api/auth/login`, {
-    email: "pm_test_user@example.com",
-    password: "StrongPass123",
+    email: "cypress-pm@example.invalid",
+    password: "Cypress-Only-1!",
   })
     .then((res) => {
       const token = res.body.token;

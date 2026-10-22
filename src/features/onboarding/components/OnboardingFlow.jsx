@@ -189,10 +189,12 @@ export default function OnboardingFlow() {
           }, 4000);
           return () => clearTimeout(timer);
         } catch (error) {
-          setError(error.response.data.message);
+          const message =
+            error?.response?.data?.message ||
+            "Could not finish account setup. Please try again.";
+          setError(message);
           toast.error("Error setting up profile!");
           console.error(error);
-          console.log("error message: ", error.response.data.message);
         }
       };
 

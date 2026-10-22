@@ -1,150 +1,167 @@
-    // cypress/e2e/handyman-18-cross-role-access-regression.cy.js
+// FE-E2E-HM-ADMIN-4 — Cross-Role Access Regression
+//
+// Sessions are stubbed with cy.intercept. This spec does not call a live API
+// and does not send an auth-bypass header.
 
-    describe("FE-E2E-HM-ADMIN-4 — Cross-Role Access Regression", () => {
+const SYNTHETIC_PASSWORD = "Cypress-Only-1!";
 
-    const unique = Date.now();
-    const vendorUser = {
-    firstName: "HM",
-    lastName: `VENDOR${unique}`,
-    email: `hm_vendor_${unique}@example.com`,
-    password: "Password123!",
-    username: `hm_vendor_${unique}`,
-    };
+const adminUser = {
+  _id: "cypress-admin-user",
+  firstName: "Cypress",
+  lastName: "Admin",
+  email: "cypress-admin@example.invalid",
+  role: "admin",
+  portfolios: [],
+};
 
-    const loginViaModal = (email, password) => {
-        cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
-        .should("exist")
-        .click({ force: true });
+const vendorUser = {
+  _id: "cypress-vendor-user",
+  firstName: "Cypress",
+  lastName: "Vendor",
+  email: "cypress-vendor@example.invalid",
+  username: "cypress_vendor",
+  role: "vendor",
+  goal: "find-job",
+  industry: "other",
+  skills: ["Customer Service"],
+  portfolios: [],
+};
 
-        cy.get(
-        'input#email, input[placeholder="Email"], input[type="email"], input[name="email"]'
-        )
-        .first()
-        .should("exist")
-        .clear()
-        .type(email);
+const sessionBody = (user, token) => ({
+  token,
+  user,
+  portfolioIds: user.portfolios || [],
+});
 
-        cy.get(
-        'input#password, input[placeholder="Password"], input[type="password"], input[name="password"]'
-        )
-        .first()
-        .should("exist")
-        .clear()
-        .type(password, { log: false });
+const stubSession = (user, token) => {
+  cy.intercept("POST", "**/api/auth/login", {
+    statusCode: 200,
+    body: sessionBody(user, token),
+  }).as("login");
 
-        cy.contains("button", /^sign in$/i)
-        .should("exist")
-        .click({ force: true });
+  cy.intercept("GET", "**/api/users/me", {
+    statusCode: 200,
+    body: {
+      user,
+      portfolioIds: user.portfolios || [],
+    },
+  }).as("getMe");
+};
 
-        // land on profile
-        cy.url({ timeout: 15000 }).should("include", "/profile");
-        cy.contains(/personal information/i).should("exist");
-    };
+const resetSession = () => {
+  cy.clearCookies();
+  cy.clearLocalStorage();
+  cy.visit("/", {
+    onBeforeLoad(win) {
+      win.localStorage.clear();
+    },
+  });
+};
 
-    const signupOnly = (user) => {
+const loginViaModal = (email) => {
+  cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 }).should("exist").click({ force: true });
+
+  cy.get('input#email, input[name="email"]').first().should("exist").clear().type(email);
+
+  cy.get('input#password, input[name="password"]')
+    .first()
+    .should("exist")
+    .clear()
+    .type(SYNTHETIC_PASSWORD, { log: false });
+
+  cy.contains("button", /^sign in$/i).should("exist").click({ force: true });
+
+  cy.wait("@login");
+  cy.url({ timeout: 15000 }).should("include", "/profile");
+  cy.contains(/personal information/i).should("exist");
+};
+
+const signupVendor = () => {
+  stubSession(vendorUser, "cypress-vendor-token");
+
+  cy.intercept("POST", "**/api/users", {
+    statusCode: 201,
+    body: {
+      user: vendorUser,
+    },
+  }).as("signup");
+
+  cy.visit("/");
+
+  cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 }).should("exist").click({ force: true });
+
+  cy.contains("button, a", /^sign up$/i, { timeout: 20000 }).click();
+  cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding");
+
+  cy.contains(/what's your main goal\?/i, { timeout: 20000 }).should("be.visible");
+  cy.contains(/find a job/i).click();
+
+  cy.contains(/what type of work do you do\?/i, { timeout: 20000 }).should("be.visible");
+  cy.contains(/^other$/i).click();
+
+  cy.contains(/what are your skills\?/i, { timeout: 20000 }).should("be.visible");
+  cy.contains(/^customer service$/i).click();
+  cy.contains("button", /^continue$/i).click();
+
+  cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
+  cy.get("#firstName").type(vendorUser.firstName);
+  cy.get("#lastName").type(vendorUser.lastName);
+  cy.get("#email").type(vendorUser.email);
+  cy.get("#password").type(SYNTHETIC_PASSWORD, { log: false });
+  cy.get("#username").type(vendorUser.username);
+
+  cy.contains("button", /complete setup/i).click();
+
+  cy.wait("@signup").its("response.statusCode").should("be.oneOf", [200, 201]);
+  cy.wait("@login").its("response.statusCode").should("be.oneOf", [200, 201]);
+
+  cy.url({ timeout: 20000 }).should("include", "/onboarding_info");
+};
+
+describe("FE-E2E-HM-ADMIN-4 — Cross-Role Access Regression", () => {
+  beforeEach(() => {
+    cy.intercept("GET", "**/api/portfolios/public/list*", {
+      statusCode: 200,
+      body: { portfolios: [] },
+    }).as("getPublicList");
+
+    cy.intercept("GET", "**/api/portfolios/mine", {
+      statusCode: 200,
+      body: { portfolios: [] },
+    }).as("getMine");
+
+    cy.intercept("GET", "**/api/payments/subscriptions", {
+      statusCode: 200,
+      body: [],
+    }).as("subscriptions");
+  });
+
+  it("runs admin, vendor, and guest flows in succession without leaking access", () => {
+    stubSession(adminUser, "cypress-admin-token");
     cy.visit("/");
+    loginViaModal(adminUser.email);
 
-    cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 })
-        .should("exist")
-        .click({ force: true });
+    cy.contains("a,button", /^admin$/i).should("exist");
 
-    cy.contains("button, a", /^sign up$/i, { timeout: 20000 }).click();
-    cy.location("pathname", { timeout: 20000 }).should("eq", "/onboarding");
+    cy.visit("/admin-choice");
+    cy.url({ timeout: 15000 }).should("include", "/admin-choice");
+    cy.contains("button, a", /log in.*sign up/i).should("not.exist");
 
-    cy.contains(/what's your main goal\?/i, { timeout: 20000 }).should("be.visible");
-    cy.contains(/find a job/i).click();
+    resetSession();
+    signupVendor();
 
-    cy.contains(/what type of work do you do\?/i, { timeout: 20000 }).should("be.visible");
-    cy.contains(/^other$/i).click();
+    cy.contains("a,button", /^admin$/i).should("not.exist");
+    cy.contains("a,button", /^dashboard$/i).should("exist").click();
+    cy.url({ timeout: 15000 }).should("include", "/dashboard");
 
-    cy.contains(/what are your skills\?/i, { timeout: 20000 }).should("be.visible");
-    cy.contains(/^customer service$/i).click();
-    cy.contains("button", /^continue$/i).click();
+    resetSession();
 
-    cy.intercept("POST", "**/api/users").as("signup");
-    cy.intercept("POST", "**/api/auth/login").as("login");
+    cy.visit("/dashboard");
+    cy.contains(/your dashboard|my projects|studio/i, { matchCase: false }).should("not.exist");
+    cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 }).should("exist");
 
-    cy.contains(/tell us about yourself/i, { timeout: 20000 }).should("be.visible");
-    cy.get('input[placeholder="Enter your first name"]').type(user.firstName);
-    cy.get('input[placeholder="Enter your last name"]').type(user.lastName);
-    cy.get('input[placeholder="your@email.com"]').type(user.email);
-    cy.get('input[placeholder="Enter a password"]').type(user.password, { log: false });
-    cy.get('input[placeholder="Choose a username"]').type(user.username);
-
-    cy.contains("button", /complete setup/i).click();
-
-    cy.wait("@signup", { timeout: 30000 })
-        .its("response.statusCode")
-        .should("be.oneOf", [200, 201]);
-
-    cy.wait("@login", { timeout: 30000 })
-        .its("response.statusCode")
-        .should("be.oneOf", [200, 201]);
-    };
-
-
-    it("runs admin, vendor, and guest flows in succession without leaking access", () => {
-        // ------- PHASE 1: ADMIN SESSION -------
-        cy.visit("/");
-
-        loginViaModal("admin@test.com", "Admin@123");
-
-        // Admin-only navigation visible
-        cy.contains("a,button", /^admin$/i).should("exist");
-
-        // Admin can access /admin-choice
-        cy.visit("/admin-choice");
-        cy.url({ timeout: 15000 }).should("include", "/admin-choice");
-
-        // confirm admin access without depending on brittle page copy
-        cy.contains("button, a", /log in.*sign up/i).should("not.exist");
-
-        // End admin session
-        cy.clearCookies();
-        cy.clearLocalStorage();
-        cy.visit("/");
-
-        // ------- PHASE 2: VENDOR SESSION -------
-        signupOnly(vendorUser);
-
-        // signup flow already logs the vendor in
-        cy.url({ timeout: 15000 }).should("satisfy", (url) => {
-        return url.includes("/profile") || url.includes("/onboarding_info");
-        });
-
-        // After fresh vendor signup/login, admin nav must NOT be present
-        cy.contains("a,button", /^admin$/i).should("not.exist");
-
-        // Vendor can still use normal vendor features like dashboard
-        cy.contains("a,button", /^dashboard$/i)
-        .should("exist")
-        .click();
-        cy.url({ timeout: 15000 }).should("include", "/dashboard");
-
-        // End vendor session
-        cy.clearCookies();
-        cy.clearLocalStorage();
-        cy.visit("/");
-
-        // ------- PHASE 3: GUEST SESSION (no login) -------
-        // Guest hits dashboard: should not see private dashboard UI
-        cy.visit("/dashboard");
-        cy.url().then(() => {
-        cy.contains(/your dashboard|my projects|studio/i, {
-            matchCase: false,
-        }).should("not.exist");
-
-        // Guest should see login / sign up CTA somewhere
-        cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 }).should("exist");
-        });
-
-        // Guest hits admin logs directly: must not see admin UI
-        cy.visit("/itadmin/logs");
-        cy.url().then(() => {
-        cy.contains(/portfolio edit logs/i, { matchCase: false }).should(
-            "not.exist"
-        );
-        cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 }).should("exist");
-        });
-    });
-    });
+    cy.visit("/itadmin/logs");
+    cy.contains(/portfolio edit logs/i, { matchCase: false }).should("not.exist");
+    cy.contains("button, a", /log in.*sign up/i, { timeout: 20000 }).should("exist");
+  });
+});
