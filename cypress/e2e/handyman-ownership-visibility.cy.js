@@ -64,13 +64,13 @@ describe("Handyman ownership and visibility", () => {
         user: {
           id: ownerId,
           _id: ownerId,
-          email: "owner@test.com",
+          email: "owner@example.invalid",
           name: "Owner",
           portfolios: [{ portfolioId: templateId, portfolioType: "Handyman" }],
         },
         id: ownerId,
         _id: ownerId,
-        email: "owner@test.com",
+        email: "owner@example.invalid",
         name: "Owner",
         portfolios: [{ portfolioId: templateId, portfolioType: "Handyman" }],
       },
@@ -113,7 +113,7 @@ describe("Handyman ownership and visibility", () => {
         user: {
           _id: nonOwnerId,
           id: nonOwnerId,
-          email: "nonowner@test.com",
+          email: "nonowner@example.invalid",
           name: "Non Owner",
           portfolios: [],
         },
@@ -138,7 +138,7 @@ describe("Handyman ownership and visibility", () => {
       body: {
         user: {
           _id: "admin-e2e",
-          email: "admin@test.com",
+          email: "admin@example.invalid",
           role: "admin",
           name: "Admin",
           portfolios: [{ portfolioId: templateId, portfolioType: "Handyman" }],
@@ -170,7 +170,7 @@ describe("Handyman ownership and visibility", () => {
     cy.visit("/dashboard", {
       onBeforeLoad(win) {
         win.localStorage.setItem("token", "cypress-stub-admin-token");
-        win.localStorage.setItem("email", "admin@test.com");
+        win.localStorage.setItem("email", "admin@example.invalid");
       },
     });
 

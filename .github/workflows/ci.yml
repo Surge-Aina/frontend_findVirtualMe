@@ -46,6 +46,9 @@ jobs:
     env:
       CI: "true"
       CYPRESS_baseUrl: http://127.0.0.1:4173
+      # Nothing listens here. Browsers block low ports such as 9, so this is an ordinary closed port.
+      # Specs stub HTTP with cy.intercept and must not call a real API.
+      VITE_BACKEND_API: http://127.0.0.1:4010
 
     steps:
       - uses: actions/checkout@v4
@@ -61,14 +64,47 @@ jobs:
 
       - name: Configure env for app
         run: |
-          echo "VITE_BACKEND_API=${{ vars.VITE_BACKEND_API }}" >> .env
+          echo "VITE_BACKEND_API=${VITE_BACKEND_API}" >> .env
 
       - name: Build app
         run: npm run build
 
+      # The Cypress GitHub Action's built-in wait-on client treats the first
+      # connection failure as fatal ("Socket closed before the connection was
+      # established") and never retries. Start preview here and poll with curl.
       - name: Run Cypress
-        uses: cypress-io/github-action@v6
+        run: |
+          set -euo pipefail
+          npm run preview -- --host 127.0.0.1 --port 4173 > preview.log 2>&1 &
+          preview_pid=$!
+          cleanup() {
+            kill "$preview_pid" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          ready=0
+          for _ in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://127.0.0.1:4173; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$preview_pid" 2>/dev/null; then
+              echo "Vite preview exited before it was ready."
+              cat preview.log
+              exit 1
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Vite preview did not respond on http://127.0.0.1:4173"
+            cat preview.log
+            exit 1
+          fi
+          npx cypress run
+
+      - name: Upload Cypress screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          start: npm run preview -- --host 0.0.0.0 --port 4173
-          wait-on: http://127.0.0.1:4173
-          wait-on-timeout: 120
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

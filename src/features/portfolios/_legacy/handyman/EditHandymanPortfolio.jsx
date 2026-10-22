@@ -9,7 +9,7 @@
     const EditHandymanPortfolio = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { user, loading: authLoading } = useContext(AuthContext);
 
     const [formData, setFormData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -31,17 +31,23 @@
     const addAfterRef = useRef(null);
 
     useEffect(() => {
+        if (authLoading) return undefined;
+
+        let cancelled = false;
+
         const fetchTemplate = async () => {
         try {
             const { data } = await handymanAPI.get(`/api/handyman-template/${id}`);
-            setFormData(data);
+            if (cancelled) return;
 
-            // ----- ownership check -----
+            // /api/users/me is { user }, which AuthContext already applies.
+            // Fall back to that shape if context has not populated an id yet.
             let currentUserId = user?.id || user?._id;
             if (!currentUserId && localStorage.getItem('token')) {
             try {
                 const me = await handymanAPI.get('/api/users/me');
-                currentUserId = me?.data?.id || me?.data?._id;
+                const meUser = me?.data?.user ?? me?.data;
+                currentUserId = meUser?.id || meUser?._id;
             } catch {
               /* ignore /user/me fetch errors */
             }
@@ -55,15 +61,20 @@
             navigate(`/portfolios/handyman/${id}`);
             return;
             }
+
+            if (!cancelled) setFormData(data);
         } catch (e) {
             console.error(e);
             toast.error('Failed to load portfolio');
         } finally {
-            setLoading(false);
+            if (!cancelled) setLoading(false);
         }
         };
         fetchTemplate();
-    }, [id, user, navigate]);
+        return () => {
+            cancelled = true;
+        };
+    }, [id, user, navigate, authLoading]);
 
     const loadProjects = async () => {
         setProjectsLoading(true);

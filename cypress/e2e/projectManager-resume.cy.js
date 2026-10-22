@@ -37,8 +37,8 @@
         statusCode: 200,
         body: {
         user: {
-            _id: "6970124025d8c08c5c136ae0",
-            name: "vendor JK",
+            _id: "cypress-pm-user",
+            name: "Cypress Vendor",
             email: ownerEmail,
             role: "VENDOR",
             portfolios: [{ portfolioId: pmPortfolioId, portfolioType: "ProjectManager" }],

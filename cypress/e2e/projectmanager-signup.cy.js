@@ -1,11 +1,11 @@
 describe("Project Manager - Full Sign Up + Onboarding", () => {
   const unique = Date.now();
   const newUser = {
-    firstName: "Allan",
-    lastName: "Walker",
-    email: `allan_${unique}@example.com`,
-    password: "StrongPass123!",
-    username: `allan_${unique}`,
+    firstName: "Cypress",
+    lastName: "Signup",
+    email: `cypress_signup_${unique}@example.invalid`,
+    password: "Cypress-Only-1!",
+    username: `cypress_signup_${unique}`,
   };
 
   beforeEach(() => {

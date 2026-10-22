@@ -14,7 +14,7 @@ describe("Healthcare ownership and visibility", () => {
       tagline: "Testing visibility",
       description: "Demo practice",
     },
-    contact: { phone: "(111) 111-1111", email: "test@practice.com" },
+    contact: { phone: "(111) 111-1111", email: "cypress-practice@example.invalid" },
     services: [{ id: "svc-1", title: "Service", description: "desc" }],
     blogPosts: [],
     gallery: { facilityImages: [], beforeAfterCases: [] },
@@ -81,7 +81,7 @@ describe("Healthcare ownership and visibility", () => {
     cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
-        user: { id: ownerId, _id: ownerId, email: "owner@test.com", name: "Owner" },
+        user: { id: ownerId, _id: ownerId, email: "owner@example.invalid", name: "Owner" },
         portfolioIds: [{ portfolioId: practiceId, portfolioType: "Healthcare" }],
       },
     }).as("getMe");
@@ -103,7 +103,7 @@ describe("Healthcare ownership and visibility", () => {
         user: {
           id: ownerId,
           _id: ownerId,
-          email: "owner@test.com",
+          email: "owner@example.invalid",
           portfolios: [{ portfolioId: practiceId, portfolioType: "Healthcare" }],
         },
         portfolioIds: [{ portfolioId: practiceId, portfolioType: "Healthcare" }],

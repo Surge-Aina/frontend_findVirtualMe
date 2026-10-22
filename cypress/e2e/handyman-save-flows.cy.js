@@ -47,9 +47,9 @@ describe("Handyman save flows", () => {
     cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
-        user: { _id: ownerId, id: ownerId, email: "owner@test.com", name: "Owner" },
+        user: { _id: ownerId, id: ownerId, email: "owner@example.invalid", name: "Owner" },
         id: ownerId,
-        email: "owner@test.com",
+        email: "owner@example.invalid",
         name: "Owner",
       },
     }).as("getMe");
