@@ -79,6 +79,15 @@ import DeveloperAppsPage from "@/features/developer/DeveloperAppsPage.jsx";
 import IntegrationsPage from "@/features/developer/IntegrationsPage.jsx";
 import AppDetailPage from "@/features/developer/AppDetailPage.jsx";
 import OAuthConsentPage from "@/features/developer/OAuthConsentPage.jsx";
+import ApiReferencePage from "@/features/developer/docs/ApiReferencePage.jsx";
+import {
+  AuthDocsPage,
+  DeveloperPortalLayout,
+  GettingStartedPage,
+  McpDocsPage,
+  OAuthDocsPage,
+  WebhookDocsPage,
+} from "@/features/developer/docs/DeveloperPortal.jsx";
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -121,6 +130,15 @@ export default function App() {
           <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/integrations/apps/:slug" element={<AppDetailPage />} />
           <Route path="/oauth/consent" element={<OAuthConsentPage />} />
+          <Route path="/developers/docs/*" element={<ApiReferencePage />} />
+          <Route path="/developers" element={<DeveloperPortalLayout />}>
+            <Route index element={<GettingStartedPage />} />
+            <Route path="auth" element={<AuthDocsPage />} />
+            <Route path="reference" element={<Navigate to="/developers/docs" replace />} />
+            <Route path="mcp" element={<McpDocsPage />} />
+            <Route path="webhooks" element={<WebhookDocsPage />} />
+            <Route path="oauth" element={<OAuthDocsPage />} />
+          </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignUp />} />
           <Route path="/occupations" element={<Occupations />} />
