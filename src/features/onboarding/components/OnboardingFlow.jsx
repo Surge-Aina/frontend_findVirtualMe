@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { ensureOnboardingSessionId } from "@/shared/utils/onboardingSession";
 
 // main onboarding flow component
 const backendUrl = import.meta.env.VITE_BACKEND_API;
@@ -177,7 +178,8 @@ export default function OnboardingFlow() {
       //send data to backend
         const sendData = async () => {
         try {
-          const sessionId = localStorage.getItem("onboardingSessionId");
+          const storedSessionId = localStorage.getItem("onboardingSessionId");
+          const sessionId = storedSessionId ? ensureOnboardingSessionId() : "";
           const res = await axios.post(`${backendUrl}/api/users`, {
             data: sessionId ? { ...data, sessionId } : data,
           });

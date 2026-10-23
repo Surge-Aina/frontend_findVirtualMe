@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 import { startTracking, stopTracking, logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
+import { ensureOnboardingSessionId } from "@/shared/utils/onboardingSession";
 import PortfolioTemplateOptions from "@/features/onboarding/components/PortfolioTemplateOptions";
 
 export default function ResumeUpload() {
@@ -14,14 +14,7 @@ export default function ResumeUpload() {
   const navigate = useNavigate();
 
   // session ID
-  const [sessionId] = useState(() => {
-    let id = localStorage.getItem("onboardingSessionId");
-    if (!id) {
-      id = uuidv4();
-      localStorage.setItem("onboardingSessionId", id);
-    }
-    return id;
-  });
+  const [sessionId] = useState(() => ensureOnboardingSessionId());
 
   // Start tracking on component mount
   useEffect(() => {
