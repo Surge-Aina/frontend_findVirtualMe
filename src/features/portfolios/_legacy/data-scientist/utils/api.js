@@ -1,28 +1,7 @@
-import axios from 'axios';
+import axiosAuth from "@/shared/api/axiosAuth";
 
-const API_URL = import.meta.env.VITE_BACKEND_API || 'http://localhost:5100';
-
-// Create axios instance
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Add a request interceptor to add the auth token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Shared client attaches the bearer token and surfaces 401/403.
+const api = axiosAuth;
 
 // Auth API
 export const authAPI = {
@@ -112,16 +91,12 @@ export const testimonialAPI = {
     return response.data;
   },
   submitTestimonial: async (testimonialData) => {
-    console.log('API: Submitting testimonial with data:', testimonialData);
     const response = await api.post('/testimonials', testimonialData);
-    console.log('API: Response received:', response.data);
     return response.data;
   },
   // Admin functions
   getAllTestimonials: async () => {
-    console.log('API: Getting all testimonials...');
     const response = await api.get('/testimonials/admin');
-    console.log('API: All testimonials response:', response.data);
     return response.data;
   },
   approveTestimonial: async (id, isApproved) => {
@@ -129,9 +104,7 @@ export const testimonialAPI = {
     return response.data;
   },
   deleteTestimonial: async (id) => {
-    console.log('API: Deleting testimonial with ID:', id);
     const response = await api.delete(`/testimonials/admin/${id}`);
-    console.log('API: Delete response:', response.data);
     return response.data;
   },
 };

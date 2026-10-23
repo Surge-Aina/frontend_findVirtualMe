@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiRequest } from "../api";
+import { logApiError } from "@/shared/api/safeLog";
 
 // Reuse same helpers as BulkReply
 
@@ -75,7 +76,7 @@ export default function BulkUpload({ auth }) {
 
         setRows([]); // start empty
       } catch (err) {
-        console.error("BulkUpload load error:", err);
+        logApiError(err, "BulkUpload load error");
         setError(err.message || "Failed to load bulk upload data.");
       } finally {
         setLoading(false);
@@ -290,7 +291,7 @@ export default function BulkUpload({ auth }) {
         }`
       );
     } catch (err) {
-      console.error("BulkUpload send error:", err);
+      logApiError(err, "BulkUpload send error");
       setError(err.message || "Failed to send bulk emails.");
     } finally {
       setSending(false);

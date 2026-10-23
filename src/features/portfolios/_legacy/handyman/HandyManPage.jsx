@@ -13,6 +13,7 @@ import Testimonials from './Testimonials.jsx';
 import ContactForm from './ContactForm.jsx';
 import Footer from './Footer.jsx';
 import HeroSubNav from './HeroSubNav.jsx';
+import { logApiError } from "@/shared/api/safeLog";
 
 import './Hero.css';
 import './Services.css';
@@ -36,7 +37,7 @@ const HandymanPage = ({ portfolioId }) => {
   const id = portfolioId || urlId;
 
   const { user } = useContext(AuthContext);
-  console.log("User from context:", user);
+  
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,7 +58,7 @@ const HandymanPage = ({ portfolioId }) => {
         const ownerId = data?.userId;
         setIsOwner(Boolean(uid && ownerId && String(uid) === String(ownerId)));
       } catch (err) {
-        console.error(err);
+        logApiError(err, "Request failed");
         setError('Could not load this portfolio.');
       } finally {
         setLoading(false);

@@ -172,6 +172,8 @@ describe('Utility Functions', () => {
 // ============================================
 
 describe('CleanAbout Component', () => {
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockPortfolioId = 'test-portfolio-123';
@@ -207,7 +209,7 @@ describe('CleanAbout Component', () => {
 
     // Silence console
     jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -481,7 +483,7 @@ describe('Tagline Editing', () => {
       fireEvent.click(screen.getByTestId('editable-mock'));
       
       await waitFor(() => {
-        expect(console.error).toHaveBeenCalledWith('Failed to save tagline:', expect.any(Error));
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to save tagline: GET unknown no-status');
       });
     });
   });

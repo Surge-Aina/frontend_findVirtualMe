@@ -2,6 +2,7 @@ import { useState, useContext, useEffect, useMemo } from "react";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
 // import emailjs from "@emailjs/browser";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const API_BASE = import.meta.env.VITE_BACKEND_API;
 
@@ -151,7 +152,7 @@ export default function ITForm() {
         message: "",
       });
     } catch (error) {
-      console.error("Error submitting form", error);
+      logApiError(error, "Error submitting form");
       alert("There was an error submitting your request. Please try again.");
     } finally {
       setIsSubmitting(false);

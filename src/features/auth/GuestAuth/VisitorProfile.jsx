@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { logApiError } from '@/shared/api/safeLog';
 
 export default function VisitorProfile() {
   const [name, setName] = useState('');
@@ -64,14 +65,13 @@ export default function VisitorProfile() {
         
         setMessage('Profile updated successfully!');
         setIsEditing(false);
-        console.log('Success:', data);
       } else {
         setMessage('Error: ' + data.message);
-        console.log('Error:', data);
+        logApiError({ response: { status: response.status } }, "Visitor profile update failed");
       }
     } catch (error) {
       setMessage('Error: Could not connect to server');
-      console.log('Error:', error);
+      logApiError(error, "Visitor profile update failed");
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,6 @@ export default function VisitorProfile() {
         window.dispatchEvent(new Event('visitor-auth-change'));
         
         setMessage('Account deleted successfully!');
-        console.log('Success:', data);
         
         // Redirect to home
         setTimeout(() => {
@@ -119,11 +118,11 @@ export default function VisitorProfile() {
         }, 1500);
       } else {
         setMessage('Error: ' + data.message);
-        console.log('Error:', data);
+        logApiError({ response: { status: response.status } }, "Visitor account delete failed");
       }
     } catch (error) {
       setMessage('Error: Could not connect to server');
-      console.log('Error:', error);
+      logApiError(error, "Visitor account delete failed");
     } finally {
       setLoading(false);
     }

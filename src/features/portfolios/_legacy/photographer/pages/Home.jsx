@@ -6,6 +6,9 @@ import Layout from '../components/Layout';
 import HeroText from '../components/HeroText';
 import AdminGalleryControls from '../components/AdminGalleryControls';
 import EmptyGalleryState from '../components/EmptyGalleryState';
+import { useContext } from 'react';
+import { AuthContext } from '@/shared/context/AuthContext';
+import { isPlatformAdmin } from '../photographerApi';
 import { useDynamicPhotoManagement } from '../hooks/useDynamicPhotoManagement';
 
 export default function Home() {
@@ -25,7 +28,9 @@ export default function Home() {
     movePhoto,
   } = useDynamicPhotoManagement('highlights');
 
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const { user } = useContext(AuthContext);
+  const platformAdmin = isPlatformAdmin(user);
+  const isAdmin = platformAdmin || localStorage.getItem("isAdmin") === "true";
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">

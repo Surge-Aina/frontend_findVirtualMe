@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import FileUploader from "../components/FileUploader";
 import { useVendorApi } from "../services/api";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 const TaggedImage = () => {
   const { vendorId } = useVendor();
@@ -22,7 +23,7 @@ const TaggedImage = () => {
     api
       .getMenu()
       .then((res) => setMenuItems(res))
-      .catch((err) => console.error("Failed to fetch menu items", err));
+      .catch((err) => logApiError(err, "Failed to fetch menu items"));
   }, [vendorId]);
 
   // Load latest tagged image
@@ -38,7 +39,7 @@ const TaggedImage = () => {
           setTags(latest.tags || []);
         }
       })
-      .catch((err) => console.error("Failed to fetch tagged images", err));
+      .catch((err) => logApiError(err, "Failed to fetch tagged images"));
   }, [vendorId]);
 
   // Upload image handler
@@ -81,7 +82,7 @@ const TaggedImage = () => {
       const res = await api.deleteTag(taggedImageId, index);
       setTags(res.tags);
     } catch (err) {
-      console.error("Failed to delete tag", err);
+      logApiError(err, "Failed to delete tag");
     }
   };
 
@@ -112,7 +113,7 @@ const TaggedImage = () => {
       setTags(res.tags);
       setModalData(null);
     } catch (err) {
-      console.error("Failed to save tag", err);
+      logApiError(err, "Failed to save tag");
     }
   };
 

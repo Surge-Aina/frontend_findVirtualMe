@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar';
 import ScrollToTop from '../components/ScrollToTop';
 import Footer from '../components/Footer';
 import { api } from '../lib/api';
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Contact() {
   const { practiceId } = useHealthcareBasePath();
@@ -34,7 +35,7 @@ export default function Contact() {
       const data = await api.getPracticeData(practiceId); // ✅ Fixed
       setUserData(data);
     } catch (error) {
-      console.error('Error loading contact data:', error);
+      logApiError(error, "Error loading contact data");
     } finally {
       setLoading(false);
     }
@@ -56,13 +57,12 @@ export default function Contact() {
         ownerEmail: userData.contact.email,
         ownerName: userData.practiceName || 'Healthcare Practice',
       };
-      // console.log("formDataToSend:", formDataToSend);
       await api.contactMe(formDataToSend);
       setSubmitStatus('success');
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       setTimeout(() => setSubmitStatus(''), 3000);
     } catch (error) {
-        console.error('Error submitting contact form:', error);
+        logApiError(error, "Error submitting contact form");
         setSubmitStatus('error');
         return;
       }

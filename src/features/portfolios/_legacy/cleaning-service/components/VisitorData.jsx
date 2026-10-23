@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { logApiError } from "@/shared/api/safeLog";
 import './VisitorData.css';
 
 export default function VisitorsData() {
@@ -46,7 +47,7 @@ export default function VisitorsData() {
       }
     } catch (err) {
       setError('Could not connect to server');
-      console.error('Error fetching visitors:', err);
+      logApiError(err, "Error fetching visitors");
     } finally {
       setLoading(false);
     }
@@ -113,7 +114,7 @@ export default function VisitorsData() {
         alert(data.message || 'Failed to update visitor information');
       }
     } catch (err) {
-      console.error('Error updating visitor:', err);
+      logApiError(err, "Error updating visitor");
       alert('Could not update visitor information');
     }
   };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function ForgotPassword() {
   const apiUrl = import.meta.env.VITE_BACKEND_API;
@@ -19,12 +20,10 @@ export default function ForgotPassword() {
       setLoading(true);
       setMessage("");
 
-      const res = axios.post(`${apiUrl}/api/auth/forgot-password`, { email });
-      console.log("API SUCCESS:", res);
-
+      const res = await axios.post(`${apiUrl}/api/auth/forgot-password`, { email });
       setMessage(res.data?.message || "Reset link sent successfully");
     } catch (err) {
-      console.error("Forgot password error:", err);
+      logApiError(err, "Forgot password failed");
       setMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);

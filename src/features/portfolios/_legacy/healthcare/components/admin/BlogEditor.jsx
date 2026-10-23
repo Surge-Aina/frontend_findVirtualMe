@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaEye, FaImage, FaCamera } from 'react-icons/fa'
 import { api } from '../../lib/api'
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function BlogEditor({ blogPosts, onUpdate }) {
   const [editingPost, setEditingPost] = useState(null)
@@ -82,7 +83,7 @@ export default function BlogEditor({ blogPosts, onUpdate }) {
       // Save final public URL
       updatePost(postIndex, 'image', publicUrl)
     } catch (err) {
-      console.error('Blog Image Upload Error:', err)
+      logApiError(err, "Blog Image Upload Error")
       alert('Image upload failed')
     }
   }

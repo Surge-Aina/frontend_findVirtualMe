@@ -22,6 +22,7 @@ import { FaHospitalUser } from "react-icons/fa6";
 import { MdHealthAndSafety } from "react-icons/md";
 import { GiHealthNormal } from "react-icons/gi";
 import { RiMentalHealthFill } from "react-icons/ri";
+import { logApiError } from "@/shared/api/safeLog";
 
 const ServicesEditor = lazy(() => import("../../components/admin/ServicesEditor"));
 const BlogEditor = lazy(() => import("../../components/admin/BlogEditor"));
@@ -61,20 +62,20 @@ export default function AdminDashboard() {
       setLoading(true);
 
       if (!practiceId) {
-        console.error("❌ No portfolio ID in URL");
+        
         navigate("/dashboard");
         return;
       }
 
-      console.log(`📋 Loading admin data for portfolio _id: ${practiceId}`);
+      
 
       // ✅ Pass _id to get the specific portfolio
       const data = await api.getAdminData(practiceId);
 
-      console.log("✅ Loaded portfolio:", data.portfolioName || data.practice?.name);
+      
       setUserData(data);
     } catch (error) {
-      console.error("Error loading admin data:", error);
+      logApiError(error, "Error loading admin data");
       navigate("/dashboard");
     } finally {
       setLoading(false);
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
         setTimeout(() => setSaveStatus(""), 5000);
       }
     } catch (error) {
-      console.error("Save error:", error);
+      logApiError(error, "Save error");
       setSaveStatus("❌ " + error.message);
       setTimeout(() => setSaveStatus(""), 5000);
     } finally {
@@ -165,7 +166,7 @@ export default function AdminDashboard() {
         setTimeout(() => setSaveStatus(""), 5000);
       }
     } catch (err) {
-      console.error("Image Upload Error:", err);
+      logApiError(err, "Image Upload Error");
       alert("Image upload failed");
     }
   };

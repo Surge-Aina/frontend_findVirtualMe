@@ -11,24 +11,13 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext";
-import axios from "axios";
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 import {
   startTracking,
   stopTracking,
   logPortfolioAction,
 } from "@/shared/utils/portfolioEditLogger";
-
-// attach token to each axios request
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // helper: ensure links are real URLs
 const normalizeUrl = (url) => {
@@ -51,7 +40,6 @@ const SummaryCard = ({ portfolio }) => {
   const [resumeFileName, setResumeFileName] = useState("");
   const queryClient = useQueryClient();
   const [pendingImageFile, setPendingImageFile] = useState(null);
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
 
   // keep local state in sync with latest portfolio from server
   useEffect(() => {
@@ -94,13 +82,12 @@ const SummaryCard = ({ portfolio }) => {
   // mutation for saving summary + profile info
   const saveSummaryMutation = useMutation({
     mutationFn: async (updatedFields) => {
-      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+      const response = await axiosAuth.patch("/portfolio/edit", {
         portfolio: updatedFields,
       });
       return response.data;
     },
     onSuccess: async (data) => {
-      console.log("Save successful:", data);
       toast.success("Summary saved successfully!");
 
       // update local state & exit edit mode
@@ -130,7 +117,8 @@ const SummaryCard = ({ portfolio }) => {
       }
     },
     onError: (error) => {
-      console.error("Save failed:", error);
+      logApiError(error, "Save summary failed");
+      if (authFailureMessage(error)) return;
       toast.error("Failed to save Summary");
     },
   });
@@ -180,14 +168,9 @@ const SummaryCard = ({ portfolio }) => {
       const formData = new FormData();
       formData.append("resume", file);
 
-      const response = await axios.post(
-        `${apiUrl}/portfolio/resume/${portfolioId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+      const response = await axiosAuth.post(
+        `/portfolio/resume/${portfolioId}`,
+        formData
       );
 
       const updatedPortfolio = response.data?.portfolio;
@@ -205,8 +188,8 @@ const SummaryCard = ({ portfolio }) => {
 
       toast.success("Resume uploaded successfully!");
     } catch (error) {
-      console.error("Error uploading resume:", error);
-      toast.error("Failed to upload resume");
+      logApiError(error, "Resume upload failed");
+      if (!authFailureMessage(error)) toast.error("Failed to upload resume");
     } finally {
       setResumeUploading(false);
     }
@@ -246,10 +229,9 @@ const SummaryCard = ({ portfolio }) => {
         const formData = new FormData();
         formData.append("image", pendingImageFile);
 
-        const res = await axios.post(
-          `${apiUrl}/portfolio/profile-image/${portfolioId}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+        const res = await axiosAuth.post(
+          `/portfolio/profile-image/${portfolioId}`,
+          formData
         );
 
         finalProfileImageUrl =
@@ -263,8 +245,8 @@ const SummaryCard = ({ portfolio }) => {
         // optional: keep preview synced with S3 url after upload
         if (finalProfileImageUrl) setImagePreview(finalProfileImageUrl);
       } catch (err) {
-        console.error("Profile image upload failed:", err);
-        toast.error("Failed to upload profile photo");
+        logApiError(err, "Profile image upload failed");
+        if (!authFailureMessage(err)) toast.error("Failed to upload profile photo");
         return; // ❗ stop save if upload fails
       } finally {
         setImageUploading(false);

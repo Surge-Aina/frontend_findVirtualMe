@@ -10,6 +10,7 @@ import Navbar from '../components/Navbar';
 import ScrollToTop from '../components/ScrollToTop';
 import Footer from '../components/Footer';
 import { api } from '../lib/api';
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Services() {
   const { basePath, practiceId } = useHealthcareBasePath();
@@ -28,7 +29,7 @@ export default function Services() {
       const data = await api.getPracticeData(practiceId); // ✅ Fixed
       setUserData(data);
     } catch (error) {
-      console.error('Failed to load services data:', error);
+      logApiError(error, "Failed to load services data");
     } finally {
       setLoading(false);
     }

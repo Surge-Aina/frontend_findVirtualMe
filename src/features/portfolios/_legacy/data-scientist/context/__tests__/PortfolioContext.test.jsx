@@ -20,11 +20,16 @@ function TestConsumer({ callback }) {
 
 describe("PortfolioContext", () => {
   let contextValue;
+  let consoleErrorSpy;
 
   beforeEach(() => {
     jest.clearAllMocks();
     contextValue = null;
-    console.error = jest.fn();
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   const renderContext = () =>

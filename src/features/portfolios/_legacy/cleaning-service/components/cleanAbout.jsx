@@ -11,6 +11,7 @@ import Editable from './Editable';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import * as THREE from 'three';
+import { logApiError } from "@/shared/api/safeLog";
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const easeInOut = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
@@ -46,13 +47,7 @@ export default function CleanAbout() {
   const { isAdmin, setCurrentPortfolioId, isOwner, user } = useContext(AuthContext);
   
   useEffect(() => {
-    console.log('🔍 CleanAbout Debug:', {
-      portfolioId,
-      isAdmin,
-      isOwner,
-      user,
-      hasToken: !!localStorage.getItem('token')
-    });
+    
   }, [portfolioId, isAdmin, isOwner, user]);
   
   const rotation = useRef(0);
@@ -87,12 +82,12 @@ export default function CleanAbout() {
     const fetchTaglines = async () => {
       // Skip if no portfolioId (demo mode)
       if (!portfolioId) {
-        console.log('📋 No portfolioId - using default taglines (demo mode)');
+        
         return;
       }
       
       try {
-        console.log('🔍 FETCHING portfolio ID:', portfolioId);
+        
 
         const token = localStorage.getItem('token');
         const res = await fetch(`${backendUrl}/api/portfolios/${portfolioId}?t=${Date.now()}`, {
@@ -103,8 +98,8 @@ export default function CleanAbout() {
         const response = await res.json();
         const p = response.portfolio || response;
         
-        console.log('🔍 RECEIVED portfolio:', p);
-        console.log('🔍 tagline1 from API:', p.tagline1);
+        
+        
         
         setTaglines([
           p.tagline1 || defaultTaglines[0],
@@ -112,7 +107,7 @@ export default function CleanAbout() {
           p.tagline3 || defaultTaglines[2],
         ]);
       } catch (err) {
-        console.error('Failed to fetch portfolio:', err);
+        logApiError(err, "Failed to fetch portfolio");
       }
     };
 
@@ -141,7 +136,7 @@ export default function CleanAbout() {
         body: JSON.stringify({ [`tagline${index + 1}`]: newValue }),
       });
     } catch (err) {
-      console.error('Failed to save tagline:', err);
+      logApiError(err, "Failed to save tagline");
     }
   };
 

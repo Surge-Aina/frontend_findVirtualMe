@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '@/shared/context/AuthContext';
+import axiosAuth, { authFailureMessage } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { Code, BarChart3, TrendingUp, Filter, Download, X, ExternalLink, Calendar, MapPin, RefreshCw } from 'lucide-react';
 
@@ -298,6 +301,7 @@ const ProjectDetailsModal = ({ project, onClose }) => {
 
 // Interactive Dashboard Component
 const InteractiveDashboard = ({ onClose }) => {
+  const { token } = useContext(AuthContext);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [dataRange, setDataRange] = useState(12);
   const [showDataInput, setShowDataInput] = useState(false);
@@ -308,6 +312,7 @@ const InteractiveDashboard = ({ onClose }) => {
   const [saving, setSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
   
   // Get data from API or use default
   const getStoredData = () => {
@@ -328,13 +333,10 @@ const InteractiveDashboard = ({ onClose }) => {
     const loadDashboardData = async () => {
       try {
         setLoading(true);
-        console.log('Loading dashboard data...'); // Debug log
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/dashboard`);
-        console.log('Response status:', response.status); // Debug log
+        const response = await axiosAuth.get('/dashboard');
         
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Dashboard data received:', data); // Debug log
+        if (response.status >= 200 && response.status < 300) {
+          const data = response.data;
           
           if (data) {
             // Check if the API returned empty data arrays and use fallback
@@ -348,31 +350,25 @@ const InteractiveDashboard = ({ onClose }) => {
               hiddenPoints: data.data?.hiddenPoints || []
             };
             
-            console.log('Setting sample data:', newSampleData); // Debug log
             setSampleData(newSampleData);
             setChartTitle(data.chartTitle || 'Revenue Trend');
             setXAxisLabel(data.xAxisLabel || 'Months');
             setYAxisLabel(data.yAxisLabel || 'Revenue ($)');
             setDataRange(data.data?.revenue?.length || 12);
           }
-        } else {
-          console.warn('Dashboard API returned non-OK status:', response.status);
-          // Fall back to default data
         }
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        logApiError(error, 'Error loading dashboard data');
         // Fall back to default data
       } finally {
         setLoading(false);
       }
     };
 
-    // Check if user is admin
-    const token = localStorage.getItem('token');
     setIsAdmin(!!token);
 
     loadDashboardData();
-  }, []);
+  }, [token]);
 
   // Save data to API
   const saveDataToAPI = async (newData) => {
@@ -385,30 +381,22 @@ const InteractiveDashboard = ({ onClose }) => {
         sales: newData.sales.map(value => value === '' ? 0 : value)
       };
       
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/dashboard`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chartTitle,
-          xAxisLabel,
-          yAxisLabel,
-          data: cleanData,
-          categories: cleanData.categories,
-          categoryData: cleanData.categoryData
-        })
-      });
-      
-      if (response.ok) {
-        console.log('Dashboard data saved successfully');
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000); // Hide success message after 3 seconds
-      } else {
-        console.error('Failed to save dashboard data:', response.status);
-      }
+      await axiosAuth.put('/dashboard', {
+        chartTitle,
+        xAxisLabel,
+        yAxisLabel,
+        data: cleanData,
+        categories: cleanData.categories,
+        categoryData: cleanData.categoryData
+      }, { skipAuthToast: true });
+
+      setSaveError('');
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
-      console.error('Error saving dashboard data:', error);
+      logApiError(error, 'Error saving dashboard data');
+      setSaveSuccess(false);
+      setSaveError(authFailureMessage(error) || 'Could not save dashboard data.');
     } finally {
       setSaving(false);
     }
@@ -419,7 +407,6 @@ const InteractiveDashboard = ({ onClose }) => {
     setSampleData(newData);
     sessionStorage.setItem('dashboardData', JSON.stringify(newData));
     
-    // Always save to API (no token required for this demo)
     saveDataToAPI(newData);
   };
 
@@ -509,9 +496,9 @@ const InteractiveDashboard = ({ onClose }) => {
   // Reset to data from MongoDB
   const resetData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/dashboard`);
-              if (response.ok) {
-          const data = await response.json();
+      const response = await axiosAuth.get('/dashboard');
+              if (response.status >= 200 && response.status < 300) {
+          const data = response.data;
           if (data) {
             const newData = {
               sales: data.data?.sales || getStoredData().sales,
@@ -548,7 +535,7 @@ const InteractiveDashboard = ({ onClose }) => {
         sessionStorage.setItem('dashboardData', JSON.stringify(defaultData));
       }
     } catch (error) {
-      console.error('Error resetting dashboard data:', error);
+      logApiError(error, 'Error resetting dashboard data');
       // Fall back to default data if API fails
       const defaultData = {
         sales: [120, 190, 300, 500, 200, 300, 450, 380, 420, 280, 350, 400],
@@ -569,10 +556,10 @@ const InteractiveDashboard = ({ onClose }) => {
 
   // Get visible data points
   const getVisibleData = () => {
-    console.log('Sample data:', sampleData); // Debug log
+     // Debug log
     
     if (!sampleData.revenue || sampleData.revenue.length === 0) {
-      console.log('No revenue data available');
+      
       return { revenue: [], xLabels: [] };
     }
     
@@ -590,7 +577,7 @@ const InteractiveDashboard = ({ onClose }) => {
       )
       .map(item => item.label);
     
-    console.log('Visible data:', { revenue: visibleRevenue, xLabels: visibleXLabels }); // Debug log
+     // Debug log
     return { revenue: visibleRevenue, xLabels: visibleXLabels };
   };
 
@@ -740,6 +727,11 @@ const InteractiveDashboard = ({ onClose }) => {
                 <div className="w-2 h-2 bg-terminal-success rounded-full"></div>
                 <span className="text-sm font-mono">✓ Data saved successfully!</span>
               </div>
+            </div>
+          )}
+          {saveError && (
+            <div role="alert" className="mb-4 p-3 bg-terminal-error/20 border border-terminal-error rounded-terminal">
+              <span className="text-sm font-mono text-terminal-error">{saveError}</span>
             </div>
           )}
           

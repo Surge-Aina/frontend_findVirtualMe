@@ -1,125 +1,91 @@
 import { useState, useEffect } from 'react';
+import { getOptional } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
+import {
+  usePhotographerWrite,
+  putPhotographerSetting,
+  postPhotographerPhoto,
+  putPhotographerPhoto,
+  deletePhotographerPhoto,
+  reorderPhotographerPhotos,
+} from '../photographerApi';
 
 export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
+  const { portfolioId } = usePhotographerWrite();
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const [photos, setPhotos] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({});
 
-  // Fetch initial data
   useEffect(() => {
     async function fetchData() {
-      try {
-        // Fetch photos
-  const photosRes = await fetch(`${backendUrl}/drive/${endpoint}`);
-        const photosData = await photosRes.json();
-        setPhotos(photosData);
+      const photosData = await getOptional(`/drive/${endpoint}`);
+      if (Array.isArray(photosData)) setPhotos(photosData);
 
-        // Fetch layout type
-  const layoutRes = await fetch(`${backendUrl}/settings/${endpoint}Layout`);
-        if (layoutRes.ok) {
-          const layoutData = await layoutRes.json();
-          if (layoutData.value) {
-            setLayoutType(layoutData.value);
-          }
-        }
+      const layoutData = await getOptional(`/settings/${endpoint}Layout`);
+      if (layoutData?.value) setLayoutType(layoutData.value);
 
-        // Fetch layout settings
-  const settingsRes = await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`);
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json();
-          if (settingsData.value) {
-            setLayoutSettings(settingsData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch data', err);
-      }
+      const settingsData = await getOptional(`/settings/${endpoint}LayoutSettings`);
+      if (settingsData?.value) setLayoutSettings(settingsData.value);
     }
     fetchData();
   }, [endpoint]);
 
-  // Photo management functions
   const handleImageChange = async (index, newUrl) => {
     const photoToUpdate = photos[index];
     const updatedPhoto = { ...photoToUpdate, url: newUrl };
 
     try {
-  await fetch(`${backendUrl}/photo/${endpoint}/${photoToUpdate._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedPhoto),
-      });
-
+      await putPhotographerPhoto(endpoint, photoToUpdate._id, updatedPhoto, portfolioId);
       const newPhotos = [...photos];
       newPhotos[index] = updatedPhoto;
       setPhotos(newPhotos);
     } catch (err) {
-      console.error('Failed to update photo', err);
+      logApiError(err, 'Failed to update photo');
     }
   };
 
   const handleLayoutChange = async (newLayout) => {
     setLayoutType(newLayout);
-    
     try {
-  await fetch(`${backendUrl}/settings/${endpoint}Layout`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newLayout }),
-      });
+      await putPhotographerSetting(`${endpoint}Layout`, newLayout, portfolioId);
     } catch (err) {
-      console.error('Failed to save layout setting', err);
+      logApiError(err, 'Failed to save layout setting');
     }
   };
 
-  const handleLayoutSettingsChange = async (layoutType, settings) => {
+  const handleLayoutSettingsChange = async (nextLayoutType, settings) => {
     const newLayoutSettings = {
       ...layoutSettings,
-      [layoutType]: settings
+      [nextLayoutType]: settings,
     };
     setLayoutSettings(newLayoutSettings);
-    
     try {
-  await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newLayoutSettings }),
-      });
+      await putPhotographerSetting(`${endpoint}LayoutSettings`, newLayoutSettings, portfolioId);
     } catch (err) {
-      console.error('Failed to save layout settings', err);
+      logApiError(err, 'Failed to save layout settings');
     }
   };
 
   const addPhoto = async () => {
     try {
-      const newPhoto = { url: '/sample-placeholder.jpg' };
-  const res = await fetch(`${backendUrl}/photo/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPhoto),
-      });
-      const savedPhoto = await res.json();
-      setPhotos([...photos, savedPhoto]);
+      const res = await postPhotographerPhoto(endpoint, '/sample-placeholder.jpg', portfolioId);
+      setPhotos([...photos, res.data]);
     } catch (err) {
-      console.error('Failed to add photo', err);
+      logApiError(err, 'Failed to add photo');
     }
   };
 
   const deletePhoto = async (index) => {
     const photoToDelete = photos[index];
     try {
-      console.log('Deleting photo:', photoToDelete);
-  await fetch(`${backendUrl}/photo/${endpoint}/${photoToDelete._id}`, {
-        method: 'DELETE',
-      });
+      await deletePhotographerPhoto(endpoint, photoToDelete._id, portfolioId);
       setPhotos(photos.filter((_, i) => i !== index));
     } catch (err) {
-      console.error('Failed to delete photo', err);
+      logApiError(err, 'Failed to delete photo');
     }
   };
 
-  const movePhoto = (index, direction) => {
+  const movePhoto = async (index, direction) => {
     const newPhotos = [...photos];
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= newPhotos.length) return;
@@ -128,7 +94,13 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
       newPhotos[targetIndex],
       newPhotos[index],
     ];
-    setPhotos(newPhotos);
+    const reordered = newPhotos.map((photo, position) => ({ ...photo, position }));
+    setPhotos(reordered);
+    try {
+      await reorderPhotographerPhotos(endpoint, reordered, portfolioId);
+    } catch (err) {
+      logApiError(err, 'Failed to reorder photos');
+    }
   };
 
   return {
@@ -142,4 +114,4 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     deletePhoto,
     movePhoto,
   };
-} 
+}

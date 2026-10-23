@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { portfolioUserApi } from '@/shared/api/portfolioUserApi';
+import { logApiError } from '@/shared/api/safeLog';
 import './styles/VisitorLogin.css';
 
 export default function VisitorLogin() {
@@ -49,7 +50,7 @@ export default function VisitorLogin() {
       const errMsg =
         error?.response?.data?.message || 'Invalid email or password';
       setMessage(errMsg);
-      console.error('Login error:', error);
+      logApiError(error, "Visitor login failed");
     } finally {
       setLoading(false);
     }

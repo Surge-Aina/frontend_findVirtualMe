@@ -12,6 +12,7 @@ import BookingsTab from '@/features/portfolio-users/tabs/BookingsTab.jsx';
 import { portfolioApi } from '../api/portfolioApi.js';
 import { getBrowserHostname } from './windowHost.js';
 import { isFindVirtualPortfolioSubdomain, isPlatformHost } from './platformHosts.js';
+import { logApiError } from "@/shared/api/safeLog";
 
 function WidgetOverlayWrapper() {
   return (
@@ -85,16 +86,16 @@ function DomainRouter({ children }) {
             setLoadError('portfolio_unavailable');
             return;
           }
-          console.error('Portfolio load failed:', err);
+          logApiError(err, "Portfolio load failed");
           setLoadError('network');
         }
       } catch (err) {
         if (axios.isAxiosError(err) && isAxiosStatus(err, 404)) {
-          console.log('Domain not found');
+          
           if (portfolioSubdomain) setLoadError('not_found');
           return;
         }
-        console.error('Domain lookup failed:', err);
+        logApiError(err, "Domain lookup failed");
         if (portfolioSubdomain) setLoadError('network');
       } finally {
         setLoading(false);

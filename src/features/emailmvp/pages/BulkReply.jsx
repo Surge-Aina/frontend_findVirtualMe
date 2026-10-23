@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { apiRequest } from "../api";
+import { logApiError } from "@/shared/api/safeLog";
 
 function applyTemplate(subjectTemplate, bodyTemplate, vars) {
   const replacer = (text) =>
@@ -106,7 +107,7 @@ export default function BulkReply({ auth }) {
 
         setRows(initialRows);
       } catch (err) {
-        console.error("BulkReply load error:", err);
+        logApiError(err, "BulkReply load error");
         setError(err.message || "Failed to load data for bulk reply.");
       } finally {
         setLoading(false);
@@ -188,7 +189,7 @@ const activeVariables = useMemo(() => {
         }`
       );
     } catch (err) {
-      console.error("BulkReply send error:", err);
+      logApiError(err, "BulkReply send error");
       setError(err.message || "Failed to send bulk replies.");
     } finally {
       setSending(false);
@@ -222,7 +223,7 @@ const activeVariables = useMemo(() => {
       setTemplates((prev) => [newTpl, ...prev]);
       setSelectedTemplateId(newTpl.id);
     } catch (err) {
-      console.error("Save template error:", err);
+      logApiError(err, "Save template error");
       setError(err.message || "Failed to save template.");
     }
   };

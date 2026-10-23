@@ -1,7 +1,22 @@
 import { useState, useEffect } from 'react';
+import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
+import { usePhotographerWrite } from '../photographerApi';
+
+function connectionFailureMessage(error) {
+  const authMessage = authFailureMessage(error);
+  if (authMessage) return authMessage;
+  if (error?.response) {
+    const errorData = error.response.data || {};
+    const errorMessage = errorData.error || 'Unknown error';
+    const errorDetails = errorData.details ? ` (${errorData.details})` : '';
+    return `Connection failed: ${errorMessage}${errorDetails}`;
+  }
+  return 'Connection failed: Network error.';
+}
 
 export default function AdminDriveConnection({ onDriveConnected, currentFolderId, compact = false, endpoint }) {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
+  const { portfolioId, platformAdmin } = usePhotographerWrite();
   const getStorageKey = () => `adminDriveFolderId_${endpoint}`;
   
   const [folderId, setFolderId] = useState('');
@@ -25,19 +40,15 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
       }
     }
 
-    // Fetch from server for latest data
-  fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.value) {
-          setFolderId(data.value);
-          localStorage.setItem(getStorageKey(), data.value);
-          if (!currentFolderId && onDriveConnected) {
-            onDriveConnected(data.value);
-          }
+    getOptional(`/settings/${endpoint}DriveFolderId`).then((data) => {
+      if (data?.value) {
+        setFolderId(data.value);
+        localStorage.setItem(getStorageKey(), data.value);
+        if (!currentFolderId && onDriveConnected) {
+          onDriveConnected(data.value);
         }
-      })
-      .catch(err => console.error('Failed to load Drive folder ID from server', err));
+      }
+    });
   }, [endpoint, currentFolderId, onDriveConnected]);
 
     // Update local state when currentFolderId changes
@@ -58,41 +69,31 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
     setTestResults(null);
 
     try {
-  const testResponse = await fetch(`${backendUrl}/drive/test/${folderId.trim()}`);
-      
-      if (testResponse.ok) {
-        const testData = await testResponse.json();
-        setTestResults(testData);
-        setConnectionStatus('Connection successful!');
-
-        // Save to server
-  await fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: folderId.trim() }),
+      if (platformAdmin) {
+        const testResponse = await axiosAuth.get(`/drive/test/${folderId.trim()}`, {
+          skipAuthToast: true,
         });
+        setTestResults(testResponse.data);
+        setConnectionStatus('Connection successful!');
+      }
 
-        // Save to cache
-        localStorage.setItem(getStorageKey(), folderId.trim());
+      await axiosAuth.put(
+        `/settings/${endpoint}DriveFolderId`,
+        { value: folderId.trim(), portfolioId },
+        { skipAuthToast: true }
+      );
+      if (!platformAdmin) {
+        setConnectionStatus('Folder id saved.');
+      }
 
-        // Notify parent
-        if (onDriveConnected) {
-          onDriveConnected(folderId.trim());
-        }
-      } else {
-        const errorData = await testResponse.json();
-        const errorMessage = errorData.error || 'Unknown error';
-        const errorDetails = errorData.details ? ` (${errorData.details})` : '';
-        setConnectionStatus(`Connection failed: ${errorMessage}${errorDetails}`);
-        setTestResults(null);
+      localStorage.setItem(getStorageKey(), folderId.trim());
 
-        if (onDriveConnected) {
-          onDriveConnected(null);
-        }
+      if (onDriveConnected) {
+        onDriveConnected(folderId.trim());
       }
     } catch (error) {
-      console.error('Connection error:', error);
-      setConnectionStatus('Connection failed: Network error.');
+      logApiError(error, 'Connection error');
+      setConnectionStatus(connectionFailureMessage(error));
       setTestResults(null);
 
       if (onDriveConnected) {
@@ -104,14 +105,18 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
   };
 
   const handleDisconnect = async () => {
-    // Clear server value
-  await fetch(`${backendUrl}/settings/${endpoint}DriveFolderId`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: null }),
-    });
+    try {
+      await axiosAuth.put(
+        `/settings/${endpoint}DriveFolderId`,
+        { value: null, portfolioId },
+        { skipAuthToast: true }
+      );
+    } catch (error) {
+      logApiError(error, 'Disconnect error');
+      setConnectionStatus(authFailureMessage(error) || 'Could not disconnect Google Drive.');
+      return;
+    }
 
-    // Clear cache
     localStorage.removeItem(getStorageKey());
     setFolderId('');
     setConnectionStatus('');

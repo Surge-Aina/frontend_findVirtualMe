@@ -1,6 +1,7 @@
 //contactMeForm.jsx
 import { useState } from "react";
 import axios from "axios";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function ContactMeForm({ onSuccess, portfolioId, portfolioType, ownerEmail, ownerName, onClose }) {
   const initialFormState = {
@@ -29,9 +30,8 @@ export default function ContactMeForm({ onSuccess, portfolioId, portfolioType, o
         if (onSuccess) onSuccess();
         setFormData(initialFormState);
         if (onClose) onClose();
-    // console.log("Form submitted with data:", formData);
     } catch (err) {
-      console.error("Failed to send message", err);
+      logApiError(err, "Failed to send message");
     }   
     };
 

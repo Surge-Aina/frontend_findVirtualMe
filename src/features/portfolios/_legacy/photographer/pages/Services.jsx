@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import Editable from "../components/Editable";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Services() {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
+  const { portfolioId } = usePhotographerWrite();
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [heroData, setHeroData] = useState({
@@ -56,36 +59,14 @@ export default function Services() {
   // Load initial data from backend
   useEffect(() => {
     const fetchServicesData = async () => {
-      try {
-        // Fetch hero data
-  const heroRes = await fetch(`${backendUrl}/settings/servicesHero`);
-        if (heroRes.ok) {
-          const heroData = await heroRes.json();
-          if (heroData.value) {
-            setHeroData(heroData.value);
-          }
-        }
+      const heroPayload = await getOptional("/settings/servicesHero");
+      if (heroPayload?.value) setHeroData(heroPayload.value);
 
-        // Fetch services data
-  const servicesRes = await fetch(`${backendUrl}/settings/servicesData`);
-        if (servicesRes.ok) {
-          const servicesData = await servicesRes.json();
-          if (servicesData.value) {
-            setServices(servicesData.value);
-          }
-        }
+      const servicesPayload = await getOptional("/settings/servicesData");
+      if (servicesPayload?.value) setServices(servicesPayload.value);
 
-        // Fetch packages data
-  const packagesRes = await fetch(`${backendUrl}/settings/packagesData`);
-        if (packagesRes.ok) {
-          const packagesData = await packagesRes.json();
-          if (packagesData.value) {
-            setPackages(packagesData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch services data:', err);
-      }
+      const packagesPayload = await getOptional("/settings/packagesData");
+      if (packagesPayload?.value) setPackages(packagesPayload.value);
     };
 
     fetchServicesData();
@@ -96,13 +77,9 @@ export default function Services() {
     setHeroData(updatedHero);
     
     try {
-  await fetch(`${backendUrl}/settings/servicesHero`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updatedHero }),
-      });
+      await putPhotographerSetting("servicesHero", updatedHero, portfolioId);
     } catch (err) {
-      console.error('Failed to save hero data:', err);
+      logApiError(err, "Failed to save hero data");
     }
   };
 
@@ -112,13 +89,9 @@ export default function Services() {
     setServices(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/servicesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await putPhotographerSetting("servicesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save services:', err);
+      logApiError(err, "Failed to save services");
     }
   };
 
@@ -128,13 +101,9 @@ export default function Services() {
     setPackages(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/packagesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await putPhotographerSetting("packagesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save packages:', err);
+      logApiError(err, "Failed to save packages");
     }
   };
 
@@ -144,13 +113,9 @@ export default function Services() {
       setServices(updated);
       
       try {
-  await fetch(`${backendUrl}/settings/servicesData`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: updated }),
-        });
+        await putPhotographerSetting("servicesData", updated, portfolioId);
       } catch (err) {
-        console.error('Failed to delete service:', err);
+        logApiError(err, "Failed to delete service");
       }
     }
   };
@@ -161,13 +126,9 @@ export default function Services() {
       setPackages(updated);
       
       try {
-  await fetch(`${backendUrl}/settings/packagesData`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: updated }),
-        });
+        await putPhotographerSetting("packagesData", updated, portfolioId);
       } catch (err) {
-        console.error('Failed to delete package:', err);
+        logApiError(err, "Failed to delete package");
       }
     }
   };
@@ -183,13 +144,9 @@ export default function Services() {
     setServices(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/servicesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await putPhotographerSetting("servicesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save new service:', err);
+      logApiError(err, "Failed to save new service");
     }
   };
 
@@ -203,13 +160,9 @@ export default function Services() {
     setPackages(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/packagesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await putPhotographerSetting("packagesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save new package:', err);
+      logApiError(err, "Failed to save new package");
     }
   };
 

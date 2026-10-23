@@ -3,6 +3,7 @@ import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 import { useNavigate } from "react-router-dom";
 import { consumePostLoginPath } from "@/shared/utils/safeReturnPath";
 
@@ -24,12 +25,11 @@ export default function GoogleLoginButton({ onClose }) {
         toast.success("Logged In with Google!");
       }
       navigate(consumePostLoginPath());
-      console.log("Logged in user with Google:", res.data.user);
     } catch (err) {
-      console.error("Backend auth failed", err);
+      logApiError(err, "Google login failed");
       toast.error(err.response?.data?.message || "Login failed");
     }
   };
 
-  return <GoogleLogin onSuccess={handleSuccess} onError={() => console.error("Google login failed")} />;
+  return <GoogleLogin onSuccess={handleSuccess} onError={() => {}} />;
 }

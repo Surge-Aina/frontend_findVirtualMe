@@ -7,6 +7,7 @@ import Navbar from '../../components/Navbar'
 import ScrollToTop from '../../components/ScrollToTop'
 import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Blog() {
   const { basePath, practiceId } = useHealthcareBasePath()
@@ -26,7 +27,7 @@ export default function Blog() {
       const data = await api.getPracticeData(practiceId) // ✅ Fixed
       setUserData(data)
     } catch (error) {
-      console.error('Error loading blog data:', error)
+      logApiError(error, "Error loading blog data")
     } finally {
       setLoading(false)
     }

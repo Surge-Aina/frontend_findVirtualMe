@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 // Component to display a QR code based on its ID
 // backend returns { ownerId, portfolioId, title, description, url, align, alignVertical, size, active } 
@@ -22,15 +23,15 @@ export default function QRDisplay({ qrId, qrObject }) {
             try {
                 setLoading(true);
                 if (qrId) {
-                    console.log("Qr ID", qrId);
+                    
                     const res = await axios.get(`${apiBaseUrl}/api/qr-codes/public/${qrId}`);
                     setQrData(res.data);
-                    console.log("Fetched QR data:", res.data);
+                    
                 } else {
                     setQrData(null);
                 }
             } catch (err) {
-                console.error("Failed to load QR code", err);
+                logApiError(err, "Failed to load QR code");
                 setError("QR code not available");
             } finally {
                 setLoading(false);
@@ -44,7 +45,7 @@ export default function QRDisplay({ qrId, qrObject }) {
         if (qrData && qrData.url) {
             window.open(qrData.url, "_blank");
         } else {
-            console.error("No URL found for this QR code");
+            
             toast.error("No URL found for this QR code");
         }
     };

@@ -2,7 +2,10 @@ import Layout from "../components/Layout";
 import AdminGalleryControls from "../components/AdminGalleryControls";
 import EmptyGalleryState from "../components/EmptyGalleryState";
 import { useDynamicPhotoManagement } from '../hooks/useDynamicPhotoManagement';
+import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
+import { AuthContext } from '@/shared/context/AuthContext';
+import { isPlatformAdmin } from '../photographerApi';
 
 export default function GalleryCategory() {
   const { category } = useParams();
@@ -22,7 +25,9 @@ export default function GalleryCategory() {
     movePhoto,
   } = useDynamicPhotoManagement(category);
 
-  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const { user } = useContext(AuthContext);
+  const platformAdmin = isPlatformAdmin(user);
+  const isAdmin = platformAdmin || localStorage.getItem("isAdmin") === "true";
   const title = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Gallery';
 
   return (

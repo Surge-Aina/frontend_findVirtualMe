@@ -4,6 +4,7 @@ import { canEditPortfolio } from "../services/auth";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { useVendorApi } from "../services/api";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 const FiveStar = ({ value = 0, onChange }) => {
   const [hover, setHover] = useState(0);
@@ -67,7 +68,7 @@ const Reviews = () => {
     api
       .getReviews()
       .then((data) => setReviews(data))
-      .catch((err) => console.error("Failed to fetch reviews", err));
+      .catch((err) => logApiError(err, "Failed to fetch reviews"));
   };
 
   const handleAddReview = () => {
@@ -100,7 +101,7 @@ const Reviews = () => {
           setEditingIndex(null);
           setForm({ name: "", feedback: "", rating: 1 });
         })
-        .catch((err) => console.error("Failed to add review", err));
+        .catch((err) => logApiError(err, "Failed to add review"));
     } else {
       const id = reviews[editingIndex]._id;
       api
@@ -110,7 +111,7 @@ const Reviews = () => {
           setEditingIndex(null);
           setForm({ name: "", feedback: "", rating: 1 });
         })
-        .catch((err) => console.error("Failed to update review", err));
+        .catch((err) => logApiError(err, "Failed to update review"));
     }
   };
 
@@ -119,7 +120,7 @@ const Reviews = () => {
     api
       .deleteReview(id)
       .then(() => fetchReviews())
-      .catch((err) => console.error("Failed to delete review", err));
+      .catch((err) => logApiError(err, "Failed to delete review"));
   };
 
   const handleChange = (field, value) => {

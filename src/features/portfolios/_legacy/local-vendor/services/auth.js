@@ -6,7 +6,7 @@
  */
 export const canEditPortfolio = (user, vendorId) => {
   if (!user) {
-    console.warn(" No user provided");
+    
     return false;
   }
 
@@ -21,7 +21,7 @@ export const canEditPortfolio = (user, vendorId) => {
       return pid === vendorId;
     });
 
-  console.log("FINAL canEdit:", isAdmin || isOwner);
+  
 
   return isAdmin || isOwner;
 };

@@ -9,6 +9,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { ensureOnboardingSessionId } from "@/shared/utils/onboardingSession";
+import { logApiError } from "@/shared/api/safeLog";
 
 // main onboarding flow component
 const backendUrl = import.meta.env.VITE_BACKEND_API;
@@ -177,9 +179,12 @@ export default function OnboardingFlow() {
       //send data to backend
         const sendData = async () => {
         try {
+          const storedSessionId = localStorage.getItem("onboardingSessionId");
+          const sessionId = storedSessionId ? ensureOnboardingSessionId() : "";
           const res = await axios.post(`${backendUrl}/api/users`, {
-            data,
+            data: sessionId ? { ...data, sessionId } : data,
           });
+          localStorage.removeItem("onboardingSessionId");
           login(res.data.user.email, data.userInfo.password);
           //userId = res.data.user._id;---------------
           // wait before redirect
@@ -194,7 +199,7 @@ export default function OnboardingFlow() {
             "Could not finish account setup. Please try again.";
           setError(message);
           toast.error("Error setting up profile!");
-          console.error(error);
+          logApiError(error, "Signup failed");
         }
       };
 

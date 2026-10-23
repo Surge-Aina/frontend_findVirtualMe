@@ -44,13 +44,15 @@ function OwnerProbe() {
 }
 
 describe("PortfolioProvider owner lookup", () => {
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    console.error.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   it("loads a public profile and does not keep another user's email", async () => {

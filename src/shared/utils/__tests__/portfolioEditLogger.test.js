@@ -10,12 +10,14 @@ import {
 jest.mock('axios');
 
 describe('portfolioEditLogger', () => {
+  let consoleErrorSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
     jest.spyOn(console, 'log').mockImplementation();
     jest.spyOn(console, 'warn').mockImplementation();
-    jest.spyOn(console, 'error').mockImplementation();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     
     axios.post.mockReset();
     axios.post.mockResolvedValue({ data: { success: true } });
@@ -95,11 +97,11 @@ describe('portfolioEditLogger', () => {
   });
 
   describe('stopTracking', () => {
-    it('stops tracking and logs message', () => {
+    it('stops tracking', () => {
       startTracking({ sessionId: 'test' });
       stopTracking();
 
-      expect(console.log).toHaveBeenCalled();
+      expect(getSessionId()).toBe('test');
     });
 
     it('removes event listeners', () => {
@@ -196,7 +198,9 @@ describe('portfolioEditLogger', () => {
       startTracking({ sessionId: 'test-session' });
       await logPortfolioAction('deleted');
 
-      expect(console.error).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Log portfolio action failed: GET unknown no-status'
+      );
     });
 
     it('includes Authorization header when token exists', async () => {
@@ -361,8 +365,17 @@ describe('portfolioEditLogger', () => {
       document.dispatchEvent(mouseoverEvent);
       
       await new Promise(resolve => setTimeout(resolve, 150));
-      
-      expect(console.log).toHaveBeenCalled();
+      await logPortfolioAction('updated');
+
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          mouseInfo: expect.arrayContaining([
+            expect.objectContaining({ event: 'hover', x: 50, y: 60 }),
+          ]),
+        }),
+        expect.any(Object)
+      );
     });
 
     it('collects mousemove events when tracking', async () => {
@@ -376,8 +389,17 @@ describe('portfolioEditLogger', () => {
       document.dispatchEvent(mousemoveEvent);
       
       await new Promise(resolve => setTimeout(resolve, 150));
-      
-      expect(console.log).toHaveBeenCalled();
+      await logPortfolioAction('updated');
+
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          mouseInfo: expect.arrayContaining([
+            expect.objectContaining({ event: 'move', x: 150, y: 250 }),
+          ]),
+        }),
+        expect.any(Object)
+      );
     });
 
     it('does not collect events when not tracking', () => {
@@ -463,10 +485,14 @@ describe('portfolioEditLogger', () => {
         document.dispatchEvent(event);
       }
       
-      // Should be throttled
       await new Promise(resolve => setTimeout(resolve, 50));
-      
-      expect(console.log).toHaveBeenCalled();
+      await logPortfolioAction('updated');
+
+      const payload = axios.post.mock.calls.at(-1)[1];
+      const burst = payload.mouseInfo.filter(
+        (event) => event.event === 'move' && event.x === event.y && event.x <= 90
+      );
+      expect(burst).toHaveLength(1);
     });
   });
 });

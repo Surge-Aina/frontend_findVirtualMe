@@ -1,11 +1,11 @@
-import axios from "axios";
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 import { useState } from "react";
 import pdfToText from "react-pdftotext";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 
 export default function FileUploader({ portfolio }) {
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const [file, setFile] = useState(null);
   const [fileContent, setFileContent] = useState("");
   const [matchedWords, setMatchedWords] = useState([]);
@@ -23,15 +23,13 @@ export default function FileUploader({ portfolio }) {
     if (selectedFile.type === "text/plain") {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFileContent(event.target.result); // plain text
-        console.log("fileContent--------", fileContent);
+        setFileContent(event.target.result);
       };
       reader.readAsText(selectedFile);
     } else if (selectedFile.type === "application/pdf") {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFileContent(event.target.result); // data URL
-        console.log("fileContent--------", fileContent);
+        setFileContent(event.target.result);
       };
       reader.readAsDataURL(selectedFile);
     } else {
@@ -46,7 +44,6 @@ export default function FileUploader({ portfolio }) {
   //only compare portfolio skills
   const compareSkills = async () => {
     if (!file && fileContent === "") {
-      console.log(file, fileContent);
       toast.error("No job post");
       setMatchedWords([]);
       return;
@@ -56,7 +53,7 @@ export default function FileUploader({ portfolio }) {
       try {
         extractedText = await pdfToText(file);
       } catch (err) {
-        console.error("Failed to extract text from pdf", err);
+        logApiError(err, "Failed to extract text from pdf");
         return;
       }
     } else {
@@ -81,8 +78,6 @@ export default function FileUploader({ portfolio }) {
     );
 
     setMatchedWords(commonWords);
-    console.log("Words in both portfolio and resume:", commonWords);
-    console.log("sets", portfolioSkills, jobWordsSet);
     setFile(null);
     setFileContent(extractedText);
     setAIResponse("");
@@ -98,17 +93,27 @@ export default function FileUploader({ portfolio }) {
     }
     setLoading(true);
     try {
-      const res = await axios.post(`${apiUrl}/portfolio/ai-summary`, {
+      const res = await axiosAuth.post("/portfolio/ai-summary", {
         resumeJSON: resume,
         jobText: jobPost,
       });
-      console.log("response", res.data);
       setAIResponse(res.data);
       setFile(null);
       setFileContent("");
       setMatchedWords("");
     } catch (error) {
-      console.error("Error calling compare API:", error);
+      logApiError(error, "AI summary failed");
+      const status = error?.response?.status;
+      const serverError = error?.response?.data?.error;
+      if (status === 400) {
+        toast.error(serverError || "Input is too large");
+      } else if (status === 503) {
+        toast.error(serverError || "AI summary is temporarily unavailable. Please try again shortly.");
+      } else if (status === 429) {
+        toast.error(serverError || "Too many requests");
+      } else if (!authFailureMessage(error)) {
+        toast.error("Could not compare this job post.");
+      }
     } finally {
       setLoading(false);
     }

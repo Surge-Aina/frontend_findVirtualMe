@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth from "@/shared/api/axiosAuth";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const DEFAULT_TERMS_TEXT = `
 Terms of Service
@@ -56,7 +57,7 @@ export default function TermsOfService() {
       const res = await axiosAuth.get("/api/legal/terms-of-service");
       setTermsList(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to load terms of service", err);
+      logApiError(err, "Failed to load terms of service");
       toast.error("Failed to load terms of service");
     } finally {
       setLoading(false);
@@ -162,7 +163,7 @@ export default function TermsOfService() {
       }
       toast.success("Terms of service saved");
     } catch (err) {
-      console.error("Failed to save terms of service", err);
+      logApiError(err, "Failed to save terms of service");
       toast.error(
         err.response?.data?.message || "Failed to save terms of service",
       );
@@ -184,7 +185,7 @@ export default function TermsOfService() {
       resetForm();
       toast.success("Terms of service deleted");
     } catch (err) {
-      console.error("Failed to delete terms of service", err);
+      logApiError(err, "Failed to delete terms of service");
       toast.error(
         err.response?.data?.message || "Failed to delete terms of service",
       );

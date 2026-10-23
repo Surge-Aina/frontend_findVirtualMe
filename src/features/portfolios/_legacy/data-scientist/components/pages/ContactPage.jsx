@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { Mail, Phone, MapPin, Linkedin, Github, Send, CheckCircle } from 'lucide-react';
+import { logApiError } from "@/shared/api/safeLog";
 
 const ContactPage = () => {
   const { portfolio } = usePortfolio();
@@ -33,7 +34,6 @@ const ContactPage = () => {
   // const handleSubmit = (e) => {
   //   e.preventDefault();
   //   // In a real app, you would send this data to your backend
-  //   console.log('Form submitted:', formData);
     
   //   // Show success message
   //   setSnackbar({
@@ -53,16 +53,16 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   
   try {
-    console.log('Full portfolio object:', portfolio);
+    
     
     // Try multiple ways to get portfolio ID
     const portfolioId = portfolio?._id || portfolio?.id;
     
-    console.log('Portfolio ID:', portfolioId);
+    
     
     if (!portfolioId) {
-      console.error('Portfolio ID is missing!');
-      console.error('Portfolio object:', portfolio);
+      
+      
       setSnackbar({
         open: true,
         message: 'Unable to send message. Please refresh the page and try again.',
@@ -78,7 +78,7 @@ const handleSubmit = async (e) => {
       portfolioId: portfolioId
     };
     
-    console.log('Submitting:', submitData);
+    
     
     const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/datascience-portfolio/contact`, {
       method: 'POST',
@@ -89,7 +89,7 @@ const handleSubmit = async (e) => {
     });
     
     const data = await response.json();
-    console.log('Backend response:', data);
+    
     
     if (response.ok && data.success) {
       setSnackbar({
@@ -111,7 +111,7 @@ const handleSubmit = async (e) => {
       });
     }
   } catch (error) {
-    console.error('Error sending message:', error);
+    logApiError(error, "Error sending message");
     setSnackbar({
       open: true,
       message: 'Failed to send message. Please try again.',

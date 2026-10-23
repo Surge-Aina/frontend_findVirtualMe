@@ -6,6 +6,7 @@ import Navbar from '../../components/Navbar'
 import ScrollToTop from '../../components/ScrollToTop'
 import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
+import { logApiError } from "@/shared/api/safeLog";
 
 // 'YYYY-MM-DD' is parsed by Date as UTC midnight, which shows the previous day
 // in timezones west of UTC. Treat a bare date as a local calendar date.
@@ -41,10 +42,10 @@ export default function BlogPost() {
         setPost(foundPost)
         document.title = `${foundPost.title} - Blog`
       } else {
-        console.error('Post not found')
+        
       }
     } catch (error) {
-      console.error('Error loading blog post:', error)
+      logApiError(error, "Error loading blog post")
     } finally {
       setLoading(false)
     }

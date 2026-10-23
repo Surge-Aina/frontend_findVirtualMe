@@ -4,6 +4,7 @@ import axios from "axios";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { portfolioApi } from "@/shared/api/portfolioApi";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const backendUrl = import.meta.env.VITE_BACKEND_API || "http://localhost:5000";
 
@@ -66,7 +67,7 @@ export default function PortfolioBranding() {
       setHideBrandingMap((prev) => ({ ...prev, [portfolioId]: newVal }));
       toast.success("Branding setting updated");
     } catch (err) {
-      console.error("Failed to update branding", err);
+      logApiError(err, "Failed to update branding");
       toast.error(err.response?.data?.message || "Failed to update branding");
     } finally {
       setUpdating((prev) => ({ ...prev, [portfolioId]: false }));

@@ -6,6 +6,7 @@ import ScrollToTop from "../components/ScrollToTop";
 import Footer from "../components/Footer";
 import { api } from "../lib/api";
 import { Link, useLocation } from "react-router-dom";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -36,7 +37,7 @@ export default function SearchResults() {
       const data = await api.getUserData();
       setUserData(data);
     } catch (error) {
-      console.error("Error loading data:", error);
+      logApiError(error, "Error loading data");
     } finally {
       setLoading(false);
     }

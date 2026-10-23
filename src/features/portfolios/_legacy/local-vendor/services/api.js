@@ -1,10 +1,8 @@
-import axios from "axios";
+import axiosAuth from "@/shared/api/axiosAuth";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
 
-// Base axios instance
-const API = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API || "http://localhost:5000",
-});
+// Shared client attaches the bearer token and surfaces 401/403.
+const API = axiosAuth;
 
 // Hook that wraps vendor-specific endpoints
 export function useVendorApi() {

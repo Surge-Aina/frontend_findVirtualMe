@@ -92,6 +92,15 @@ export default defineConfig([
     },
   },
 
+  // Console output in app code goes through logApiError (src/shared/api/safeLog.js).
+  {
+    files: ['src/**/*.{js,jsx}'],
+    ignores: ['src/shared/api/safeLog.js'],
+    rules: {
+      'no-console': 'error',
+    },
+  },
+
   // Jest tests under src (describe, it, expect, jest, global, require in some files)
   {
     files: ['src/**/*.{test,spec}.{js,jsx}', 'src/**/__tests__/**/*.{js,jsx}'],

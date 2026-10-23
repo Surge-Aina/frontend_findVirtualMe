@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { logApiError } from '@/shared/api/safeLog';
 import './styles/VisitorSignup.css';
 
 export default function VisitorSignup() {
@@ -66,7 +67,7 @@ export default function VisitorSignup() {
       }
     } catch (error) {
       setMessage('Could not connect to server. Please try again later.');
-      console.error('Signup error:', error);
+      logApiError(error, "Visitor signup failed");
     } finally {
       setLoading(false);
     }

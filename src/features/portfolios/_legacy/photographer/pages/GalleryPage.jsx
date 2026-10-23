@@ -2,40 +2,26 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Editable from "../components/Editable";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 const GalleryPage = () => {
   const navigate = useNavigate();
   const { isAdmin } = useContext(AuthContext);
+  const { portfolioId } = usePhotographerWrite();
 
   const [heroData, setHeroData] = useState({
     subtitle: "Explore our photography collections across different occasions and styles",
   });
 
-  // Load initial data from backend
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   useEffect(() => {
     const fetchGalleryData = async () => {
-      try {
-        // Fetch hero data
-  const heroRes = await fetch(`${backendUrl}/settings/galleryHero`);
-        if (heroRes.ok) {
-          const heroData = await heroRes.json();
-          if (heroData.value) {
-            setHeroData(heroData.value);
-          }
-        }
+      const heroPayload = await getOptional("/settings/galleryHero");
+      if (heroPayload?.value) setHeroData(heroPayload.value);
 
-        // Fetch services data
-  const servicesRes = await fetch(`${backendUrl}/settings/galleryServices`);
-        if (servicesRes.ok) {
-          const servicesData = await servicesRes.json();
-          if (servicesData.value) {
-            setServices(servicesData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch gallery data:', err);
-      }
+      const servicesPayload = await getOptional("/settings/galleryServices");
+      if (servicesPayload?.value) setServices(servicesPayload.value);
     };
 
     fetchGalleryData();
@@ -97,13 +83,9 @@ const GalleryPage = () => {
     setHeroData(updatedHero);
     
     try {
-  await fetch(`${backendUrl}/settings/galleryHero`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updatedHero }),
-      });
+      await putPhotographerSetting("galleryHero", updatedHero, portfolioId);
     } catch (err) {
-      console.error('Failed to save hero data:', err);
+      logApiError(err, "Failed to save hero data");
     }
   };
 
@@ -120,13 +102,9 @@ const GalleryPage = () => {
     setServices(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/galleryServices`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await putPhotographerSetting("galleryServices", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save services:', err);
+      logApiError(err, "Failed to save services");
     }
   };  
 
@@ -142,13 +120,9 @@ const GalleryPage = () => {
     setServices(updatedServices);
     
     try {
-  await fetch(`${backendUrl}/settings/galleryServices`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updatedServices }),
-      });
+      await putPhotographerSetting("galleryServices", updatedServices, portfolioId);
     } catch (err) {
-      console.error('Failed to save new service:', err);
+      logApiError(err, "Failed to save new service");
     }
   };
 
@@ -157,13 +131,9 @@ const GalleryPage = () => {
     setServices(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/galleryServices`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await putPhotographerSetting("galleryServices", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to remove service:', err);
+      logApiError(err, "Failed to remove service");
     }
   };
 

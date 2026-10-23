@@ -1,11 +1,21 @@
 import React, { createContext, useContext, useState } from 'react';
+import { AuthContext } from '@/shared/context/AuthContext';
+import { resolvePhotographerPortfolioId } from '../photographerPortfolioId';
 
 const PortfolioContext = createContext();
 
 export const usePortfolio = () => useContext(PortfolioContext);
 
 export const PortfolioProvider = ({ children }) => {
-  const [portfolioId, setPortfolioId] = useState(localStorage.getItem('portfolioId') || 'default');
+  const { user } = useContext(AuthContext);
+  const [portfolioId, setPortfolioId] = useState(() =>
+    resolvePhotographerPortfolioId(localStorage.getItem('portfolioId'), null)
+  );
+
+  React.useEffect(() => {
+    const resolved = resolvePhotographerPortfolioId(portfolioId, user);
+    if (resolved !== portfolioId) setPortfolioId(resolved);
+  }, [user, portfolioId]);
 
   React.useEffect(() => {
     // Store the original fetch function

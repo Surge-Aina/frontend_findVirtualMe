@@ -14,6 +14,7 @@ import { canEditPortfolio } from "../services/auth";
 import { AuthContext } from "@/shared/context/AuthContext";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const cx = (...c) => c.filter(Boolean).join(" ");
 
@@ -46,7 +47,7 @@ const Gallery = () => {
     api
       .getGallery()
       .then((data) => setImages(data || []))
-      .catch((err) => console.error("Error fetching gallery:", err));
+      .catch((err) => logApiError(err, "Error fetching gallery"));
   }, [vendorId]);
 
   const handleSubmit = () => {
@@ -72,7 +73,7 @@ const Gallery = () => {
         setEditingId(null);
         setShowForm(false);
       })
-      .catch((err) => console.error("Save failed:", err));
+      .catch((err) => logApiError(err, "Save failed"));
   };
 
   const handleEdit = (item) => {
@@ -86,7 +87,7 @@ const Gallery = () => {
       api
         .deleteGalleryImage(id)
         .then(() => api.getGallery().then((data) => setImages(data || [])))
-        .catch((err) => console.error("Delete failed:", err));
+        .catch((err) => logApiError(err, "Delete failed"));
     }
   };
 

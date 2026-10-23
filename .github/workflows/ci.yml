@@ -26,6 +26,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Reject console logging
+        run: node scripts/check-no-console.mjs
+
       - name: Configure env for build
         run: |
           echo "VITE_BACKEND_API=${{ vars.VITE_BACKEND_API }}" >> .env

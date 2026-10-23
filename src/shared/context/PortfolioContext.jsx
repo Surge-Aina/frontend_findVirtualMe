@@ -1,6 +1,7 @@
 // context/PortfolioContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { logApiError } from '@/shared/api/safeLog';
 
 const defaultPortfolioOwner = {
   id: null,
@@ -88,7 +89,7 @@ export function PortfolioProvider({ children, initialPortfolioId, initialPortfol
         });
       } catch (err) {
         if (!cancelled) {
-          console.error('Failed to fetch portfolio owner details:', err);
+          logApiError(err, 'Failed to fetch portfolio owner details');
         }
       } finally {
         if (!cancelled) setIsOwnerReady(true);

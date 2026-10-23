@@ -1,6 +1,65 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Editable from './Editable';
 import AdminDriveConnection from './AdminDriveConnection';
+import axiosAuth, { authFailureMessage } from '@/shared/api/axiosAuth';
+import { usePhotographerWrite } from '../photographerApi';
+
+function OwnerDriveFolder({ endpoint, currentFolderId, onDriveConnected }) {
+  const { portfolioId } = usePhotographerWrite();
+  const [folderId, setFolderId] = useState(currentFolderId || '');
+  const [status, setStatus] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setFolderId(currentFolderId || '');
+  }, [currentFolderId]);
+
+  const saveFolder = async () => {
+    setSaving(true);
+    setStatus('');
+    try {
+      await axiosAuth.put(
+        `/settings/${endpoint}DriveFolderId`,
+        { value: folderId.trim() || null, portfolioId },
+        { skipAuthToast: true }
+      );
+      setStatus(folderId.trim() ? 'Folder id saved.' : 'Folder id cleared.');
+      if (onDriveConnected) onDriveConnected(folderId.trim() || null);
+    } catch (error) {
+      setStatus(authFailureMessage(error) || 'Could not save the folder id.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 text-left">
+      <label htmlFor="ownerFolderId" className="block text-sm text-gray-700">
+        Google Drive folder id
+      </label>
+      <input
+        id="ownerFolderId"
+        value={folderId}
+        onChange={(event) => setFolderId(event.target.value)}
+        placeholder="Folder id"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+      />
+      <button
+        type="button"
+        onClick={saveFolder}
+        disabled={saving}
+        className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-60"
+      >
+        {saving ? 'Saving...' : 'Save folder id'}
+      </button>
+      {status && (
+        <p role="status" className="text-sm text-gray-700">
+          {status}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function AdminGalleryControls({ 
   layoutType, 
@@ -11,6 +70,7 @@ export default function AdminGalleryControls({
   title = "Gallery Controls"
 }) {
   const [activeTab, setActiveTab] = useState('layout'); // 'layout' or 'drive'
+  const { platformAdmin } = usePhotographerWrite();
 
   return (
     <div className="flex justify-center mb-16 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
@@ -63,12 +123,20 @@ export default function AdminGalleryControls({
               <p className="text-gray-600 font-light text-sm leading-relaxed text-center">
                 Connect to any Google Drive folder to display photos
               </p>
-              <AdminDriveConnection 
-                onDriveConnected={onDriveConnected}
-                currentFolderId={currentFolderId}
-                endpoint={endpoint}
-                compact={true}
-              />
+              {platformAdmin ? (
+                <AdminDriveConnection
+                  onDriveConnected={onDriveConnected}
+                  currentFolderId={currentFolderId}
+                  endpoint={endpoint}
+                  compact={true}
+                />
+              ) : (
+                <OwnerDriveFolder
+                  endpoint={endpoint}
+                  currentFolderId={currentFolderId}
+                  onDriveConnected={onDriveConnected}
+                />
+              )}
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import Card from "./components/Card";
 import RoadmapColumn from "./components/RoadmapColumn";
 import { useMemo, useState, useEffect } from "react";
 import axios from "axios";
+import { logApiError } from "@/shared/api/safeLog";
 
 const API_BASE = import.meta.env.VITE_BACKEND_API || "http://localhost:5001";
 
@@ -30,7 +31,7 @@ export default function TicketingPage() {
         });
         setTickets(Array.isArray(data) ? data : []);
       } catch (e) {
-        console.error("GET /support-form failed:", e);
+        logApiError(e, "GET /support-form failed");
         setErr(e?.response?.data?.error || "Failed to fetch tickets");
         setTickets([]);
       } finally {
@@ -88,11 +89,7 @@ export default function TicketingPage() {
         )
       );
     } catch (e) {
-      console.error("PUT /support-form/:ticketID failed:", {
-        status: e?.response?.status,
-        data: e?.response?.data,
-        url: e?.config?.url,
-      });
+      logApiError(e, "PUT /support-form/:ticketID failed");
       
       setTickets(prev);
       alert(e?.response?.data?.error || "Failed to update status");
@@ -113,11 +110,7 @@ export default function TicketingPage() {
         headers: supportAdminHeaders(),
       });
     } catch (e) {
-      console.error("DELETE /support-form/:ticketID failed:", {
-        status: e?.response?.status,
-        data: e?.response?.data,
-        url: e?.config?.url,
-      });
+      logApiError(e, "DELETE /support-form/:ticketID failed");
       setTickets(prev);
       alert(e?.response?.data?.error || "Failed to delete ticket");
     }
@@ -150,11 +143,7 @@ export default function TicketingPage() {
         );
       }
     } catch (e) {
-      console.error("POST /support-form/:ticketID/replies failed:", {
-        status: e?.response?.status,
-        data: e?.response?.data,
-        url: e?.config?.url,
-      });
+      logApiError(e, "POST /support-form/:ticketID/replies failed");
       setTickets(prev);
       alert(e?.response?.data?.error || "Failed to add reply");
     }

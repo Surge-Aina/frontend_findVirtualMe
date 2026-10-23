@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import { useHandleCardClick } from "@/shared/utils/useHandleCardClick";
 import { portfolioApi } from "@/shared/api/portfolioApi.js";
+import { logApiError } from "@/shared/api/safeLog";
 
 function getPortfolioDisplayName(portfolio) {
   if (portfolio.portfolioType === "Healthcare") {
@@ -148,7 +149,7 @@ export default function Dashboard() {
         const publicRes = await portfolioApi.listPublic();
         setPublicPortfolios(Array.isArray(publicRes.data?.portfolios) ? publicRes.data.portfolios : []);
       } catch (error) {
-        console.error("Error fetching public portfolios:", error);
+        logApiError(error, "Error fetching public portfolios");
         setPublicPortfolios([]);
       }
 
@@ -158,7 +159,7 @@ export default function Dashboard() {
         const mineRes = await portfolioApi.getMine();
         setMyPortfolios(Array.isArray(mineRes.data?.portfolios) ? mineRes.data.portfolios : []);
       } catch (error) {
-        console.error("Error fetching my portfolios:", error);
+        logApiError(error, "Error fetching my portfolios");
         setMyPortfolios([]);
         toast.error("Could not load your portfolios");
       }
@@ -256,12 +257,12 @@ export default function Dashboard() {
         const publicRes = await portfolioApi.listPublic();
         setPublicPortfolios(Array.isArray(publicRes.data?.portfolios) ? publicRes.data.portfolios : []);
       } catch (error) {
-        console.error("Error refreshing public portfolios:", error);
+        logApiError(error, "Error refreshing public portfolios");
       }
 
       toast.success("Visibility updated");
     } catch (error) {
-      console.error("Toggle error:", error);
+      logApiError(error, "Toggle error");
       toast.error(error.response?.data?.error || "Error toggling visibility");
     }
   };
@@ -280,7 +281,7 @@ export default function Dashboard() {
       refreshUser?.();
       toast.success("Deleted portfolio");
     } catch (error) {
-      console.error("Delete error:", error);
+      logApiError(error, "Delete error");
       toast.error(error.response?.data?.error || "Error deleting portfolio");
     }
   };

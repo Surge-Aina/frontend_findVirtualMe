@@ -3,6 +3,7 @@ import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import { logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 import { toast } from "react-toastify";
 import axiosAuth from "@/shared/api/axiosAuth.js";
+import { logApiError } from "@/shared/api/safeLog";
 import { portfolioApi } from "@/shared/api/portfolioApi.js";
 import { useNavigate } from "react-router-dom";
 
@@ -57,13 +58,13 @@ export default function PortfolioTemplateOptions() {
               toast.success("Portfolio created and linked to your account");
             }
           } catch (linkErr) {
-            console.warn("addPortfolioId:", linkErr);
+            logApiError(linkErr, "Link portfolio failed");
             toast.success("Portfolio created");
           }
 
           navigate(`/portfolios/view/${id}/edit`);
         } catch (error) {
-          console.error("error creating portfolio: ", error);
+          logApiError(error, "Create portfolio failed");
           const msg =
             error.response?.data?.error ||
             error.response?.data?.message ||
@@ -110,7 +111,7 @@ export default function PortfolioTemplateOptions() {
               toast.success("Handyman portfolio created and linked to your account");
             }
           } catch (linkErr) {
-            console.warn("addPortfolioId:", linkErr);
+            logApiError(linkErr, "Link portfolio failed");
             toast.success("Handyman portfolio created");
           }
 
@@ -126,7 +127,7 @@ export default function PortfolioTemplateOptions() {
 
           navigate(`/portfolios/view/${id}/edit`);
         } catch (error) {
-          console.error("error creating handyman portfolio: ", error);
+          logApiError(error, "Create handyman portfolio failed");
           const msg =
             error.response?.data?.error ||
             error.response?.data?.message ||
@@ -175,7 +176,7 @@ export default function PortfolioTemplateOptions() {
               toast.success("Data science portfolio created and linked to your account");
             }
           } catch (linkErr) {
-            console.warn("addPortfolioId:", linkErr);
+            logApiError(linkErr, "Link portfolio failed");
             toast.success("Data science portfolio created");
           }
 
@@ -191,7 +192,7 @@ export default function PortfolioTemplateOptions() {
 
           navigate(`/portfolios/view/${id}/edit`);
         } catch (error) {
-          console.error("error creating data science portfolio: ", error);
+          logApiError(error, "Create data science portfolio failed");
           const msg =
             error.response?.data?.error ||
             error.response?.data?.message ||
@@ -215,7 +216,7 @@ export default function PortfolioTemplateOptions() {
           }
           navigate("/portfolios/create/ai", { state: { source: "onboarding" } });
         } catch (error) {
-          console.error("error opening AI portfolio creator: ", error);
+          logApiError(error, "Open AI portfolio creator failed");
           const msg =
             error.response?.data?.error ||
             error.response?.data?.message ||
@@ -240,8 +241,6 @@ export default function PortfolioTemplateOptions() {
           }
 
           const currentCount = getHealthcarePortfolioCount();
-          console.log("🏥 Creating healthcare portfolio for user:", user.email);
-          console.log("📊 User currently has", currentCount, "healthcare portfolio(s)");
 
           toast.info("Creating your healthcare practice website...");
 
@@ -276,7 +275,7 @@ export default function PortfolioTemplateOptions() {
               toast.warning("Portfolio created but linking had issues");
             }
           } catch (linkError) {
-            console.error("Error linking healthcare portfolio to user:", linkError);
+            logApiError(linkError, "Link healthcare portfolio failed");
             toast.error("Portfolio created but could not link to your account");
           }
 
@@ -295,14 +294,13 @@ export default function PortfolioTemplateOptions() {
               email: user.email,
             });
           } catch (logError) {
-            console.log("Could not log action:", logError);
+            logApiError(logError, "Log portfolio action failed");
           }
 
           navigate(`/portfolios/view/${practiceId}/edit`);
           
         } catch (error) {
-          console.error("❌ Error creating healthcare portfolio:", error);
-          console.error("Error details:", error.response?.data || error.message);
+          logApiError(error, "Create healthcare portfolio failed");
 
           const errorMessage =
             error.response?.data?.error || 
