@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosAuth from "@/shared/api/axiosAuth";
 import { AuthContext } from "@/shared/context/AuthContext";
-import DeveloperApiKeysPage from "@/features/developer/DeveloperApiKeysPage";
+import DeveloperApiKeysPage from "../DeveloperApiKeysPage";
 
 jest.mock("@/shared/api/axiosAuth", () => ({
   __esModule: true,
@@ -69,6 +69,8 @@ describe("DeveloperApiKeysPage", () => {
     expect(screen.getByText("fvm_example1…")).toBeInTheDocument();
     expect(screen.getAllByText("sites:read").length).toBeGreaterThan(0);
     expect(screen.getAllByText("profile:read").length).toBeGreaterThan(0);
+    expect(screen.getByRole("checkbox", { name: /Leads/ })).toBeInTheDocument();
+    expect(screen.getAllByText("leads:read").length).toBeGreaterThan(0);
     expect(screen.getByText("Active")).toBeInTheDocument();
     expect(screen.getByText(/Last used Never/)).toBeInTheDocument();
     expect(axiosAuth.get).toHaveBeenCalledWith("/api/developer/api-keys");
@@ -80,7 +82,7 @@ describe("DeveloperApiKeysPage", () => {
     const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     axiosAuth.post.mockResolvedValue({
       data: {
-        data: { ...activeKey, id: "key_example_2", name: "WalletMe", prefix: "fvm_example2" },
+        data: { ...activeKey, id: "key_example_2", name: "Partner key", prefix: "fvm_example2" },
         secret: EXAMPLE_SECRET,
         note: "Store this secret now. It cannot be retrieved again.",
       },
@@ -89,7 +91,7 @@ describe("DeveloperApiKeysPage", () => {
     renderPage();
     await screen.findByText("Partner reader");
 
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "WalletMe" } });
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Partner key" } });
     fireEvent.click(screen.getByRole("button", { name: "Create key" }));
 
     expect(await screen.findByRole("dialog", { name: "Copy your API key" })).toBeInTheDocument();
@@ -103,7 +105,7 @@ describe("DeveloperApiKeysPage", () => {
     expect(screen.queryByText(EXAMPLE_SECRET)).not.toBeInTheDocument();
 
     expect(axiosAuth.post).toHaveBeenCalledWith("/api/developer/api-keys", {
-      name: "WalletMe",
+      name: "Partner key",
       scopes: ["sites:read", "profile:read"],
     });
 

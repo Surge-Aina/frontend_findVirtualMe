@@ -1,10 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { toast } from "react-toastify";
 import axiosAuth from "@/shared/api/axiosAuth";
 import { AuthContext } from "@/shared/context/AuthContext";
-import IntegrationsPage from "@/features/developer/IntegrationsPage";
+import IntegrationsPage from "../IntegrationsPage";
 
 jest.mock("@/shared/api/axiosAuth", () => ({
   __esModule: true,
@@ -26,8 +25,7 @@ jest.mock("react-router-dom", () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-const WALLETME_KEY = "wm_example_key_value_w9k2";
-const SIGNING_SECRET = "whsec_example_signing_secret";
+const missing = Object.assign(new Error("missing"), { response: { status: 404 } });
 
 function renderPage() {
   return render(
@@ -39,115 +37,78 @@ function renderPage() {
   );
 }
 
-function mockGets({ wallet, webhooks, deliveries }) {
-  axiosAuth.get.mockImplementation((url) => {
-    if (url === "/api/developer/integrations/walletme") return Promise.resolve({ data: { data: wallet } });
-    if (url === "/api/developer/webhooks") {
-      if (webhooks instanceof Error) return Promise.reject(webhooks);
-      return Promise.resolve({ data: { data: webhooks } });
-    }
-    if (url === "/api/developer/webhooks/deliveries") {
-      return Promise.resolve({ data: { data: deliveries || [] } });
-    }
-    return Promise.reject(new Error(`unexpected ${url}`));
-  });
-}
+const exampleApp = {
+  slug: "app_example",
+  name: "Example App",
+  summary: "Reads sites for this account.",
+  scopes: ["sites:read", "profile:read"],
+  clientId: "fvm_app_example",
+  redirectUris: ["https://partner.example.test/callback"],
+};
 
-describe("IntegrationsPage", () => {
+describe("Integrations marketplace", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    axiosAuth.get.mockImplementation((url) => {
+      if (url === "/api/marketplace/apps") return Promise.resolve({ data: { data: [exampleApp] } });
+      if (url === "/api/developer/installations") {
+        return Promise.resolve({
+          data: {
+            data: [
+              {
+                id: "inst_example_1",
+                slug: "app_example",
+                name: "Example App",
+                scopes: ["sites:read", "profile:read"],
+                installedAt: "2026-04-01T00:00:00.000Z",
+              },
+            ],
+          },
+        });
+      }
+      return Promise.reject(new Error(`unexpected ${url}`));
+    });
   });
 
-  test("connects WalletMe with a masked key and then shows only the last 4", async () => {
-    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-    mockGets({
-      wallet: { connected: false, last4: null, updatedAt: null },
-      webhooks: Object.assign(new Error("missing"), { response: { status: 404 } }),
-    });
-    axiosAuth.put.mockResolvedValue({
-      data: { data: { connected: true, last4: "w9k2", updatedAt: "2026-02-01T00:00:00.000Z" } },
-    });
-
+  test("lists catalog apps and shows installed apps", async () => {
     renderPage();
-    expect(await screen.findByText("No WalletMe key saved.")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /Example App/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Installed" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Uninstall" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Webhooks" })).not.toBeInTheDocument();
 
-    const input = screen.getByLabelText("WalletMe API key");
-    expect(input).toHaveAttribute("type", "password");
-    fireEvent.change(input, { target: { value: WALLETME_KEY } });
-    fireEvent.click(screen.getByRole("button", { name: "Connect" }));
-
-    expect(await screen.findByText("w9k2")).toBeInTheDocument();
-    expect(screen.getByText("Connected")).toBeInTheDocument();
-    expect(input).toHaveValue("");
-    expect(axiosAuth.put).toHaveBeenCalledWith("/api/developer/integrations/walletme", { apiKey: WALLETME_KEY });
-    expect(screen.queryByDisplayValue(WALLETME_KEY)).not.toBeInTheDocument();
-
-    const logged = errorSpy.mock.calls.flat().join(" ");
-    expect(logged).not.toContain(WALLETME_KEY);
-    errorSpy.mockRestore();
+    fireEvent.click(screen.getByRole("button", { name: /Example App/ }));
+    expect(mockNavigate).toHaveBeenCalledWith("/integrations/apps/app_example");
   });
 
-  test("disconnects WalletMe after confirmation", async () => {
-    mockGets({
-      wallet: { connected: true, last4: "w9k2", updatedAt: "2026-02-01T00:00:00.000Z" },
-      webhooks: Object.assign(new Error("missing"), { response: { status: 501 } }),
+  test("shows an empty marketplace when the catalog is unavailable", async () => {
+    axiosAuth.get.mockImplementation((url) => {
+      if (url === "/api/marketplace/apps") return Promise.reject(missing);
+      if (url === "/api/developer/installations") return Promise.resolve({ data: { data: [] } });
+      return Promise.reject(new Error(`unexpected ${url}`));
     });
-    axiosAuth.delete.mockResolvedValue({ data: { data: { connected: false, last4: null } } });
-
     renderPage();
-    expect(await screen.findByText("w9k2")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Disconnect" }));
-    const dialog = screen.getByRole("dialog", { name: "Disconnect WalletMe" });
-    fireEvent.click(within(dialog).getByRole("button", { name: "Disconnect" }));
-
-    await waitFor(() => expect(axiosAuth.delete).toHaveBeenCalledWith("/api/developer/integrations/walletme"));
-    expect(toast.success).toHaveBeenCalledWith("WalletMe disconnected.");
-    expect(await screen.findByText("No WalletMe key saved.")).toBeInTheDocument();
+    expect(await screen.findByText(/No apps are listed yet/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Example App/ })).not.toBeInTheDocument();
   });
 
-  test("shows webhook settings and a one-time signing secret when the API exposes them", async () => {
-    mockGets({
-      wallet: { connected: false, last4: null },
-      webhooks: {
-        endpointUrl: "https://hooks.example.test/lead",
-        secretLast4: "c4e1",
-        events: ["lead.captured"],
-      },
-      deliveries: [
-        {
-          id: "evt_example_1",
-          type: "lead.captured",
-          status: "succeeded",
-          responseStatus: 204,
-          createdAt: "2026-03-01T00:00:00.000Z",
-          payload: { email: "person@example.test", note: "do not render" },
-        },
-      ],
-    });
-
+  test("opens the build-an-app page from the marketplace", async () => {
     renderPage();
-    expect(await screen.findByRole("heading", { name: "Webhooks" })).toBeInTheDocument();
-    expect(screen.getByDisplayValue("https://hooks.example.test/lead")).toBeInTheDocument();
-    expect(screen.getByText("c4e1")).toBeInTheDocument();
-    expect(screen.getByText("evt_example_1")).toBeInTheDocument();
-    expect(screen.getByText("succeeded")).toBeInTheDocument();
-    expect(screen.getByText(/HTTP 204/)).toBeInTheDocument();
-    expect(screen.queryByText("person@example.test")).not.toBeInTheDocument();
-    expect(screen.queryByText("do not render")).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Marketplace" })).toBeInTheDocument();
+    const [headerAction] = screen.getAllByRole("button", { name: "Build an app" });
+    fireEvent.click(headerAction);
+    expect(mockNavigate).toHaveBeenCalledWith("/developer/apps");
+  });
 
-    axiosAuth.put.mockResolvedValue({
-      data: {
-        data: { endpointUrl: "https://hooks.example.test/lead", secretLast4: "c4e1" },
-        secret: SIGNING_SECRET,
-        note: "Store this signing secret now.",
-      },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Save endpoint" }));
-
-    expect(await screen.findByText(SIGNING_SECRET)).toBeInTheDocument();
-    expect(screen.getByRole("dialog")).toHaveTextContent(/signing secret is shown once/i);
-    fireEvent.click(screen.getByRole("button", { name: "I have stored this" }));
-    expect(screen.queryByText(SIGNING_SECRET)).not.toBeInTheDocument();
+  test("uninstalls an app after confirmation", async () => {
+    axiosAuth.delete.mockResolvedValue({ data: { data: { id: "inst_example_1", deleted: true } } });
+    renderPage();
+    expect(await screen.findByRole("button", { name: "Uninstall" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Uninstall" }));
+    const dialog = screen.getByRole("dialog", { name: "Uninstall app" });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Uninstall" }));
+    await waitFor(() =>
+      expect(axiosAuth.delete).toHaveBeenCalledWith("/api/developer/installations/inst_example_1")
+    );
   });
 });

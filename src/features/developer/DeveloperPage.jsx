@@ -29,10 +29,20 @@ export default function DeveloperPage({ title, lede, active, actions, children }
           </button>
           <button
             type="button"
+            className={tabClass(active === "webhooks")}
+            onClick={() => navigate("/developer/webhooks")}
+          >
+            Webhooks
+          </button>
+          <button
+            type="button"
             className={tabClass(active === "integrations")}
             onClick={() => navigate("/integrations")}
           >
             Integrations
+          </button>
+          <button type="button" className={tabClass(active === "apps")} onClick={() => navigate("/developer/apps")}>
+            Build an app
           </button>
         </div>
 

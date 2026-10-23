@@ -171,7 +171,7 @@ export default function DeveloperApiKeysPage() {
       <section className="bg-white rounded-2xl shadow border border-gray-200 p-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Create a key</h2>
         <p className="text-gray-600 text-sm mb-6">
-          The full secret is returned once. WalletMe needs both Sites and Business profile.
+          The full secret is returned once. Choose the scopes this key needs.
         </p>
         <form className="space-y-6" onSubmit={handleCreate}>
           <div>
@@ -184,7 +184,7 @@ export default function DeveloperApiKeysPage() {
               maxLength={80}
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="WalletMe"
+              placeholder="Partner key"
               className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>

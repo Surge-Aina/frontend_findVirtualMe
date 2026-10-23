@@ -310,11 +310,33 @@ export default function Dashboard() {
               </button>
               <button
                 type="button"
+                onClick={() => navigate("/developer/webhooks")}
+                className="bg-white dark:bg-neutral-900 rounded-xl shadow-md p-6 text-left hover:shadow-lg transition-shadow"
+              >
+                <div className="font-semibold text-slate-800 dark:text-neutral-100 mb-2">Webhooks</div>
+                <div className="text-slate-600 dark:text-neutral-300 text-sm">
+                  Subscribe to events, rotate secrets, and read the delivery log.
+                </div>
+              </button>
+              <button
+                type="button"
                 onClick={() => navigate("/integrations")}
                 className="bg-white dark:bg-neutral-900 rounded-xl shadow-md p-6 text-left hover:shadow-lg transition-shadow"
               >
                 <div className="font-semibold text-slate-800 dark:text-neutral-100 mb-2">Integrations</div>
-                <div className="text-slate-600 dark:text-neutral-300 text-sm">Connect WalletMe to this account.</div>
+                <div className="text-slate-600 dark:text-neutral-300 text-sm">
+                  Install approved apps from the marketplace.
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/developer/apps")}
+                className="bg-white dark:bg-neutral-900 rounded-xl shadow-md p-6 text-left hover:shadow-lg transition-shadow"
+              >
+                <div className="font-semibold text-slate-800 dark:text-neutral-100 mb-2">Build an app</div>
+                <div className="text-slate-600 dark:text-neutral-300 text-sm">
+                  Register an app, redirect URIs, and a client secret shown once.
+                </div>
               </button>
             </div>
           </section>
