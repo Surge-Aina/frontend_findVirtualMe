@@ -100,14 +100,19 @@ export default function ResumeUpload() {
       setUploaded(true);
       setFile(null);
       setFileContent(null);
-      stopTracking(); // Stop tracking before removing session
-      localStorage.removeItem("onboardingSessionId"); // remove sessionId after successful upload
-      navigate("/dashboard"); // Redirect after upload
+      stopTracking();
+      navigate("/dashboard");
     } catch (err) {
       console.error("Error uploading file:", err);
-      setUploadError(
-        authFailureMessage(err) || "Could not upload your resume. Please try again."
-      );
+      const status = err?.response?.status;
+      const serverError = err?.response?.data?.error;
+      if (status === 429) {
+        setUploadError(serverError || "Too many requests");
+      } else if (status === 403) {
+        setUploadError(serverError || authFailureMessage(err) || "You do not have permission to do that.");
+      } else {
+        setUploadError(authFailureMessage(err) || "Could not upload your resume. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -121,7 +126,6 @@ export default function ResumeUpload() {
       localStorage.removeItem("resumeToken");
     }
   };
-  localStorage.removeItem("onboardingSessionId");
 */
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white">

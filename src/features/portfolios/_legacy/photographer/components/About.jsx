@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import Editable from "./Editable";
-import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
 
 export default function About() {
+  const { portfolioId } = usePhotographerWrite();
   const [photoUrl, setPhotoUrl] = useState("https://images.unsplash.com/photo-1494790108755-2616b612b5b5?auto=format&fit=crop&w=800&q=80"); // Default photo
   const [text, setText] = useState(
     "Hi, I'm Jane Doe, a professional photographer with a passion for capturing life's most beautiful moments. I offer services for weddings, graduations, sports, parties, and so much more. Head over to my Contacts page to learn more about how to book a session from me!"
@@ -30,7 +32,7 @@ export default function About() {
     setPhotoUrl(newUrl);
     
     try {
-      await axiosAuth.put("/settings/aboutPhoto", { value: newUrl });
+      await putPhotographerSetting("aboutPhoto", newUrl, portfolioId);
     } catch (err) {
       console.error('Failed to save photo:', err);
     }
@@ -40,7 +42,7 @@ export default function About() {
     setDescription(newDescription);
   
     try {
-      await axiosAuth.put("/settings/aboutDescription", { value: newDescription });
+      await putPhotographerSetting("aboutDescription", newDescription, portfolioId);
     } catch (err) {
       console.error('Failed to save description:', err);
     }
@@ -50,7 +52,7 @@ export default function About() {
     setText(newText);
     
     try {
-      await axiosAuth.put("/settings/aboutText", { value: newText });
+      await putPhotographerSetting("aboutText", newText, portfolioId);
     } catch (err) {
       console.error('Failed to save text:', err);
     }

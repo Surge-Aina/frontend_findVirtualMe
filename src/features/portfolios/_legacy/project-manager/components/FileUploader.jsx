@@ -108,7 +108,13 @@ export default function FileUploader({ portfolio }) {
       setMatchedWords("");
     } catch (error) {
       console.error("Error calling compare API:", error);
-      if (!authFailureMessage(error)) {
+      const status = error?.response?.status;
+      const serverError = error?.response?.data?.error;
+      if (status === 400) {
+        toast.error(serverError || "Input is too large");
+      } else if (status === 429) {
+        toast.error(serverError || "Too many requests");
+      } else if (!authFailureMessage(error)) {
         toast.error("Could not compare this job post.");
       }
     } finally {

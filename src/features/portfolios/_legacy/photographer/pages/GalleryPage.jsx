@@ -2,11 +2,13 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Editable from "../components/Editable";
 import { AuthContext } from "@/shared/context/AuthContext";
-import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
 
 const GalleryPage = () => {
   const navigate = useNavigate();
   const { isAdmin } = useContext(AuthContext);
+  const { portfolioId } = usePhotographerWrite();
 
   const [heroData, setHeroData] = useState({
     subtitle: "Explore our photography collections across different occasions and styles",
@@ -80,7 +82,7 @@ const GalleryPage = () => {
     setHeroData(updatedHero);
     
     try {
-      await axiosAuth.put("/settings/galleryHero", { value: updatedHero });
+      await putPhotographerSetting("galleryHero", updatedHero, portfolioId);
     } catch (err) {
       console.error('Failed to save hero data:', err);
     }
@@ -99,7 +101,7 @@ const GalleryPage = () => {
     setServices(updated);
     
     try {
-      await axiosAuth.put("/settings/galleryServices", { value: updated });
+      await putPhotographerSetting("galleryServices", updated, portfolioId);
     } catch (err) {
       console.error('Failed to save services:', err);
     }
@@ -117,7 +119,7 @@ const GalleryPage = () => {
     setServices(updatedServices);
     
     try {
-      await axiosAuth.put("/settings/galleryServices", { value: updatedServices });
+      await putPhotographerSetting("galleryServices", updatedServices, portfolioId);
     } catch (err) {
       console.error('Failed to save new service:', err);
     }
@@ -128,7 +130,7 @@ const GalleryPage = () => {
     setServices(updated);
     
     try {
-      await axiosAuth.put("/settings/galleryServices", { value: updated });
+      await putPhotographerSetting("galleryServices", updated, portfolioId);
     } catch (err) {
       console.error('Failed to remove service:', err);
     }

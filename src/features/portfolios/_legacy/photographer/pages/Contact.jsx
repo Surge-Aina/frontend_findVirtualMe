@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import Editable from '../components/Editable';
 import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
+import { putPhotographerSetting, usePhotographerWrite } from '../photographerApi';
 
 export default function Contact() {
+  const { portfolioId } = usePhotographerWrite();
   const [email, setEmail] = useState('janedoe@example.com');
   const [phone, setPhone] = useState('(123) 456-7890');
   const [responseTime, setResponseTime] = useState('Within 24 hours');
@@ -75,7 +77,7 @@ export default function Contact() {
     setDescription(newDescription);
     
     try {
-      await axiosAuth.put("/settings/contactDescription", { value: newDescription });
+      await putPhotographerSetting("contactDescription", newDescription, portfolioId);
     } catch (err) {
       console.error('Failed to save description:', err);
     }
@@ -85,7 +87,7 @@ export default function Contact() {
     setEmail(newEmail);
     
     try {
-      await axiosAuth.put("/settings/contactEmail", { value: newEmail });
+      await putPhotographerSetting("contactEmail", newEmail, portfolioId);
     } catch (err) {
       console.error('Failed to save email:', err);
     }
@@ -95,7 +97,7 @@ export default function Contact() {
     setPhone(newPhone);
     
     try {
-      await axiosAuth.put("/settings/contactPhone", { value: newPhone });
+      await putPhotographerSetting("contactPhone", newPhone, portfolioId);
     } catch (err) {
       console.error('Failed to save phone:', err);
     }
@@ -105,7 +107,7 @@ export default function Contact() {
     setResponseTime(newTime);
   
     try {
-      await axiosAuth.put("/settings/contactResponseTime", { value: newTime });
+      await putPhotographerSetting("contactResponseTime", newTime, portfolioId);
     } catch (err) {
       console.error('Failed to save response time:', err);
     }

@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
-import axiosAuth, { getOptional } from '@/shared/api/axiosAuth';
+import { getOptional } from '@/shared/api/axiosAuth';
+import {
+  usePhotographerWrite,
+  putPhotographerSetting,
+  postPhotographerPhoto,
+  putPhotographerPhoto,
+  deletePhotographerPhoto,
+  reorderPhotographerPhotos,
+} from '../photographerApi';
 
 export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
+  const { portfolioId } = usePhotographerWrite();
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const [photos, setPhotos] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({});
@@ -25,8 +34,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     const updatedPhoto = { ...photoToUpdate, url: newUrl };
 
     try {
-      await axiosAuth.put(`/photo/${endpoint}/${photoToUpdate._id}`, updatedPhoto);
-
+      await putPhotographerPhoto(endpoint, photoToUpdate._id, updatedPhoto, portfolioId);
       const newPhotos = [...photos];
       newPhotos[index] = updatedPhoto;
       setPhotos(newPhotos);
@@ -37,23 +45,21 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
 
   const handleLayoutChange = async (newLayout) => {
     setLayoutType(newLayout);
-
     try {
-      await axiosAuth.put(`/settings/${endpoint}Layout`, { value: newLayout });
+      await putPhotographerSetting(`${endpoint}Layout`, newLayout, portfolioId);
     } catch (err) {
       console.error('Failed to save layout setting', err);
     }
   };
 
-  const handleLayoutSettingsChange = async (layoutType, settings) => {
+  const handleLayoutSettingsChange = async (nextLayoutType, settings) => {
     const newLayoutSettings = {
       ...layoutSettings,
-      [layoutType]: settings
+      [nextLayoutType]: settings,
     };
     setLayoutSettings(newLayoutSettings);
-
     try {
-      await axiosAuth.put(`/settings/${endpoint}LayoutSettings`, { value: newLayoutSettings });
+      await putPhotographerSetting(`${endpoint}LayoutSettings`, newLayoutSettings, portfolioId);
     } catch (err) {
       console.error('Failed to save layout settings', err);
     }
@@ -61,8 +67,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
 
   const addPhoto = async () => {
     try {
-      const newPhoto = { url: '/sample-placeholder.jpg' };
-      const res = await axiosAuth.post(`/photo/${endpoint}`, newPhoto);
+      const res = await postPhotographerPhoto(endpoint, '/sample-placeholder.jpg', portfolioId);
       setPhotos([...photos, res.data]);
     } catch (err) {
       console.error('Failed to add photo', err);
@@ -72,15 +77,14 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
   const deletePhoto = async (index) => {
     const photoToDelete = photos[index];
     try {
-      console.log('Deleting photo:', photoToDelete);
-      await axiosAuth.delete(`/photo/${endpoint}/${photoToDelete._id}`);
+      await deletePhotographerPhoto(endpoint, photoToDelete._id, portfolioId);
       setPhotos(photos.filter((_, i) => i !== index));
     } catch (err) {
       console.error('Failed to delete photo', err);
     }
   };
 
-  const movePhoto = (index, direction) => {
+  const movePhoto = async (index, direction) => {
     const newPhotos = [...photos];
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= newPhotos.length) return;
@@ -89,7 +93,13 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
       newPhotos[targetIndex],
       newPhotos[index],
     ];
-    setPhotos(newPhotos);
+    const reordered = newPhotos.map((photo, position) => ({ ...photo, position }));
+    setPhotos(reordered);
+    try {
+      await reorderPhotographerPhotos(endpoint, reordered, portfolioId);
+    } catch (err) {
+      console.error('Failed to reorder photos', err);
+    }
   };
 
   return {

@@ -177,9 +177,11 @@ export default function OnboardingFlow() {
       //send data to backend
         const sendData = async () => {
         try {
+          const sessionId = localStorage.getItem("onboardingSessionId");
           const res = await axios.post(`${backendUrl}/api/users`, {
-            data,
+            data: sessionId ? { ...data, sessionId } : data,
           });
+          localStorage.removeItem("onboardingSessionId");
           login(res.data.user.email, data.userInfo.password);
           //userId = res.data.user._id;---------------
           // wait before redirect

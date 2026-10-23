@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import Editable from "./Editable";
-import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
 
 export default function Specializations() {
+  const { portfolioId } = usePhotographerWrite();
   const [description, setDescription] = useState("From intimate portraits to grand celebrations, I capture the essence of every moment");
   const [services, setServices] = useState([
     { name: 'Wedding Photography', description: 'Capturing your most precious day with artistry and emotion' },
@@ -34,7 +36,7 @@ export default function Specializations() {
     setDescription(newDescription);
     
     try {
-      await axiosAuth.put("/settings/specializationsDescription", { value: newDescription });
+      await putPhotographerSetting("specializationsDescription", newDescription, portfolioId);
     } catch (err) {
       console.error('Failed to save description:', err);
     }
@@ -47,9 +49,11 @@ export default function Specializations() {
 
     // Save to backend
     try {
-      await axiosAuth.put("/settings/specializationsServices", {
-        value: JSON.stringify(updatedServices),
-      });
+      await putPhotographerSetting(
+        "specializationsServices",
+        JSON.stringify(updatedServices),
+        portfolioId
+      );
     } catch (err) {
       console.error('Failed to save services:', err);
     }

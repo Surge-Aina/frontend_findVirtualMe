@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
+import { usePhotographerWrite } from '../photographerApi';
 
 function connectionFailureMessage(error) {
   const authMessage = authFailureMessage(error);
@@ -14,6 +15,7 @@ function connectionFailureMessage(error) {
 }
 
 export default function AdminDriveConnection({ onDriveConnected, currentFolderId, compact = false, endpoint }) {
+  const { portfolioId, platformAdmin } = usePhotographerWrite();
   const getStorageKey = () => `adminDriveFolderId_${endpoint}`;
   
   const [folderId, setFolderId] = useState('');
@@ -66,17 +68,22 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
     setTestResults(null);
 
     try {
-      const testResponse = await axiosAuth.get(`/drive/test/${folderId.trim()}`, {
-        skipAuthToast: true,
-      });
-      setTestResults(testResponse.data);
-      setConnectionStatus('Connection successful!');
+      if (platformAdmin) {
+        const testResponse = await axiosAuth.get(`/drive/test/${folderId.trim()}`, {
+          skipAuthToast: true,
+        });
+        setTestResults(testResponse.data);
+        setConnectionStatus('Connection successful!');
+      }
 
       await axiosAuth.put(
         `/settings/${endpoint}DriveFolderId`,
-        { value: folderId.trim() },
+        { value: folderId.trim(), portfolioId },
         { skipAuthToast: true }
       );
+      if (!platformAdmin) {
+        setConnectionStatus('Folder id saved.');
+      }
 
       localStorage.setItem(getStorageKey(), folderId.trim());
 
@@ -100,7 +107,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
     try {
       await axiosAuth.put(
         `/settings/${endpoint}DriveFolderId`,
-        { value: null },
+        { value: null, portfolioId },
         { skipAuthToast: true }
       );
     } catch (error) {

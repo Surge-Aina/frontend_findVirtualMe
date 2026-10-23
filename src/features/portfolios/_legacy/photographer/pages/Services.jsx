@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import Editable from "../components/Editable";
-import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
 
 export default function Services() {
+  const { portfolioId } = usePhotographerWrite();
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [heroData, setHeroData] = useState({
@@ -74,7 +76,7 @@ export default function Services() {
     setHeroData(updatedHero);
     
     try {
-      await axiosAuth.put("/settings/servicesHero", { value: updatedHero });
+      await putPhotographerSetting("servicesHero", updatedHero, portfolioId);
     } catch (err) {
       console.error('Failed to save hero data:', err);
     }
@@ -86,7 +88,7 @@ export default function Services() {
     setServices(updated);
     
     try {
-      await axiosAuth.put("/settings/servicesData", { value: updated });
+      await putPhotographerSetting("servicesData", updated, portfolioId);
     } catch (err) {
       console.error('Failed to save services:', err);
     }
@@ -98,7 +100,7 @@ export default function Services() {
     setPackages(updated);
     
     try {
-      await axiosAuth.put("/settings/packagesData", { value: updated });
+      await putPhotographerSetting("packagesData", updated, portfolioId);
     } catch (err) {
       console.error('Failed to save packages:', err);
     }
@@ -110,7 +112,7 @@ export default function Services() {
       setServices(updated);
       
       try {
-        await axiosAuth.put("/settings/servicesData", { value: updated });
+        await putPhotographerSetting("servicesData", updated, portfolioId);
       } catch (err) {
         console.error('Failed to delete service:', err);
       }
@@ -123,7 +125,7 @@ export default function Services() {
       setPackages(updated);
       
       try {
-        await axiosAuth.put("/settings/packagesData", { value: updated });
+        await putPhotographerSetting("packagesData", updated, portfolioId);
       } catch (err) {
         console.error('Failed to delete package:', err);
       }
@@ -141,7 +143,7 @@ export default function Services() {
     setServices(updated);
     
     try {
-      await axiosAuth.put("/settings/servicesData", { value: updated });
+      await putPhotographerSetting("servicesData", updated, portfolioId);
     } catch (err) {
       console.error('Failed to save new service:', err);
     }
@@ -157,7 +159,7 @@ export default function Services() {
     setPackages(updated);
     
     try {
-      await axiosAuth.put("/settings/packagesData", { value: updated });
+      await putPhotographerSetting("packagesData", updated, portfolioId);
     } catch (err) {
       console.error('Failed to save new package:', err);
     }

@@ -1,17 +1,6 @@
-import React from 'react';
-import axios from 'axios';
-
-//attach token to each axios request
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+import React, { useState } from 'react';
+import axiosAuth, { authFailureMessage } from '@/shared/api/axiosAuth';
+import { createPaymentIntent, formatCharge } from './paymentIntent';
 
 const PROMO_END = '03/31/2026';
 
@@ -70,27 +59,37 @@ const plans = [
   },
 ];
 
-const backendUrl = import.meta.env.VITE_BACKEND_API;
-const handleCheckout = async (planID) => {
-  if (planID === 'free') {
-    alert('You have selected the Free Tier. No payment required!');
-    return;
-  }
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.post(
-      `${backendUrl}/api/payments/checkout/session`,
-      { plan: planID },
-      { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-    );
-    window.location.href = response.data.checkoutUrl;
-  } catch (err) {
-    console.error('Failed to start checkout', err);
-    alert('Error starting checkout');
-  }
-};
-
 export default function Payment() {
+  const [serverPrices, setServerPrices] = useState({});
+
+  const handleCheckout = async (planID) => {
+    if (planID === 'free') {
+      alert('You have selected the Free Tier. No payment required!');
+      return;
+    }
+    try {
+      const priced = await createPaymentIntent({ plan: planID });
+      const label = formatCharge(priced.amount, priced.currency);
+      if (label) {
+        setServerPrices((prev) => ({ ...prev, [planID]: label }));
+      }
+    } catch (err) {
+      // The live payment-intent route still requires a client amount. A 400 means
+      // that route is the pre-contract handler, so Checkout Session can continue.
+      if (err?.response?.status !== 400) {
+        console.error('Failed to price plan', err);
+      }
+    }
+    try {
+      const response = await axiosAuth.post('/api/payments/checkout/session', { plan: planID });
+      if (response.data?.checkoutUrl) {
+        window.location.href = response.data.checkoutUrl;
+      }
+    } catch (err) {
+      console.error('Failed to start checkout', err);
+      alert(authFailureMessage(err) || 'Error starting checkout');
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f7faff] to-[#f3f6fb] flex flex-col items-center justify-start py-12 px-2">
       <h1 className="text-3xl md:text-5xl font-bold text-gray-800 text-center mb-3">Choose Your Plan</h1>
@@ -129,7 +128,7 @@ export default function Payment() {
           <div className="text-2xl font-bold mb-1">{plans[1].name}</div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-lg font-normal line-through text-gray-400">{plans[1].regPrice}</span>
-            <span className="text-4xl font-bold text-gray-900">{plans[1].price}</span>
+            <span className="text-4xl font-bold text-gray-900">{serverPrices.basic || plans[1].price}</span>
             <span className="text-lg font-normal">{plans[1].period}</span>
           </div>
           <div className="text-gray-500 text-center mb-4">{plans[1].description}</div>
@@ -148,7 +147,7 @@ export default function Payment() {
             Get Started
           </button>
           <div className="text-xs text-pink-600 mt-3 font-medium text-center">
-            Regular price <span className="line-through">{plans[1].regPrice}</span> now <span className="font-bold">{plans[1].price}</span>! Offer ends {PROMO_END}.
+            Regular price <span className="line-through">{plans[1].regPrice}</span> now <span className="font-bold">{serverPrices.basic || plans[1].price}</span>! Offer ends {PROMO_END}.
           </div>
         </div>
         {/* Pro Plan */}
@@ -156,7 +155,7 @@ export default function Payment() {
           <div className="text-2xl font-bold mb-1">{plans[2].name}</div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-lg font-normal line-through text-gray-400">{plans[2].regPrice}</span>
-            <span className="text-4xl font-bold text-gray-900">{plans[2].price}</span>
+            <span className="text-4xl font-bold text-gray-900">{serverPrices.pro || plans[2].price}</span>
             <span className="text-lg font-normal">{plans[2].period}</span>
           </div>
           <div className="text-gray-500 text-center mb-4">{plans[2].description}</div>
@@ -175,7 +174,7 @@ export default function Payment() {
             Get Started
           </button>
           <div className="text-xs text-pink-600 mt-3 font-medium text-center">
-            Regular price <span className="line-through">{plans[2].regPrice}</span> now <span className="font-bold">{plans[2].price}</span>! Offer ends {PROMO_END}.
+            Regular price <span className="line-through">{plans[2].regPrice}</span> now <span className="font-bold">{serverPrices.pro || plans[2].price}</span>! Offer ends {PROMO_END}.
           </div>
         </div>
       </div>

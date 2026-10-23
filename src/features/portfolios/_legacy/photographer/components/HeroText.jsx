@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import Editable from './Editable';
+import { getOptional } from '@/shared/api/axiosAuth';
+import { putPhotographerSetting, usePhotographerWrite } from '../photographerApi';
 
 export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "Party"] }) {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
+  const { portfolioId } = usePhotographerWrite();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
   const [heroWords, setHeroWords] = useState(words);
@@ -11,27 +13,11 @@ export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "
   // Load initial data from backend
   useEffect(() => {
     const fetchHeroData = async () => {
-      try {
-        // Fetch hero words
-  const wordsRes = await fetch(`${backendUrl}/settings/heroWords`);
-        if (wordsRes.ok) {
-          const wordsData = await wordsRes.json();
-          if (wordsData.value) {
-            setHeroWords(wordsData.value);
-          }
-        }
+      const wordsData = await getOptional('/settings/heroWords');
+      if (wordsData?.value) setHeroWords(wordsData.value);
 
-        // Fetch tagline
-  const taglineRes = await fetch(`${backendUrl}/settings/heroTagline`);
-        if (taglineRes.ok) {
-          const taglineData = await taglineRes.json();
-          if (taglineData.value) {
-            setTagline(taglineData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch hero data:', err);
-      }
+      const taglineData = await getOptional('/settings/heroTagline');
+      if (taglineData?.value) setTagline(taglineData.value);
     };
 
     fetchHeroData();
@@ -53,11 +39,7 @@ export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "
     setTagline(newTagline);
     
     try {
-  await fetch(`${backendUrl}/settings/heroTagline`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newTagline }),
-      });
+      await putPhotographerSetting('heroTagline', newTagline, portfolioId);
     } catch (err) {
       console.error('Failed to save tagline:', err);
     }

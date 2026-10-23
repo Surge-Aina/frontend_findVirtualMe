@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
 import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
+import {
+  usePhotographerWrite,
+  putPhotographerSetting,
+  postPhotographerPhoto,
+  putPhotographerPhoto,
+  deletePhotographerPhoto,
+  reorderPhotographerPhotos,
+} from '../photographerApi';
 
 function driveErrorMessage(err, fallback) {
   return authFailureMessage(err) || fallback;
 }
 
 export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
+  const { portfolioId, platformAdmin } = usePhotographerWrite();
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const [photos, setPhotos] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({});
@@ -52,68 +61,49 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
       }
       setError(null);
 
-      if (!currentFolderId) {
-        await fetchDefaultData();
+      if (platformAdmin && currentFolderId) {
+        setIsLoading(true);
+        try {
+          const photosRes = await axiosAuth.get(`/drive/admin/${currentFolderId}`, {
+            skipAuthToast: true,
+          });
+          setPhotos(photosRes.data);
+          setError(null);
+          await fetchLayoutData();
+        } catch (err) {
+          console.error('Failed to fetch admin data', err);
+          setPhotos([]);
+          setError(
+            driveErrorMessage(
+              err,
+              err.response
+                ? 'Failed to fetch photos from Google Drive'
+                : 'Network error while connecting to Google Drive'
+            )
+          );
+        } finally {
+          setIsLoading(false);
+          setHasInitialized(true);
+        }
         return;
       }
 
-      setIsLoading(true);
-      try {
-        const photosRes = await axiosAuth.get(`/drive/admin/${currentFolderId}`, {
-          skipAuthToast: true,
-        });
-        setPhotos(photosRes.data);
-        setError(null);
-        await fetchLayoutData();
-      } catch (err) {
-        console.error('Failed to fetch admin data', err);
-        setPhotos([]);
-        setError(
-          driveErrorMessage(
-            err,
-            err.response
-              ? 'Failed to fetch photos from Google Drive'
-              : 'Network error while connecting to Google Drive'
-          )
-        );
-      } finally {
-        setIsLoading(false);
-        setHasInitialized(true);
-      }
+      await fetchPublicPhotos();
     }
     fetchData();
-  }, [currentFolderId, endpoint]);
+  }, [currentFolderId, endpoint, platformAdmin]);
 
-  const fetchDefaultData = async () => {
+  const fetchPublicPhotos = async () => {
     if (!endpoint) return;
     setIsLoading(true);
-
-    const cachedFolderId = localStorage.getItem(getStorageKey());
-
-    if (cachedFolderId) {
-      try {
-        const photosRes = await axiosAuth.get(`/drive/admin/${cachedFolderId}`, {
-          skipAuthToast: true,
-        });
-        setPhotos(photosRes.data);
-        setError(null);
-        setCurrentFolderId(cachedFolderId);
-      } catch (err) {
-        setPhotos([]);
-        setError(driveErrorMessage(err, 'No Google Drive folder connected'));
-        setCurrentFolderId(null);
-      }
-    } else {
-      try {
-        const photosRes = await axiosAuth.get(`/drive/${endpoint}`, { skipAuthToast: true });
-        setPhotos(photosRes.data);
-        setError(null);
-      } catch (err) {
-        setPhotos([]);
-        setError(driveErrorMessage(err, 'No Google Drive folder connected'));
-      }
+    try {
+      const photosRes = await axiosAuth.get(`/drive/${endpoint}`, { skipAuthToast: true });
+      setPhotos(Array.isArray(photosRes.data) ? photosRes.data : []);
+      setError(null);
+    } catch (err) {
+      setPhotos([]);
+      setError(driveErrorMessage(err, 'No Google Drive folder connected'));
     }
-
     await fetchLayoutData();
     setIsLoading(false);
     setHasInitialized(true);
@@ -134,14 +124,14 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
   const handleImageChange = async (index, newUrl) => {
     const photoToUpdate = photos[index];
     const updatedPhoto = { ...photoToUpdate, url: newUrl };
-    if (currentFolderId) {
+    if (currentFolderId && platformAdmin) {
       const newPhotos = [...photos];
       newPhotos[index] = updatedPhoto;
       setPhotos(newPhotos);
       return;
     }
     try {
-      await axiosAuth.put(`/photo/${endpoint}/${photoToUpdate._id}`, updatedPhoto);
+      await putPhotographerPhoto(endpoint, photoToUpdate._id, updatedPhoto, portfolioId);
       const newPhotos = [...photos];
       newPhotos[index] = updatedPhoto;
       setPhotos(newPhotos);
@@ -154,29 +144,28 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
     setLayoutType(newLayout);
     if (!endpoint) return;
     try {
-      await axiosAuth.put(`/settings/${endpoint}Layout`, { value: newLayout });
+      await putPhotographerSetting(`${endpoint}Layout`, newLayout, portfolioId);
     } catch (err) {
       console.error('Failed to save layout setting', err);
     }
   };
 
-  const handleLayoutSettingsChange = async (layoutType, settings) => {
-    const newLayoutSettings = { ...layoutSettings, [layoutType]: settings };
+  const handleLayoutSettingsChange = async (nextLayoutType, settings) => {
+    const newLayoutSettings = { ...layoutSettings, [nextLayoutType]: settings };
     setLayoutSettings(newLayoutSettings);
     if (!endpoint) return;
     try {
-      await axiosAuth.put(`/settings/${endpoint}LayoutSettings`, { value: newLayoutSettings });
+      await putPhotographerSetting(`${endpoint}LayoutSettings`, newLayoutSettings, portfolioId);
     } catch (err) {
       console.error('Failed to save layout settings', err);
     }
   };
 
   const addPhoto = async () => {
-    if (currentFolderId) return;
+    if (currentFolderId && platformAdmin) return;
     if (!endpoint) return;
     try {
-      const newPhoto = { url: '/sample-placeholder.jpg' };
-      const res = await axiosAuth.post(`/photo/${endpoint}`, newPhoto);
+      const res = await postPhotographerPhoto(endpoint, '/sample-placeholder.jpg', portfolioId);
       setPhotos([...photos, res.data]);
     } catch (err) {
       console.error('Failed to add photo', err);
@@ -184,23 +173,30 @@ export function useDynamicPhotoManagement(endpoint, initialLayoutType = 'Mosaic'
   };
 
   const deletePhoto = async (index) => {
-    if (currentFolderId) return;
+    if (currentFolderId && platformAdmin) return;
     const photoToDelete = photos[index];
-    if (!endpoint || !photoToDelete._id) return;
+    if (!endpoint || !photoToDelete?._id) return;
     try {
-      await axiosAuth.delete(`/photo/${endpoint}/${photoToDelete._id}`);
+      await deletePhotographerPhoto(endpoint, photoToDelete._id, portfolioId);
       setPhotos(photos.filter((_, i) => i !== index));
     } catch (err) {
       console.error('Failed to delete photo', err);
     }
   };
 
-  const movePhoto = (index, direction) => {
+  const movePhoto = async (index, direction) => {
     const newPhotos = [...photos];
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= newPhotos.length) return;
     [newPhotos[index], newPhotos[targetIndex]] = [newPhotos[targetIndex], newPhotos[index]];
-    setPhotos(newPhotos);
+    const reordered = newPhotos.map((photo, position) => ({ ...photo, position }));
+    setPhotos(reordered);
+    if (!endpoint) return;
+    try {
+      await reorderPhotographerPhotos(endpoint, reordered, portfolioId);
+    } catch (err) {
+      console.error('Failed to reorder photos', err);
+    }
   };
 
   return {

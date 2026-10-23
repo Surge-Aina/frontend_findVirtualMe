@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import Editable from "./Editable";
-import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
+import { getOptional } from "@/shared/api/axiosAuth";
+import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
 
 export default function ClientTestimonial() {
+  const { portfolioId } = usePhotographerWrite();
   const [testimonials, setTestimonials] = useState([
     { quote: "Absolutely stunning work. Every photo tells a story and captures emotion beautifully.", author: "Sarah M." },
     { quote: "Professional, creative, and incredibly talented. Made our wedding day magical.", author: "David & Emma" },
@@ -35,7 +37,7 @@ export default function ClientTestimonial() {
     setDescription(newDescription);
   
     try {
-      await axiosAuth.put("/settings/testimonialsDescription", { value: newDescription });
+      await putPhotographerSetting("testimonialsDescription", newDescription, portfolioId);
     } catch (err) {
       console.error('Failed to save testimonials description:', err);
     }
@@ -48,9 +50,7 @@ export default function ClientTestimonial() {
 
     // Save to backend
     try {
-      await axiosAuth.put("/settings/testimonials", {
-        value: JSON.stringify(updatedTestimonials),
-      });
+      await putPhotographerSetting("testimonials", JSON.stringify(updatedTestimonials), portfolioId);
     } catch (err) {
       console.error('Failed to save testimonials:', err);
     }
