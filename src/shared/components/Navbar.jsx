@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { Menu, X, User } from "lucide-react";
+import FvMark from "./FvMark";
 
 export default function Navbar() {
   const [showAuth, setShowAuth] = useState(false);
@@ -28,45 +29,50 @@ export default function Navbar() {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             onClick={navigateHome}
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-medium">FV</span>
-            </div>
-            <span className="font-medium text-lg text-slate-800 dark:text-neutral-100 hidden sm:inline">FindVirtual.me</span>
+            <FvMark />
+            <span className="font-medium text-lg text-slate-800 dark:text-neutral-100 hidden sm:inline md:hidden xl:inline">FindVirtual.me</span>
           </motion.div>
 
           {/* Desktop links */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-1 xl:space-x-8">
             <button
-              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"
               onClick={navigateHome}
             >
               <span className="relative z-10">Job Seekers</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
-              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"
               onClick={() => navigate("/occupations")}
             >
               <span className="relative z-10">Creators</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
-              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"
               onClick={() => navigate("/dashboard")}
             >
               <span className="relative z-10">Dashboard</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
             <button
-              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"
               onClick={() => navigate("/solutions")}
             >
               <span className="relative z-10">Solutions</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
+            <button
+              className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"
+              onClick={() => navigate("/developers")}
+            >
+              <span className="relative z-10">Developers</span>
+              <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+            </button>
             {user && user.role === "admin" && (
               <button
-                className="relative transition-colors text-slate-800 dark:text-neutral-200 px-4 py-2 rounded-xl overflow-hidden group"
+                className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"
                 onClick={() => navigate("/admin-choice")}
               >
                 <span className="relative z-10">Admin</span>
@@ -220,6 +226,15 @@ export default function Navbar() {
               }}
             >
               Solutions
+            </button>
+            <button
+              className="w-full text-left px-6 py-3 text-slate-800 dark:text-neutral-200 hover:bg-blue-100 dark:hover:bg-neutral-800 rounded-lg"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate("/developers");
+              }}
+            >
+              Developers
             </button>
             {user && user.role === "admin" && (
               <button

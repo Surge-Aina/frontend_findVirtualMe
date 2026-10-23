@@ -74,6 +74,21 @@ import MyAccountLayout from "@/features/portfolio-users/MyAccountLayout.jsx";
 import ProfileTab from "@/features/portfolio-users/tabs/ProfileTab.jsx";
 import HistoryTab from "@/features/portfolio-users/tabs/HistoryTab.jsx";
 import BookingsTab from "@/features/portfolio-users/tabs/BookingsTab.jsx";
+import DeveloperApiKeysPage from "@/features/developer/DeveloperApiKeysPage.jsx";
+import WebhooksPage from "@/features/developer/WebhooksPage.jsx";
+import DeveloperAppsPage from "@/features/developer/DeveloperAppsPage.jsx";
+import IntegrationsPage from "@/features/developer/IntegrationsPage.jsx";
+import AppDetailPage from "@/features/developer/AppDetailPage.jsx";
+import OAuthConsentPage from "@/features/developer/OAuthConsentPage.jsx";
+import ApiReferencePage from "@/features/developer/docs/ApiReferencePage.jsx";
+import {
+  AuthDocsPage,
+  DeveloperPortalLayout,
+  GettingStartedPage,
+  McpDocsPage,
+  OAuthDocsPage,
+  WebhookDocsPage,
+} from "@/features/developer/docs/DeveloperPortal.jsx";
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -110,6 +125,21 @@ export default function App() {
           {/* Main Routes */}
           <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
           <Route path="/dashboard" element={<Dashboard onRequestAdmin={handleRequestAdmin} />} />
+          <Route path="/developer" element={<DeveloperApiKeysPage />} />
+          <Route path="/developer/webhooks" element={<WebhooksPage />} />
+          <Route path="/developer/apps" element={<DeveloperAppsPage />} />
+          <Route path="/integrations" element={<IntegrationsPage />} />
+          <Route path="/integrations/apps/:slug" element={<AppDetailPage />} />
+          <Route path="/oauth/consent" element={<OAuthConsentPage />} />
+          <Route path="/developers/docs/*" element={<ApiReferencePage />} />
+          <Route path="/developers" element={<DeveloperPortalLayout />}>
+            <Route index element={<GettingStartedPage />} />
+            <Route path="auth" element={<AuthDocsPage />} />
+            <Route path="reference" element={<Navigate to="/developers/docs" replace />} />
+            <Route path="mcp" element={<McpDocsPage />} />
+            <Route path="webhooks" element={<WebhookDocsPage />} />
+            <Route path="oauth" element={<OAuthDocsPage />} />
+          </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/occupations" element={<Occupations />} />

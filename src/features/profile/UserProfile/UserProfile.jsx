@@ -8,6 +8,10 @@ import {
   HelpCircle,
   Settings,
   PanelsTopLeft,
+  Plug,
+  KeyRound,
+  Webhook,
+  Blocks,
 } from "lucide-react";
 import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
@@ -345,6 +349,46 @@ export default function UserProfile() {
             currentTab={currentTab}
             setCurrentTab={handleTabChange}
           /> */}
+          <button
+            type="button"
+            onClick={() => navigate("/developer")}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800"
+          >
+            <span className="flex items-center gap-3">
+              <KeyRound className="w-5 h-5" /> API Keys
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/developer/webhooks")}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800"
+          >
+            <span className="flex items-center gap-3">
+              <Webhook className="w-5 h-5" /> Webhooks
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/integrations")}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800"
+          >
+            <span className="flex items-center gap-3">
+              <Plug className="w-5 h-5" /> Integrations
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/developer/apps")}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800"
+          >
+            <span className="flex items-center gap-3">
+              <Blocks className="w-5 h-5" /> Build an app
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
         </nav>
         <div className="px-6 pb-6 space-y-4 mt-auto">
           <AppThemeSegmentedToggle />

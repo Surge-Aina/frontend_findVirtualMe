@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { logApiError } from "@/shared/api/safeLog";
+import { consumePostLoginPath } from "@/shared/utils/safeReturnPath";
 import SignUp from "./SignUp";
 import GoogleLoginButton from "./GoogleLoginButton";
 
@@ -23,7 +24,7 @@ const Auth = ({ onClose }) => {
     try {
       await login(form.email, form.password);
       if (onClose) onClose();
-      navigate("/profile");
+      navigate(consumePostLoginPath());
     } catch (err) {
       setError("Invalid Credentials");
       logApiError(err, "Login failed");
@@ -143,7 +144,6 @@ const Auth = ({ onClose }) => {
           <GoogleLoginButton
             onClose={() => {
               if (onClose) onClose();
-              navigate("/profile");
             }}
           />
 
