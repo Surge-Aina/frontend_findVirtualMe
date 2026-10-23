@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Editable from "./Editable";
+import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
 
 export default function ClientTestimonial() {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [testimonials, setTestimonials] = useState([
     { quote: "Absolutely stunning work. Every photo tells a story and captures emotion beautifully.", author: "Sarah M." },
     { quote: "Professional, creative, and incredibly talented. Made our wedding day magical.", author: "David & Emma" },
@@ -15,26 +15,16 @@ export default function ClientTestimonial() {
   // Load initial data from backend
   useEffect(() => {
     const fetchTestimonialsData = async () => {
-      try {
-        // Fetch description
-  const descriptionRes = await fetch(`${backendUrl}/settings/testimonialsDescription`);
-        if (descriptionRes.ok) {
-          const descriptionData = await descriptionRes.json();
-          if (descriptionData.value) {
-            setDescription(descriptionData.value);
-          }
-        }
+      const descriptionData = await getOptional("/settings/testimonialsDescription");
+      if (descriptionData?.value) setDescription(descriptionData.value);
 
-        // Fetch testimonials
-  const res = await fetch(`${backendUrl}/settings/testimonials`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.value) {
-            setTestimonials(JSON.parse(data.value));
-          }
+      const data = await getOptional("/settings/testimonials");
+      if (data?.value) {
+        try {
+          setTestimonials(JSON.parse(data.value));
+        } catch (err) {
+          console.error("Failed to parse testimonials", err);
         }
-      } catch (err) {
-        console.error('Failed to fetch testimonials data:', err);
       }
     };
 
@@ -45,11 +35,7 @@ export default function ClientTestimonial() {
     setDescription(newDescription);
   
     try {
-  await fetch(`${backendUrl}/settings/testimonialsDescription`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newDescription }),
-      });
+      await axiosAuth.put("/settings/testimonialsDescription", { value: newDescription });
     } catch (err) {
       console.error('Failed to save testimonials description:', err);
     }
@@ -62,10 +48,8 @@ export default function ClientTestimonial() {
 
     // Save to backend
     try {
-  await fetch(`${backendUrl}/settings/testimonials`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: JSON.stringify(updatedTestimonials) }),
+      await axiosAuth.put("/settings/testimonials", {
+        value: JSON.stringify(updatedTestimonials),
       });
     } catch (err) {
       console.error('Failed to save testimonials:', err);

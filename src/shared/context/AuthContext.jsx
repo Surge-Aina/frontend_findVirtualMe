@@ -101,8 +101,10 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
+      const identifier = typeof email === "string" ? email.trim() : email;
       const res = await axios.post(`${backendUrl}/api/auth/login`, {
-        email,
+        email: identifier,
+        username: identifier,
         password,
       });
 

@@ -1,15 +1,14 @@
     // Co-located with local-vendor/services/api (F7).
 
-    // We will use CommonJS require so we can control import order.
-    jest.mock("axios", () => {
-    const mockAxios = {
-        create: jest.fn(),
-    };
-    return {
-        __esModule: true,
-        default: mockAxios,
-    };
-    });
+    jest.mock("@/shared/api/axiosAuth", () => ({
+    __esModule: true,
+    default: {
+        get: jest.fn(),
+        post: jest.fn(),
+        put: jest.fn(),
+        delete: jest.fn(),
+    },
+    }));
 
     jest.mock("../../context/VendorContext", () => ({
     __esModule: true,
@@ -17,26 +16,13 @@
     }));
 
     describe("useVendorApi", () => {
-    const mockClient = {
-        get: jest.fn(),
-        post: jest.fn(),
-        put: jest.fn(),
-        delete: jest.fn(),
-    };
+    const mockClient = require("@/shared/api/axiosAuth").default;
 
-    // These will be assigned once we require the mocks
     let useVendor;
     let useVendorApi;
 
     beforeAll(() => {
-        // Get the mocked axios + VendorContext
-        const axios = require("axios").default;
         ({ useVendor } = require("../../context/VendorContext"));
-
-        // When api.js calls axios.create(...), return our mock client
-        axios.create.mockReturnValue(mockClient);
-
-        // Now import the module under test AFTER axios.create is configured
         ({ useVendorApi } = require("../api"));
     });
 

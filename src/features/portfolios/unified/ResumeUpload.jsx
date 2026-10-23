@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { startTracking, stopTracking, logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 import PortfolioTemplateOptions from "@/features/onboarding/components/PortfolioTemplateOptions";
 
 export default function ResumeUpload() {
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const [file, setFile] = useState(null);
   const [fileContent, setFileContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const navigate = useNavigate();
 
   // session ID
@@ -69,17 +69,20 @@ export default function ResumeUpload() {
     if (!file) return;
 
     setLoading(true);
+    setUploadError("");
     const formData = new FormData();
     formData.append("resume", file);
     const email = localStorage.getItem("email");
     if (email) {
       formData.append("email", email);
     }
+    // Logged-in requests also send the bearer token. Logged-out requests keep the
+    // onboarding session so the backend can restore a rate-limited pre-login path.
     formData.append("sessionId", sessionId);
 
     try {
-      const res = await axios.post(`${apiUrl}/portfolio/upload-pdf`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await axiosAuth.post("/portfolio/upload-pdf", formData, {
+        skipAuthToast: true,
       });
       console.log("Uploaded:", res.data);
 
@@ -102,6 +105,9 @@ export default function ResumeUpload() {
       navigate("/dashboard"); // Redirect after upload
     } catch (err) {
       console.error("Error uploading file:", err);
+      setUploadError(
+        authFailureMessage(err) || "Could not upload your resume. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -222,6 +228,12 @@ export default function ResumeUpload() {
                     </span>
                   )}
                 </button>
+
+                {uploadError && (
+                  <p role="alert" className="text-sm text-red-600 bg-white bg-opacity-50 rounded-lg p-3">
+                    {uploadError}
+                  </p>
+                )}
 
                 {uploaded && (
                   <div className="flex items-center justify-center gap-2 text-blue-600 font-semibold bg-white bg-opacity-50 rounded-lg p-3">

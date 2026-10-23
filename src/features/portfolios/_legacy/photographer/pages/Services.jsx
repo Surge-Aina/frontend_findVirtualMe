@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Editable from "../components/Editable";
+import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
 
 export default function Services() {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const [heroData, setHeroData] = useState({
@@ -56,36 +56,14 @@ export default function Services() {
   // Load initial data from backend
   useEffect(() => {
     const fetchServicesData = async () => {
-      try {
-        // Fetch hero data
-  const heroRes = await fetch(`${backendUrl}/settings/servicesHero`);
-        if (heroRes.ok) {
-          const heroData = await heroRes.json();
-          if (heroData.value) {
-            setHeroData(heroData.value);
-          }
-        }
+      const heroPayload = await getOptional("/settings/servicesHero");
+      if (heroPayload?.value) setHeroData(heroPayload.value);
 
-        // Fetch services data
-  const servicesRes = await fetch(`${backendUrl}/settings/servicesData`);
-        if (servicesRes.ok) {
-          const servicesData = await servicesRes.json();
-          if (servicesData.value) {
-            setServices(servicesData.value);
-          }
-        }
+      const servicesPayload = await getOptional("/settings/servicesData");
+      if (servicesPayload?.value) setServices(servicesPayload.value);
 
-        // Fetch packages data
-  const packagesRes = await fetch(`${backendUrl}/settings/packagesData`);
-        if (packagesRes.ok) {
-          const packagesData = await packagesRes.json();
-          if (packagesData.value) {
-            setPackages(packagesData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch services data:', err);
-      }
+      const packagesPayload = await getOptional("/settings/packagesData");
+      if (packagesPayload?.value) setPackages(packagesPayload.value);
     };
 
     fetchServicesData();
@@ -96,11 +74,7 @@ export default function Services() {
     setHeroData(updatedHero);
     
     try {
-  await fetch(`${backendUrl}/settings/servicesHero`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updatedHero }),
-      });
+      await axiosAuth.put("/settings/servicesHero", { value: updatedHero });
     } catch (err) {
       console.error('Failed to save hero data:', err);
     }
@@ -112,11 +86,7 @@ export default function Services() {
     setServices(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/servicesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await axiosAuth.put("/settings/servicesData", { value: updated });
     } catch (err) {
       console.error('Failed to save services:', err);
     }
@@ -128,11 +98,7 @@ export default function Services() {
     setPackages(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/packagesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await axiosAuth.put("/settings/packagesData", { value: updated });
     } catch (err) {
       console.error('Failed to save packages:', err);
     }
@@ -144,11 +110,7 @@ export default function Services() {
       setServices(updated);
       
       try {
-  await fetch(`${backendUrl}/settings/servicesData`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: updated }),
-        });
+        await axiosAuth.put("/settings/servicesData", { value: updated });
       } catch (err) {
         console.error('Failed to delete service:', err);
       }
@@ -161,11 +123,7 @@ export default function Services() {
       setPackages(updated);
       
       try {
-  await fetch(`${backendUrl}/settings/packagesData`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: updated }),
-        });
+        await axiosAuth.put("/settings/packagesData", { value: updated });
       } catch (err) {
         console.error('Failed to delete package:', err);
       }
@@ -183,11 +141,7 @@ export default function Services() {
     setServices(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/servicesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await axiosAuth.put("/settings/servicesData", { value: updated });
     } catch (err) {
       console.error('Failed to save new service:', err);
     }
@@ -203,11 +157,7 @@ export default function Services() {
     setPackages(updated);
     
     try {
-  await fetch(`${backendUrl}/settings/packagesData`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: updated }),
-      });
+      await axiosAuth.put("/settings/packagesData", { value: updated });
     } catch (err) {
       console.error('Failed to save new package:', err);
     }

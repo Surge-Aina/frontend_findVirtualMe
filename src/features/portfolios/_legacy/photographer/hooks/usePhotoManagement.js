@@ -1,55 +1,31 @@
 import { useState, useEffect } from 'react';
+import axiosAuth, { getOptional } from '@/shared/api/axiosAuth';
 
 export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [layoutType, setLayoutType] = useState(initialLayoutType);
   const [photos, setPhotos] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({});
 
-  // Fetch initial data
   useEffect(() => {
     async function fetchData() {
-      try {
-        // Fetch photos
-  const photosRes = await fetch(`${backendUrl}/drive/${endpoint}`);
-        const photosData = await photosRes.json();
-        setPhotos(photosData);
+      const photosData = await getOptional(`/drive/${endpoint}`);
+      if (Array.isArray(photosData)) setPhotos(photosData);
 
-        // Fetch layout type
-  const layoutRes = await fetch(`${backendUrl}/settings/${endpoint}Layout`);
-        if (layoutRes.ok) {
-          const layoutData = await layoutRes.json();
-          if (layoutData.value) {
-            setLayoutType(layoutData.value);
-          }
-        }
+      const layoutData = await getOptional(`/settings/${endpoint}Layout`);
+      if (layoutData?.value) setLayoutType(layoutData.value);
 
-        // Fetch layout settings
-  const settingsRes = await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`);
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json();
-          if (settingsData.value) {
-            setLayoutSettings(settingsData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch data', err);
-      }
+      const settingsData = await getOptional(`/settings/${endpoint}LayoutSettings`);
+      if (settingsData?.value) setLayoutSettings(settingsData.value);
     }
     fetchData();
   }, [endpoint]);
 
-  // Photo management functions
   const handleImageChange = async (index, newUrl) => {
     const photoToUpdate = photos[index];
     const updatedPhoto = { ...photoToUpdate, url: newUrl };
 
     try {
-  await fetch(`${backendUrl}/photo/${endpoint}/${photoToUpdate._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedPhoto),
-      });
+      await axiosAuth.put(`/photo/${endpoint}/${photoToUpdate._id}`, updatedPhoto);
 
       const newPhotos = [...photos];
       newPhotos[index] = updatedPhoto;
@@ -61,13 +37,9 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
 
   const handleLayoutChange = async (newLayout) => {
     setLayoutType(newLayout);
-    
+
     try {
-  await fetch(`${backendUrl}/settings/${endpoint}Layout`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newLayout }),
-      });
+      await axiosAuth.put(`/settings/${endpoint}Layout`, { value: newLayout });
     } catch (err) {
       console.error('Failed to save layout setting', err);
     }
@@ -79,13 +51,9 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
       [layoutType]: settings
     };
     setLayoutSettings(newLayoutSettings);
-    
+
     try {
-  await fetch(`${backendUrl}/settings/${endpoint}LayoutSettings`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newLayoutSettings }),
-      });
+      await axiosAuth.put(`/settings/${endpoint}LayoutSettings`, { value: newLayoutSettings });
     } catch (err) {
       console.error('Failed to save layout settings', err);
     }
@@ -94,13 +62,8 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
   const addPhoto = async () => {
     try {
       const newPhoto = { url: '/sample-placeholder.jpg' };
-  const res = await fetch(`${backendUrl}/photo/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPhoto),
-      });
-      const savedPhoto = await res.json();
-      setPhotos([...photos, savedPhoto]);
+      const res = await axiosAuth.post(`/photo/${endpoint}`, newPhoto);
+      setPhotos([...photos, res.data]);
     } catch (err) {
       console.error('Failed to add photo', err);
     }
@@ -110,9 +73,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     const photoToDelete = photos[index];
     try {
       console.log('Deleting photo:', photoToDelete);
-  await fetch(`${backendUrl}/photo/${endpoint}/${photoToDelete._id}`, {
-        method: 'DELETE',
-      });
+      await axiosAuth.delete(`/photo/${endpoint}/${photoToDelete._id}`);
       setPhotos(photos.filter((_, i) => i !== index));
     } catch (err) {
       console.error('Failed to delete photo', err);
@@ -142,4 +103,4 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     deletePhoto,
     movePhoto,
   };
-} 
+}

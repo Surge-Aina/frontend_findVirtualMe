@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import Editable from '../components/Editable';
+import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
 
 export default function Contact() {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [email, setEmail] = useState('janedoe@example.com');
   const [phone, setPhone] = useState('(123) 456-7890');
   const [responseTime, setResponseTime] = useState('Within 24 hours');
@@ -11,45 +11,17 @@ export default function Contact() {
   // Load initial contact data from backend
   useEffect(() => {
     const fetchContactData = async () => {
-      try {
-        // Fetch description
-  const descriptionRes = await fetch(`${backendUrl}/settings/contactDescription`);
-        if (descriptionRes.ok) {
-          const descriptionData = await descriptionRes.json();
-          if (descriptionData.value) {
-            setDescription(descriptionData.value);
-          }
-        }
+      const descriptionData = await getOptional("/settings/contactDescription");
+      if (descriptionData?.value) setDescription(descriptionData.value);
 
-        // Fetch email
-  const emailRes = await fetch(`${backendUrl}/settings/contactEmail`);
-        if (emailRes.ok) {
-          const emailData = await emailRes.json();
-          if (emailData.value) {
-            setEmail(emailData.value);
-          }
-        }
+      const emailData = await getOptional("/settings/contactEmail");
+      if (emailData?.value) setEmail(emailData.value);
 
-        // Fetch phone
-  const phoneRes = await fetch(`${backendUrl}/settings/contactPhone`);
-        if (phoneRes.ok) {
-          const phoneData = await phoneRes.json();
-          if (phoneData.value) {
-            setPhone(phoneData.value);
-          }
-        }
+      const phoneData = await getOptional("/settings/contactPhone");
+      if (phoneData?.value) setPhone(phoneData.value);
 
-        // Fetch response time
-  const responseTimeRes = await fetch(`${backendUrl}/settings/contactResponseTime`);
-        if (responseTimeRes.ok) {
-          const responseTimeData = await responseTimeRes.json();
-          if (responseTimeData.value) {
-            setResponseTime(responseTimeData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch contact data:', err);
-      }
+      const responseTimeData = await getOptional("/settings/contactResponseTime");
+      if (responseTimeData?.value) setResponseTime(responseTimeData.value);
     };
 
     fetchContactData();
@@ -74,18 +46,12 @@ export default function Contact() {
     
     console.log('Submitting:', submitData);
     
-    const response = await fetch(`${backendUrl}/photographer/contact`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submitData)
+    const { data } = await axiosAuth.post("/photographer/contact", submitData, {
+      skipAuthToast: true,
     });
-    
-    const data = await response.json();
     console.log('Backend response:', data);
     
-    if (response.ok && data.success) {
+    if (data?.success) {
       alert('Thank you! Your message has been sent successfully.');
       setFormData({
         name: '',
@@ -93,11 +59,11 @@ export default function Contact() {
         message: ''
       });
     } else {
-      alert(data.message || 'Failed to send message. Please try again.');
+      alert(data?.message || 'Failed to send message. Please try again.');
     }
   } catch (error) {
     console.error('Error sending message:', error);
-    alert('Failed to send message. Please try again.');
+    alert(authFailureMessage(error) || 'Failed to send message. Please try again.');
   }
 };
 
@@ -109,11 +75,7 @@ export default function Contact() {
     setDescription(newDescription);
     
     try {
-  await fetch(`${backendUrl}/settings/contactDescription`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newDescription }),
-      });
+      await axiosAuth.put("/settings/contactDescription", { value: newDescription });
     } catch (err) {
       console.error('Failed to save description:', err);
     }
@@ -123,11 +85,7 @@ export default function Contact() {
     setEmail(newEmail);
     
     try {
-  await fetch(`${backendUrl}/settings/contactEmail`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newEmail }),
-      });
+      await axiosAuth.put("/settings/contactEmail", { value: newEmail });
     } catch (err) {
       console.error('Failed to save email:', err);
     }
@@ -137,11 +95,7 @@ export default function Contact() {
     setPhone(newPhone);
     
     try {
-  await fetch(`${backendUrl}/settings/contactPhone`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newPhone }),
-      });
+      await axiosAuth.put("/settings/contactPhone", { value: newPhone });
     } catch (err) {
       console.error('Failed to save phone:', err);
     }
@@ -151,11 +105,7 @@ export default function Contact() {
     setResponseTime(newTime);
   
     try {
-  await fetch(`${backendUrl}/settings/contactResponseTime`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newTime }),
-      });
+      await axiosAuth.put("/settings/contactResponseTime", { value: newTime });
     } catch (err) {
       console.error('Failed to save response time:', err);
     }

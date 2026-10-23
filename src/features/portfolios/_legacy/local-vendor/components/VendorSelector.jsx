@@ -1,9 +1,31 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
-import API from "../services/api";
+import { AuthContext } from "@/shared/context/AuthContext.jsx";
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+
+function asVendorList(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.vendors)) return payload.vendors;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return null;
+}
+
+function isAdminUser(user) {
+  if (!user) return false;
+  if (user.isAdmin === true) return true;
+  if (String(user.role || "").toLowerCase() === "admin") return true;
+  return Array.isArray(user.roles) && user.roles.includes("admin");
+}
+
+/** Owner-list route is not registered yet, so /vendor/mine hits /:vendorId and 500s. */
+function isMissingOwnerList(error) {
+  const status = error?.response?.status;
+  return !error?.response || status === 400 || status === 404 || status === 500;
+}
 
 export default function VendorSelector() {
   const { vendorId, setVendorId } = useVendor();
+  const { user, loading: authLoading } = useContext(AuthContext);
   const [vendors, setVendors] = useState([]);
   const [open, setOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -11,16 +33,69 @@ export default function VendorSelector() {
   const [form, setForm] = useState({ name: "", email: "" });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [listError, setListError] = useState("");
+  const [actionError, setActionError] = useState("");
   const dropdownRef = useRef(null);
+  const isAdmin = isAdminUser(user);
 
-  // Fetch all vendors
   useEffect(() => {
-    API.get("/vendor")
-      .then((res) => setVendors(res.data || []))
-      .catch((err) => console.error("Failed to load vendors", err));
-  }, []);
+    if (authLoading) return;
+    let cancelled = false;
 
-  // Close dropdown if clicking outside
+    async function loadVendors() {
+      try {
+        const res = await axiosAuth.get("/vendor/mine", { skipAuthToast: true });
+        const list = asVendorList(res.data);
+        if (list) {
+          if (!cancelled) {
+            setVendors(list);
+            setListError("");
+          }
+          return;
+        }
+      } catch (err) {
+        const status = err?.response?.status;
+        const adminFallback = isAdmin && (isMissingOwnerList(err) || status === 403);
+        if (!adminFallback) {
+          if (!cancelled) {
+            if (isMissingOwnerList(err)) {
+              setVendors([]);
+              setListError("");
+            } else {
+              setVendors([]);
+              setListError(authFailureMessage(err) || "Could not load your vendors.");
+            }
+          }
+          return;
+        }
+      }
+
+      if (!isAdmin) {
+        if (!cancelled) setVendors([]);
+        return;
+      }
+
+      try {
+        const res = await axiosAuth.get("/vendor", { skipAuthToast: true });
+        const list = asVendorList(res.data) || [];
+        if (!cancelled) {
+          setVendors(list);
+          setListError("");
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setVendors([]);
+          setListError(authFailureMessage(err) || "Could not load vendors.");
+        }
+      }
+    }
+
+    loadVendors();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, isAdmin]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -33,36 +108,40 @@ export default function VendorSelector() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Create vendor manually
   const handleCreateVendor = async (e) => {
     e.preventDefault();
+    setActionError("");
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_API}/vendor`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const newVendor = await res.json();
+      const res = await axiosAuth.post("/vendor", form, { skipAuthToast: true });
+      const newVendor = res.data;
+      if (!newVendor?._id) {
+        setActionError("Could not create the vendor.");
+        return;
+      }
       setVendors((prev) => [...prev, newVendor]);
-      setVendorId(newVendor._id); // auto-select
+      setVendorId(newVendor._id);
       setForm({ name: "", email: "" });
       setShowForm(false);
       setOpen(false);
     } catch (err) {
       console.error("Failed to create vendor", err);
+      setActionError(
+        authFailureMessage(err) || err.response?.data?.error || "Could not create the vendor."
+      );
     }
   };
 
-  // Inject vendor via PDF/DOC
   const handleInjectVendor = async () => {
     if (!file) return alert("Please select a file");
     setLoading(true);
+    setActionError("");
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await API.post("/vendor/inject", formData, {
+      const res = await axiosAuth.post("/vendor/inject", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        skipAuthToast: true,
       });
 
       const { vendor } = res.data;
@@ -73,13 +152,13 @@ export default function VendorSelector() {
       setOpen(false);
     } catch (err) {
       console.error("Failed to inject vendor", err);
-      // Show server-side message if available
-      if (err.response?.status === 400 && err.response.data?.error) {
+      const authMessage = authFailureMessage(err);
+      if (authMessage) {
+        setActionError(authMessage);
+      } else if (err.response?.status === 400 && err.response.data?.error) {
         alert(err.response.data.error);
       } else {
-        alert(
-          "Something went wrong while creating the vendor. Please try again."
-        );
+        alert("Something went wrong while creating the vendor. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -88,7 +167,6 @@ export default function VendorSelector() {
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      {/* Trigger Button */}
       <button
         onClick={() => setOpen((o) => !o)}
         className="px-3 py-2 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center gap-1 text-sm font-medium"
@@ -98,11 +176,20 @@ export default function VendorSelector() {
           : "Select Vendor"}
         <span className="ml-1">▾</span>
       </button>
+      {listError && (
+        <p role="alert" className="mt-1 max-w-xs text-xs text-red-600">
+          {listError}
+        </p>
+      )}
 
-      {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-64 bg-white border rounded-md shadow-lg z-50">
           <div className="py-1 max-h-64 overflow-y-auto">
+            {actionError && (
+              <p role="alert" className="px-4 py-2 text-xs text-red-600">
+                {actionError}
+              </p>
+            )}
             {vendors.map((v) => (
               <button
                 key={v._id}
@@ -120,12 +207,8 @@ export default function VendorSelector() {
 
             <hr className="my-1" />
 
-            {/* Manual Form */}
             {showForm ? (
-              <form
-                onSubmit={handleCreateVendor}
-                className="p-3 flex flex-col gap-2"
-              >
+              <form onSubmit={handleCreateVendor} className="p-3 flex flex-col gap-2">
                 <input
                   type="text"
                   placeholder="Vendor name"
@@ -159,7 +242,6 @@ export default function VendorSelector() {
                 </div>
               </form>
             ) : showUpload ? (
-              // Upload Doc Form
               <div className="p-3 flex flex-col gap-2">
                 <input
                   type="file"

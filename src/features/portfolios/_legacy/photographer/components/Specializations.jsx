@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Editable from "./Editable";
+import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
 
 export default function Specializations() {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [description, setDescription] = useState("From intimate portraits to grand celebrations, I capture the essence of every moment");
   const [services, setServices] = useState([
     { name: 'Wedding Photography', description: 'Capturing your most precious day with artistry and emotion' },
@@ -14,26 +14,16 @@ export default function Specializations() {
   // Load initial data from backend
   useEffect(() => {
     const fetchSpecializationsData = async () => {
-      try {
-        // Fetch description
-  const descRes = await fetch(`${backendUrl}/settings/specializationsDescription`);
-        if (descRes.ok) {
-          const descData = await descRes.json();
-          if (descData.value) {
-            setDescription(descData.value);
-          }
-        }
+      const descData = await getOptional("/settings/specializationsDescription");
+      if (descData?.value) setDescription(descData.value);
 
-        // Fetch services
-  const servicesRes = await fetch(`${backendUrl}/settings/specializationsServices`);
-        if (servicesRes.ok) {
-          const servicesData = await servicesRes.json();
-          if (servicesData.value) {
-            setServices(JSON.parse(servicesData.value));
-          }
+      const servicesData = await getOptional("/settings/specializationsServices");
+      if (servicesData?.value) {
+        try {
+          setServices(JSON.parse(servicesData.value));
+        } catch (err) {
+          console.error("Failed to parse specializations", err);
         }
-      } catch (err) {
-        console.error('Failed to fetch specializations data:', err);
       }
     };
 
@@ -44,11 +34,7 @@ export default function Specializations() {
     setDescription(newDescription);
     
     try {
-  await fetch(`${backendUrl}/settings/specializationsDescription`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newDescription }),
-      });
+      await axiosAuth.put("/settings/specializationsDescription", { value: newDescription });
     } catch (err) {
       console.error('Failed to save description:', err);
     }
@@ -61,10 +47,8 @@ export default function Specializations() {
 
     // Save to backend
     try {
-  await fetch(`${backendUrl}/settings/specializationsServices`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: JSON.stringify(updatedServices) }),
+      await axiosAuth.put("/settings/specializationsServices", {
+        value: JSON.stringify(updatedServices),
       });
     } catch (err) {
       console.error('Failed to save services:', err);

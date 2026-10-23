@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Editable from "./Editable";
+import axiosAuth, { getOptional } from "@/shared/api/axiosAuth";
 
 export default function About() {
-  const backendUrl = import.meta.env.VITE_BACKEND_API;
   const [photoUrl, setPhotoUrl] = useState("https://images.unsplash.com/photo-1494790108755-2616b612b5b5?auto=format&fit=crop&w=800&q=80"); // Default photo
   const [text, setText] = useState(
     "Hi, I'm Jane Doe, a professional photographer with a passion for capturing life's most beautiful moments. I offer services for weddings, graduations, sports, parties, and so much more. Head over to my Contacts page to learn more about how to book a session from me!"
@@ -13,36 +13,14 @@ export default function About() {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Fetch description
-        const descriptionRes = await fetch(`${backendUrl}/settings/aboutDescription`);
-        if (descriptionRes.ok) {
-          const descriptionData = await descriptionRes.json();
-          if (descriptionData.value) {
-            setDescription(descriptionData.value);
-          }
-        }
+      const descriptionData = await getOptional("/settings/aboutDescription");
+      if (descriptionData?.value) setDescription(descriptionData.value);
 
-        // Fetch photo URL from settings
-        const photoRes = await fetch(`${backendUrl}/settings/aboutPhoto`);
-        if (photoRes.ok) {
-          const photoData = await photoRes.json();
-          if (photoData.value) {
-            setPhotoUrl(photoData.value);
-          }
-        }
+      const photoData = await getOptional("/settings/aboutPhoto");
+      if (photoData?.value) setPhotoUrl(photoData.value);
 
-        // Fetch text
-        const textRes = await fetch(`${backendUrl}/settings/aboutText`);
-        if (textRes.ok) {
-          const textData = await textRes.json();
-          if (textData.value) {
-            setText(textData.value);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch about data:', err);
-      }
+      const textData = await getOptional("/settings/aboutText");
+      if (textData?.value) setText(textData.value);
     };
 
     fetchData();
@@ -52,11 +30,7 @@ export default function About() {
     setPhotoUrl(newUrl);
     
     try {
-        await fetch(`${backendUrl}/settings/aboutPhoto`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newUrl }),
-      });
+      await axiosAuth.put("/settings/aboutPhoto", { value: newUrl });
     } catch (err) {
       console.error('Failed to save photo:', err);
     }
@@ -66,11 +40,7 @@ export default function About() {
     setDescription(newDescription);
   
     try {
-        await fetch(`${backendUrl}/settings/aboutDescription`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newDescription }),
-      });
+      await axiosAuth.put("/settings/aboutDescription", { value: newDescription });
     } catch (err) {
       console.error('Failed to save description:', err);
     }
@@ -80,11 +50,7 @@ export default function About() {
     setText(newText);
     
     try {
-        await fetch(`${backendUrl}/settings/aboutText`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newText }),
-      });
+      await axiosAuth.put("/settings/aboutText", { value: newText });
     } catch (err) {
       console.error('Failed to save text:', err);
     }

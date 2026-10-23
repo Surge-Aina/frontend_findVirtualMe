@@ -2,20 +2,8 @@ import { useState, useEffect, useContext } from "react";
 import { FaPen, FaPlus, FaTimes, FaTrash, FaSave, FaExternalLinkAlt } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
 import { AuthContext } from "@/shared/context/AuthContext";
-
-//attach token to each axios request
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 const ProjectsCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
@@ -33,7 +21,6 @@ const ProjectsCard = ({ portfolio }) => {
   });
 
   const queryClient = useQueryClient();
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
 
   // Update local state when projects prop changes
   useEffect(() => {
@@ -49,7 +36,7 @@ const ProjectsCard = ({ portfolio }) => {
         projects: projectsData,
       };
 
-      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+      const response = await axiosAuth.patch("/portfolio/edit", {
         portfolio: updatedPortfolio,
       });
 
@@ -73,6 +60,7 @@ const ProjectsCard = ({ portfolio }) => {
     },
     onError: (error) => {
       console.error("Save failed:", error);
+      if (authFailureMessage(error)) return;
       toast.error("Failed to save Project");
     },
   });

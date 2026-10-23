@@ -3,19 +3,7 @@ import { FaPen, FaPlus, FaTimes, FaTrash, FaSave } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext";
-import axios from "axios";
-
-//attach token to each axios request
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
 
 const ExperienceCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
@@ -44,7 +32,6 @@ const ExperienceCard = ({ portfolio }) => {
   };
 
   const queryClient = useQueryClient();
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
 
   useEffect(() => {
     setExpList(experiences);
@@ -57,7 +44,7 @@ const ExperienceCard = ({ portfolio }) => {
         experiences: experienceData,
       };
 
-      const response = await axios.patch(`${apiUrl}/portfolio/edit`, {
+      const response = await axiosAuth.patch("/portfolio/edit", {
         portfolio: updatedPortfolio,
       });
 
@@ -76,6 +63,7 @@ const ExperienceCard = ({ portfolio }) => {
     },
     onError: (error) => {
       console.error("Save failed:", error);
+      if (authFailureMessage(error)) return;
       toast.error("Failed to save Experience");
     },
   });

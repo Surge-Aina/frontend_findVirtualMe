@@ -1,11 +1,10 @@
-import axios from "axios";
+import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
 import { useState } from "react";
 import pdfToText from "react-pdftotext";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 
 export default function FileUploader({ portfolio }) {
-  const apiUrl = import.meta.env.VITE_BACKEND_API;
   const [file, setFile] = useState(null);
   const [fileContent, setFileContent] = useState("");
   const [matchedWords, setMatchedWords] = useState([]);
@@ -98,7 +97,7 @@ export default function FileUploader({ portfolio }) {
     }
     setLoading(true);
     try {
-      const res = await axios.post(`${apiUrl}/portfolio/ai-summary`, {
+      const res = await axiosAuth.post("/portfolio/ai-summary", {
         resumeJSON: resume,
         jobText: jobPost,
       });
@@ -109,6 +108,9 @@ export default function FileUploader({ portfolio }) {
       setMatchedWords("");
     } catch (error) {
       console.error("Error calling compare API:", error);
+      if (!authFailureMessage(error)) {
+        toast.error("Could not compare this job post.");
+      }
     } finally {
       setLoading(false);
     }
