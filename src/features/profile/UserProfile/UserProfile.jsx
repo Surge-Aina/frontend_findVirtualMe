@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import ManageBillingComponent from "./ManageBillingComponent";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DomainLookup from "./DomainLookup";
 import QRWidgetSettings from "./QRWidgetSettings";
@@ -82,8 +83,6 @@ export default function UserProfile() {
       navigate("/");
       return;
     }
-    console.log("user from context", user);
-
     // Logged in but user still loading
     if (!user) return;
 
@@ -91,10 +90,6 @@ export default function UserProfile() {
     setEditData(user);
     setLoading(false);
   }, [user, token]);
-
-  useEffect(() => {
-    console.log("current profile state", profile);
-  }, [profile]);
 
   // load domains when the tab is selected
   useEffect(() => {
@@ -166,16 +161,12 @@ export default function UserProfile() {
       const domainsData = response.data;
       setDomains(Array.isArray(domainsData) ? domainsData : []);
     } catch (error) {
-      console.error("Failed to load domains:", error);
-      if (error.response?.status === 404) {
-        setDomains([]);
-        console.log("Domain endpoint not implemented yet");
-      } else {
+      logApiError(error, "Failed to load domains");
+      if (error.response?.status !== 404) {
         toast.error("Failed to load domains");
       }
-      setDomains([]); // Always set to empty array on error
+      setDomains([]);
     } finally {
-      console.log("domains", domains);
       setLoadingDomains(false);
     }
   };
@@ -185,18 +176,16 @@ export default function UserProfile() {
 
     setAddingDomain(true);
     try {
-      const response = await axiosAuth.post(`${apiUrl}/api/domains/custom`, {
+      await axiosAuth.post(`${apiUrl}/api/domains/custom`, {
         domain: newDomain.trim(),
       });
-      console.log("add domain response", response);
-      console.log("add domain response", response);
 
       // Reload domains to get the updated list
       await loadDomains();
       setNewDomain("");
       toast.success("Domain added successfully!");
     } catch (error) {
-      console.error("Failed to add domain:", error);
+      logApiError(error, "Failed to add domain");
       toast.error(error.response?.data?.message || "Failed to add domain");
     } finally {
       setAddingDomain(false);
@@ -208,15 +197,13 @@ export default function UserProfile() {
 
     try {
       //delete from users domain array
-      const userArrayResponse = await axiosAuth.delete(`${apiUrl}/api/domains/${domainId}`);
-      //delete from domain collection
-      const domainRouterResponse = await axiosAuth.delete(`/api/domains/router/${domainId}`);
-      console.log("remove domain responses", { userArrayResponse, domainRouterResponse });
+      await axiosAuth.delete(`${apiUrl}/api/domains/${domainId}`);
+      await axiosAuth.delete(`/api/domains/router/${domainId}`);
 
       setDomains((prev) => prev.filter((domain) => domain._id !== domainId));
       toast.success("Domain removed successfully!");
     } catch (error) {
-      console.error("Failed to remove domain:", error);
+      logApiError(error, "Failed to remove domain");
       toast.error("Failed to remove domain");
     }
   };
@@ -230,15 +217,12 @@ export default function UserProfile() {
         return;
       }
 
-      const response = await axiosAuth.post(`${apiUrl}/api/domains/verify/${domain.domain}`);
-
-      console.log("verify domain response", response);
-      console.log("domain being verified", domain);
+      await axiosAuth.post(`${apiUrl}/api/domains/verify/${domain.domain}`);
       // Reload domains to get updated status
       await loadDomains();
       toast.success("Domain verification completed!");
     } catch (error) {
-      console.error("Failed to verify domain:", error);
+      logApiError(error, "Failed to verify domain");
       toast.error(error.response?.data?.message || "Failed to verify domain");
     }
   };
@@ -779,8 +763,6 @@ function ToggleSwitch({ enabled, onChange }) {
 
 // domain card component
 function DomainCard({ domain, onRemove, onVerify: _onVerify }) {
-  const { user } = useContext(AuthContext);
-  // const [domains, setDomains] = useState([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState(domain.portfolioId || "");
 
   const onConnectProject = async (domainName, portfolioId) => {
@@ -790,9 +772,6 @@ function DomainCard({ domain, onRemove, onVerify: _onVerify }) {
       portfolioId: portfolioId,
       //optional: notes(String)
     });
-    console.log("connecting domain to portfolio", domainName, portfolioId);
-    console.log("domain connect response", res);
-    console.log("user data", user);
     setSelectedPortfolio(res.data.portfolioId);
   };
 

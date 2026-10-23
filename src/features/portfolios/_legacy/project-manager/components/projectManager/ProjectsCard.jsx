@@ -3,6 +3,7 @@ import { FaPen, FaPlus, FaTimes, FaTrash, FaSave, FaExternalLinkAlt } from "reac
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 import { AuthContext } from "@/shared/context/AuthContext";
 
 const ProjectsCard = ({ portfolio }) => {
@@ -43,7 +44,6 @@ const ProjectsCard = ({ portfolio }) => {
       return response.data;
     },
     onSuccess: (data) => {
-      console.log("Save successful:", data);
 
       // sync local state with what backend actually saved
       setProjectList(data.projects || []);
@@ -59,7 +59,7 @@ const ProjectsCard = ({ portfolio }) => {
       }
     },
     onError: (error) => {
-      console.error("Save failed:", error);
+      logApiError(error, "Save projects failed");
       if (authFailureMessage(error)) return;
       toast.error("Failed to save Project");
     },

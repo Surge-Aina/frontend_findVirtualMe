@@ -2,8 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { AuthContext } from "@/shared/context/AuthContext";
 import Payment from "@/features/payments/Payment";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 import { CircleArrowRight } from "lucide-react";
 
 // Attach token to each axios request
@@ -39,10 +40,6 @@ export default function ManageBillingComponent() {
     gcTime: 1000 * 60 * 30,
   });
 
-  useEffect(() => {
-    if (data) console.log("Billing:", data);
-  }, [data]);
-
   if (!user) return null;
   //take user to manage subscription
   const handleManageSubscriptions = async () => {
@@ -55,7 +52,7 @@ export default function ManageBillingComponent() {
       );
       window.location.href = response.data.billingSessionUrl;
     } catch (err) {
-      console.error("Failed to start billing session", err);
+      logApiError(err, "Failed to start billing session");
       toast.error("Error starting billing session");
     }
   };

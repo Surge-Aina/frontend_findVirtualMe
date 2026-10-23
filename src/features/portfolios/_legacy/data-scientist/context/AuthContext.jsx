@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authAPI } from '../utils/api';
+import { logApiError } from '@/shared/api/safeLog';
 
 const AuthContext = createContext();
 
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        logApiError(error, 'Auth check failed');
         logout();
       } finally {
         setLoading(false);
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return { success: true };
     } catch (error) {
-      console.error('Login failed:', error);
+      logApiError(error, 'Login failed');
       return { 
         success: false, 
         error: error.response?.data?.message || 'Login failed. Please check your credentials.' 
@@ -58,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return { success: true };
     } catch (error) {
-      console.error('Registration failed:', error);
+      logApiError(error, 'Registration failed');
       return { 
         success: false, 
         error: error.response?.data?.message || 'Registration failed. Please try again.' 

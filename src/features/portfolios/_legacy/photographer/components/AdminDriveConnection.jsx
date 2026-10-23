@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
 import { usePhotographerWrite } from '../photographerApi';
 
 function connectionFailureMessage(error) {
@@ -91,7 +92,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
         onDriveConnected(folderId.trim());
       }
     } catch (error) {
-      console.error('Connection error:', error);
+      logApiError(error, 'Connection error');
       setConnectionStatus(connectionFailureMessage(error));
       setTestResults(null);
 
@@ -111,7 +112,7 @@ export default function AdminDriveConnection({ onDriveConnected, currentFolderId
         { skipAuthToast: true }
       );
     } catch (error) {
-      console.error('Disconnect error:', error);
+      logApiError(error, 'Disconnect error');
       setConnectionStatus(authFailureMessage(error) || 'Could not disconnect Google Drive.');
       return;
     }

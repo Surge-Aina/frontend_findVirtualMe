@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
+import { logApiError } from "@/shared/api/safeLog";
 
 /** Default for consumers/tests when no Provider wraps the tree */
 export const defaultAuthContextValue = {
@@ -55,15 +56,12 @@ export function AuthProvider({ children }) {
       })
       .then((res) => {
         setUser(res.data.user);
-        console.log("res.data in auth context: ", res.data);
-
-        // ✅ ADD THIS CODE:
         if (res.data.portfolioIds) {
           localStorage.setItem("userPortfolios", JSON.stringify(res.data.portfolioIds));
-          console.log("📁 Stored portfolio IDs (from getMe useEffect()):", res.data.portfolioIds);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        logApiError(err, "Load current user failed");
         setToken(null);
         setUser(null);
         localStorage.removeItem("token");
@@ -74,16 +72,7 @@ export function AuthProvider({ children }) {
     
   }, [token]);
 
-  useEffect(() => {
-    if (pendingFile) console.log("✅ pendingFile stored:", pendingFile.name);
-  }, [pendingFile]);
-
-  // useEffect(() => {
-  //   console.log("User++++++++++++++++++++", user);
-  // }, [user]);
-
   function setUserAfterLogin(responseData) {
-    console.log("response data: ", responseData);
     setUser((prev) => ({ ...prev, ...responseData.user }));
     setToken(responseData.token);
     localStorage.setItem("email", responseData.user.email);
@@ -93,9 +82,6 @@ export function AuthProvider({ children }) {
     // STORE PORTFOLIO IDs - ADD THESE LINES
     if (responseData.portfolioIds) {
       localStorage.setItem("userPortfolios", JSON.stringify(responseData.portfolioIds));
-      console.log("📁 Stored portfolio IDs (from login()):", responseData.portfolioIds);
-    } else {
-      console.log("⚠️ No portfolioIds received from backend");
     }
   }
 
@@ -109,26 +95,10 @@ export function AuthProvider({ children }) {
       });
 
       setUserAfterLogin(res.data);
-
-      // setUser((prev) => ({ ...prev, ...res.data.user }));
-      // setToken(res.data.token);
-      // localStorage.setItem("email", res.data.user.email);
-      // localStorage.setItem("userId", res.data.user._id || res.data.user.id);
-      // localStorage.setItem("token", res.data.token);
-
-      // // STORE PORTFOLIO IDs - ADD THESE LINES
-      // if (res.data.portfolioIds) {
-      //   localStorage.setItem("userPortfolios", JSON.stringify(res.data.portfolioIds));
-      //   console.log("📁 Stored portfolio IDs (from login()):", res.data.portfolioIds);
-      // } else {
-      //   console.log("⚠️ No portfolioIds received from backend");
-      // }
-
-      console.log("logged In");
       toast.success("Logged In!");
     } catch (err) {
+      logApiError(err, "Login failed");
       toast.error("Login failed");
-      console.log("Login failed", err);
       throw err;
     }
   };
@@ -139,7 +109,6 @@ export function AuthProvider({ children }) {
     localStorage.clear();
     // clear all React Query caches
     queryClient.clear();
-    console.log("Logged Out");
     toast.success("Logged Out!");
     setContextLoggedIn(false);
   };
@@ -153,7 +122,7 @@ export function AuthProvider({ children }) {
       setUser(res.data.user);
       toast.success("user refreshed");
     } catch (err) {
-      console.error("Error refreshing user:", err);
+      logApiError(err, "Refresh user failed");
       toast.error("error refreshing user");
       setUser(null);
     }

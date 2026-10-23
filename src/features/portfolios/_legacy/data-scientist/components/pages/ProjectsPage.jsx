@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '@/shared/context/AuthContext';
 import axiosAuth, { authFailureMessage } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { Code, BarChart3, TrendingUp, Filter, Download, X, ExternalLink, Calendar, MapPin, RefreshCw } from 'lucide-react';
 
@@ -332,13 +333,10 @@ const InteractiveDashboard = ({ onClose }) => {
     const loadDashboardData = async () => {
       try {
         setLoading(true);
-        console.log('Loading dashboard data...'); // Debug log
         const response = await axiosAuth.get('/dashboard');
-        console.log('Response status:', response.status); // Debug log
         
         if (response.status >= 200 && response.status < 300) {
           const data = response.data;
-          console.log('Dashboard data received:', data); // Debug log
           
           if (data) {
             // Check if the API returned empty data arrays and use fallback
@@ -352,7 +350,6 @@ const InteractiveDashboard = ({ onClose }) => {
               hiddenPoints: data.data?.hiddenPoints || []
             };
             
-            console.log('Setting sample data:', newSampleData); // Debug log
             setSampleData(newSampleData);
             setChartTitle(data.chartTitle || 'Revenue Trend');
             setXAxisLabel(data.xAxisLabel || 'Months');
@@ -361,7 +358,7 @@ const InteractiveDashboard = ({ onClose }) => {
           }
         }
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        logApiError(error, 'Error loading dashboard data');
         // Fall back to default data
       } finally {
         setLoading(false);
@@ -393,12 +390,11 @@ const InteractiveDashboard = ({ onClose }) => {
         categoryData: cleanData.categoryData
       }, { skipAuthToast: true });
 
-      console.log('Dashboard data saved successfully');
       setSaveError('');
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
-      console.error('Error saving dashboard data:', error);
+      logApiError(error, 'Error saving dashboard data');
       setSaveSuccess(false);
       setSaveError(authFailureMessage(error) || 'Could not save dashboard data.');
     } finally {
@@ -539,7 +535,7 @@ const InteractiveDashboard = ({ onClose }) => {
         sessionStorage.setItem('dashboardData', JSON.stringify(defaultData));
       }
     } catch (error) {
-      console.error('Error resetting dashboard data:', error);
+      logApiError(error, 'Error resetting dashboard data');
       // Fall back to default data if API fails
       const defaultData = {
         sales: [120, 190, 300, 500, 200, 300, 450, 380, 420, 280, 350, 400],

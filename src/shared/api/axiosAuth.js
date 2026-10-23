@@ -1,5 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { logApiError } from "./safeLog";
 
 export const SIGN_IN_MESSAGE = "Please sign in to continue.";
 export const PERMISSION_MESSAGE = "You do not have permission to do that.";
@@ -50,7 +51,7 @@ export async function getOptional(url, config) {
     return response.data ?? null;
   } catch (error) {
     if (!authFailureMessage(error)) {
-      console.error(`Request failed for ${url}`, error);
+      logApiError(error, "Request failed");
     }
     return null;
   }

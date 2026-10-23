@@ -91,16 +91,12 @@ export const testimonialAPI = {
     return response.data;
   },
   submitTestimonial: async (testimonialData) => {
-    console.log('API: Submitting testimonial with data:', testimonialData);
     const response = await api.post('/testimonials', testimonialData);
-    console.log('API: Response received:', response.data);
     return response.data;
   },
   // Admin functions
   getAllTestimonials: async () => {
-    console.log('API: Getting all testimonials...');
     const response = await api.get('/testimonials/admin');
-    console.log('API: All testimonials response:', response.data);
     return response.data;
   },
   approveTestimonial: async (id, isApproved) => {
@@ -108,9 +104,7 @@ export const testimonialAPI = {
     return response.data;
   },
   deleteTestimonial: async (id) => {
-    console.log('API: Deleting testimonial with ID:', id);
     const response = await api.delete(`/testimonials/admin/${id}`);
-    console.log('API: Delete response:', response.data);
     return response.data;
   },
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { testimonialAPI } from '../../utils/api';
+import { logApiError } from '@/shared/api/safeLog';
 
 const TestimonialsPage = () => {
   const [topTestimonials, setTopTestimonials] = useState([]);
@@ -23,7 +24,7 @@ const TestimonialsPage = () => {
       const topData = await testimonialAPI.getTopTestimonials();
       setTopTestimonials(topData);
     } catch (error) {
-      console.error('Error loading reviews:', error);
+      logApiError(error, 'Error loading reviews');
       setMessage('Error loading reviews. Please try again.');
     } finally {
       setLoading(false);
@@ -41,8 +42,6 @@ const TestimonialsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('Form submitted with data:', formData);
-    
     if (!formData.name || !formData.email || !formData.review) {
       setMessage('Please fill in all required fields.');
       return;
@@ -51,9 +50,7 @@ const TestimonialsPage = () => {
     try {
       setSubmitting(true);
       setMessage('');
-      console.log('Submitting testimonial to API...');
-      const result = await testimonialAPI.submitTestimonial(formData);
-      console.log('API response:', result);
+      await testimonialAPI.submitTestimonial(formData);
       setMessage('Thank you for your review! It will be reviewed before being published.');
       setFormData({
         name: '',
@@ -62,7 +59,7 @@ const TestimonialsPage = () => {
         review: ''
       });
     } catch (error) {
-      console.error('Error submitting review:', error);
+      logApiError(error, 'Error submitting review');
       setMessage(error.response?.data?.message || 'Error submitting review. Please try again.');
     } finally {
       setSubmitting(false);

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 const EducationCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
@@ -56,7 +57,6 @@ const EducationCard = ({ portfolio }) => {
       return response.data;
     },
     onSuccess: (data) => {
-      console.log("Save successful:", data);
       // keep local list in sync with what the backend actually saved
       setEduList(data.education || []);
       toast.success("Education saved successfully!");
@@ -70,7 +70,7 @@ const EducationCard = ({ portfolio }) => {
       }
     },
     onError: (error) => {
-      console.error("Save failed:", error);
+      logApiError(error, "Save education failed");
       if (authFailureMessage(error)) return;
       toast.error("Failed to save education");
     },

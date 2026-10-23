@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth from "@/shared/api/axiosAuth";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const DEFAULT_PRIVACY_TEXT = `
 This Privacy Policy explains how we collect, use, and protect your information when you interact with this portfolio.
@@ -45,7 +46,7 @@ export default function PrivacyPolicy() {
       const res = await axiosAuth.get("/api/legal/privacy-policy");
       setPolicies(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to load privacy policies", err);
+      logApiError(err, "Failed to load privacy policies");
       toast.error("Failed to load privacy policies");
     } finally {
       setLoading(false);
@@ -154,7 +155,7 @@ export default function PrivacyPolicy() {
       }
       toast.success("Privacy policy saved");
     } catch (err) {
-      console.error("Failed to save privacy policy", err);
+      logApiError(err, "Failed to save privacy policy");
       toast.error(
         err.response?.data?.message || "Failed to save privacy policy",
       );
@@ -176,7 +177,7 @@ export default function PrivacyPolicy() {
       resetForm();
       toast.success("Privacy policy deleted");
     } catch (err) {
-      console.error("Failed to delete privacy policy", err);
+      logApiError(err, "Failed to delete privacy policy");
       toast.error(
         err.response?.data?.message || "Failed to delete privacy policy",
       );

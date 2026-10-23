@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, Edit, X, RefreshCw, DollarSign, Search } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const AdminSubscriptionTable = () => {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -41,12 +42,11 @@ const AdminSubscriptionTable = () => {
       setLoading(true);
       const response = await axios.get(`${BACKEND_API}/api/payments/subscriptions`);
       const data = response.data;
-      console.log("Subscription data:", data);
       setSubscriptions(data);
       setError(null);
     } catch (err) {
       setError(err?.response?.data?.error ? err.message + ": " + err.response.data.error : err.message);
-      console.log(err);
+      logApiError(err, "Load subscriptions failed");
     } finally {
       setLoading(false);
     }
@@ -66,28 +66,26 @@ const AdminSubscriptionTable = () => {
   // Update subscription
   const handleUpdateSubscription = async (subscriptionId, newPlan) => {
     try {
-      const response = await axios.put(`${BACKEND_API}/api/payments/subscriptions/update`, { subscriptionId, newPlan });
+      await axios.put(`${BACKEND_API}/api/payments/subscriptions/update`, { subscriptionId, newPlan });
 
       fetchSubscriptionsAfterWebhook(); // Refresh data
       setShowUpdateModal(false);
       setSelectedSub(null);
-      console.log("updated sub: ", response);
     } catch (err) {
-      toast.error(`Error updating subscription: ${err.message}`);
-      console.log(`Error updating subscription: ${err}`);
+      toast.error("Could not update that subscription.");
+      logApiError(err, "Update subscription failed");
     }
   };
   const handleConfirmCancel = async (subscriptionId) => {
     try {
-      const res = await axios.put(`${BACKEND_API}/api/payments/subscriptions/cancel`, { subscriptionId });
+      await axios.put(`${BACKEND_API}/api/payments/subscriptions/cancel`, { subscriptionId });
       fetchSubscriptionsAfterWebhook(); // Refresh data
       setShowCancelConfirm(false);
       setSelectedSub(null);
       toast.success(`Canceled Subscription`);
-      console.log(`canceled subscription: ${res.stripeSubscription}`);
     } catch (err) {
-      toast.error(`Error canceling subscription: ${err.response?.data?.message || err.message}`);
-      console.log(`Error canceling subscription: ${err}`);
+      toast.error("Could not cancel that subscription.");
+      logApiError(err, "Cancel subscription failed");
     }
   };
 
@@ -98,13 +96,11 @@ const AdminSubscriptionTable = () => {
         reason,
       };
 
-      console.log("body: ", body);
-
       if (amount && parseFloat(amount) > 0) {
         body.amount = parseInt(parseFloat(amount) * 100);
       }
 
-      const response = await axios.post(`${BACKEND_API}/api/payments/subscriptions/refund`, body);
+      await axios.post(`${BACKEND_API}/api/payments/subscriptions/refund`, body);
 
       setShowRefundModal(false);
       setSelectedSub(null);
@@ -114,10 +110,9 @@ const AdminSubscriptionTable = () => {
       });
       fetchSubscriptionsAfterWebhook();
       toast.success("Refund issued successfully");
-      console.log("refund issued: ", response);
     } catch (err) {
-      toast.error(`Error issuing refund: ${err.message}`);
-      console.log(`Error issuing refund: ${err.message}`);
+      toast.error("Could not issue that refund.");
+      logApiError(err, "Issue refund failed");
     }
   };
 
@@ -128,10 +123,9 @@ const AdminSubscriptionTable = () => {
       const data = response.data;
       setPaymentHistory(data.charges || []);
       setShowPaymentHistory(true);
-      console.log("charge history: ", data?.charges);
     } catch (err) {
-      toast.error(`Error fetching payment history: ${err?.message}`);
-      console.log(`Error fetching payment history: ${err?.message}`);
+      toast.error("Could not load payment history.");
+      logApiError(err, "Load payment history failed");
     }
   };
 

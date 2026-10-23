@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 import {
   startTracking,
   stopTracking,
@@ -87,7 +88,6 @@ const SummaryCard = ({ portfolio }) => {
       return response.data;
     },
     onSuccess: async (data) => {
-      console.log("Save successful:", data);
       toast.success("Summary saved successfully!");
 
       // update local state & exit edit mode
@@ -117,7 +117,7 @@ const SummaryCard = ({ portfolio }) => {
       }
     },
     onError: (error) => {
-      console.error("Save failed:", error);
+      logApiError(error, "Save summary failed");
       if (authFailureMessage(error)) return;
       toast.error("Failed to save Summary");
     },
@@ -188,7 +188,7 @@ const SummaryCard = ({ portfolio }) => {
 
       toast.success("Resume uploaded successfully!");
     } catch (error) {
-      console.error("Error uploading resume:", error);
+      logApiError(error, "Resume upload failed");
       if (!authFailureMessage(error)) toast.error("Failed to upload resume");
     } finally {
       setResumeUploading(false);
@@ -245,7 +245,7 @@ const SummaryCard = ({ portfolio }) => {
         // optional: keep preview synced with S3 url after upload
         if (finalProfileImageUrl) setImagePreview(finalProfileImageUrl);
       } catch (err) {
-        console.error("Profile image upload failed:", err);
+        logApiError(err, "Profile image upload failed");
         if (!authFailureMessage(err)) toast.error("Failed to upload profile photo");
         return; // ❗ stop save if upload fails
       } finally {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { portfolioAPI, testimonialAPI } from '../../utils/api';
+import { logApiError } from '@/shared/api/safeLog';
 import { 
   Edit, 
   Trash2,
@@ -181,18 +182,14 @@ const AdminPage = () => {
   const loadTestimonials = async () => {
     try {
       setTestimonialsLoading(true);
-      console.log('Loading testimonials...');
       const data = await testimonialAPI.getAllTestimonials();
-      console.log('Testimonials loaded:', data);
-      // Add section property to each testimonial for proper rendering
       const testimonialsWithSection = data.map(testimonial => ({
         ...testimonial,
         section: 'testimonials'
       }));
-      console.log('Testimonials with section:', testimonialsWithSection);
       setTestimonials(testimonialsWithSection);
     } catch (error) {
-      console.error('Error loading reviews:', error);
+      logApiError(error, 'Error loading reviews');
       setSnackbar({ open: true, message: 'Error loading reviews', type: 'error' });
     } finally {
       setTestimonialsLoading(false);
@@ -209,7 +206,7 @@ const AdminPage = () => {
       });
       loadTestimonials();
     } catch (error) {
-      console.error('Error updating review:', error);
+      logApiError(error, 'Error updating review');
       setSnackbar({ open: true, message: 'Error updating review', type: 'error' });
     }
   };
@@ -219,16 +216,12 @@ const AdminPage = () => {
       return;
     }
     
-    console.log('Attempting to delete testimonial with ID:', id);
-    
     try {
-      const result = await testimonialAPI.deleteTestimonial(id);
-      console.log('Delete result:', result);
+      await testimonialAPI.deleteTestimonial(id);
       setSnackbar({ open: true, message: 'Review deleted successfully', type: 'success' });
       loadTestimonials();
     } catch (error) {
-      console.error('Error deleting review:', error);
-      console.error('Error details:', error.response?.data);
+      logApiError(error, 'Error deleting review');
       setSnackbar({ 
         open: true, 
         message: error.response?.data?.message || 'Error deleting review', 

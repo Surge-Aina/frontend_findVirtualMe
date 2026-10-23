@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logApiError } from '@/shared/api/safeLog';
 
 const API_URL = import.meta.env.VITE_BACKEND_API || 'http://localhost:5000';
 
@@ -79,7 +80,6 @@ export const startTracking = (options) => {
   document.addEventListener('mousemove', throttledMouseHandler);
   document.addEventListener('mouseover', throttledMouseHandler);
   
-  console.log('📊 Portfolio edit tracking started', { sessionId, userId, portfolioInfo });
 };
 
 /**
@@ -128,12 +128,11 @@ export const logPortfolioAction = async (action, options = {}) => {
 
     await axios.post(`${API_URL}/api/portfolios/edit-log`, logData, { headers });
     
-    console.log('✅ Portfolio action logged:', action, logData);
     
     // Clear buffer after successful log
     mouseEventsBuffer = [];
   } catch (error) {
-    console.error('❌ Error logging portfolio action:', error);
+    logApiError(error, 'Log portfolio action failed');
     // Optionally retry or store locally for later sync
   }
 };

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { portfolioApi } from "@/shared/api/portfolioApi";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import axiosAuth from "@/shared/api/axiosAuth.js";
+import { logApiError } from "@/shared/api/safeLog";
 import { logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 
 const PROMPT_EXAMPLES = [
@@ -72,7 +73,7 @@ export default function AiPortfolioCreatorPage() {
           portfolioName: created.title || title.trim() || "AI Portfolio",
         });
       } catch (linkErr) {
-        console.warn("addPortfolioId:", linkErr);
+        logApiError(linkErr, "Link portfolio failed");
       }
 
       try {
@@ -90,7 +91,7 @@ export default function AiPortfolioCreatorPage() {
           email: user?.email || null,
         });
       } catch (logErr) {
-        console.warn("logPortfolioAction:", logErr);
+        logApiError(logErr, "Log portfolio action failed");
       }
 
       await refreshUser?.();

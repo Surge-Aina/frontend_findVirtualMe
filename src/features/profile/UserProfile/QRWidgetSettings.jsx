@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function QRWidgetSettings() {
   const { user } = useContext(AuthContext);
@@ -21,8 +22,6 @@ export default function QRWidgetSettings() {
         const res = await axiosAuth.get("/api/qr-codes");
         const allQrs = res.data || [];
 
-        console.log("Selected portfolio:", selectedPortfolio);
-        console.log("All QRs:", allQrs);
 
         const matched = allQrs.filter(
           (qr) =>
@@ -33,7 +32,7 @@ export default function QRWidgetSettings() {
         setPortfolioQrs(matched);
         setQrActive(matched.some((qr) => qr.active));
       } catch (err) {
-        console.error("Failed to load QRs", err);
+        logApiError(err, "Failed to load QRs");
       } finally {
         setLoading(false);
       }
@@ -61,8 +60,6 @@ export default function QRWidgetSettings() {
     try {
       const newState = !qrActive;
 
-      console.log("portfolioQrs:", portfolioQrs);
-      console.log("Updating to:", newState);
 
       if (portfolioQrs.length > 0) {
         await Promise.all(portfolioQrs.map((qr) => axiosAuth.put(`/api/qr-codes/${qr._id}`, { active: newState })));
@@ -70,7 +67,7 @@ export default function QRWidgetSettings() {
 
       setQrActive(newState);
     } catch (err) {
-      console.error("Toggle failed", err);
+      logApiError(err, "Toggle QR failed");
     }
   };
 

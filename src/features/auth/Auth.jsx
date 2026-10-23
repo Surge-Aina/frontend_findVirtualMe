@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { logApiError } from "@/shared/api/safeLog";
 import SignUp from "./SignUp";
 import GoogleLoginButton from "./GoogleLoginButton";
 
@@ -25,7 +26,7 @@ const Auth = ({ onClose }) => {
       navigate("/profile");
     } catch (err) {
       setError("Invalid Credentials");
-      console.log("error logging in Auth.jsx", err);
+      logApiError(err, "Login failed");
     } finally {
       setLoading(false);
     }

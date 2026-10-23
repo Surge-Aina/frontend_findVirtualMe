@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axiosAuth, { authFailureMessage } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
 import { createPaymentIntent, formatCharge } from './paymentIntent';
 
 const PROMO_END = '03/31/2026';
@@ -77,7 +78,7 @@ export default function Payment() {
       // The live payment-intent route still requires a client amount. A 400 means
       // that route is the pre-contract handler, so Checkout Session can continue.
       if (err?.response?.status !== 400) {
-        console.error('Failed to price plan', err);
+        logApiError(err, 'Failed to price plan');
       }
     }
     try {
@@ -86,7 +87,7 @@ export default function Payment() {
         window.location.href = response.data.checkoutUrl;
       }
     } catch (err) {
-      console.error('Failed to start checkout', err);
+      logApiError(err, 'Failed to start checkout');
       alert(authFailureMessage(err) || 'Error starting checkout');
     }
   };

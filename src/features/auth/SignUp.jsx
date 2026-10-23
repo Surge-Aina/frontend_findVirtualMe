@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { logApiError } from "@/shared/api/safeLog";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
@@ -37,7 +38,7 @@ export default function SignUp() {
       toast.success("Sign up successful!");
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
+      logApiError(err, "Sign up failed");
       toast.error("Sign up failed");
     }
   };

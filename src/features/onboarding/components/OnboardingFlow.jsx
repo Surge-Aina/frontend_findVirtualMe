@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { ensureOnboardingSessionId } from "@/shared/utils/onboardingSession";
+import { logApiError } from "@/shared/api/safeLog";
 
 // main onboarding flow component
 const backendUrl = import.meta.env.VITE_BACKEND_API;
@@ -198,7 +199,7 @@ export default function OnboardingFlow() {
             "Could not finish account setup. Please try again.";
           setError(message);
           toast.error("Error setting up profile!");
-          console.error(error);
+          logApiError(error, "Signup failed");
         }
       };
 

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 const backendUrl = import.meta.env.VITE_BACKEND_API;
 
@@ -27,7 +28,7 @@ function SuccessPage() {
         .get(`${backendUrl}/api/payments/checkout/session/${sessionId}`, { headers })
         .then((res) => setSessionData(checkoutSessionView(res.data)))
         .catch((err) => {
-          console.error(err);
+          logApiError(err, "Load checkout session failed");
           setError("Could not load payment details.");
         });
     }

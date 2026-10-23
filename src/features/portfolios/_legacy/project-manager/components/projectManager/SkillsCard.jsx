@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 const SkillsCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
@@ -35,7 +36,6 @@ const SkillsCard = ({ portfolio }) => {
       return response.data;
     },
     onSuccess: (data) => {
-      console.log("Save successful:", data);
 
       // keep local list in sync with backend
       setSkillList(data.skills || []);
@@ -51,7 +51,7 @@ const SkillsCard = ({ portfolio }) => {
       }
     },
     onError: (error) => {
-      console.error("Save failed:", error);
+      logApiError(error, "Save skills failed");
       if (authFailureMessage(error)) return;
       toast.error("Failed to save Skills");
     },

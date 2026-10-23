@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { startTracking, stopTracking, logPortfolioAction } from "@/shared/utils/portfolioEditLogger";
 import { ensureOnboardingSessionId } from "@/shared/utils/onboardingSession";
@@ -77,9 +79,9 @@ export default function ResumeUpload() {
       const res = await axiosAuth.post("/portfolio/upload-pdf", formData, {
         skipAuthToast: true,
       });
-      console.log("Uploaded:", res.data);
+      // 200 (local parse, aiParsed false) and 201 (AI parse) are both usable drafts.
+      // Older backends omit aiParsed and still return 2xx.
 
-      // Log portfolio creation action
       const portfolioId = res.data?._id || res.data?.id || null;
       await logPortfolioAction("created", {
         sessionId: sessionId,
@@ -90,16 +92,24 @@ export default function ResumeUpload() {
         email: email,
       });
 
+      if (res.data?.aiParsed === false) {
+        toast.info("Resume saved. AI parsing was skipped.");
+      }
+
       setUploaded(true);
       setFile(null);
       setFileContent(null);
       stopTracking();
       navigate("/dashboard");
     } catch (err) {
-      console.error("Error uploading file:", err);
+      logApiError(err, "Resume upload failed");
       const status = err?.response?.status;
       const serverError = err?.response?.data?.error;
-      if (status === 429) {
+      if (status === 400) {
+        setUploadError(serverError || "That file is not a valid PDF.");
+      } else if (status === 503) {
+        setUploadError(serverError || "Resume parsing is temporarily unavailable. Please try again shortly.");
+      } else if (status === 429) {
         setUploadError(serverError || "Too many requests");
       } else if (status === 403) {
         setUploadError(serverError || authFailureMessage(err) || "You do not have permission to do that.");

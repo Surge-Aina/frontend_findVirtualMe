@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getOptional } from '@/shared/api/axiosAuth';
+import { logApiError } from '@/shared/api/safeLog';
 import {
   usePhotographerWrite,
   putPhotographerSetting,
@@ -39,7 +40,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
       newPhotos[index] = updatedPhoto;
       setPhotos(newPhotos);
     } catch (err) {
-      console.error('Failed to update photo', err);
+      logApiError(err, 'Failed to update photo');
     }
   };
 
@@ -48,7 +49,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     try {
       await putPhotographerSetting(`${endpoint}Layout`, newLayout, portfolioId);
     } catch (err) {
-      console.error('Failed to save layout setting', err);
+      logApiError(err, 'Failed to save layout setting');
     }
   };
 
@@ -61,7 +62,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     try {
       await putPhotographerSetting(`${endpoint}LayoutSettings`, newLayoutSettings, portfolioId);
     } catch (err) {
-      console.error('Failed to save layout settings', err);
+      logApiError(err, 'Failed to save layout settings');
     }
   };
 
@@ -70,7 +71,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
       const res = await postPhotographerPhoto(endpoint, '/sample-placeholder.jpg', portfolioId);
       setPhotos([...photos, res.data]);
     } catch (err) {
-      console.error('Failed to add photo', err);
+      logApiError(err, 'Failed to add photo');
     }
   };
 
@@ -80,7 +81,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
       await deletePhotographerPhoto(endpoint, photoToDelete._id, portfolioId);
       setPhotos(photos.filter((_, i) => i !== index));
     } catch (err) {
-      console.error('Failed to delete photo', err);
+      logApiError(err, 'Failed to delete photo');
     }
   };
 
@@ -98,7 +99,7 @@ export function usePhotoManagement(endpoint, initialLayoutType = 'Mosaic') {
     try {
       await reorderPhotographerPhotos(endpoint, reordered, portfolioId);
     } catch (err) {
-      console.error('Failed to reorder photos', err);
+      logApiError(err, 'Failed to reorder photos');
     }
   };
 

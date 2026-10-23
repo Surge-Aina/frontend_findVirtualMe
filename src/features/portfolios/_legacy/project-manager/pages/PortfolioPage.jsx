@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import "../style.css";
 import { usePortfolio } from "@/shared/context/PortfolioContext";
 import Footer from "../components/Footer";
+import { logApiError } from "@/shared/api/safeLog";
 
 const PortfolioPage = ({ portfolioId, portfolioType: _portfolioType }) => {
   const {  
@@ -218,7 +219,7 @@ const PortfolioPage = ({ portfolioId, portfolioType: _portfolioType }) => {
         setContactSuccess("");
       }, 5000);
     } catch (error) {
-      console.error("Failed to send emails:", error);
+      logApiError(error, "Failed to send emails");
       setContactError("Failed to send message. Please try again.");
 
       // Auto-hide error message after 5 seconds

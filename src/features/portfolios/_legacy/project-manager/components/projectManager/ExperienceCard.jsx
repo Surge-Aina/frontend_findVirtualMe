@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 const ExperienceCard = ({ portfolio }) => {
   const { user } = useContext(AuthContext);
@@ -51,7 +52,6 @@ const ExperienceCard = ({ portfolio }) => {
       return response.data;
     },
     onSuccess: (data) => {
-      console.log("Save successful:", data);
       setExpList(data.experiences || []);
       toast.success("Experience saved successfully!");
 
@@ -62,7 +62,7 @@ const ExperienceCard = ({ portfolio }) => {
       }
     },
     onError: (error) => {
-      console.error("Save failed:", error);
+      logApiError(error, "Save experience failed");
       if (authFailureMessage(error)) return;
       toast.error("Failed to save Experience");
     },
