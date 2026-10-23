@@ -1,3 +1,4 @@
+import { logApiError } from "@/shared/api/safeLog";
     // pages/portfolios/handyman/EditHandymanPortfolio.jsx
     import React, { useEffect, useState, useRef, useContext } from 'react';
     import { useParams, useNavigate } from 'react-router-dom';
@@ -64,7 +65,7 @@
 
             if (!cancelled) setFormData(data);
         } catch (e) {
-            console.error(e);
+            logApiError(e, "Request failed");
             toast.error('Failed to load portfolio');
         } finally {
             if (!cancelled) setLoading(false);
@@ -99,7 +100,7 @@
         beforeFileRefs.current = {};
         afterFileRefs.current = {};
         } catch (e) {
-        console.error(e);
+        logApiError(e, "Request failed");
         toast.error('Failed to load projects');
         } finally {
         setProjectsLoading(false);
@@ -260,7 +261,7 @@
         await loadProjects(); // refresh local state/dirty flags
         navigate(`/portfolios/handyman/${id}`);
         } catch (err) {
-        console.error(err);
+        logApiError(err, "Request failed");
         toast.error(err?.response?.data?.message || 'Failed to save changes');
         }
     };
@@ -282,7 +283,7 @@
         addFormRef.current.reset();
         await loadProjects();
         } catch (err) {
-        console.error('Add project error:', err.response?.data || err.message);
+        logApiError(err, "Add project error");
         toast.error(err?.response?.data?.message || 'Failed to add project');
         }
     };
@@ -294,7 +295,7 @@
         toast.success('Project deleted');
         await loadProjects();
         } catch (err) {
-        console.error(err);
+        logApiError(err, "Request failed");
         toast.error('Failed to delete project');
         }
     };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
+import { logApiError } from "@/shared/api/safeLog";
 
 function formatDateInput(d) {
   return d.toISOString().slice(0, 10);
@@ -53,7 +54,7 @@ export default function Inbox({ auth }) {
           setSelectedAccountId(list[0].id);
         }
       } catch (err) {
-        console.error("Failed to load email accounts:", err);
+        logApiError(err, "Failed to load email accounts");
       } finally {
         setLoadingAccounts(false);
       }
@@ -117,7 +118,7 @@ export default function Inbox({ auth }) {
 
       setMessages(data.messages || []);
     } catch (err) {
-      console.error(err);
+      logApiError(err, "Request failed");
       setMessagesError(err.message || "Failed to load inbox");
     } finally {
       setLoadingMessages(false);
@@ -144,7 +145,7 @@ export default function Inbox({ auth }) {
 
       setSelectedMessage(data);
     } catch (err) {
-      console.error(err);
+      logApiError(err, "Request failed");
       setMessageError(err.message || "Failed to load email");
     } finally {
       setLoadingMessage(false);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Editable from "./Editable";
 import { getOptional } from "@/shared/api/axiosAuth";
 import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function ClientTestimonial() {
   const { portfolioId } = usePhotographerWrite();
@@ -25,7 +26,7 @@ export default function ClientTestimonial() {
         try {
           setTestimonials(JSON.parse(data.value));
         } catch (err) {
-          console.error("Failed to parse testimonials", err);
+          logApiError(err, "Failed to parse testimonials");
         }
       }
     };
@@ -39,7 +40,7 @@ export default function ClientTestimonial() {
     try {
       await putPhotographerSetting("testimonialsDescription", newDescription, portfolioId);
     } catch (err) {
-      console.error('Failed to save testimonials description:', err);
+      logApiError(err, "Failed to save testimonials description");
     }
   };
   
@@ -52,7 +53,7 @@ export default function ClientTestimonial() {
     try {
       await putPhotographerSetting("testimonials", JSON.stringify(updatedTestimonials), portfolioId);
     } catch (err) {
-      console.error('Failed to save testimonials:', err);
+      logApiError(err, "Failed to save testimonials");
     }
   };
 

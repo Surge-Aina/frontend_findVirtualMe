@@ -17,6 +17,7 @@ import ScrollToTop from "../components/ScrollToTop";
 import Footer from "../components/Footer";
 import { usePortfolio } from "@/shared/context/PortfolioContext";
 import { useHealthcareBasePath } from "@/features/portfolios/_legacy/healthcare/hooks/useHealthcareBasePath";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Home({ portfolioId: portfolioIdProp }) {
   const { basePath, practiceId: practiceIdFromHook } = useHealthcareBasePath();
@@ -65,7 +66,7 @@ export default function Home({ portfolioId: portfolioIdProp }) {
       const data = await api.getDemoData(); // No auth required
       setUserData(data);
     } catch (error) {
-      console.error("Error loading demo data:", error);
+      logApiError(error, "Error loading demo data");
       setError("Demo not available");
     } finally {
       setLoading(false);
@@ -77,9 +78,9 @@ export default function Home({ portfolioId: portfolioIdProp }) {
       setLoading(true);
       const data = await api.getPracticeData(practiceId);
       setUserData(data);
-      console.log("Loaded practice data:", data);
+      
     } catch (error) {
-      console.error("Error loading practice data:", error);
+      logApiError(error, "Error loading practice data");
       setError("Practice not found");
     } finally {
       setLoading(false);

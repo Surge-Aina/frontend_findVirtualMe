@@ -416,7 +416,7 @@ const AdminPage = () => {
       await forceRefresh();
       handleCloseDialog();
     } catch (error) {
-      console.error('Error saving item:', error);
+      logApiError(error, "Error saving item");
       setSnackbar({
         open: true,
         message: error.response?.data?.message || 'Error saving item. Please try again.',
@@ -462,7 +462,7 @@ const AdminPage = () => {
       // Refresh the portfolio data
       await forceRefresh();
     } catch (error) {
-      console.error('Error deleting item:', error);
+      logApiError(error, "Error deleting item");
       setSnackbar({
         open: true,
         message: error.response?.data?.message || 'Error deleting item. Please try again.',

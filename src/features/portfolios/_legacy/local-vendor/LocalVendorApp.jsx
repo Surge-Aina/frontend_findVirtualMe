@@ -10,6 +10,7 @@ import "./index.css";
 import { VendorProvider, useVendor } from "./context/VendorContext.jsx";
 import API from "./services/api";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
+import { logApiError } from "@/shared/api/safeLog";
 
 function LocalVendorApp() {
   const { id: paramId } = useParams();
@@ -24,7 +25,7 @@ function LocalVendorApp() {
     if (!id) return; // still no vendorId
     API.get(`/vendor/${id}/full`)
       .then((res) => setPortfolio(res.data))
-      .catch((err) => console.error("Failed to fetch vendor portfolio", err));
+      .catch((err) => logApiError(err, "Failed to fetch vendor portfolio"));
   }, [id]);
 
   if (!portfolio) return <p>Loading portfolio...</p>;

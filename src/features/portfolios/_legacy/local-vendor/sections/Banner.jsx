@@ -6,6 +6,7 @@ import { canEditPortfolio } from "../services/auth";
 import { AuthContext } from "@/shared/context/AuthContext";
 import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
+import { logApiError } from "@/shared/api/safeLog";
 
 const SHAPE_CLASS = {
   blob: "clip-blob",
@@ -31,7 +32,7 @@ const Banner = () => {
       .then((data) => {
         if (data?.length) setBanner(data[0]);
       })
-      .catch((err) => console.error("Fetch error:", err));
+      .catch((err) => logApiError(err, "Fetch error"));
   }, [vendorId]);
 
   const handleSave = () => {
@@ -65,7 +66,7 @@ const Banner = () => {
         setEditData(null);
         toast.success("Home screen updated!");
       })
-      .catch((err) => console.error("Save error:", err));
+      .catch((err) => logApiError(err, "Save error"));
   };
 
   if (!banner) {

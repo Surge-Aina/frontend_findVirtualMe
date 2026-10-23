@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Editable from '../components/Editable';
 import axiosAuth, { authFailureMessage, getOptional } from '@/shared/api/axiosAuth';
 import { putPhotographerSetting, usePhotographerWrite } from '../photographerApi';
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Contact() {
   const { portfolioId } = usePhotographerWrite();
@@ -46,12 +47,12 @@ export default function Contact() {
       // portfolioId will be auto-injected by PortfolioProvider!
     };
     
-    console.log('Submitting:', submitData);
+    
     
     const { data } = await axiosAuth.post("/photographer/contact", submitData, {
       skipAuthToast: true,
     });
-    console.log('Backend response:', data);
+    
     
     if (data?.success) {
       alert('Thank you! Your message has been sent successfully.');
@@ -64,7 +65,7 @@ export default function Contact() {
       alert(data?.message || 'Failed to send message. Please try again.');
     }
   } catch (error) {
-    console.error('Error sending message:', error);
+    logApiError(error, "Error sending message");
     alert(authFailureMessage(error) || 'Failed to send message. Please try again.');
   }
 };
@@ -79,7 +80,7 @@ export default function Contact() {
     try {
       await putPhotographerSetting("contactDescription", newDescription, portfolioId);
     } catch (err) {
-      console.error('Failed to save description:', err);
+      logApiError(err, "Failed to save description");
     }
   };
 
@@ -89,7 +90,7 @@ export default function Contact() {
     try {
       await putPhotographerSetting("contactEmail", newEmail, portfolioId);
     } catch (err) {
-      console.error('Failed to save email:', err);
+      logApiError(err, "Failed to save email");
     }
   };
 
@@ -99,7 +100,7 @@ export default function Contact() {
     try {
       await putPhotographerSetting("contactPhone", newPhone, portfolioId);
     } catch (err) {
-      console.error('Failed to save phone:', err);
+      logApiError(err, "Failed to save phone");
     }
   };
 
@@ -109,7 +110,7 @@ export default function Contact() {
     try {
       await putPhotographerSetting("contactResponseTime", newTime, portfolioId);
     } catch (err) {
-      console.error('Failed to save response time:', err);
+      logApiError(err, "Failed to save response time");
     }
   };
   

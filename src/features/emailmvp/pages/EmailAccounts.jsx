@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function EmailAccounts({ auth }) {
   const [accounts, setAccounts] = useState([]);
@@ -42,7 +43,7 @@ const [oauthError, setOauthError] = useState("");
       setOauthError("Backend did not return a Google login URL.");
     }
   } catch (err) {
-    console.error("Google connect error:", err);
+    logApiError(err, "Google connect error");
     setOauthError(err.message || "Failed to start Google Sign-In.");
   } finally {
     setOauthLoading(false);

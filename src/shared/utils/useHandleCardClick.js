@@ -6,7 +6,7 @@ export function useHandleCardClick() {
 
   const handleCardClick = (p) => {
     if (!p || !p._id) {
-      console.error("Invalid portfolio object:", p);
+      
       toast.error("Portfolio not found.");
       return;
     }

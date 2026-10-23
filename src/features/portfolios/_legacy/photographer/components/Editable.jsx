@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from './AuthContext.jsx';
+import { logApiError } from "@/shared/api/safeLog";
 
 const Editable = ({ 
   type, 
@@ -63,7 +64,7 @@ const Editable = ({
       setEditing(false);
       setPreviewUrl(null);
     } catch (error) {
-      console.error('Error saving:', error);
+      logApiError(error, "Error saving");
       alert('Failed to upload image. Please try again.');
     } finally {
       setUploading(false);

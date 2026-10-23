@@ -90,7 +90,7 @@ export const stopTracking = () => {
   document.removeEventListener('click', throttledMouseHandler);
   document.removeEventListener('mousemove', throttledMouseHandler);
   document.removeEventListener('mouseover', throttledMouseHandler);
-  console.log('📊 Portfolio edit tracking stopped');
+  
 };
 
 /**
@@ -100,7 +100,7 @@ export const stopTracking = () => {
  */
 export const logPortfolioAction = async (action, options = {}) => {
   if (!sessionId && !options.sessionId) {
-    console.warn('⚠️ No session ID available for logging');
+    
     return;
   }
 

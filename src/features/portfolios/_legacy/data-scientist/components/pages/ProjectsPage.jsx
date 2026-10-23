@@ -556,10 +556,10 @@ const InteractiveDashboard = ({ onClose }) => {
 
   // Get visible data points
   const getVisibleData = () => {
-    console.log('Sample data:', sampleData); // Debug log
+     // Debug log
     
     if (!sampleData.revenue || sampleData.revenue.length === 0) {
-      console.log('No revenue data available');
+      
       return { revenue: [], xLabels: [] };
     }
     
@@ -577,7 +577,7 @@ const InteractiveDashboard = ({ onClose }) => {
       )
       .map(item => item.label);
     
-    console.log('Visible data:', { revenue: visibleRevenue, xLabels: visibleXLabels }); // Debug log
+     // Debug log
     return { revenue: visibleRevenue, xLabels: visibleXLabels };
   };
 

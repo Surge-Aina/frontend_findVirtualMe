@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 const Editable = ({
   type,
@@ -18,7 +19,6 @@ const Editable = ({
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // console.log('🔍 Editable component:', {
   //   type,
   //   isAdmin,
   //   isExample,
@@ -97,7 +97,7 @@ const Editable = ({
 
       alert("✅ Saved successfully!");
     } catch (error) {
-      console.error("Error saving:", error);
+      logApiError(error, "Error saving");
       alert("Failed to save. Please try again.");
     } finally {
       setUploading(false);

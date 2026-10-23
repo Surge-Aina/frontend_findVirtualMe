@@ -8,6 +8,7 @@ import { OrbitControls, Environment } from '@react-three/drei';
 import { RoomModel } from '../models/RoomModels';
 import Editable from './Editable';
 import { AuthContext } from '../context/AuthContext';
+import { logApiError } from "@/shared/api/safeLog";
 
 const Services = () => {
   
@@ -50,14 +51,10 @@ useEffect(() => {
 }, [portfolioId, setCurrentPortfolioId]);
 
 useEffect(() => {
-  console.log('🔥 Services - isAdmin CHANGED! New value:', isAdmin);
+  
 }, [isAdmin]);
   // ✅ ADD THIS DEBUG LOG:
-  console.log('🔍 Services Debug:', {
-    portfolioId,
-    isAdmin,
-    hasToken: !!localStorage.getItem('token')
-  });
+  
   
   const navigate = useNavigate();
 
@@ -94,7 +91,7 @@ useEffect(() => {
       });
     }
   } catch (err) {
-    console.error('Failed to fetch room labels:', err);
+    logApiError(err, "Failed to fetch room labels");
   }
 };
 
@@ -127,14 +124,14 @@ const handleRoomLabelChange = async (roomType, newValue) => {
     
     toast.success('Room label updated!');
   } catch (err) {
-    console.error('Failed to save room label:', err);
+    logApiError(err, "Failed to save room label");
     toast.error('Failed to save room label');
   }
 };
 
  const fetchTitles = async () => {
   if (!portfolioId) {
-    console.log('📋 No portfolioId - using default titles (demo mode)');
+    
     return;
   }
   
@@ -154,7 +151,7 @@ const handleRoomLabelChange = async (roomType, newValue) => {
     if (p.cleaningServicesTitle) setCleaningServicesTitle(p.cleaningServicesTitle);
     
   } catch (err) {
-    console.error('Failed to fetch titles:', err);
+    logApiError(err, "Failed to fetch titles");
   }
 };
 
@@ -183,14 +180,14 @@ const handleRoomLabelChange = async (roomType, newValue) => {
       });
       toast.success('Title updated!');
     } catch (err) {
-      console.error('Failed to save title:', err);
+      logApiError(err, "Failed to save title");
       toast.error('Failed to save title');
     }
   };
 
   const fetchServices = async () => {
   if (!portfolioId) {
-    console.log('No portfolio ID, skipping service fetch');
+    
     return;
   }
   
@@ -206,9 +203,9 @@ const handleRoomLabelChange = async (roomType, newValue) => {
     const portfolio = res.data.portfolio || res.data;
     setServices(portfolio.services || []);
     
-    console.log('✅ Services fetched:', portfolio.services);
+    
   } catch (err) {
-    console.error('Failed to load services:', err);
+    logApiError(err, "Failed to load services");
     toast.error('Failed to load services');
   }
 };
@@ -249,7 +246,7 @@ const fetchRoomPrices = async () => {
     
     setRoomPrices(prices);
   } catch (err) {
-    console.error('Failed to load room prices:', err);
+    logApiError(err, "Failed to load room prices");
     // Keep default prices
     setRoomPrices({
       bedroom: 25,
@@ -310,7 +307,7 @@ const saveEditedPrices = async () => {
     // Refetch to confirm
     fetchRoomPrices();
   } catch (err) {
-    console.error('Failed to update room prices:', err);
+    logApiError(err, "Failed to update room prices");
     toast.error('Failed to update room prices');
   } finally {
     setEditPricesMode(false);
@@ -376,7 +373,7 @@ const handleAddService = async () => {
     setShowForm(false);
     fetchServices();
   } catch (err) {
-    console.error('Add service error:', err);
+    logApiError(err, "Add service error");
     toast.error(err?.response?.data?.message || 'Failed to add service');
   }
 };
@@ -405,7 +402,7 @@ const handleAddService = async () => {
     toast.success('Service deleted');
     fetchServices();
   } catch (err) {
-    console.error('Delete error:', err);
+    logApiError(err, "Delete error");
     toast.error(err?.response?.data?.message || 'Failed to delete service');
   }
 };

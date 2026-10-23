@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Editable from "../components/Editable";
 import { getOptional } from "@/shared/api/axiosAuth";
 import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Services() {
   const { portfolioId } = usePhotographerWrite();
@@ -78,7 +79,7 @@ export default function Services() {
     try {
       await putPhotographerSetting("servicesHero", updatedHero, portfolioId);
     } catch (err) {
-      console.error('Failed to save hero data:', err);
+      logApiError(err, "Failed to save hero data");
     }
   };
 
@@ -90,7 +91,7 @@ export default function Services() {
     try {
       await putPhotographerSetting("servicesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save services:', err);
+      logApiError(err, "Failed to save services");
     }
   };
 
@@ -102,7 +103,7 @@ export default function Services() {
     try {
       await putPhotographerSetting("packagesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save packages:', err);
+      logApiError(err, "Failed to save packages");
     }
   };
 
@@ -114,7 +115,7 @@ export default function Services() {
       try {
         await putPhotographerSetting("servicesData", updated, portfolioId);
       } catch (err) {
-        console.error('Failed to delete service:', err);
+        logApiError(err, "Failed to delete service");
       }
     }
   };
@@ -127,7 +128,7 @@ export default function Services() {
       try {
         await putPhotographerSetting("packagesData", updated, portfolioId);
       } catch (err) {
-        console.error('Failed to delete package:', err);
+        logApiError(err, "Failed to delete package");
       }
     }
   };
@@ -145,7 +146,7 @@ export default function Services() {
     try {
       await putPhotographerSetting("servicesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save new service:', err);
+      logApiError(err, "Failed to save new service");
     }
   };
 
@@ -161,7 +162,7 @@ export default function Services() {
     try {
       await putPhotographerSetting("packagesData", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save new package:', err);
+      logApiError(err, "Failed to save new package");
     }
   };
 

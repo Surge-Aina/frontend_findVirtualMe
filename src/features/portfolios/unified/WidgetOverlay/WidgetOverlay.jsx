@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { FaPlus as PlusIcon } from 'react-icons/fa';
 import { AuthContext } from "@/shared/context/AuthContext";
 import QRCodeWidget from '../Widgets/QRCode/QRCodeWidget';
@@ -17,18 +17,11 @@ export default function WidgetOverlay() {
     isOwnerReady
   } = usePortfolio();
   
-  useEffect(() => {
-    console.log("Portfolio Context - ID:", portfolioId);
-    console.log("Portfolio Context - Type:", portfolioType);
-    console.log("Portfolio Context - Owner:", portfolioOwner);
-    console.log("Portfolio Context - Owner Ready:", isOwnerReady);
-  }, [portfolioId, portfolioType, portfolioOwner, isOwnerReady]);  
-  
   if(!portfolioId) return null; // Don't render if no portfolioId is provided
 
   //check if user is creator of portfolio
   function checkIfCreator() {
-    console.log("checkIfCreator user: ", user)
+    
     if (!user) return false; 
     return user.portfolios.some(p => p.portfolioId === portfolioId);
   }

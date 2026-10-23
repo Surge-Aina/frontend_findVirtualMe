@@ -6,6 +6,7 @@ import { portfolioTypeToModel } from "@/shared/utils/portfolioTypeToModel";
 import {
   PLATFORM_TERMS_OF_SERVICE_TEXT,
 } from "@/shared/legal/platformLegalContent";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function TermsOfServiceFooterLink({
   className = "hover:text-white transition-colors",
@@ -44,7 +45,7 @@ export default function TermsOfServiceFooterLink({
           setTerms(null);
           return;
         }
-        console.error("Failed to load terms of service", err);
+        logApiError(err, "Failed to load terms of service");
         setTerms(null);
         setUserTermsError(
           "Portfolio-specific terms of service could not be loaded.",

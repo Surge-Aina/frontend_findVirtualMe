@@ -1,6 +1,7 @@
 
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { logApiError } from "@/shared/api/safeLog";
 
 const AuthContext = createContext();
 
@@ -11,32 +12,32 @@ export const AuthProvider = ({ children }) => {
   const [isOwner, setIsOwner] = useState(false);
 
   const checkPortfolioOwnership = async (portfolioId) => {
-    console.log('🔍 checkPortfolioOwnership called:', { portfolioId, user });
+    
     
     if (!user || !portfolioId) {
-      console.log('❌ No user or portfolio ID');
+      
       setIsOwner(false);
       return false;
     }
 
     try {
       const token = localStorage.getItem('token');
-      console.log('🔍 Making API call to check ownership...');
+      
       
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_API}/api/portfolios/${portfolioId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      console.log('✅ Ownership check response:', response.data);
+      
       
       // ✅ FIXED: Get isOwner from response.data
       const ownershipStatus = response.data.isOwner;
-      console.log('🔍 Setting isOwner to:', ownershipStatus);
+      
       setIsOwner(ownershipStatus);
       return ownershipStatus;
     } catch (error) {
-      console.error('❌ Error checking portfolio ownership:', error);
+      logApiError(error, "❌ Error checking portfolio ownership");
       setIsOwner(false);
       return false;
     }
@@ -46,25 +47,25 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       const token = localStorage.getItem('token');
-      console.log('🔍 Loading user, token exists?', !!token);
+      
       
       if (!token) {
-        console.log('❌ No token found');
+        
         setLoading(false);
         return;
       }
 
       try {
-        console.log('🔍 Calling /api/portfolios/me-user...');
+        
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_API}/api/portfolios/me-user`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         
-        console.log('✅ User loaded:', response.data.user);
+        
         setUser(response.data.user);
       } catch (error) {
-        console.error('❌ Error loading user:', error);
+        logApiError(error, "❌ Error loading user");
         localStorage.removeItem('token');
       } finally {
         setLoading(false);
@@ -76,23 +77,19 @@ export const AuthProvider = ({ children }) => {
 
   // Check ownership when portfolio ID changes
   useEffect(() => {
-    console.log('🔍 AuthContext - Portfolio ID changed:', {
-      currentPortfolioId,
-      user,
-      hasUser: !!user
-    });
+    
     
     if (currentPortfolioId && user) {
-      console.log('🔍 Checking ownership for portfolio:', currentPortfolioId);
+      
       checkPortfolioOwnership(currentPortfolioId);
     } else {
-      console.log('🔍 Setting isOwner to false - no portfolio or user');
+      
       setIsOwner(false);
     }
   }, [currentPortfolioId, user]);
 const login = async (email, password) => {
   try {
-    console.log('🔍 LOGIN FUNCTION CALLED');
+    
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_API}/api/auth/login`,
       { email, password }
@@ -108,7 +105,7 @@ const login = async (email, password) => {
     // ✅ ADD THIS:
     if (portfolioIds) {
       localStorage.setItem('userPortfolios', JSON.stringify(portfolioIds));
-      console.log('📁 Stored portfolio IDs:', portfolioIds);
+      
     }
     
     setUser(user);
@@ -119,24 +116,18 @@ const login = async (email, password) => {
 };
   // const login = async (email, password) => {
   //   try {
-  //     console.log('🔍 LOGIN FUNCTION CALLED');
   //     const response = await axios.post(
   //       `${import.meta.env.VITE_BACKEND_API}/api/auth/login`,
   //       { email, password }
   //     );
   //     const { token, user } = response.data;
       
-  //     console.log('🔍 LOGIN RESPONSE USER:', user);
-  //     console.log('🔍 USER EMAIL:', user.email);
-  //     console.log('🔍 USER ID:', user._id || user.id);
       
   //     // Save to localStorage
   //     localStorage.setItem('token', token);
   //     localStorage.setItem('email', user.email);
   //     localStorage.setItem('userId', user._id || user.id);
       
-  //     console.log('🔍 SAVED TO LOCALSTORAGE');
-  //     console.log('🔍 CHECK:', localStorage.getItem('email'), localStorage.getItem('userId'));
       
   //     setUser(user);
   //     return { success: true };

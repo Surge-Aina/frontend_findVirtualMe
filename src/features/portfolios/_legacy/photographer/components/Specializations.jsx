@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Editable from "./Editable";
 import { getOptional } from "@/shared/api/axiosAuth";
 import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Specializations() {
   const { portfolioId } = usePhotographerWrite();
@@ -24,7 +25,7 @@ export default function Specializations() {
         try {
           setServices(JSON.parse(servicesData.value));
         } catch (err) {
-          console.error("Failed to parse specializations", err);
+          logApiError(err, "Failed to parse specializations");
         }
       }
     };
@@ -38,7 +39,7 @@ export default function Specializations() {
     try {
       await putPhotographerSetting("specializationsDescription", newDescription, portfolioId);
     } catch (err) {
-      console.error('Failed to save description:', err);
+      logApiError(err, "Failed to save description");
     }
   };
 
@@ -55,7 +56,7 @@ export default function Specializations() {
         portfolioId
       );
     } catch (err) {
-      console.error('Failed to save services:', err);
+      logApiError(err, "Failed to save services");
     }
   };
 

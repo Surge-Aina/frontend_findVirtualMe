@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { portfolioAPI } from '../utils/api';
+import { logApiError } from "@/shared/api/safeLog";
 
 const PortfolioContext = createContext();
 
@@ -16,7 +17,7 @@ export const PortfolioProvider = ({ children }) => {
       setPortfolio(data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching portfolio:', err);
+      logApiError(err, "Error fetching portfolio");
       setError('Failed to load portfolio data. Please try again later.');
     } finally {
       setLoading(false);
@@ -41,7 +42,7 @@ export const PortfolioProvider = ({ children }) => {
       }));
       return { success: true };
     } catch (error) {
-      console.error('Error adding portfolio item:', error);
+      logApiError(error, "Error adding portfolio item");
       return { 
         success: false, 
         error: error.response?.data?.message || 'Failed to add item. Please try again.' 
@@ -69,7 +70,7 @@ export const PortfolioProvider = ({ children }) => {
       });
       return { success: true };
     } catch (error) {
-      console.error('Error updating portfolio item:', error);
+      logApiError(error, "Error updating portfolio item");
       return { 
         success: false, 
         error: error.response?.data?.message || 'Failed to update item. Please try again.' 

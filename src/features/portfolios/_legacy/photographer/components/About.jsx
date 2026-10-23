@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Editable from "./Editable";
 import { getOptional } from "@/shared/api/axiosAuth";
 import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function About() {
   const { portfolioId } = usePhotographerWrite();
@@ -34,7 +35,7 @@ export default function About() {
     try {
       await putPhotographerSetting("aboutPhoto", newUrl, portfolioId);
     } catch (err) {
-      console.error('Failed to save photo:', err);
+      logApiError(err, "Failed to save photo");
     }
   };
 
@@ -44,7 +45,7 @@ export default function About() {
     try {
       await putPhotographerSetting("aboutDescription", newDescription, portfolioId);
     } catch (err) {
-      console.error('Failed to save description:', err);
+      logApiError(err, "Failed to save description");
     }
   };  
 
@@ -54,7 +55,7 @@ export default function About() {
     try {
       await putPhotographerSetting("aboutText", newText, portfolioId);
     } catch (err) {
-      console.error('Failed to save text:', err);
+      logApiError(err, "Failed to save text");
     }
   };
 

@@ -1,6 +1,7 @@
 // QRCodeForm.jsx
 import { useState } from "react";
 import axiosAuth from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function QRCodeForm({ onSuccess, portfolioId, portfolioType, onClose }) {
   const initialFormState = {
@@ -43,7 +44,7 @@ export default function QRCodeForm({ onSuccess, portfolioId, portfolioType, onCl
     } catch (err) {
       setLoading(false);
       setError(err.response?.data?.message || "Failed to create QR code");
-      console.error("QR code creation failed", err);
+      logApiError(err, "QR code creation failed");
     }
   };
 

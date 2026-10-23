@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { logApiError } from "@/shared/api/safeLog";
 
 const API_URL = import.meta.env.VITE_BACKEND_API || 'http://localhost:5000';
 
@@ -56,7 +57,7 @@ export default function PortfolioEditLogViewer() {
         setForbidden(true);
         setError("Portfolio edit logs are limited to admins. Your account does not have access.");
       } else {
-        console.error('Error fetching logs:', err);
+        logApiError(err, "Error fetching logs");
         setError(err.response?.data?.message || err.message || 'Failed to fetch logs');
       }
     } finally {

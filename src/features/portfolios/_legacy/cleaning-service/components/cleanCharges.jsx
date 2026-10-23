@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { logApiError } from "@/shared/api/safeLog";
 
 const Charges = () => {
   const { portfolioId } = useParams();
@@ -57,7 +58,7 @@ const Charges = () => {
           setQuotes(q.data);
         }
       } catch (err) {
-        console.error('Failed to load data:', err);
+        logApiError(err, "Failed to load data");
         toast.error('Failed to load data');
       }
     };
@@ -102,7 +103,7 @@ const Charges = () => {
       const portfolio = res.data.portfolio || res.data;
       setServices(portfolio.services || []);
     } catch (err) {
-      console.error('Update price error:', err);
+      logApiError(err, "Update price error");
       toast.error(err?.response?.data?.message || 'Failed to update price');
     }
   };
@@ -124,7 +125,7 @@ const Charges = () => {
       );
       setQuotes(q.data);
     } catch (err) {
-      console.error('Update status error:', err);
+      logApiError(err, "Update status error");
       toast.error(err?.response?.data?.message || 'Failed to update status');
     }
   };
@@ -186,7 +187,7 @@ const Charges = () => {
       setQuotes(q.data);
     }
   } catch (err) {
-    console.error('Submit quote error:', err);
+    logApiError(err, "Submit quote error");
     toast.error(err?.response?.data?.message || 'Failed to submit quote');
   } finally {
     setLoading(false);

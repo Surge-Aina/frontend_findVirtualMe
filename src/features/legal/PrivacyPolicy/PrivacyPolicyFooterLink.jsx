@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { usePortfolio } from "@/shared/context/PortfolioContext";
 import { portfolioTypeToModel } from "@/shared/utils/portfolioTypeToModel";
 import PlatformPrivacyPolicyEmbed from "@/shared/legal/PlatformPrivacyPolicyEmbed";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function PrivacyPolicyFooterLink({
   className = "hover:text-white transition-colors",
@@ -42,7 +43,7 @@ export default function PrivacyPolicyFooterLink({
           setPolicy(null);
           return;
         }
-        console.error("Failed to load privacy policy", err);
+        logApiError(err, "Failed to load privacy policy");
         setPolicy(null);
         setUserPolicyError(
           "Portfolio-specific privacy policy could not be loaded.",

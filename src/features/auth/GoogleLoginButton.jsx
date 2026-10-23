@@ -31,5 +31,5 @@ export default function GoogleLoginButton({ onClose }) {
     }
   };
 
-  return <GoogleLogin onSuccess={handleSuccess} onError={() => console.error("Google login failed")} />;
+  return <GoogleLogin onSuccess={handleSuccess} onError={() => {}} />;
 }

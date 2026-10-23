@@ -1,4 +1,5 @@
 import React from 'react';
+import { logApiError } from "@/shared/api/safeLog";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -11,9 +12,8 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
-    // You can log the error to a service here
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  componentDidCatch(error, _errorInfo) {
+    logApiError(error, "ErrorBoundary caught an error");
   }
 
   render() {

@@ -6,6 +6,7 @@ import { FaImage, FaCamera, FaSpinner } from 'react-icons/fa'
 import Navbar from '../components/Navbar'
 import ScrollToTop from '../components/ScrollToTop'
 import Footer from '../components/Footer'
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function Gallery() {
   const { practiceId } = useHealthcareBasePath()
@@ -27,7 +28,7 @@ export default function Gallery() {
         
         setPracticeData(data)
       } catch (error) {
-        console.error('Error fetching practice data:', error)
+        logApiError(error, "Error fetching practice data")
       } finally {
         setLoading(false)
       }

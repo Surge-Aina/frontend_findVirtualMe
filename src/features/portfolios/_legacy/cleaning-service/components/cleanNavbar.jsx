@@ -41,7 +41,6 @@
 //         setVisitorName('');
 //       }
 //     } catch (error) {
-//       console.error('Error checking auth:', error);
 //       setInitials('DOM');
 //       setIsVisitorLoggedIn(false);
 //       setVisitorName('');
@@ -145,6 +144,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { MdAccountCircle } from "react-icons/md";
+import { logApiError } from "@/shared/api/safeLog";
 import "./cleanNavbar.css";
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -163,7 +163,7 @@ const [isOwner, setIsOwner] = useState(false);
 
 
 const checkAuthStatus = () => {
-  console.log('🔍 NAVBAR - portfolioId from useParams:', portfolioId);
+  
   try {
     const visitor = localStorage.getItem('visitor');
     const visitorToken = localStorage.getItem('visitorToken');
@@ -181,26 +181,26 @@ const checkAuthStatus = () => {
       setVisitorName('');
       
       const userPortfolios = localStorage.getItem('userPortfolios');
-      console.log('📦 userPortfolios from localStorage:', userPortfolios);
+      
       
       if (userPortfolios && portfolioId) {
         const portfoliosList = JSON.parse(userPortfolios);
-        console.log('📁 User portfolios array:', portfoliosList);
-        console.log('🔍 Current portfolioId:', portfolioId);
+        
+        
         
         if (portfoliosList.includes(portfolioId)) {
           setIsOwner(true);
           setInitials('OWN');
-          console.log('✅ Portfolio IS in array - showing toggle');
+          
         } else {
           setIsOwner(false);
           setInitials('DOM');
-          console.log('❌ Portfolio NOT in array - hiding toggle');
+          
         }
       } else {
         setIsOwner(false);
         setInitials('DOM');
-        console.log('⚠️ No userPortfolios or no portfolioId');
+        
       }
     }
     
@@ -208,7 +208,7 @@ const checkAuthStatus = () => {
     const savedToggleState = localStorage.getItem(`showVisitors_${portfolioId}`);
     setShowVisitorsTab(savedToggleState === 'true');
   } catch (error) {
-    console.error('Error checking auth:', error);
+    logApiError(error, "Error checking auth");
     setInitials('DOM');
     setIsVisitorLoggedIn(false);
     setVisitorName('');

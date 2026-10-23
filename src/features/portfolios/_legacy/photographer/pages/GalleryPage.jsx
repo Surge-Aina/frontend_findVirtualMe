@@ -4,6 +4,7 @@ import Editable from "../components/Editable";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { getOptional } from "@/shared/api/axiosAuth";
 import { putPhotographerSetting, usePhotographerWrite } from "../photographerApi";
+import { logApiError } from "@/shared/api/safeLog";
 
 const GalleryPage = () => {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ const GalleryPage = () => {
     try {
       await putPhotographerSetting("galleryHero", updatedHero, portfolioId);
     } catch (err) {
-      console.error('Failed to save hero data:', err);
+      logApiError(err, "Failed to save hero data");
     }
   };
 
@@ -103,7 +104,7 @@ const GalleryPage = () => {
     try {
       await putPhotographerSetting("galleryServices", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to save services:', err);
+      logApiError(err, "Failed to save services");
     }
   };  
 
@@ -121,7 +122,7 @@ const GalleryPage = () => {
     try {
       await putPhotographerSetting("galleryServices", updatedServices, portfolioId);
     } catch (err) {
-      console.error('Failed to save new service:', err);
+      logApiError(err, "Failed to save new service");
     }
   };
 
@@ -132,7 +133,7 @@ const GalleryPage = () => {
     try {
       await putPhotographerSetting("galleryServices", updated, portfolioId);
     } catch (err) {
-      console.error('Failed to remove service:', err);
+      logApiError(err, "Failed to remove service");
     }
   };
 

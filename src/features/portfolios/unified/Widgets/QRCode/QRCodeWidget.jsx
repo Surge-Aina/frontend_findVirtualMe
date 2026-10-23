@@ -10,6 +10,7 @@ import authAxios from "@/shared/api/axiosAuth";
 import { AuthContext } from "@/shared/context/AuthContext";
 import axios from 'axios';
 import { createPortal } from 'react-dom';
+import { logApiError } from "@/shared/api/safeLog";
 
 
 export default function QRCodeWidget({ 
@@ -35,18 +36,18 @@ export default function QRCodeWidget({
                 `${import.meta.env.VITE_BACKEND_API}/api/qr-codes/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
             );
             setQRCodes(res.data);
-            console.log('Fetched QR codes:', res.data);
+            
             return;
             }else {
             res = await axios.get(
                 `${import.meta.env.VITE_BACKEND_API}/api/qr-codes/public/byPortfolio?portfolioId=${portfolioId}&type=${portfolioType}`
             );
             }
-            console.log('API response:', res.data);
+            
             setQRCodes(res.data);
-            console.log('Fetched QR codes:', res.data);
+            
         } catch (error) {
-            console.error('Error fetching QR IDs:', error);
+            logApiError(error, "Error fetching QR IDs");
         }
         };
         fetchQRCodes();
@@ -61,7 +62,7 @@ export default function QRCodeWidget({
         }
         catch (error) {
         toast.error('Failed to delete QR code');
-        console.error('Error deleting QR code:', error);
+        logApiError(error, "Error deleting QR code");
         }
     };
 
@@ -73,7 +74,7 @@ export default function QRCodeWidget({
         toast.success(`QR code ${res.data.active ? 'activated' : 'deactivated'} successfully`);
         } catch (error) {
         toast.error('Failed to toggle QR code state');
-        console.error('Error toggling QR code state:', error);
+        logApiError(error, "Error toggling QR code state");
         }
     };
 

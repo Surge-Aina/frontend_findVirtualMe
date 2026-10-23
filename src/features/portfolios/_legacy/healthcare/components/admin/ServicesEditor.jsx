@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaImage, FaCamera } from 'react-icons/fa'
 import { api } from '../../lib/api'
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function ServicesEditor({ services, onUpdate }) {
   const [editingService, setEditingService] = useState(null)
@@ -63,7 +64,7 @@ export default function ServicesEditor({ services, onUpdate }) {
       // Save final public URL
       updateService(serviceIndex, 'image', publicUrl)
     } catch (err) {
-      console.error('Service Image Upload Error:', err)
+      logApiError(err, "Service Image Upload Error")
       alert('Image upload failed')
     }
   }

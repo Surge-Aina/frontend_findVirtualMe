@@ -1,4 +1,5 @@
 import axiosAuth from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 export const API_KEY_SCOPES = [
   {
@@ -128,10 +129,7 @@ export function apiErrorMessage(err, fallback) {
  * Those bodies can contain an API key or a signing secret.
  */
 export function logApiFailure(label, err) {
-  const status = err?.response?.status || "no-status";
-  const codeField = err?.response?.data?.error;
-  const code = typeof codeField === "string" ? codeField : codeField?.code || "no-code";
-  console.error(label, status, code);
+  logApiError(err, label);
 }
 
 export function isMissingFeature(err) {

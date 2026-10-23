@@ -5,6 +5,7 @@ import { useVendorApi } from "../services/api";
 import FileUploader from "../components/FileUploader";
 import { canEditPortfolio } from "../services/auth";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 const MAX_IMAGES = 4;
 
@@ -44,7 +45,7 @@ const AboutSection = () => {
         setRightBlocks(withIds(blocks.slice(midpoint)));
         setBottomImages((data.gridImages || []).slice(0, MAX_IMAGES));
       })
-      .catch((err) => console.error("Failed to fetch or create about data", err));
+      .catch((err) => logApiError(err, "Failed to fetch or create about data"));
   }, [vendorId]);
 
   // ----- text blocks -----
@@ -89,7 +90,7 @@ const AboutSection = () => {
       .then(() => {
         side === "left" ? setLeftBlocks(updatedBlocks) : setRightBlocks(updatedBlocks);
       })
-      .catch((err) => console.error("Failed to save content blocks", err));
+      .catch((err) => logApiError(err, "Failed to save content blocks"));
   };
 
   // ----- drag & drop reorder -----
@@ -128,7 +129,7 @@ const AboutSection = () => {
       setBottomImages(newImages);
       await api.updateAbout({ gridImages: newImages });
     } catch (err) {
-      console.error("Failed to upload/persist images", err);
+      logApiError(err, "Failed to upload/persist images");
     } finally {
       e.target.value = "";
     }
@@ -142,7 +143,7 @@ const AboutSection = () => {
       // 🔹 vendor-aware update
       await api.updateAbout({ gridImages: newImages });
     } catch (err) {
-      console.error("Failed to persist image removal", err);
+      logApiError(err, "Failed to persist image removal");
     }
   };
 

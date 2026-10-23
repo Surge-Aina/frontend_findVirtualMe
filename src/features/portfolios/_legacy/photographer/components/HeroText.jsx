@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Editable from './Editable';
 import { getOptional } from '@/shared/api/axiosAuth';
 import { putPhotographerSetting, usePhotographerWrite } from '../photographerApi';
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "Party"] }) {
   const { portfolioId } = usePhotographerWrite();
@@ -41,7 +42,7 @@ export default function HeroText({ words = ["Wedding", "Graduation", "Sports", "
     try {
       await putPhotographerSetting('heroTagline', newTagline, portfolioId);
     } catch (err) {
-      console.error('Failed to save tagline:', err);
+      logApiError(err, "Failed to save tagline");
     }
   };
 

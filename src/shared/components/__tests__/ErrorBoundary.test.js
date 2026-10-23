@@ -11,13 +11,14 @@ const ThrowError = () => {
 const WorkingComponent = () => <div>Everything is fine</div>;
 
 describe('ErrorBoundary', () => {
-  // Suppress console.error for cleaner test output
+  let consoleErrorSpy;
+
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    console.error.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   it('renders children when there is no error', () => {

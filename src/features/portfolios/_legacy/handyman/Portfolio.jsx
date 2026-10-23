@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import handymanAPI from "./api.js";
+import { logApiError } from "@/shared/api/safeLog";
 import "./Portfolio.css";
 
 /**
@@ -41,7 +42,7 @@ export default function Portfolio({
           setProjects(list);
         }
       } catch (e) {
-        console.error("Failed to load projects", e);
+        logApiError(e, "Failed to load projects");
         setProjects([]);
       }
     })();

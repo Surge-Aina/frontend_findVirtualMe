@@ -5,6 +5,7 @@ import FileUploader from "../components/FileUploader";
 import { toast } from "react-toastify";
 import { useVendorApi } from "../services/api";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 const PAGE_SIZE = 6; // your limit
 
@@ -64,7 +65,7 @@ const Menu = () => {
         ];
         setAllCategories(allCats);
       })
-      .catch((err) => console.error("Error fetching categories:", err));
+      .catch((err) => logApiError(err, "Error fetching categories"));
   }, [vendorId]);
 
   // fetch list by category
@@ -84,7 +85,7 @@ const Menu = () => {
         setPage(1);
         setAutoLoad(false);
       } catch (err) {
-        console.error("Error fetching menu:", err);
+        logApiError(err, "Error fetching menu");
       } finally {
         setLoading(false);
       }
@@ -176,7 +177,7 @@ const Menu = () => {
         setShowForm(false);
         toast.success(editingId ? "Menu item updated!" : "Menu item created!");
       })
-      .catch((err) => console.error("Save failed:", err));
+      .catch((err) => logApiError(err, "Save failed"));
   };
 
   const handleEdit = (item) => {
@@ -198,7 +199,7 @@ const Menu = () => {
       api
         .deleteMenuItem(id)
         .then(() => setMenuItems((prev) => prev.filter((i) => i._id !== id)))
-        .catch((err) => console.error("Delete failed:", err));
+        .catch((err) => logApiError(err, "Delete failed"));
     }
   };
 

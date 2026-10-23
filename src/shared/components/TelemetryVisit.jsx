@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { logApiError } from "@/shared/api/safeLog";
 
 function getConsent() {
   const local = localStorage.getItem("cookieConsent");
@@ -15,14 +16,12 @@ export default function TelemetryVisit() {
 
   useEffect(() => {
     const consent = getConsent();
-    //console.log("[TelemetryVisit] route ->", pathname, "consent:", consent);
 
     if (consent !== "accepted") return;
     if (lastSent.current === pathname) return;
     lastSent.current = pathname;
 
     const url = `${API_BASE}/api/telemetry/visit`;
-    // console.log("[TelemetryVisit] POST", url, "page:", pathname);
 
     fetch(url, {
       method: "POST",
@@ -32,15 +31,13 @@ export default function TelemetryVisit() {
     })
       .then(async (r) => {
         void (await r.text());
-        // console.log("[TelemetryVisit] resp:", r.status, txt);
       })
-      .catch((e) => console.warn("[TelemetryVisit] fetch failed:", e));
+      .catch((e) => logApiError(e, "[TelemetryVisit] fetch failed"));
   }, [pathname]);
 
   useEffect(() => {
     const handler = () => {
       const consent = getConsent();
-      // console.log("[TelemetryVisit] consent-changed ->", consent);
       if (consent === "accepted") {
         lastSent.current = "";
         const url = `${API_BASE}/api/telemetry/visit`;
@@ -50,7 +47,7 @@ export default function TelemetryVisit() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ page }),
           credentials: "include",
-        }).catch((e) => console.warn("[TelemetryVisit] change failed:", e));
+        }).catch((e) => logApiError(e, "[TelemetryVisit] change failed"));
       }
     };
     window.addEventListener("consent-changed", handler);

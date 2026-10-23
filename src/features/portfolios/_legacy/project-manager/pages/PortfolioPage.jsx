@@ -165,7 +165,6 @@ const PortfolioPage = ({ portfolioId, portfolioType: _portfolioType }) => {
   //           import.meta.env.VITE_FORM_PUBLIC_KEY
   //         )
   //         .catch((err) => {
-  //           console.error(`Email ${index + 1} failed:`, err);
   //           throw err;
   //         })
   //     );

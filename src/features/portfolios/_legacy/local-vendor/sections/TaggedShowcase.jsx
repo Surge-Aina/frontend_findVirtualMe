@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MdClose } from "react-icons/md";
 import { useVendorApi } from "../services/api";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
+import { logApiError } from "@/shared/api/safeLog";
 
 /* helpers */
 const cx = (...c) => c.filter(Boolean).join(" ");
@@ -67,7 +68,7 @@ export default function TaggedShowcase() {
           setTags(latest.tags || []);
         }
       })
-      .catch((err) => console.error("Error loading tagged image:", err));
+      .catch((err) => logApiError(err, "Error loading tagged image"));
   }, [vendorId]);
 
   /* measure image size */

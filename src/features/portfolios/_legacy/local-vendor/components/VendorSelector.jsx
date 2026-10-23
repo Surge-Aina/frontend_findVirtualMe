@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { useVendor } from "@/features/portfolios/_legacy/local-vendor/context/VendorContext";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import axiosAuth, { authFailureMessage } from "@/shared/api/axiosAuth";
+import { logApiError } from "@/shared/api/safeLog";
 
 function asVendorList(payload) {
   if (Array.isArray(payload)) return payload;
@@ -124,7 +125,7 @@ export default function VendorSelector() {
       setShowForm(false);
       setOpen(false);
     } catch (err) {
-      console.error("Failed to create vendor", err);
+      logApiError(err, "Failed to create vendor");
       setActionError(
         authFailureMessage(err) || err.response?.data?.error || "Could not create the vendor."
       );
@@ -151,7 +152,7 @@ export default function VendorSelector() {
       setShowUpload(false);
       setOpen(false);
     } catch (err) {
-      console.error("Failed to inject vendor", err);
+      logApiError(err, "Failed to inject vendor");
       const authMessage = authFailureMessage(err);
       if (authMessage) {
         setActionError(authMessage);

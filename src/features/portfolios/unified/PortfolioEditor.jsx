@@ -60,6 +60,7 @@ import {
 } from "./ai-creator/PortfolioEditorWorkspacePanels";
 import { mergeNavBrandDefaults } from "./PortfolioNavBrand";
 import OwnerSubUsersPanel from "@/features/portfolio-users/OwnerSubUsersPanel";
+import { logApiError } from "@/shared/api/safeLog";
 
 function clonePortfolio(value) {
   return value ? JSON.parse(JSON.stringify(value)) : null;
@@ -711,7 +712,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
           portfolioName: created.title || `${baseTitle} Remix`,
         });
       } catch (linkErr) {
-        console.warn("addPortfolioId:", linkErr);
+        logApiError(linkErr, "addPortfolioId");
       }
 
       await refreshUser?.();

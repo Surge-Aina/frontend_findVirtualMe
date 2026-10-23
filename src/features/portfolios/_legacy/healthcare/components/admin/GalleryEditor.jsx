@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaImages, FaCamera } from 'react-icons/fa'
 import {api} from "../../lib/api";
+import { logApiError } from "@/shared/api/safeLog";
 
 export default function GalleryEditor({ gallery, onUpdate }) {
   const [editingFacilityImage, setEditingFacilityImage] = useState(null)
@@ -87,7 +88,7 @@ export default function GalleryEditor({ gallery, onUpdate }) {
         // Save final public URL
         updateFacilityImage(imageIndex, 'url', publicUrl)
       } catch (err) {
-        console.error('Gallery Image Upload Error:', err)
+        logApiError(err, "Gallery Image Upload Error")
         alert('Image upload failed')
       }
     }
@@ -99,7 +100,7 @@ export default function GalleryEditor({ gallery, onUpdate }) {
       // Save final public URL
       updateBeforeAfterCase(caseIndex, type, publicUrl)
     } catch (err) {
-      console.error('Case Image Upload Error:', err)
+      logApiError(err, "Case Image Upload Error")
       alert('Image upload failed')
     } 
   }

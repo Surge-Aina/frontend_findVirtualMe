@@ -263,7 +263,7 @@ describe('VisitorData Component', () => {
   });
   describe('Network Error Handling', () => {
     it('should handle network error during fetch', async () => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       fetch.mockRejectedValueOnce(new Error('Network error'));
       
       renderComponent();
@@ -272,12 +272,12 @@ describe('VisitorData Component', () => {
         expect(screen.getByText(/Could not connect to server/i)).toBeInTheDocument();
       });
       
-      console.error.mockRestore();
+      consoleErrorSpy.mockRestore();
     });
 
     it('should handle network error during save', async () => {
       global.alert = jest.fn();
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       
       fetch.mockResolvedValueOnce({
         ok: true,
@@ -300,7 +300,7 @@ describe('VisitorData Component', () => {
         expect(global.alert).toHaveBeenCalled();
       });
       
-      console.error.mockRestore();
+      consoleErrorSpy.mockRestore();
     });
   });
   describe('Uncovered Branch Coverage', () => {
@@ -658,7 +658,7 @@ describe('VisitorData Component', () => {
     // Lines 102-104: catch block in handleSaveChanges
     it('should alert on network error during save', async () => {
       global.alert = jest.fn();
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       
       fetch.mockResolvedValueOnce({
         ok: true,
@@ -681,7 +681,7 @@ describe('VisitorData Component', () => {
         expect(global.alert).toHaveBeenCalledWith('Could not update visitor information');
       });
       
-      console.error.mockRestore();
+      consoleErrorSpy.mockRestore();
     });
 
     // Test empty string values
