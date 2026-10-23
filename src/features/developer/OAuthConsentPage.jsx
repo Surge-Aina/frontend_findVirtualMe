@@ -1,22 +1,26 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext";
 import FvMark from "@/shared/components/FvMark";
+import { safeReturnPath } from "@/shared/utils/safeReturnPath";
 import {
   apiErrorMessage,
   authorizeOAuthInstall,
+  authorizeRedirectTarget,
   createPkcePair,
   followBrowserRedirect,
   listConsentSites,
+  listMarketplaceApps,
   logApiFailure,
-  safeRedirect,
   scopeLabel,
 } from "./developerApi";
 
 function rememberReturn(path) {
+  const safe = safeReturnPath(path);
+  if (!safe) return;
   sessionStorage.setItem(
     "postLoginPath",
-    JSON.stringify({ path, exp: Date.now() + 10 * 60 * 1000 })
+    JSON.stringify({ path: safe, exp: Date.now() + 10 * 60 * 1000 })
   );
 }
 
@@ -34,40 +38,58 @@ function redirectChoices(params) {
     .split(/[\s,]+/)
     .map((value) => value.trim())
     .filter(Boolean);
-  const all = [primary, ...extra].filter(Boolean);
-  return [...new Set(all)];
+  return [primary, ...extra].filter(Boolean);
+}
+
+function httpsUriList(values) {
+  const out = [];
+  for (const value of values) {
+    const target = authorizeRedirectTarget(value, value);
+    if (target && !out.includes(target)) out.push(target);
+  }
+  return out;
 }
 
 export default function OAuthConsentPage() {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [params] = useSearchParams();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [sites, setSites] = useState([]);
   const [siteId, setSiteId] = useState("");
-  const [redirectUri, setRedirectUri] = useState("");
+  const [redirectChoice, setRedirectChoice] = useState("");
+  const [catalogName, setCatalogName] = useState("");
+  const [registeredRedirects, setRegisteredRedirects] = useState(null);
 
   const clientId = params.get("client_id") || params.get("clientId") || "";
-  const appName = params.get("client_name") || params.get("app_name") || clientId || "This app";
   const state = params.get("state") || "";
   const codeChallenge = params.get("code_challenge") || "";
   const scopes = useMemo(() => parseScopes(params), [params]);
-  const redirects = useMemo(() => redirectChoices(params), [params]);
+  const queryRedirects = useMemo(() => httpsUriList(redirectChoices(params)), [params]);
+  const redirects = registeredRedirects?.length ? registeredRedirects : queryRedirects;
+  const redirectUri = redirects.includes(redirectChoice) ? redirectChoice : redirects[0] || "";
+  const appName = catalogName || "This app";
 
   useEffect(() => {
-    if (redirects[0]) setRedirectUri(redirects[0]);
-  }, [redirects]);
+    if (token) return;
+    rememberReturn(`${location.pathname}${location.search}`);
+  }, [token, location.pathname, location.search]);
 
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
     (async () => {
       try {
-        const rows = await listConsentSites();
+        const [rows, apps] = await Promise.all([listConsentSites(), listMarketplaceApps()]);
         if (cancelled) return;
         setSites(rows);
         if (rows[0]?.id) setSiteId(rows[0].id);
+        const match = apps.find((app) => app.clientId && app.clientId === clientId);
+        setCatalogName(match?.name || "");
+        const pinned = httpsUriList(match?.redirectUris || []);
+        if (pinned.length) setRegisteredRedirects(pinned);
       } catch (err) {
         if (!cancelled) {
           logApiFailure("oauth_sites_failed", err);
@@ -78,26 +100,14 @@ export default function OAuthConsentPage() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, clientId]);
 
   const deny = () => {
-    const target = safeRedirect(redirectUri);
-    if (target && target.startsWith("https:")) {
-      const url = new URL(target);
-      url.searchParams.set("error", "access_denied");
-      if (state) url.searchParams.set("state", state);
-      followBrowserRedirect(url.toString());
-      return;
-    }
     navigate("/integrations");
   };
 
   const allow = async () => {
-    if (!token) {
-      rememberReturn(`${window.location.pathname}${window.location.search}`);
-      setError("Sign in with the header button, then you will return to this screen.");
-      return;
-    }
+    if (!token) return;
     if (!clientId || !redirectUri || !siteId) {
       setError("Choose a site and a registered redirect URI.");
       return;
@@ -114,12 +124,12 @@ export default function OAuthConsentPage() {
         siteId,
         codeChallenge: challenge,
       });
-      const target = safeRedirect(payload.redirect_url || payload.redirectUrl);
+      const target = authorizeRedirectTarget(payload.redirect_url || payload.redirectUrl, redirectUri);
       if (target) {
         followBrowserRedirect(target);
         return;
       }
-      setError("The app did not return a redirect URL.");
+      setError("The app did not return the redirect URI that was validated.");
       setPending(false);
     } catch (err) {
       logApiFailure("oauth_authorize_failed", err);
@@ -127,6 +137,28 @@ export default function OAuthConsentPage() {
       setPending(false);
     }
   };
+
+  if (!token) {
+    return (
+      <main className="min-h-screen bg-slate-50 px-4 py-16">
+        <div className="max-w-lg mx-auto bg-white border border-slate-300 rounded-2xl shadow-2xl px-6 py-8">
+          <div className="flex items-center gap-3 mb-6">
+            <FvMark />
+            <h1 className="text-2xl font-semibold text-slate-800">Sign in required</h1>
+          </div>
+          <p className="text-sm text-slate-600">
+            Sign in with the header button before reviewing this request. Allow stays unavailable until you are signed
+            in, and you return to this screen afterward.
+          </p>
+          {clientId ? (
+            <p className="mt-4 text-sm text-slate-700 break-all">
+              Client <span className="font-mono">{clientId}</span>
+            </p>
+          ) : null}
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-16">
@@ -136,9 +168,10 @@ export default function OAuthConsentPage() {
           <h1 className="text-2xl font-semibold text-slate-800">Allow access</h1>
         </div>
         <p className="text-sm text-slate-600">
-          <span className="font-semibold text-slate-800">{appName}</span> is asking to use your FindVirtualMe account.
-          Allow calls <span className="font-mono">POST /api/oauth/authorize</span> and sends the browser to the app
-          redirect URI.
+          <span className="font-semibold text-slate-800">{appName}</span>
+          {clientId ? <span className="font-mono"> ({clientId})</span> : null} is asking to use your FindVirtualMe
+          account. Allow calls <span className="font-mono">POST /api/oauth/authorize</span> and sends the browser to
+          the redirect URI returned by that call.
         </p>
         <h2 className="text-sm font-medium text-gray-700 mt-6 mb-2">Requested scopes</h2>
         {scopes.length === 0 ? (
@@ -177,7 +210,7 @@ export default function OAuthConsentPage() {
             <select
               id="consent-redirect"
               value={redirectUri}
-              onChange={(event) => setRedirectUri(event.target.value)}
+              onChange={(event) => setRedirectChoice(event.target.value)}
               className="w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-900"
             >
               {redirects.map((uri) => (

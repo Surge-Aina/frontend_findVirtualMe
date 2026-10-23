@@ -77,16 +77,32 @@ export function normalizeApps(apps) {
   }));
 }
 
-export function safeRedirect(value) {
-  if (typeof value !== "string" || !value) return null;
-  if (value.startsWith("/") && !value.startsWith("//")) return value;
+function strictHttpsUrl(value) {
+  if (typeof value !== "string" || !value || value !== value.trim()) return null;
+  if (/[\\\s]/.test(value)) return null;
+  let url;
   try {
-    const url = new URL(value);
-    if (url.protocol === "https:" || url.protocol === "http:") return url.toString();
+    url = new URL(value);
   } catch {
     return null;
   }
-  return null;
+  if (url.protocol !== "https:") return null;
+  if (url.username || url.password) return null;
+  return url;
+}
+
+/**
+ * Follow only the https URL returned by POST /api/oauth/authorize, and only
+ * when it is the same origin and path as the redirect URI that request asked
+ * the backend to validate. Query-string redirect_uri values are not targets.
+ */
+export function authorizeRedirectTarget(responseUrl, requestedRedirectUri) {
+  const response = strictHttpsUrl(responseUrl);
+  const requested = strictHttpsUrl(requestedRedirectUri);
+  if (!response || !requested) return null;
+  if (response.origin !== requested.origin) return null;
+  if (response.pathname !== requested.pathname) return null;
+  return response.toString();
 }
 
 export function followBrowserRedirect(target) {

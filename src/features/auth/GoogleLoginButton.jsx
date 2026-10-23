@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { consumePostLoginPath } from "@/shared/utils/safeReturnPath";
 
 const backendURL = import.meta.env.VITE_BACKEND_API;
 
@@ -22,7 +23,7 @@ export default function GoogleLoginButton({ onClose }) {
       }else{
         toast.success("Logged In with Google!");
       }
-      navigate("/profile");
+      navigate(consumePostLoginPath());
       console.log("Logged in user with Google:", res.data.user);
     } catch (err) {
       console.error("Backend auth failed", err);
