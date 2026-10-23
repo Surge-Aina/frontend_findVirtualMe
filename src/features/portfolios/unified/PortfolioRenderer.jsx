@@ -230,7 +230,12 @@ export default function PortfolioRenderer({ portfolioData: prefetched }) {
     setPortfolioId(portfolio._id);
     setPortfolioType(portfolio.template);
     if (portfolio.owner) {
-      setPortfolioOwner((prev) => ({ ...prev, id: portfolio.owner }));
+      // Replace the previous owner. Spreading would keep another user's email.
+      setPortfolioOwner({
+        id: portfolio.owner,
+        name: "",
+        email: "",
+      });
     }
   }, [portfolio, setPortfolioId, setPortfolioType, setPortfolioOwner]);
 

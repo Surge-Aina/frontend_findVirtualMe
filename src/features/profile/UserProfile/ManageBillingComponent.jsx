@@ -21,7 +21,10 @@ axios.interceptors.request.use(
 const backendUrl = import.meta.env.VITE_BACKEND_API;
 
 const fetchBilling = async () => {
-  const { data } = await axios.get(`${backendUrl}/api/users/subscription-info`); //return a list of subscription objects limit: 1
+  const token = localStorage.getItem("token");
+  const { data } = await axios.get(`${backendUrl}/api/users/subscription-info`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   return data;
 };
 
@@ -44,7 +47,12 @@ export default function ManageBillingComponent() {
   //take user to manage subscription
   const handleManageSubscriptions = async () => {
     try {
-      const response = await axios.post(`${backendUrl}/api/payments/checkout/billing-session`);
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${backendUrl}/api/payments/checkout/billing-session`,
+        undefined,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
       window.location.href = response.data.billingSessionUrl;
     } catch (err) {
       console.error("Failed to start billing session", err);

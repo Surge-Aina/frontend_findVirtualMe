@@ -77,9 +77,12 @@ const handleCheckout = async (planID) => {
     return;
   }
   try {
-    const response = await axios.post(`${backendUrl}/api/payments/checkout/session`, {
-      plan: planID,
-    });
+    const token = localStorage.getItem('token');
+    const response = await axios.post(
+      `${backendUrl}/api/payments/checkout/session`,
+      { plan: planID },
+      { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+    );
     window.location.href = response.data.checkoutUrl;
   } catch (err) {
     console.error('Failed to start checkout', err);

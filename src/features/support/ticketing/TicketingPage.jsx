@@ -5,6 +5,15 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_BACKEND_API || "http://localhost:5001";
 
+function supportAdminHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = localStorage.getItem("token");
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export default function TicketingPage() {
   const [tickets, setTickets] = useState([]);
   const [splitByStatus, setSplitByStatus] = useState(false);
@@ -17,7 +26,7 @@ export default function TicketingPage() {
         setLoading(true);
         setErr("");
         const { data } = await axios.get(`${API_BASE}/api/support`, {
-          headers: { "Content-Type": "application/json" },
+          headers: supportAdminHeaders(),
         });
         setTickets(Array.isArray(data) ? data : []);
       } catch (e) {
@@ -61,7 +70,7 @@ export default function TicketingPage() {
       const { data } = await axios.put(
         `${API_BASE}/api/support/${ticketID}`,
         { status: nextStatus },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: supportAdminHeaders() }
       );
 
       setTickets((curr) =>
@@ -101,7 +110,7 @@ export default function TicketingPage() {
 
     try {
       await axios.delete(`${API_BASE}/api/support/${ticketID}`, {
-        headers: { "Content-Type": "application/json" },
+        headers: supportAdminHeaders(),
       });
     } catch (e) {
       console.error("DELETE /support-form/:ticketID failed:", {
@@ -130,7 +139,7 @@ export default function TicketingPage() {
       const { data } = await axios.post(
         `${API_BASE}/api/support/${ticketID}/replies`,
         { message: msg },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: supportAdminHeaders() }
       );
 
       if (data?.ok) {
