@@ -8,6 +8,18 @@ const defaultPortfolioOwner = {
   email: "",
 };
 
+/** Public profile fields only. Email is never taken from a user record. */
+function ownerDisplayName(user) {
+  if (!user || typeof user !== "object") return "";
+  const candidates = [user.displayName, user.username, user.name];
+  for (const value of candidates) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  const first = typeof user.firstName === "string" ? user.firstName.trim() : "";
+  const last = typeof user.lastName === "string" ? user.lastName.trim() : "";
+  return [first, last].filter(Boolean).join(" ");
+}
+
 /** Default for consumers/tests when no Provider wraps the tree */
 export const defaultPortfolioContextValue = {
   portfolioId: null,
@@ -30,42 +42,64 @@ export function PortfolioProvider({ children, initialPortfolioId, initialPortfol
   const [isOwnerReady, setIsOwnerReady] = useState(false);
 
   useEffect(() => {
-    // No id, but we have name + email set directly — still ready
+    // Legacy pages set name and email on the portfolio itself, with no user id.
     if (!portfolioOwner.id) {
       setIsOwnerReady(!!(portfolioOwner.name && portfolioOwner.email));
-      console.log("No owner ID, but owner details present. Setting isOwnerReady to", !!(portfolioOwner.name && portfolioOwner.email));
       return;
     }
 
-    // Have id and already have everything
-    if (portfolioOwner.name && portfolioOwner.email) {
+    // An owner id is enough. Do not wait for an email the public profile does not return.
+    if (portfolioOwner.name) {
       setIsOwnerReady(true);
-      console.log("owner ID and owner details present. Setting isOwnerReady to true");
-      return;
     }
+  }, [portfolioOwner.id, portfolioOwner.name, portfolioOwner.email]);
 
-    // Have id but missing details — fetch them
+  useEffect(() => {
+    if (!portfolioOwner.id || portfolioOwner.name) return undefined;
+
+    let cancelled = false;
     setIsOwnerReady(false);
+    const ownerId = portfolioOwner.id;
 
     const fetchOwner = async () => {
+      const base = import.meta.env.VITE_BACKEND_API;
       try {
-        console.log("Fetching portfolio owner details for ID:", portfolioOwner.id);
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API}/api/users/${portfolioOwner.id}`);
-        setPortfolioOwner(prev => ({
-          ...prev,
-          name: prev.name || res.data.user.username || res.data.user.name || "",
-          email: prev.email || res.data.user.email || "",
-        }));
-        console.log("Fetched portfolio owner details:", res.data);
+        let user;
+        try {
+          const res = await axios.get(`${base}/api/users/public/${ownerId}`);
+          user = res.data?.user;
+        } catch (err) {
+          // Current production has no public projection and answers 404.
+          // Fall back to the open user read. A locked-down backend 401s that
+          // route, so only the 404 is treated as "try the old URL".
+          if (err?.response?.status !== 404) throw err;
+          const fallback = await axios.get(`${base}/api/users/${ownerId}`);
+          user = fallback.data?.user;
+        }
+
+        if (cancelled) return;
+        const name = ownerDisplayName(user);
+        setPortfolioOwner((prev) => {
+          if (String(prev.id) !== String(ownerId)) return prev;
+          return {
+            ...prev,
+            name: prev.name || name,
+          };
+        });
       } catch (err) {
-        console.error('Failed to fetch portfolio owner details:', err);
+        if (!cancelled) {
+          console.error('Failed to fetch portfolio owner details:', err);
+        }
       } finally {
-        setIsOwnerReady(true);
+        if (!cancelled) setIsOwnerReady(true);
       }
     };
 
     fetchOwner();
-  }, [portfolioOwner.id, portfolioOwner.name, portfolioOwner.email]);
+    return () => {
+      cancelled = true;
+    };
+  }, [portfolioOwner.id, portfolioOwner.name]);
 
   const clearPortfolio = () => {
     setPortfolioId(null);

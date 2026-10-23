@@ -6,9 +6,15 @@ import TicketingPage from "../TicketingPage";
 
 jest.mock("axios");
 
+const adminHeaders = {
+  "Content-Type": "application/json",
+  Authorization: "Bearer admin-token",
+};
+
 describe("TicketingPage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.setItem("token", "admin-token");
     window.alert = jest.fn();
     window.confirm = jest.fn(() => true);
   });
@@ -41,7 +47,7 @@ describe("TicketingPage", () => {
     expect(axios.get).toHaveBeenCalledWith(
       expect.stringMatching(/\/api\/support$/),
       {
-        headers: { "Content-Type": "application/json" },
+        headers: adminHeaders,
       }
     );
     expect(screen.getByText(/all \(1\)/i)).toBeInTheDocument();
@@ -128,7 +134,7 @@ describe("TicketingPage", () => {
       expect(axios.put).toHaveBeenCalledWith(
         expect.stringMatching(/\/api\/support\/T1$/),
         { status: "In Progress" },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: adminHeaders }
       );
     });
   });
@@ -162,8 +168,45 @@ describe("TicketingPage", () => {
       expect(axios.delete).toHaveBeenCalledWith(
         expect.stringMatching(/\/api\/support\/T1$/),
         {
-          headers: { "Content-Type": "application/json" },
+          headers: adminHeaders,
         }
+      );
+    });
+  });
+
+  it("sends the admin token when posting a reply", async () => {
+    const user = userEvent.setup();
+    axios.get.mockResolvedValueOnce({
+      data: [
+        {
+          ticketID: "T1",
+          requestType: "Bug",
+          name: "Ada",
+          email: "a@b.com",
+          createdAt: new Date().toISOString(),
+          status: "New",
+          priority: "Normal",
+          message: "Hello",
+          replies: [],
+        },
+      ],
+    });
+    axios.post.mockResolvedValueOnce({
+      data: { ok: true, replies: ["Thanks"] },
+    });
+
+    render(<TicketingPage />);
+
+    await waitFor(() => expect(screen.getByText("Ada")).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /description \/ details/i }));
+    await user.type(screen.getByPlaceholderText(/write a reply/i), "Thanks");
+    await user.click(screen.getByRole("button", { name: /^reply$/i }));
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.stringMatching(/\/api\/support\/T1\/replies$/),
+        { message: "Thanks" },
+        { headers: adminHeaders }
       );
     });
   });

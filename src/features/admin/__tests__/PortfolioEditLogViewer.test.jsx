@@ -444,6 +444,25 @@ describe('PortfolioEditLogViewer', () => {
         expect(screen.getByText('Failed to fetch logs')).toBeInTheDocument();
       });
     });
+
+    test('shows an access message for non-admin 403 responses', async () => {
+      axios.get.mockRejectedValueOnce({
+        response: {
+          status: 403,
+          data: { error: 'Access denied. Insufficient permissions.' },
+        },
+      });
+
+      render(<PortfolioEditLogViewer />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/limited to admins/i)
+        ).toBeInTheDocument();
+      });
+      expect(screen.queryByText('No logs found')).not.toBeInTheDocument();
+      expect(screen.queryByText(/insufficient permissions/i)).not.toBeInTheDocument();
+    });
   });
 
   describe('Authentication', () => {

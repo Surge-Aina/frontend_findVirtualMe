@@ -14,6 +14,7 @@ export default function PortfolioEditLogViewer() {
     value: ''
   });
   const [expandedLog, setExpandedLog] = useState(null);
+  const [forbidden, setForbidden] = useState(false);
 
   useEffect(() => {
     fetchLogs();
@@ -22,6 +23,7 @@ export default function PortfolioEditLogViewer() {
   const fetchLogs = async () => {
     setLoading(true);
     setError(null);
+    setForbidden(false);
     try {
       let url = `${API_URL}/api/portfolios/edit-log?page=${page}&limit=50`;
       
@@ -47,8 +49,16 @@ export default function PortfolioEditLogViewer() {
         setTotalPages(response.data.totalPages || 1);
       }
     } catch (err) {
-      console.error('Error fetching logs:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to fetch logs');
+      const status = err.response?.status;
+      if (status === 403) {
+        setLogs([]);
+        setTotalPages(1);
+        setForbidden(true);
+        setError("Portfolio edit logs are limited to admins. Your account does not have access.");
+      } else {
+        console.error('Error fetching logs:', err);
+        setError(err.response?.data?.message || err.message || 'Failed to fetch logs');
+      }
     } finally {
       setLoading(false);
     }
@@ -131,7 +141,14 @@ export default function PortfolioEditLogViewer() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div
+            className={
+              forbidden
+                ? "bg-slate-50 border border-slate-200 text-slate-700 px-4 py-3 rounded mb-4"
+                : "bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4"
+            }
+            role={forbidden ? "status" : "alert"}
+          >
             {error}
           </div>
         )}
@@ -142,7 +159,7 @@ export default function PortfolioEditLogViewer() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading logs...</p>
           </div>
-        ) : logs.length === 0 ? (
+        ) : forbidden ? null : logs.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-500 text-lg">No logs found</p>
           </div>
