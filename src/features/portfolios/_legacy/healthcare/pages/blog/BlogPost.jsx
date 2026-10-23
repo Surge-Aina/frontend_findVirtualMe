@@ -7,6 +7,17 @@ import ScrollToTop from '../../components/ScrollToTop'
 import Footer from '../../components/Footer'
 import { api } from '../../lib/api'
 
+// 'YYYY-MM-DD' is parsed by Date as UTC midnight, which shows the previous day
+// in timezones west of UTC. Treat a bare date as a local calendar date.
+function formatPublishDate(value) {
+  if (!value) return ''
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value))
+  const date = match
+    ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+    : new Date(value)
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString()
+}
+
 export default function BlogPost() {
   const { id } = useParams()
   const { basePath, practiceId } = useHealthcareBasePath()
@@ -100,7 +111,7 @@ export default function BlogPost() {
                 </div>
                 <div className="flex items-center">
                   <FaCalendarAlt className="mr-2" />
-                  {new Date(post.publishDate).toLocaleDateString()}
+                  {formatPublishDate(post.publishDate)}
                 </div>
                 {post.readTime && (
                   <div className="flex items-center">

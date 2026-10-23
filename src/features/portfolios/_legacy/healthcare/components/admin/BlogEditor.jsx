@@ -14,7 +14,7 @@ export default function BlogEditor({ blogPosts, onUpdate }) {
       excerpt: '',
       content: '',
       image: '',
-      publishDate: new Date().toISOString().split('T')[0],
+      publishDate: new Date().toLocaleDateString('en-CA'),
       author: { name: '', id: '' },
       category: '',
       tags: [],
