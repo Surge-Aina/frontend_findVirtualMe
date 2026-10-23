@@ -25,7 +25,7 @@ describe("FE-E2E-HC-VENDOR-8 — Image Upload", () => {
       heroImage: "",
       logo: "",
     },
-    contact: { phone: "(111) 111-1111", email: "test@practice.com" },
+    contact: { phone: "(111) 111-1111", email: "cypress-practice@example.invalid" },
     services: [],
     blogPosts: [],
     gallery: { facilityImages: [], beforeAfterCases: [] },
@@ -45,10 +45,10 @@ describe("FE-E2E-HC-VENDOR-8 — Image Upload", () => {
       body: mockPractice,
     }).as("getAdminData");
 
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
-        user: { id: ownerId, _id: ownerId, email: "owner@test.com", name: "Owner" },
+        user: { id: ownerId, _id: ownerId, email: "owner@example.invalid", name: "Owner" },
         portfolioIds: [{ portfolioId: practiceId, portfolioType: "Healthcare" }],
       },
     }).as("getMe");

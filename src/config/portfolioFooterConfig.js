@@ -29,13 +29,61 @@ export const portfolioFooterConfig = {
   },
 };
 
+const SECTION_TO_LINK = {
+  hero: { label: "Home", path: "#hero" },
+  summary: { label: "Summary", path: "#summary" },
+  skills: { label: "Skills", path: "#skills" },
+  experience: { label: "Experience", path: "#experience" },
+  education: { label: "Education", path: "#education" },
+  projects: { label: "Projects", path: "#projects" },
+  services: { label: "Services", path: "#services" },
+  gallery: { label: "Gallery", path: "#gallery" },
+  blog: { label: "Blog", path: "#blog" },
+  contact: { label: "Contact", path: "#contact" },
+  testimonials: { label: "Testimonials", path: "#testimonials" },
+  stats: { label: "Stats", path: "#stats" },
+  hours: { label: "Hours", path: "#hours" },
+  process: { label: "Process", path: "#process" },
+  seo: { label: "SEO", path: "#seo" },
+  dashboardChart: { label: "Visualization", path: "#dashboardChart" },
+  dashboardTable: { label: "Data Table", path: "#dashboardTable" },
+  faq: { label: "FAQ", path: "#faq" },
+  clientLogos: { label: "Client Logos", path: "#clientLogos" },
+  certifications: { label: "Certifications", path: "#certifications" },
+  languages: { label: "Languages", path: "#languages" },
+  team: { label: "Team", path: "#team" },
+  videoEmbed: { label: "Video", path: "#videoEmbed" },
+  caseStudy: { label: "Case Study", path: "#caseStudy" },
+};
+
 /**
  * Get site map links for a portfolio type, with basePath applied for route-based links.
- * @param {string} portfolioType - e.g. HealthcarePortfolio, HandymanMainPortfolio
+ * Also accepts a sections array (unified model) to derive links automatically.
+ * @param {string} portfolioType - e.g. HealthcarePortfolio, HandymanMainPortfolio, or template key
  * @param {string} [basePath] - e.g. /portfolios/healthcare/abc123
+ * @param {Array} [sections] - portfolio sections array (unified model)
  * @returns {Array<{label: string, path: string}>}
  */
-export function getSiteMapLinks(portfolioType, basePath = "") {
+export function getSiteMapLinks(portfolioType, basePath = "", sections) {
+  // If sections are provided (unified model), derive links from them
+  if (sections && Array.isArray(sections)) {
+    const sorted = [...sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const healthcareLike =
+      portfolioType === "healthcare" || portfolioType === "HealthcarePortfolio";
+    const hasHero = sorted.some((s) => s.type === "hero");
+    const sectionList =
+      healthcareLike && hasHero ? sorted.filter((s) => s.type !== "stats") : sorted;
+    const seen = new Set();
+    return sectionList
+      .map((s) => SECTION_TO_LINK[s.type])
+      .filter((link) => {
+        if (!link) return false;
+        if (seen.has(link.path)) return false;
+        seen.add(link.path);
+        return true;
+      });
+  }
+
   const config = portfolioFooterConfig[portfolioType];
   if (!config) return [];
 

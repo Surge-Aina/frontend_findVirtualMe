@@ -1,8 +1,8 @@
-    {
-    "_id": "admin-1",
-    "name": "Admin User",
-    "username": "admin_user",
-    "email": "admin@example.com",
-    "password": "Password123!",
-    "role": "ADMIN"
-    }
+{
+  "_id": "cypress-admin-fixture",
+  "name": "Cypress Admin",
+  "username": "cypress_admin",
+  "email": "cypress-admin@example.invalid",
+  "password": "not-a-real-password",
+  "role": "ADMIN"
+}

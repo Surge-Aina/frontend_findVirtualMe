@@ -33,14 +33,15 @@
 
     const stubAuthAndPortfolioApi = () => {
     // Logged-in owner
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: {
         user: {
-            _id: "6970124025d8c08c5c136ae0",
-            name: "vendor JK",
+            _id: "cypress-pm-user",
+            name: "Cypress Vendor",
             email: ownerEmail,
             role: "VENDOR",
+            portfolios: [{ portfolioId: pmPortfolioId, portfolioType: "ProjectManager" }],
         },
         },
     }).as("getUser");
@@ -107,7 +108,8 @@
         visitPmPortfolioAsOwner();
 
         // Open the summary edit form
-        cy.get('button[aria-label="Edit"]').click();
+        cy.get('[data-testid="tab-summary"]').click();
+        cy.get('button[aria-label="Edit"]', { timeout: 8000 }).click();
 
         // Upload sample-resume from fixtures
         cy.get('input[type="file"][accept=".pdf"]')
@@ -129,7 +131,7 @@
         });
 
         // Click the Resume tab in the PM nav
-        cy.contains("button", /^Resume$/)
+        cy.get('[data-testid="tab-resume"]')
         .scrollIntoView()
         .click({ force: true });
 

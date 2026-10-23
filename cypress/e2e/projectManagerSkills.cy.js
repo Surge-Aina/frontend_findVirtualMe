@@ -10,13 +10,14 @@
         cy.resetAppState();
 
         // Pretend the user is logged in & AuthContext knows them
-        cy.intercept("GET", "**/user/**", {
+        cy.intercept("GET", "**/api/users/me", {
         statusCode: 200,
         body: {
             user: {
             _id: "e2e-user-1",
             email: "pm-owner@example.com",
             role: "USER",
+            portfolios: [{ portfolioId: testPortfolioId, portfolioType: "ProjectManager" }],
             },
         },
         }).as("getUser");
@@ -63,12 +64,13 @@
         },
         });
 
+        cy.wait("@getUser");
         cy.wait("@getPortfolio");
     };
 
     const openSkillsTab = () => {
         // Click on the "Skills" tab in the PM navbar
-        cy.contains("button", "Skills").click();
+        cy.get('[data-testid="tab-skills"]').click();
 
         // Confirm the Skills section rendered
         cy.contains("h2", "Skills").should("be.visible");

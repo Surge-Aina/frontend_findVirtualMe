@@ -25,3 +25,11 @@ dist-ssr
 
 .envcoverage/
 .env
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# Jest / Istanbul output — do not commit
+coverage/
+.nyc_output/
+*.lcov

@@ -1,0 +1,415 @@
+﻿
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\App.jsx
+   1:38  error  'useContext' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  61:10  error  'set' is defined but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+  91:16  error  'error' is defined but never used                                                  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\AuthContext.test.jsx
+  1:27  error  'screen' is defined but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  3:8   error  'userEvent' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\TicketingPage.test.jsx
+  9:35  error  'within' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\cleaninglady\Cleanabout.test.jsx
+  69:7  error  'mockContextValue' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\healthcare_tests\GalleryEditor.test.jsx
+  1:26  error  'waitFor' is defined but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+  2:8   error  'userEvent' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\healthcare_tests\Register.test.jsx
+  338:11  error  'form' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\healthcare_tests\ServicesEditor.test.jsx
+  1:26  error  'waitFor' is defined but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+  2:8   error  'userEvent' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\portfolioEditLogger.test.js
+  60:5  warning  Unused eslint-disable directive (no problems were reported from 'global-require')
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\__tests__\utils\axiosAuth.test.js
+  1:8  error  'axios' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\About.jsx
+  1:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\AdminSubscriptionTable.jsx
+  64:6  warning  React Hook useEffect has a missing dependency: 'fetchSubscriptions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\DashboardBlockEditors.jsx
+  14:10  error  'numbersToListText' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  33:10  error  'labelsToText' is defined but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Footer.jsx
+  1:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\ITForm.jsx
+  22:10  error  'isSubmitting' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+  32:22  error  'setSubmitting' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  33:18  error  'setErrMsg' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+  62:13  error  'userName' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+  83:13  error  'data' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Navbar.jsx
+   1:32  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+   4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+  14:11  error  'login' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Occupations.jsx
+  1:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Payment.jsx
+  1:17  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\PortfolioEditLogViewer.jsx
+  20:6  warning  React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\PortfolioFooter\PortfolioFooter.jsx
+  135:60  error  'Icon' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\PortfolioNavBrand.jsx
+   35:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  103:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Solutions\Restaurant.jsx
+  106:7  error  'testimonials' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Solutions\Solutions.jsx
+  66:40  error  React Hook "useRef" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\SuccessPage.jsx
+  23:6  warning  React Hook useEffect has a missing dependency: 'refreshUser'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\TelemetryVisit.jsx
+  34:15  error  'txt' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\UserProfile\ManageBillingComponent.jsx
+  29:17  error  'refreshUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                  no-unused-vars
+  42:38  error  React Hook "useQuery" is called conditionally. React Hooks must be called in the exact same order in every component render                                                                  react-hooks/rules-of-hooks
+  50:3   error  React Hook "useEffect" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\UserProfile\PortfolioBranding.jsx
+  56:6   warning  React Hook useEffect has a missing dependency: 'userPortfolios'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  60:11  error    'portfolioType' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                      no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\UserProfile\UserProfile.jsx
+   14:8   error    'axios' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                    no-unused-vars
+   31:11  error    'handleCardClick' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+   96:6   warning  React Hook useEffect has a missing dependency: 'navigate'. Either include it or remove the dependency array     react-hooks/exhaustive-deps
+  107:6   warning  React Hook useEffect has a missing dependency: 'loadDomains'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  272:14  error    'err' is defined but never used                                                                                 no-unused-vars
+  785:41  error    'onVerify' is defined but never used                                                                            no-unused-vars
+  789:9   error    'getStatusColor' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                  no-unused-vars
+  802:9   error    'getStatusIcon' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                   no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\WidgetOverlay\WidgetOverlay.jsx
+  12:26  error  'authLoading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Widgets\QRCode\QRCodeWidget.jsx
+  58:15  error  'res' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\Widgets\QRCode\QRDisplay.jsx
+  40:8  warning  React Hook useEffect has a missing dependency: 'apiBaseUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\blocks\GalleryBlock.jsx
+   8:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  18:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\blocks\HoursBlock.jsx
+  3:38  error  'template' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\blocks\ProcessBlock.jsx
+  1:40  error  'template' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\blocks\SeoBlock.jsx
+  3:36  error  'template' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\blocks\StatsBlock.jsx
+  12:38  error  'template' is defined but never used  no-unused-vars
+  24:43  error  'Icon' is defined but never used      no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\components\blocks\TestimonialsBlock.jsx
+  3:45  error  'template' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\context\AuthContext.jsx
+   5:14  error    Fast refresh only works when a file only exports components. Move your React context(s) to a separate file     react-refresh/only-export-components
+  57:6   warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\context\PortfolioContext.jsx
+  11:14  error  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file                      react-refresh/only-export-components
+  78:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\context\PortfolioViewContext.jsx
+  30:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\context\VendorContext.jsx
+   3:10  error    'canEditPortfolio' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                         no-unused-vars
+   6:14  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+   9:11  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                            no-unused-vars
+  25:6   warning  React Hook useEffect has a missing dependency: 'vendorId'. Either include it or remove the dependency array                     react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\emailmvp\pages\BulkReply.jsx
+  35:9  error    'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                            no-unused-vars
+  37:9  warning  The 'selectedMessages' logical expression could make the dependencies of useEffect Hook (at line 123) change on every render. To fix this, wrap the initialization of 'selectedMessages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\emailmvp\pages\EmailAccounts.jsx
+  69:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  71:6  warning  React Hook useEffect has a missing dependency: 'loadAccounts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\dataScientist\components\layout\Layout.jsx
+  8:11  error  'isAuthenticated' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  8:28  error  'logout' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\dataScientist\components\pages\AdminPage.jsx
+   27:38  error  'refetch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+  486:9   error  'removeIdFields' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  489:17  error  'id' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u              no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\dataScientist\components\pages\ProjectsPage.jsx
+  581:22  error  '_arrayIndex' is defined but never used  no-unused-vars
+  588:22  error  '_arrayIndex' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\dataScientist\context\AuthContext.jsx
+  94:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\dataScientist\context\PortfolioContext.jsx
+  102:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\login\Auth.jsx
+   1:10  error  'toast' is defined but never used. Allowed unused vars must match /^[A-Z_]/u            no-unused-vars
+   2:27  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u        no-unused-vars
+   4:8   error  'axios' is defined but never used. Allowed unused vars must match /^[A-Z_]/u            no-unused-vars
+  10:9   error  'apiUrl' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\onboarding\components\GoalSelection.jsx
+  50:10  error  'file' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                no-unused-vars
+  68:9   error  'handleResumeUpload' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\onboarding\components\OnboardingFlow.jsx
+   11:8   error    'loadingGif' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                   no-unused-vars
+   22:18  error    'setPendingFile' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                      no-unused-vars
+  180:13  error    'userId' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                       no-unused-vars
+  203:6   warning  React Hook useEffect has missing dependencies: 'data', 'login', and 'navigate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\components\Editable.jsx
+   8:3  error  'field' is defined but never used         no-unused-vars
+  10:8  error  'Tag' is assigned a value but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\components\VisitorData.jsx
+  27:6  warning  React Hook useEffect has missing dependencies: 'fetchVisitors' and 'navigate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\components\cleanAbout.jsx
+   5:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                no-unused-vars
+  43:9   error  'authContext' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\components\cleanCharges.jsx
+  80:6  warning  React Hook useEffect has missing dependencies: 'authHeaders', 'backendUrl', and 'token'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\components\cleanNavbar.jsx
+  230:6  warning  React Hook useEffect has a missing dependency: 'checkAuthStatus'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\components\cleanServices.jsx
+   63:9   error    'authHeaders' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                  no-unused-vars
+   73:6   warning  React Hook useEffect has missing dependencies: 'fetchRoomLabels', 'fetchRoomPrices', 'fetchServices', and 'fetchTitles'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  332:17  error    '_' is defined but never used                                                                                                                                                no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\cleaningService\context\AuthContext.jsx
+   92:6   warning  React Hook useEffect has a missing dependency: 'checkPortfolioOwnership'. Either include it or remove the dependency array      react-hooks/exhaustive-deps
+  176:14  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\handyman\EditHandymanPortfolio.jsx
+   45:22  error    '_' is defined but never used                                                                                    no-unused-vars
+   45:25  error    Empty block statement                                                                                            no-empty
+   98:8   warning  React Hook useEffect has a missing dependency: 'loadProjects'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  140:11  error    'handleServiceChange' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u              no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\handyman\HandyManPage.jsx
+  83:6  warning  React Hook useEffect has missing dependencies: 'clearPortfolio', 'setPortfolioId', 'setPortfolioOwner', and 'setPortfolioType'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\components\AdminToggle.jsx
+  35:14  error  'error' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\components\Navbar.jsx
+  12:9  error  'practiceId' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\components\Stats.jsx
+  1:10  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+  1:20  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\lib\api.js
+  2:10  error  'safeImportMetaEnv' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\Contact.jsx
+  13:11  error    'basePath' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                     no-unused-vars
+  30:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\Home.jsx
+  25:9   error    'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                            no-unused-vars
+  37:13  error    'token' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                               no-unused-vars
+  44:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array                                                                         react-hooks/exhaustive-deps
+  57:6   warning  React Hook useEffect has missing dependencies: 'clearPortfolio', 'setPortfolioId', 'setPortfolioOwner', and 'setPortfolioType'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\Landing.jsx
+  22:9  error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\SearchResults.jsx
+   2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  32:6   warning  React Hook useEffect has a missing dependency: 'performSearch'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\Services.jsx
+  24:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\admin\AdminDashboard.jsx
+  56:6  warning  React Hook useEffect has missing dependencies: 'loadUserData' and 'navigate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\blog\Blog.jsx
+   4:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                no-unused-vars
+  22:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\healthcare\pages\blog\BlogPost.jsx
+  21:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\pages\Login.jsx
+  38:14  error  'err' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\About.jsx
+   2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                           no-unused-vars
+  25:11  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+  48:6   warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  86:44  error    'isEditing' is defined but never used                                                                   no-unused-vars
+  86:55  error    'clientId' is defined but never used                                                                    no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\Banner.jsx
+  24:11  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+  35:6   warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\Gallery.jsx
+   23:11  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+   50:6   warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  131:13  error    Empty block statement                                                                                   no-empty
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\Menu.jsx
+  14:11  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+  22:10  error    'quickView' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+  23:9   error    'openQuickView' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+  24:9   error    'closeQuickView' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+  72:6   warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  99:6   warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\Reviews.jsx
+   2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                    no-unused-vars
+  45:11  error    'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                             no-unused-vars
+  64:6   warning  React Hook useEffect has a missing dependency: 'fetchReviews'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\TaggedImage.jsx
+  26:6  warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  42:6  warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\sections\TaggedShowcase.jsx
+    2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                           no-unused-vars
+   71:6   warning  React Hook useEffect has a missing dependency: 'api'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  189:7   error    'placeY' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\services\api.js
+  29:9  error  'base' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\localVendor\services\auth.js
+  11:20  error  React Hook "useContext" is called in function "canEditPortfolio" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\About.jsx
+  49:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\AdminDriveConnection.jsx
+  41:6  warning  React Hook useEffect has missing dependencies: 'backendUrl' and 'getStorageKey'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\AuthContext.jsx
+  3:14  error  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file  react-refresh/only-export-components
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\ClientTestimonial.jsx
+  42:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\Editable.jsx
+  9:8  error  'Tag' is assigned a value but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\HeroText.jsx
+  38:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\Login.jsx
+  19:6   warning  React Hook useEffect has a missing dependency: 'setLoggedIn'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  46:14  error    'err' is defined but never used                                                                                 no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\PortfolioContext.jsx
+   5:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  27:20  error  'e' is defined but never used                                                                                                   no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\Specializations.jsx
+  41:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\layouts\Mosaic.jsx
+  3:54  error  'isAdmin' is assigned a value but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\components\layouts\Slideshow.jsx
+   3:45  error  'isAdmin' is assigned a value but never used  no-unused-vars
+  36:34  error  'index' is defined but never used             no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\hooks\useDynamicPhotoManagement.js
+  38:6  warning  React Hook useEffect has missing dependencies: 'backendUrl' and 'getStorageKey'. Either include them or remove the dependency array                         react-hooks/exhaustive-deps
+  48:6  warning  React Hook useEffect has a missing dependency: 'getStorageKey'. Either include it or remove the dependency array                                            react-hooks/exhaustive-deps
+  86:6  warning  React Hook useEffect has missing dependencies: 'backendUrl', 'fetchDefaultData', and 'fetchLayoutData'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\hooks\usePhotoManagement.js
+  40:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\pages\Contact.jsx
+  56:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\pages\GalleryPage.jsx
+  42:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\photographer\pages\Services.jsx
+  92:6  warning  React Hook useEffect has a missing dependency: 'backendUrl'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\components\FileUploader.jsx
+  46:9  error  'compareResume' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\components\Login.jsx
+  25:6   warning  React Hook useEffect has a missing dependency: 'navigate'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  45:14  error    'err' is defined but never used                                                                              no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\components\NavBar.jsx
+  3:10  error  'toast' is defined but never used. Allowed unused vars must match /^[A-Z_]/u              no-unused-vars
+  6:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  9:11  error  'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\components\projectManager\ProjectsCard.jsx
+  131:14  error  'error' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\components\projectManager\SummaryCard.jsx
+  142:31  error  'email' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\components\protectedRoute.jsx
+  5:37  error  'requireRole' is defined but never used  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\portfolios\projectManager\pages\PortfolioPage.jsx
+    1:31  error    'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                       no-unused-vars
+    1:39  error    'useContext' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                   no-unused-vars
+    1:51  error    'use' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                          no-unused-vars
+   18:38  error    'portfolioType' is defined but never used                                                                                                                                           no-unused-vars
+   31:9   error    'userPortfolioId' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                     no-unused-vars
+   68:6   warning  React Hook useEffect has missing dependencies: 'clearPortfolio', 'setPortfolioId', 'setPortfolioOwner', and 'setPortfolioType'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+   89:9   error    'handleImageUpload' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                   no-unused-vars
+  256:13  error    'response' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                            no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\ticketing\TicketingPage.jsx
+  32:6  warning  React Hook useEffect has an unnecessary dependency: 'API_BASE'. Either exclude it or remove the dependency array. Outer scope values like 'API_BASE' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\pages\ticketing\components\RoadmapColumn.jsx
+  10:9  error  'scrollByCard' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+E:\surge-aina\FindVirtualMe\frontend_findVirtualMe\src\utils\useHandleCardClick.js
+  34:9  error  Unexpected lexical declaration in case block  no-case-declarations
+
+Γ£û 197 problems (143 errors, 54 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+

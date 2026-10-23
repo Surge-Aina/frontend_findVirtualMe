@@ -20,7 +20,7 @@ describe("FE-E2E-HC-EDGE-3 — Refresh, Back Button & Deep Linking", () => {
       tagline: "Testing navigation",
       description: "Demo practice",
     },
-    contact: { phone: "(111) 111-1111", email: "test@practice.com" },
+    contact: { phone: "(111) 111-1111", email: "cypress-practice@example.invalid" },
     services: [],
     blogPosts: [],
     gallery: { facilityImages: [], beforeAfterCases: [] },
@@ -82,10 +82,10 @@ describe("FE-E2E-HC-EDGE-3 — Refresh, Back Button & Deep Linking", () => {
       body: mockPractice,
     }).as("getAdminData");
 
-    cy.intercept("GET", "**/user/me", {
+    cy.intercept("GET", "**/api/users/me", {
       statusCode: 200,
       body: {
-        user: { id: ownerId, _id: ownerId, email: "owner@test.com" },
+        user: { id: ownerId, _id: ownerId, email: "owner@example.invalid" },
         portfolioIds: [{ portfolioId: practiceId, portfolioType: "Healthcare" }],
       },
     }).as("getMe");

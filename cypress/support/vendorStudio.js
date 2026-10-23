@@ -5,7 +5,7 @@ export const startVendorAsOwner = (options = {}) => {
   const username = options.username || "fusion-flavors";
 
   // ---- AUTH: mock logged-in vendor ----
-  cy.intercept("GET", "**/user/me", {
+  cy.intercept("GET", "**/api/users/me", {
     statusCode: 200,
     body: {
       user: {

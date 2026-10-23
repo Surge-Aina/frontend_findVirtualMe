@@ -1,10 +1,10 @@
-    {
-    "_id": "6970124025d8c08c5c136ae0",              
-    "name": "vendor JK",
-    "username": "vendor",
-    "email": "vendor@example.com",
-    "password": "Password123!",
-    "role": "VENDOR",                  
-    "goal": "grow-business",
-    "industry": "local-business"
-    }
+{
+  "_id": "cypress-vendor-fixture",
+  "name": "Cypress Vendor",
+  "username": "cypress_vendor",
+  "email": "cypress-vendor@example.invalid",
+  "password": "not-a-real-password",
+  "role": "VENDOR",
+  "goal": "grow-business",
+  "industry": "local-business"
+}

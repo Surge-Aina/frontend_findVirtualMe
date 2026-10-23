@@ -1,0 +1,176 @@
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "@/shared/context/AuthContext";
+import SignUp from "./SignUp";
+import GoogleLoginButton from "./GoogleLoginButton";
+
+const Auth = ({ onClose }) => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
+  const { login, logout, user } = useContext(AuthContext);
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await login(form.email, form.password);
+      if (onClose) onClose();
+      navigate("/profile");
+    } catch (err) {
+      setError("Invalid Credentials");
+      console.log("error logging in Auth.jsx", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setForm({ email: "", password: "" });
+    navigate("/");
+  };
+
+  return (
+    <div
+      data-testid="backdrop"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 min-h-screen"
+      style={{ backdropFilter: "blur(2px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-md mx-4 sm:mx-auto bg-gradient-to-br from-slate-100 to-slate-300 dark:from-neutral-800 dark:to-neutral-900 border border-slate-300 dark:border-neutral-600 rounded-2xl shadow-2xl px-14 py-8 sm:px-10 sm:py-12 z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-700 dark:text-neutral-300 text-xl font-bold hover:text-slate-900 dark:hover:text-white"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <div className="flex items-center justify-center mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
+            <span className="text-white text-lg font-bold">FV</span>
+          </div>
+        </div>
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-neutral-100 mb-2 text-center">Welcome</h1>
+        <p className="text-center text-slate-600 dark:text-neutral-400 mb-8">
+          {user ? "Hello" : "Sign in to manage your portfolio"}
+        </p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className={`absolute left-4 text-sm transition-all duration-300 ${
+                focusedField === "email" || form.email
+                  ? "transform -translate-y-5 text-blue-600 dark:text-blue-400 text-xs"
+                  : "top-3 text-slate-500 dark:text-neutral-400"
+              }`}
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
+              required
+              className="w-full px-4 pt-5 pb-2 bg-slate-200 dark:bg-neutral-700/80 border-b-2 border-slate-400 dark:border-neutral-500 text-slate-800 dark:text-neutral-100 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="relative">
+            <label
+              htmlFor="password"
+              className={`absolute left-4 text-sm transition-all duration-300 ${
+                focusedField === "password" || form.password
+                  ? "transform -translate-y-5 text-blue-600 dark:text-blue-400 text-xs"
+                  : "top-3 text-slate-500 dark:text-neutral-400"
+              }`}
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              onFocus={() => setFocusedField("password")}
+              onBlur={() => setFocusedField(null)}
+              required
+              className="w-full px-4 pt-5 pb-2 bg-slate-200 dark:bg-neutral-700/80 border-b-2 border-slate-400 dark:border-neutral-500 text-slate-800 dark:text-neutral-100 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
+              autoComplete="current-password"
+            />
+          </div>
+
+          <div className="text-right -mt-3">
+            <button
+              type="button"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              onClick={() => {
+                onClose(); // close modal
+                navigate("/forgot-password");
+              }}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
+          {error && <div className="text-red-500 dark:text-red-400 text-sm text-center py-1">{error}</div>}
+
+          <button
+            type="submit"
+            className="relative w-full px-6 py-4 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-semibold hover:from-slate-600 hover:to-slate-800 transition-all duration-300 shadow-lg shadow-blue-900/30 overflow-hidden group"
+            disabled={loading}
+          >
+            <span className="relative z-10">{loading ? "Processing..." : "Sign In"}</span>
+            <span className="absolute inset-0 w-1/3 h-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+          </button>
+
+          <GoogleLoginButton
+            onClose={() => {
+              if (onClose) onClose();
+              navigate("/profile");
+            }}
+          />
+
+          {user && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full px-6 py-3 bg-transparent border border-slate-600 dark:border-neutral-500 text-slate-700 dark:text-neutral-200 rounded-xl font-semibold hover:bg-slate-200 dark:hover:bg-neutral-700 hover:border-slate-700 dark:hover:border-neutral-400 transition-all duration-300"
+            >
+              Sign Out
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="relative w-full px-6 py-3 mt-2 bg-slate-200 dark:bg-neutral-700 border border-slate-600 dark:border-neutral-500 text-slate-700 dark:text-neutral-200 rounded-xl font-semibold hover:bg-slate-300 dark:hover:bg-neutral-600 hover:border-slate-700 dark:hover:border-neutral-400 transition-all duration-300 overflow-hidden group"
+            onClick={() => {
+              onClose();
+              navigate("/onboarding");
+            }}
+          >
+            <span className="relative z-10">Sign Up</span>
+            <span className="absolute inset-0 w-1/3 h-full bg-white/30 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Auth;

@@ -332,8 +332,8 @@ Cypress.Commands.add("addFacilityImageViaUI", (imageData) => {
  */
 Cypress.Commands.add("setupHealthcareTestUser", () => {
   const unique = Date.now();
-  const email = `healthcare_e2e_${unique}@example.com`;
-  const password = "Password123!";
+  const email = `healthcare_e2e_${unique}@example.invalid`;
+  const password = "Cypress-Only-1!";
 
   return cy.apiSignup({ email, password }).then(() => {
     return cy.createHealthcarePortfolioAPI().then((portfolio) => {
@@ -369,7 +369,7 @@ Cypress.Commands.add("startHealthcareAsOwner", (options = {}) => {
   const practiceName = options.practiceName || "Test Healthcare Practice";
 
   // Stub auth
-  cy.intercept("GET", "**/user/me", {
+  cy.intercept("GET", "**/api/users/me", {
     statusCode: 200,
     body: {
       user: {
@@ -394,7 +394,7 @@ Cypress.Commands.add("startHealthcareAsOwner", (options = {}) => {
       },
       contact: {
         phone: "+1 555-123-4567",
-        email: "test@practice.com",
+        email: "cypress-practice@example.invalid",
       },
       services: [],
       blogPosts: [],
@@ -436,7 +436,7 @@ Cypress.Commands.add("startHealthcareAsVisitor", (options = {}) => {
       },
       contact: {
         phone: "+1 555-123-4567",
-        email: "info@practice.com",
+        email: "cypress-practice-info@example.invalid",
       },
       services: [
         {

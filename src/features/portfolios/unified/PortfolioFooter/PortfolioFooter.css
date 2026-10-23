@@ -1,0 +1,234 @@
+/* PortfolioFooter - shared footer for all portfolio types */
+
+.portfolio-footer {
+  border-top: 1px solid;
+  margin-top: auto;
+}
+
+.portfolio-footer--dark {
+  --pf-text: #9ca3af;
+  --pf-text-muted: #6b7280;
+  --pf-border: #374151;
+  --pf-link-hover: #ffffff;
+  --pf-bg: transparent;
+}
+
+.portfolio-footer--light {
+  --pf-text: #4b5563;
+  --pf-text-muted: #6b7280;
+  --pf-border: #e5e7eb;
+  --pf-link-hover: #111827;
+  --pf-bg: transparent;
+}
+
+.portfolio-footer {
+  color: var(--pf-text);
+  background: var(--pf-bg);
+  border-top-color: var(--pf-border);
+}
+
+.portfolio-footer__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.portfolio-footer__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.portfolio-footer__section {
+  min-width: 0;
+}
+
+/* Full-width row so the 4-column site map grid uses the full footer width */
+.portfolio-footer__section--sitemap {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+/* Legal + Connect: centered on desktop */
+.portfolio-footer__meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+  flex: 1 1 100%;
+}
+
+@media (min-width: 641px) {
+  .portfolio-footer__section--legal {
+    text-align: center;
+  }
+
+  .portfolio-footer__section--legal .portfolio-footer__links {
+    align-items: center;
+  }
+
+  .portfolio-footer__section--connect {
+    text-align: center;
+  }
+
+  .portfolio-footer__section--connect .portfolio-footer__social {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .portfolio-footer__meta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.portfolio-footer__heading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pf-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.portfolio-footer__links li:empty {
+  display: none;
+}
+
+/* Site map: up to 4 links per row, then wrap (keeps footer height bounded as pages grow) */
+.portfolio-footer__links--sitemap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+  align-items: start;
+}
+
+@media (max-width: 639px) {
+  .portfolio-footer__links--sitemap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.portfolio-footer__link {
+  color: var(--pf-text);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+
+.portfolio-footer__link:hover,
+.portfolio-footer__link:focus-visible {
+  color: var(--pf-link-hover);
+}
+
+.portfolio-footer__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Social links - ensure 44px min touch target */
+.portfolio-footer__social {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.portfolio-footer__social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--pf-text);
+  transition: color 0.2s;
+  border-radius: 0.25rem;
+}
+
+.portfolio-footer__social-link:hover,
+.portfolio-footer__social-link:focus-visible {
+  color: var(--pf-link-hover);
+}
+
+.portfolio-footer__social-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.portfolio-footer__social-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.portfolio-footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--pf-border);
+}
+
+.portfolio-footer__branding {
+  order: 1;
+}
+
+.portfolio-footer__brand-link {
+  color: var(--pf-text-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.portfolio-footer__brand-link:hover,
+.portfolio-footer__brand-link:focus-visible {
+  color: var(--pf-link-hover);
+}
+
+.portfolio-footer__brand-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.portfolio-footer__copyright {
+  font-size: 0.75rem;
+  color: var(--pf-text-muted);
+  margin: 0;
+  order: 2;
+}
+
+/* Responsive - stack on mobile */
+@media (max-width: 640px) {
+  .portfolio-footer__grid {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .portfolio-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
