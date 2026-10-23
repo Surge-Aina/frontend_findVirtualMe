@@ -193,7 +193,7 @@ describe('Healthcare BlogPost Page', () => {
     renderBlogPost();
     
     await waitFor(() => {
-  expect(screen.getByText(/2023/)).toBeInTheDocument();
+  expect(screen.getByText(/2024/)).toBeInTheDocument();
 });
 
   });

@@ -66,7 +66,7 @@ describe("DomainRouter", () => {
     expect(axios.get).not.toHaveBeenCalled();
   });
 
-  test("shows not-found message when domain lookup returns 404", async () => {
+  test("custom domain lookup 404 falls through to the platform site", async () => {
     getBrowserHostname.mockReturnValue("unknown.custom.test");
 
     const err = new Error("Request failed");
@@ -84,14 +84,14 @@ describe("DomainRouter", () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByText("This domain is not connected to a portfolio.")
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("main-app")).toBeInTheDocument();
     });
-    expect(screen.queryByTestId("main-app")).toBeNull();
+    expect(
+      screen.queryByText("This domain is not connected to a portfolio.")
+    ).toBeNull();
   });
 
-  test("renders portfolio route when lookup and getById succeed", async () => {
+  test("custom domain found via lookup renders the portfolio", async () => {
     getBrowserHostname.mockReturnValue("mapped.custom.test");
 
     axios.get.mockResolvedValue({
@@ -148,8 +148,13 @@ describe("DomainRouter", () => {
     expect(screen.queryByTestId("main-app")).toBeNull();
   });
 
-  test("renders children on staging.findvirtual.me without domain lookup", async () => {
-    getBrowserHostname.mockReturnValue("staging.findvirtual.me");
+  test.each([
+    ["findvirtual.me", "apex"],
+    ["www.findvirtual.me", "www"],
+    ["frontend-git-main-team.vercel.app", "vercel.app preview"],
+    ["127.0.0.1", "loopback"],
+  ])("classifies %s (%s) as a platform host and skips lookup", async (hostname) => {
+    getBrowserHostname.mockReturnValue(hostname);
 
     render(
       <MemoryRouter>
@@ -163,6 +168,64 @@ describe("DomainRouter", () => {
       expect(screen.getByTestId("main-app")).toBeInTheDocument();
     });
     expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  test("slug subdomain renders the portfolio", async () => {
+    getBrowserHostname.mockReturnValue("acme.findvirtual.me");
+
+    axios.get.mockResolvedValue({
+      data: { portfolioId: "507f1f77bcf86cd799439011", portfolioType: "agent" },
+    });
+    portfolioApi.getById.mockResolvedValue({
+      data: {
+        _id: "507f1f77bcf86cd799439011",
+        template: "agent",
+        sections: [{ type: "summary", order: 0, data: {} }],
+      },
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <DomainRouter>
+          <div data-testid="main-app">App</div>
+        </DomainRouter>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("portfolio-renderer")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("main-app")).toBeNull();
+    expect(axios.get).toHaveBeenCalledWith(
+      expect.stringContaining("/api/domains/router/lookup?domain=acme.findvirtual.me")
+    );
+  });
+
+  test("slug subdomain lookup 404 keeps portfolio routing error", async () => {
+    getBrowserHostname.mockReturnValue("missing.findvirtual.me");
+
+    const err = new Error("Request failed");
+    err.isAxiosError = true;
+    err.response = { status: 404 };
+    err.config = {
+      url: "http://localhost:5001/api/domains/router/lookup?domain=missing.findvirtual.me",
+    };
+    axios.get.mockRejectedValue(err);
+
+    render(
+      <MemoryRouter>
+        <DomainRouter>
+          <div data-testid="main-app">App</div>
+        </DomainRouter>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("This domain is not connected to a portfolio.")
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("main-app")).toBeNull();
   });
 
   test("shows portfolio_unavailable when getById returns 403", async () => {
@@ -191,12 +254,13 @@ describe("DomainRouter", () => {
     expect(screen.queryByTestId("main-app")).toBeNull();
   });
 
-  test("shows network error when lookup throws non-404 axios error", async () => {
+  test("custom domain lookup error falls through to the platform site", async () => {
     getBrowserHostname.mockReturnValue("bad.custom.test");
 
     const err = new Error("Server error");
     err.isAxiosError = true;
     err.response = { status: 500 };
+    err.config = { url: "http://localhost:5001/api/domains/router/lookup?domain=bad.custom.test" };
     axios.get.mockRejectedValue(err);
 
     render(
@@ -208,9 +272,10 @@ describe("DomainRouter", () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Could not load this site. Please try again later.")
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("main-app")).toBeInTheDocument();
     });
+    expect(
+      screen.queryByText("Could not load this site. Please try again later.")
+    ).toBeNull();
   });
 });
