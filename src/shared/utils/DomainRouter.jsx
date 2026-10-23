@@ -11,6 +11,7 @@ import HistoryTab from '@/features/portfolio-users/tabs/HistoryTab.jsx';
 import BookingsTab from '@/features/portfolio-users/tabs/BookingsTab.jsx';
 import { portfolioApi } from '../api/portfolioApi.js';
 import { getBrowserHostname } from './windowHost.js';
+import { isFindVirtualPortfolioSubdomain, isPlatformHost } from './platformHosts.js';
 
 function WidgetOverlayWrapper() {
   return (
@@ -48,16 +49,17 @@ function DomainRouter({ children }) {
   useEffect(() => {
     const checkDomain = async () => {
       const hostname = getBrowserHostname();
+      const platformHostsEnv = import.meta.env.VITE_PLATFORM_HOSTS;
 
-      if (
-        hostname === 'findvirtual.me' ||
-        hostname === 'staging.findvirtual.me' ||
-        hostname === 'localhost' ||
-        hostname === '127.0.0.1'
-      ) {
+      // Apex, www, localhost, *.vercel.app, and VITE_PLATFORM_HOSTS skip lookup.
+      if (isPlatformHost(hostname, platformHostsEnv)) {
         setLoading(false);
         return;
       }
+
+      // {slug}.findvirtual.me stays on portfolio routing. Other unknown hosts
+      // fall through to the platform site when lookup 404s or errors.
+      const portfolioSubdomain = isFindVirtualPortfolioSubdomain(hostname, platformHostsEnv);
 
       /** Backend API is on another host (e.g. localhost:5000), so Host header there is not the site hostname. */
       const portfolioDomainHeaders = { 'X-Portfolio-Domain-Host': hostname };
@@ -68,35 +70,32 @@ function DomainRouter({ children }) {
         );
         const portfolioId = response.data?.portfolioId;
         if (!portfolioId) {
-          setLoadError('not_found');
+          if (portfolioSubdomain) setLoadError('not_found');
           return;
         }
 
-        const portfolioRes = await portfolioApi.getById(portfolioId, {
-          headers: portfolioDomainHeaders,
-        });
-        setDomainRoute(response.data);
-        setPortfolioData(portfolioRes.data);
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (isAxiosStatus(err, 404)) {
-            // Domain lookup uses `/api/domains/router/lookup`; portfolio fetch uses `/api/portfolios/:id`
-            const url = err.config?.url ?? '';
-            if (url.includes('/api/domains/router/lookup')) {
-              console.log('Domain not found');
-              setLoadError('not_found');
-            } else {
-              setLoadError('portfolio_unavailable');
-            }
-            return;
-          }
-          if (isAxiosStatus(err, 403)) {
+        try {
+          const portfolioRes = await portfolioApi.getById(portfolioId, {
+            headers: portfolioDomainHeaders,
+          });
+          setDomainRoute(response.data);
+          setPortfolioData(portfolioRes.data);
+        } catch (err) {
+          if (axios.isAxiosError(err) && (isAxiosStatus(err, 404) || isAxiosStatus(err, 403))) {
             setLoadError('portfolio_unavailable');
             return;
           }
+          console.error('Portfolio load failed:', err);
+          setLoadError('network');
+        }
+      } catch (err) {
+        if (axios.isAxiosError(err) && isAxiosStatus(err, 404)) {
+          console.log('Domain not found');
+          if (portfolioSubdomain) setLoadError('not_found');
+          return;
         }
         console.error('Domain lookup failed:', err);
-        setLoadError('network');
+        if (portfolioSubdomain) setLoadError('network');
       } finally {
         setLoading(false);
       }
