@@ -296,6 +296,31 @@ export default function Dashboard() {
       <div className="max-w-5xl mx-auto space-y-12">
         {user && (
           <section>
+            <h2 className="text-2xl font-semibold mb-6 text-slate-800 dark:text-neutral-100">Developer</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <button
+                type="button"
+                onClick={() => navigate("/developer")}
+                className="bg-white dark:bg-neutral-900 rounded-xl shadow-md p-6 text-left hover:shadow-lg transition-shadow"
+              >
+                <div className="font-semibold text-slate-800 dark:text-neutral-100 mb-2">API Keys</div>
+                <div className="text-slate-600 dark:text-neutral-300 text-sm">
+                  Create and manage keys for the public API.
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/integrations")}
+                className="bg-white dark:bg-neutral-900 rounded-xl shadow-md p-6 text-left hover:shadow-lg transition-shadow"
+              >
+                <div className="font-semibold text-slate-800 dark:text-neutral-100 mb-2">Integrations</div>
+                <div className="text-slate-600 dark:text-neutral-300 text-sm">Connect WalletMe to this account.</div>
+              </button>
+            </div>
+          </section>
+        )}
+        {user && (
+          <section>
             <div className="mb-4 text-center">
               <h2 className="text-2xl font-semibold text-slate-800 dark:text-neutral-100">My Portfolios</h2>
             </div>

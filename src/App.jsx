@@ -73,6 +73,8 @@ import MyAccountLayout from "@/features/portfolio-users/MyAccountLayout.jsx";
 import ProfileTab from "@/features/portfolio-users/tabs/ProfileTab.jsx";
 import HistoryTab from "@/features/portfolio-users/tabs/HistoryTab.jsx";
 import BookingsTab from "@/features/portfolio-users/tabs/BookingsTab.jsx";
+import DeveloperApiKeysPage from "@/features/developer/DeveloperApiKeysPage.jsx";
+import IntegrationsPage from "@/features/developer/IntegrationsPage.jsx";
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -109,6 +111,8 @@ export default function App() {
           {/* Main Routes */}
           <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
           <Route path="/dashboard" element={<Dashboard onRequestAdmin={handleRequestAdmin} />} />
+          <Route path="/developer" element={<DeveloperApiKeysPage />} />
+          <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignUp />} />
           <Route path="/occupations" element={<Occupations />} />
