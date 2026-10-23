@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { Menu, X, User } from "lucide-react";
+import FvMark from "./FvMark";
 
 export default function Navbar() {
   const [showAuth, setShowAuth] = useState(false);
@@ -28,9 +29,7 @@ export default function Navbar() {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             onClick={navigateHome}
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-medium">FV</span>
-            </div>
+            <FvMark />
             <span className="font-medium text-lg text-slate-800 dark:text-neutral-100 hidden sm:inline">FindVirtual.me</span>
           </motion.div>
 

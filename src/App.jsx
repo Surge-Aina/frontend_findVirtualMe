@@ -73,6 +73,12 @@ import MyAccountLayout from "@/features/portfolio-users/MyAccountLayout.jsx";
 import ProfileTab from "@/features/portfolio-users/tabs/ProfileTab.jsx";
 import HistoryTab from "@/features/portfolio-users/tabs/HistoryTab.jsx";
 import BookingsTab from "@/features/portfolio-users/tabs/BookingsTab.jsx";
+import DeveloperApiKeysPage from "@/features/developer/DeveloperApiKeysPage.jsx";
+import WebhooksPage from "@/features/developer/WebhooksPage.jsx";
+import DeveloperAppsPage from "@/features/developer/DeveloperAppsPage.jsx";
+import IntegrationsPage from "@/features/developer/IntegrationsPage.jsx";
+import AppDetailPage from "@/features/developer/AppDetailPage.jsx";
+import OAuthConsentPage from "@/features/developer/OAuthConsentPage.jsx";
 
 //wrapper for widget overaly
 //must also wrap the portfolio page route with PortfolioProvider to provide context to the widgets
@@ -109,6 +115,12 @@ export default function App() {
           {/* Main Routes */}
           <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
           <Route path="/dashboard" element={<Dashboard onRequestAdmin={handleRequestAdmin} />} />
+          <Route path="/developer" element={<DeveloperApiKeysPage />} />
+          <Route path="/developer/webhooks" element={<WebhooksPage />} />
+          <Route path="/developer/apps" element={<DeveloperAppsPage />} />
+          <Route path="/integrations" element={<IntegrationsPage />} />
+          <Route path="/integrations/apps/:slug" element={<AppDetailPage />} />
+          <Route path="/oauth/consent" element={<OAuthConsentPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignUp />} />
           <Route path="/occupations" element={<Occupations />} />
