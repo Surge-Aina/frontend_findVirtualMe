@@ -63,6 +63,7 @@ import AiPortfolioCreatorPage from "@/features/portfolios/unified/ai-creator/AiP
 import PrivacyPolicyPage from "@/features/legal/PrivacyPolicyPage.jsx";
 import TermsOfServicePage from "@/features/legal/TermsOfServicePage.jsx";
 import ContactPage from "@/features/landing/ContactPage.jsx";
+import PricingPage from "@/features/landing/PricingPage.jsx";
 
 // Unified portfolio (sections/blocks architecture)
 import PortfolioRenderer from "@/features/portfolios/unified/PortfolioRenderer.jsx";
@@ -144,7 +145,7 @@ export default function App() {
           </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/pricing" element={<Payment />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/examples" element={<ExamplePortfolios />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/auth/baggleme" element={<BagglemeAuthHandoff />} />

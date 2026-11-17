@@ -24,9 +24,9 @@ describe("ContactPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /send message/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/temporarily unavailable/i);
-    expect(screen.getByRole("link", { name: /email support@findvirtual.me/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /email surgeaina@gmail.com/i })).toHaveAttribute(
       "href",
-      expect.stringContaining("mailto:support%40findvirtual.me")
+      expect.stringContaining("mailto:surgeaina%40gmail.com")
     );
   });
 });

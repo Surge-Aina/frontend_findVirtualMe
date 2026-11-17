@@ -1,5 +1,5 @@
 /**
- * Platform contact email: prefer env, else the address already used in marketing copy (Restaurant CTA).
+ * Platform contact email: prefer env, else the address in the Termly privacy policy (surgeaina@gmail.com).
  */
 export const SUPPORT_EMAIL =
-  String(import.meta.env.VITE_SUPPORT_EMAIL || "").trim() || "support@findvirtual.me";
+  String(import.meta.env.VITE_SUPPORT_EMAIL || "").trim() || "surgeaina@gmail.com";
