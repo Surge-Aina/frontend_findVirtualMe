@@ -2,6 +2,15 @@ import { resolveBackendApi } from "@/config/backendApi";
 
 const HEALTH_TIMEOUT_MS = 8000;
 
+function isLoopbackBackend(base) {
+  try {
+    const host = new URL(base).hostname;
+    return host === "localhost" || host === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
 let healthCheckPromise = null;
 
 /**
@@ -15,6 +24,11 @@ export function checkBackendHealthOnce() {
   const base = resolveBackendApi();
   if (!base) {
     healthCheckPromise = Promise.resolve(false);
+    return healthCheckPromise;
+  }
+
+  if (isLoopbackBackend(base)) {
+    healthCheckPromise = Promise.resolve(true);
     return healthCheckPromise;
   }
 
