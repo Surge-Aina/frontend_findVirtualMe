@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Login from "@/features/auth/Login";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { MaintenanceProvider } from "@/shared/maintenance/MaintenanceProvider";
 
 const mockNavigate = jest.fn();
 
@@ -19,15 +20,19 @@ describe("Login page", () => {
   const renderPage = () =>
     render(
       <MemoryRouter>
-        <AuthContext.Provider value={{ login: mockLogin }}>
-          <Login />
-        </AuthContext.Provider>
+        <MaintenanceProvider>
+          <AuthContext.Provider value={{ login: mockLogin }}>
+            <Login />
+          </AuthContext.Provider>
+        </MaintenanceProvider>
       </MemoryRouter>
     );
 
   beforeEach(() => {
     mockLogin = jest.fn().mockResolvedValue(undefined);
     mockNavigate.mockReset();
+    delete import.meta.env.VITE_MAINTENANCE_MODE;
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200 });
   });
 
   test("shows email or username, password, and a link to sign up", () => {
@@ -59,6 +64,13 @@ describe("Login page", () => {
 
     await waitFor(() => expect(mockLogin).toHaveBeenCalledWith("ada", "secret"));
     expect(mockNavigate).toHaveBeenCalledWith("/dashboard");
+  });
+
+  test("disables submit while maintenance mode is on", () => {
+    import.meta.env.VITE_MAINTENANCE_MODE = "true";
+    renderPage();
+    expect(screen.getByRole("button", { name: "Sign In" })).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent(/temporarily unavailable/i);
   });
 
   test("shows a sign-in failure message", async () => {

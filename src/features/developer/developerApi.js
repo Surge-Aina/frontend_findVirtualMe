@@ -1,5 +1,6 @@
 import axiosAuth from "@/shared/api/axiosAuth";
 import { logApiError } from "@/shared/api/safeLog";
+import { resolveBackendApi } from "@/config/backendApi";
 
 export const API_KEY_SCOPES = [
   {
@@ -43,8 +44,7 @@ export const MCP_PATH = "/api/mcp";
 export const MCP_ACCEPT_HEADER = "application/json, text/event-stream";
 
 function backendOrigin() {
-  const raw = import.meta.env.VITE_BACKEND_API || "";
-  return String(raw).replace(/\/$/, "");
+  return resolveBackendApi().replace(/\/$/, "");
 }
 
 export function publicDocsUrl() {

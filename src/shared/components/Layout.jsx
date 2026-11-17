@@ -1,4 +1,5 @@
 import Navbar from "./Navbar";
+import MaintenanceBanner from "./MaintenanceBanner";
 import { useLocation } from "react-router-dom";
 
 /** Unified portfolio public view: /portfolios/view/:id (not /edit). */
@@ -12,6 +13,7 @@ export default function Layout({ children }) {
   return (
     <>
       {showNavbar && <Navbar />}
+      {showNavbar && <MaintenanceBanner />}
       <main
         className={`min-h-screen w-full bg-white dark:bg-neutral-950 ${showNavbar ? "pt-20" : ""}`}
       >

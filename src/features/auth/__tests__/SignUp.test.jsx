@@ -4,6 +4,7 @@ import { AuthContext } from "@/shared/context/AuthContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { MaintenanceProvider } from "@/shared/maintenance/MaintenanceProvider";
 
 jest.mock("axios");
 jest.mock("react-toastify", () => ({
@@ -21,9 +22,11 @@ describe("SignUp Component", () => {
 
   const renderWithContext = () =>
     render(
-      <AuthContext.Provider value={{ contextLogin: mockContextLogin }}>
-        <SignUp />
-      </AuthContext.Provider>
+      <MaintenanceProvider>
+        <AuthContext.Provider value={{ contextLogin: mockContextLogin }}>
+          <SignUp />
+        </AuthContext.Provider>
+      </MaintenanceProvider>
     );
 
   beforeEach(() => {
@@ -33,6 +36,8 @@ describe("SignUp Component", () => {
 
     jest.clearAllMocks();
     localStorage.clear();
+    delete import.meta.env.VITE_MAINTENANCE_MODE;
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200 });
   });
 
   // -----------------------------------------------------------------

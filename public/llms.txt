@@ -10,8 +10,9 @@
 
 ## API
 
+Configured API base (VITE_BACKEND_API): https://backend-findvirtualme.onrender.com.
 Send Authorization: Bearer fvm_YOUR_KEY. That placeholder is not a real key.
-The OpenAPI document is GET /api/public/v1/openapi.json on the API host.
+The OpenAPI document is https://backend-findvirtualme.onrender.com/api/public/v1/openapi.json.
 The production API base is https only. The try-it panel on /developers/docs calls only that configured API host, holds the key in memory for that page, and does not store or log it.
 
 Scopes: sites:read, profile:read, webhooks:write, leads:read.
@@ -19,7 +20,7 @@ Webhook signature: HMAC-SHA256 of the timestamp, a period, and the raw body. The
 
 ## MCP
 
-POST /api/mcp on the API host. Streamable HTTP. Use the same bearer key.
+POST https://backend-findvirtualme.onrender.com/api/mcp. Streamable HTTP. Use the same bearer key.
 Tools: list_sites, get_site, get_business_profile, list_webhooks.
 Copy-paste configs for Cursor, VS Code, Claude Desktop, Claude Code, ChatGPT, Gemini, Grok, and Copilot are on /developers/docs.
 Redoc does not connect MCP servers. Those configs belong to this site.

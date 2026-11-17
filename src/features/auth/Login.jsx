@@ -1,6 +1,8 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
+import MaintenanceNotice from "@/shared/components/MaintenanceNotice";
+import { useMaintenance } from "@/shared/maintenance/MaintenanceProvider";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -8,6 +10,7 @@ export default function Login() {
   const [form, setForm] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { active: maintenanceActive } = useMaintenance();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,6 +19,8 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (maintenanceActive) return;
 
     if (!form.identifier.trim() || !form.password) {
       setError("Enter your email or username and password.");
@@ -38,6 +43,7 @@ export default function Login() {
       <h2 className="text-2xl font-semibold mb-4 text-center text-slate-800 dark:text-neutral-100">
         Sign In
       </h2>
+      <MaintenanceNotice />
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label
@@ -82,7 +88,7 @@ export default function Login() {
         )}
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || maintenanceActive}
           className="w-full bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors disabled:opacity-60"
         >
           {submitting ? "Signing in..." : "Sign In"}
