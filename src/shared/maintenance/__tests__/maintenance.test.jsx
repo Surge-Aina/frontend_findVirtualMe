@@ -29,6 +29,7 @@ describe("maintenance mode", () => {
   });
 
   test("failed backend health check activates maintenance", async () => {
+    import.meta.env.VITE_BACKEND_API = "https://api.example.test";
     global.fetch.mockRejectedValue(new Error("down"));
     render(
       <MaintenanceProvider>
