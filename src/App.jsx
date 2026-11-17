@@ -20,6 +20,7 @@ import ExamplePortfolios from "@/features/landing/ExamplePortfolios";
 import DataScientistPage from "@/features/portfolios/_legacy/data-scientist/pages/DataScientistPage";
 import SignUp from "@/features/auth/SignUp";
 import Login from "@/features/auth/Login";
+import BagglemeAuthHandoff from "@/features/auth/BagglemeAuthHandoff";
 import HandymanShowcasePage from "@/features/portfolios/_legacy/handyman/HandyManShowcasePage.jsx";
 import HandymanPage from "@/features/portfolios/_legacy/handyman/HandyManPage.jsx";
 import EditHandymanPortfolio from "@/features/portfolios/_legacy/handyman/EditHandymanPortfolio.jsx";
@@ -142,6 +143,7 @@ export default function App() {
           </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/baggleme" element={<BagglemeAuthHandoff />} />
           <Route path="/occupations" element={<Occupations />} />
           <Route path="/mvp/*" element={<EmailMvpApp />} />
           {/* payment */}
