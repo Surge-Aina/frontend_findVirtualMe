@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { logApiError } from "@/shared/api/safeLog";
 import { useNavigate } from "react-router-dom";
+import MaintenanceNotice from "@/shared/components/MaintenanceNotice";
+import { useMaintenance } from "@/shared/maintenance/MaintenanceProvider";
 
 export default function SignUp() {
   const apiUrl = import.meta.env.VITE_BACKEND_API;
@@ -12,6 +14,7 @@ export default function SignUp() {
   const { contextLogin } = useContext(AuthContext);
 
   const navigate = useNavigate();
+  const { active: maintenanceActive } = useMaintenance();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,6 +22,8 @@ export default function SignUp() {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+
+    if (maintenanceActive) return;
 
     if (!form.name || !form.email || !form.password || !form.username) {
       toast.error("Please fill in all fields");
@@ -46,6 +51,7 @@ export default function SignUp() {
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white dark:bg-neutral-900 rounded-xl shadow-md border border-transparent dark:border-neutral-700">
       <h2 className="text-2xl font-semibold mb-4 text-center text-slate-800 dark:text-neutral-100">Sign Up</h2>
+      <MaintenanceNotice />
       <form className="space-y-4" onSubmit={handleSignUp}>
         <input
           type="text"
@@ -81,7 +87,8 @@ export default function SignUp() {
         />
         <button
           type="submit"
-          className="w-full bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
+          disabled={maintenanceActive}
+          className="w-full bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors disabled:opacity-60"
         >
           Sign Up
         </button>

@@ -10,6 +10,7 @@ import { ensureLeadLookup, joinApiUrl, llmBrief, apiCallAllowed, mcpConfigs, llm
 import OAuthConsentPage from "../OAuthConsentPage";
 import AppDetailPage from "../AppDetailPage";
 import * as developerApi from "../developerApi";
+import { resolveBackendApiFromProcess } from "@/config/backendApi";
 
 jest.mock("@/shared/api/axiosAuth", () => ({
   __esModule: true,
@@ -252,7 +253,7 @@ describe("Developer portal and OAuth consent", () => {
     }
     expect(configs.find((config) => config.id === "claude-code").text).toContain('"type": "http"');
     const file = fs.readFileSync(path.join(process.cwd(), "public/llms.txt"), "utf8");
-    expect(file).toBe(llmsTxt());
+    expect(file).toBe(llmsTxt(resolveBackendApiFromProcess()));
     expect(file).toContain("/developers/docs");
   });
 });

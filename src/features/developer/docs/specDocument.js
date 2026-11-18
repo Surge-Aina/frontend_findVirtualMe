@@ -1,4 +1,6 @@
 import { MCP_ACCEPT_HEADER } from "../developerApi";
+import { resolveBackendApi } from "@/config/backendApi";
+import { buildLlmsTxt } from "@/config/llmsTxtContent";
 
 const LEAD_PATH = "/leads/{leadId}";
 
@@ -102,7 +104,7 @@ export function ensureLeadLookup(spec) {
 }
 
 export function configuredApiOrigin() {
-  const raw = String(import.meta.env.VITE_BACKEND_API || "").replace(/\/$/, "");
+  const raw = resolveBackendApi().replace(/\/$/, "");
   if (!raw) return "";
   try {
     return new URL(raw).origin;
@@ -372,33 +374,8 @@ headers = { Authorization = "${bearer}", Accept = "${MCP_ACCEPT_HEADER}" }`;
   ];
 }
 
-export function llmsTxt() {
-  return `# FindVirtualMe
-
-> Public API for a customer's sites, business profile, webhooks, and MCP server.
-
-## Docs
-
-- [Getting started](/developers): API keys, authentication, webhooks, and the OAuth install flow
-- [API reference](/developers/docs): OpenAPI reference from Redoc Community Edition, plus this site's try-it panel and MCP configs
-- [Machine-readable description](/llms.txt): This file
-
-## API
-
-Send Authorization: Bearer fvm_YOUR_KEY. That placeholder is not a real key.
-The OpenAPI document is GET /api/public/v1/openapi.json on the API host.
-The production API base is https only. The try-it panel on /developers/docs calls only that configured API host, holds the key in memory for that page, and does not store or log it.
-
-Scopes: sites:read, profile:read, webhooks:write, leads:read.
-Webhook signature: HMAC-SHA256 of the timestamp, a period, and the raw body. The header is X-FindVirtualMe-Signature: v1=<hex>. Reject timestamps more than 300 seconds off.
-
-## MCP
-
-POST /api/mcp on the API host. Streamable HTTP. Use the same bearer key.
-Tools: list_sites, get_site, get_business_profile, list_webhooks.
-Copy-paste configs for Cursor, VS Code, Claude Desktop, Claude Code, ChatGPT, Gemini, Grok, and Copilot are on /developers/docs.
-Redoc does not connect MCP servers. Those configs belong to this site.
-`;
+export function llmsTxt(apiHost = resolveBackendApi()) {
+  return buildLlmsTxt(apiHost);
 }
 
 export function agentTargets(prompt) {

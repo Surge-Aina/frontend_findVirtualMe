@@ -17,9 +17,10 @@ import {
   mcpConfigs,
   withAbsoluteServer,
 } from "./specDocument";
+import { resolveBackendApi } from "@/config/backendApi";
 
 function backendOrigin() {
-  return String(import.meta.env.VITE_BACKEND_API || "").replace(/\/$/, "");
+  return resolveBackendApi().replace(/\/$/, "");
 }
 
 export default function ApiReferencePage() {

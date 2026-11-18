@@ -3,8 +3,10 @@ import { AuthContext } from "@/shared/context/AuthContext.jsx";
 // import emailjs from "@emailjs/browser";
 import { toast } from "react-toastify";
 import { logApiError } from "@/shared/api/safeLog";
+import { resolveBackendApi } from "@/config/backendApi";
+import { SUPPORT_EMAIL } from "@/config/siteContact";
 
-const API_BASE = import.meta.env.VITE_BACKEND_API;
+const API_BASE = resolveBackendApi();
 
 const REQUEST_OPTIONS = ["Request additional portfolio slots", "Request a refund", "Upgrade subscription", "Downgrade subscription", "Update account information", "Coupon not working", "Report a technical issue", "Delete my account"];
 
@@ -24,11 +26,11 @@ export default function ITForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    phone: "",
     requestType: "",
     portfolioId: "",
     message: "",
   });
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     setForm((prev) => ({
@@ -50,6 +52,7 @@ export default function ITForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError("");
 
     try {
       // const serviceId = import.meta.env.VITE_FORM_SERVICE_ID;
@@ -62,7 +65,6 @@ export default function ITForm() {
       const payload = {
         name: form.name,
         email: userEmail,
-        phone: form.phone || "",
         requestType: form.requestType,
         portfolioId: contextLoggedIn ? (stored.portfolioId || form.portfolioId) : form.portfolioId,
         message: form.message,
@@ -77,9 +79,10 @@ export default function ITForm() {
         },
         body: JSON.stringify(payload),
       });
-      await res.json();
       if (res.ok) {
-        toast.success("Request submitted successfully. Check your email for the confirmation.")
+        toast.success("Request submitted successfully. Check your email for the confirmation.");
+      } else {
+        setSubmitError("offline");
       }
       //template parameters for company email
 //       const companyTemplateParams = {
@@ -143,17 +146,18 @@ export default function ITForm() {
       // alert("Request submitted successfully! You will receive a confirmation email shortly.");
 
       // Reset form
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        requestType: "",
-        portfolioId: "",
-        message: "",
-      });
+      if (res.ok) {
+        setForm({
+          name: "",
+          email: "",
+          requestType: "",
+          portfolioId: "",
+          message: "",
+        });
+      }
     } catch (error) {
       logApiError(error, "Error submitting form");
-      alert("There was an error submitting your request. Please try again.");
+      setSubmitError("offline");
     } finally {
       setIsSubmitting(false);
     }
@@ -164,6 +168,20 @@ export default function ITForm() {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 w-full max-w-md mx-auto p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">Support & Help</h1>
         <p className="text-sm text-gray-500 mb-6 text-center">Submit a request or suggestion and our team will get back to you soon.</p>
+        {submitError === "offline" && (
+          <div
+            role="alert"
+            className="text-sm text-red-800 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4 space-y-2"
+          >
+            <p>We could not reach our support service. Please email us instead.</p>
+            <a
+              className="text-blue-700 font-medium underline"
+              href={`mailto:${encodeURIComponent(SUPPORT_EMAIL)}?subject=${encodeURIComponent("FindVirtual.me support request")}`}
+            >
+              Email {SUPPORT_EMAIL}
+            </a>
+          </div>
+        )}
         {/* optional reminder: login status and email） */}
         {user && (
           <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded p-2 mb-4">

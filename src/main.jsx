@@ -9,6 +9,7 @@ import { AuthProvider } from "@/shared/context/AuthContext";
 import { ThemeProvider } from "@/shared/context/ThemeContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import DomainRouter from "@/shared/utils/DomainRouter.jsx";
+import { MaintenanceProvider } from "@/shared/maintenance/MaintenanceProvider";
 
 const queryClient = new QueryClient();
 
@@ -20,9 +21,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <AuthProvider>
             <ThemeProvider>
               <ToastContainer position="top-right" autoClose={3000} />
-              <DomainRouter>
-                <App />
-              </DomainRouter>
+              <MaintenanceProvider>
+                <DomainRouter>
+                  <App />
+                </DomainRouter>
+              </MaintenanceProvider>
             </ThemeProvider>
           </AuthProvider>
         </BrowserRouter>

@@ -49,11 +49,15 @@ export default function Footer() {
               <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Templates</a></li>
               <li>
-                <a href="/payment" className="hover:text-white transition-colors">
+                <Link to="/pricing" className="hover:text-white transition-colors">
                   Pricing
-                </a>
+                </Link>
               </li>
-              <li><a href="/portfolios" className="hover:text-white transition-colors">Examples</a></li>
+              <li>
+                <Link to="/examples" className="hover:text-white transition-colors">
+                  Examples
+                </Link>
+              </li>
               <li><a href="/developers" className="hover:text-white transition-colors">Developers</a></li>
             </ul>
           </motion.div>
@@ -67,7 +71,11 @@ export default function Footer() {
             <h3 className="font-medium mb-4">Support</h3>
             <ul className="space-y-2 text-slate-400">
               <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              <li>
+                <Link to="/contact" className="hover:text-white transition-colors">
+                  Contact
+                </Link>
+              </li>
               <li>
                 <Link to="/privacy" className="hover:text-white transition-colors">
                   Privacy
