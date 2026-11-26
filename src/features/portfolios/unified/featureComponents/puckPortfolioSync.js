@@ -1,4 +1,5 @@
-import { blockTypeForPuckType, puckPropsToSectionData } from "./puckBlockTypeMap";
+import { puckPropsToSectionData } from "./featureComponentAdapters";
+import { blockTypeForPuckType } from "./puckBlockTypeMap";
 
 function contentIds(content) {
   return (content || []).map((item) => String(item?.props?.id || "")).filter(Boolean);
@@ -27,7 +28,7 @@ export function mergeFeatureComponentOrder(allSections, puckContent) {
   });
 }
 
-export function pickFeatureContentDiff(prevContent, nextContent) {
+export function pickFeatureContentDiff(prevContent, nextContent, template = "agent") {
   const prevIds = new Set(contentIds(prevContent));
   const nextIds = new Set(contentIds(nextContent));
 
@@ -44,8 +45,12 @@ export function pickFeatureContentDiff(prevContent, nextContent) {
     if (!id) continue;
     const prevItem = (prevContent || []).find((c) => String(c.props?.id) === String(id));
     if (!prevItem) continue;
-    const prevProps = JSON.stringify(puckPropsToSectionData(prevItem.props));
-    const nextProps = JSON.stringify(puckPropsToSectionData(item.props));
+    const prevProps = JSON.stringify(
+      puckPropsToSectionData(prevItem.type, prevItem.props, template, {})
+    );
+    const nextProps = JSON.stringify(
+      puckPropsToSectionData(item.type, item.props, template, {})
+    );
     if (prevProps !== nextProps) {
       updated.push(item);
     }

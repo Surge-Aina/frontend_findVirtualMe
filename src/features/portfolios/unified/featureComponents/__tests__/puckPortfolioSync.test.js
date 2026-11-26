@@ -18,7 +18,7 @@ describe("puckPortfolioSync", () => {
   it("detects add, remove, update, and reorder diffs", () => {
     const prev = [{ type: "ContactLeadForm", props: { id: "c1", headline: "A" } }];
     const reordered = [{ type: "ContactLeadForm", props: { id: "c1", headline: "B" } }];
-    const updated = pickFeatureContentDiff(prev, reordered);
+    const updated = pickFeatureContentDiff(prev, reordered, "agent");
     expect(updated.updated).toHaveLength(1);
 
     const removed = pickFeatureContentDiff(prev, []);

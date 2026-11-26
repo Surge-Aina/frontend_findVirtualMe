@@ -1,4 +1,5 @@
 import BLOCK_COMPONENTS from "../blocks";
+import { blockDataFromPuckRenderProps } from "./featureComponentAdapters";
 
 /**
  * Merges owner GET /api/portfolios/components config with client render() functions.
@@ -16,7 +17,11 @@ export function buildPuckEditorConfig(serializableConfig, template) {
     const Block = blockType ? BLOCK_COMPONENTS[blockType] : null;
     components[type] = {
       ...definition,
-      render: (props) => (Block ? <Block template={template} {...props} /> : null),
+      render: (props) => {
+        if (!Block) return null;
+        const blockData = blockDataFromPuckRenderProps(type, props, template);
+        return <Block template={template} {...blockData} />;
+      },
     };
   }
 

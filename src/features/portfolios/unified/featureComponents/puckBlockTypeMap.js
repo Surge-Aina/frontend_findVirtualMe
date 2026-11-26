@@ -1,3 +1,7 @@
+import { sectionDataToPuckProps, puckPropsToSectionData } from "./featureComponentAdapters";
+
+export { puckPropsToSectionData };
+
 export const FEATURE_SECTION_BLOCK_TYPES = Object.freeze([
   "contact",
   "gallery",
@@ -39,14 +43,7 @@ export function blockTypeForPuckType(puckType, config) {
   return entry?.metadata?.blockType || null;
 }
 
-export function puckPropsToSectionData(props) {
-  if (!props || typeof props !== "object" || Array.isArray(props)) return {};
-  const out = { ...props };
-  delete out.id;
-  return out;
-}
-
-export function sectionToPuckComponentData(section) {
+export function sectionToPuckComponentData(section, template = "agent") {
   const puckType = puckTypeForBlockType(section.type);
   if (!puckType || !section?._id) return null;
   const data = section.data && typeof section.data === "object" ? section.data : {};
@@ -54,7 +51,7 @@ export function sectionToPuckComponentData(section) {
     type: puckType,
     props: {
       id: section._id,
-      ...JSON.parse(JSON.stringify(data)),
+      ...sectionDataToPuckProps(puckType, data, template),
     },
   };
 }

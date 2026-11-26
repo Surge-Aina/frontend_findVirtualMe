@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Puck } from "@measured/puck";
-import "@measured/puck/puck.css";
+import { Puck } from "@puckeditor/core";
+import "@puckeditor/core/puck.css";
 import { toast } from "react-toastify";
 import { portfolioApi } from "@/shared/api/portfolioApi";
 import { FEATURE_COMPONENT_VIEWPORTS } from "./featureComponentViewports";
@@ -11,12 +11,10 @@ import {
   pickFeatureContentDiff,
 } from "./puckPortfolioSync";
 import { formatApprovalState, formatDraftSourceLabel } from "../portfolioDraftEditor";
-import { puckPropsToSectionData } from "./puckBlockTypeMap";
+import { puckPropsToSectionData, sectionToPuckComponentData } from "./puckBlockTypeMap";
 
-function mergePreservedSectionData(existingData, puckProps) {
-  const next = { ...(existingData || {}) };
-  const puckOnly = puckPropsToSectionData(puckProps);
-  return { ...next, ...puckOnly };
+function mergePreservedSectionData(puckType, existingData, puckProps, siteTemplate) {
+  return puckPropsToSectionData(puckType, puckProps, siteTemplate, existingData || {});
 }
 
 /**
@@ -71,18 +69,7 @@ export function PortfolioFeatureComponentsWorkspace({
       if (!nextPortfolio) return;
       onPortfolioUpdate(nextPortfolio, currentSections);
       const refreshedContent = (nextPortfolio.sections || [])
-        .map((section) => {
-          const puckType = puckConfig?.components
-            ? Object.entries(puckConfig.components).find(
-                ([, def]) => def?.metadata?.blockType === section.type
-              )?.[0]
-            : null;
-          if (!puckType) return null;
-          return {
-            type: puckType,
-            props: { id: section._id, ...(section.data || {}) },
-          };
-        })
+        .map((section) => sectionToPuckComponentData(section, template))
         .filter(Boolean);
       const next = {
         content: refreshedContent,
@@ -100,7 +87,7 @@ export function PortfolioFeatureComponentsWorkspace({
       if (!portfolioId || syncingRef.current) return;
       const prevContent = prevContentRef.current || [];
       const nextContent = nextPuckData?.content || [];
-      const diff = pickFeatureContentDiff(prevContent, nextContent);
+      const diff = pickFeatureContentDiff(prevContent, nextContent, template);
 
       if (
         !diff.added.length &&
@@ -121,7 +108,11 @@ export function PortfolioFeatureComponentsWorkspace({
         if (propsSyncTimerRef.current) clearTimeout(propsSyncTimerRef.current);
         propsSyncTimerRef.current = setTimeout(async () => {
           if (syncingRef.current) return;
-          const pendingDiff = pickFeatureContentDiff(prevContentRef.current || [], nextContent);
+          const pendingDiff = pickFeatureContentDiff(
+            prevContentRef.current || [],
+            nextContent,
+            template
+          );
           if (!pendingDiff.updated.length) return;
           syncingRef.current = true;
           setBusy?.(true);
@@ -132,7 +123,12 @@ export function PortfolioFeatureComponentsWorkspace({
               const sectionId = item.props?.id;
               if (!sectionId) continue;
               const existing = workingSections.find((s) => String(s._id) === String(sectionId));
-              const merged = mergePreservedSectionData(existing?.data, item.props);
+              const merged = mergePreservedSectionData(
+                item.type,
+                existing?.data,
+                item.props,
+                template
+              );
               const res = await portfolioApi.updateSection(portfolioId, sectionId, merged);
               applyServerPortfolio(res.data, workingSections);
               workingSections = res.data?.portfolio?.sections || workingSections;
@@ -166,10 +162,15 @@ export function PortfolioFeatureComponentsWorkspace({
         for (const item of diff.added) {
           const blockType = blockTypeForPuckItem(item, puckConfig);
           if (!blockType) continue;
-          const data = {
-            ...defaultPropsForPuckType(item.type, puckConfig),
-            ...puckPropsToSectionData(item.props),
-          };
+          const data = puckPropsToSectionData(
+            item.type,
+            {
+              ...defaultPropsForPuckType(item.type, puckConfig),
+              ...item.props,
+            },
+            template,
+            {}
+          );
           const order = workingSections.length;
           const res = await portfolioApi.addSection(portfolioId, blockType, data, order);
           applyServerPortfolio(res.data, workingSections);
@@ -180,7 +181,12 @@ export function PortfolioFeatureComponentsWorkspace({
           const sectionId = item.props?.id;
           if (!sectionId) continue;
           const existing = workingSections.find((s) => String(s._id) === String(sectionId));
-          const merged = mergePreservedSectionData(existing?.data, item.props);
+          const merged = mergePreservedSectionData(
+            item.type,
+            existing?.data,
+            item.props,
+            template
+          );
           const res = await portfolioApi.updateSection(portfolioId, sectionId, merged);
           applyServerPortfolio(res.data, workingSections);
           workingSections = res.data?.portfolio?.sections || workingSections;

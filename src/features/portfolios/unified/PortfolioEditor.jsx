@@ -78,6 +78,7 @@ import { buildPuckEditorConfig } from "./featureComponents/buildPuckEditorConfig
 import {
   isFeatureSectionBlockType,
   isUnifiedSiteTemplate,
+  sectionToPuckComponentData,
 } from "./featureComponents/puckBlockTypeMap";
 
 const PuckFeatureSectionEditor = lazy(() =>
@@ -190,6 +191,7 @@ function SectionEditor({
       >
         <PuckFeatureSectionEditor
           section={section}
+          template={template}
           puckConfig={puckEditorConfig}
           onPersistSection={(payload) => onPersistFeatureSection(section._id, payload)}
           persistDisabled={persistFeatureSectionDisabled}
@@ -477,20 +479,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     };
   }, [componentsFlagOn, draftsEnabled, portfolio?._id, portfolio?.template]);
 
-  const refreshFeatureComponentsData = useCallback((nextSections, title) => {
+  const refreshFeatureComponentsData = useCallback((nextSections, title, siteTemplate) => {
     setFeatureComponentsPayload((prev) => {
       if (!prev?.config) return prev;
       const content = (nextSections || [])
-        .map((section) => {
-          const puckType = Object.entries(prev.config.components || {}).find(
-            ([, def]) => def?.metadata?.blockType === section.type
-          )?.[0];
-          if (!puckType) return null;
-          return {
-            type: puckType,
-            props: { id: section._id, ...(section.data || {}) },
-          };
-        })
+        .map((section) => sectionToPuckComponentData(section, siteTemplate))
         .filter(Boolean);
       return {
         ...prev,
@@ -504,12 +497,13 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   }, []);
 
   useEffect(() => {
-    if (!featureComponentsReady || !portfolio?.sections) return;
-    refreshFeatureComponentsData(portfolio.sections, portfolio.title);
+    if (!featureComponentsReady || !portfolio?.sections || !portfolio?.template) return;
+    refreshFeatureComponentsData(portfolio.sections, portfolio.title, portfolio.template);
   }, [
     featureComponentsReady,
     portfolio?.sections,
     portfolio?.title,
+    portfolio?.template,
     refreshFeatureComponentsData,
   ]);
 

@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Puck } from "@measured/puck";
-import "@measured/puck/puck.css";
-import { puckPropsToSectionData, puckTypeForBlockType } from "./puckBlockTypeMap";
+import { Puck } from "@puckeditor/core";
+import "@puckeditor/core/puck.css";
+import { puckTypeForBlockType } from "./puckBlockTypeMap";
+import {
+  puckPropsToSectionData,
+  sectionDataToPuckProps,
+} from "./featureComponentAdapters";
 
 const PERSIST_DEBOUNCE_MS = 450;
 
@@ -10,6 +14,7 @@ const PERSIST_DEBOUNCE_MS = 450;
  */
 export function PuckFeatureSectionEditor({
   section,
+  template,
   puckConfig,
   onPersistSection,
   persistDisabled = false,
@@ -25,14 +30,14 @@ export function PuckFeatureSectionEditor({
           type: puckType,
           props: {
             id: section._id,
-            ...(section.data || {}),
+            ...sectionDataToPuckProps(puckType, section.data || {}, template),
           },
         },
       ],
       root: { props: {} },
       zones: {},
     }),
-    [section._id, section.data, puckType]
+    [section._id, section.data, puckType, template]
   );
 
   useEffect(
@@ -44,7 +49,7 @@ export function PuckFeatureSectionEditor({
 
   const schedulePersist = useCallback(
     (nextProps) => {
-      const payload = puckPropsToSectionData(nextProps);
+      const payload = puckPropsToSectionData(puckType, nextProps, template, section.data || {});
       const signature = JSON.stringify(payload);
       if (signature === lastEmittedRef.current) return;
       lastEmittedRef.current = signature;
@@ -55,7 +60,7 @@ export function PuckFeatureSectionEditor({
         }
       }, PERSIST_DEBOUNCE_MS);
     },
-    [onPersistSection, persistDisabled]
+    [onPersistSection, persistDisabled, puckType, template, section.data]
   );
 
   const handleChange = useCallback(
