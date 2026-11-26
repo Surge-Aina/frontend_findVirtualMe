@@ -1,16 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import axios from "axios";
+import { render, screen } from "@testing-library/react";
 import VoucherOfferBlock from "../VoucherOfferBlock";
 
-jest.mock("axios");
-
 describe("VoucherOfferBlock", () => {
-  beforeEach(() => {
-    axios.get.mockReset();
-    axios.get.mockRejectedValue(new Error("no public route"));
-  });
-
-  it("shows presentation fields and never renders voucher codes", async () => {
+  it("shows presentation fields and never renders voucher codes", () => {
     render(
       <VoucherOfferBlock
         template="healthcare"
@@ -24,10 +16,7 @@ describe("VoucherOfferBlock", () => {
       />
     );
 
-    await waitFor(() => {
-      expect(screen.getByText("Welcome offer")).toBeInTheDocument();
-    });
-
+    expect(screen.getByText("Welcome offer")).toBeInTheDocument();
     expect(screen.getByText("Thanks for visiting our site.")).toBeInTheDocument();
     const cta = screen.getByRole("link", { name: "Learn more" });
     expect(cta).toHaveAttribute("href", "https://example.test/offer");

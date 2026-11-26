@@ -30,12 +30,20 @@ function normalizePlatforms(platforms = {}) {
   return out;
 }
 
-export default function SocialLinksBlock({ template, ...data }) {
+const PREVIEW_PLACEHOLDER_LINKS = Object.freeze({
+  github: "https://github.com/example",
+  twitter: "https://example.test/x",
+  linkedin: "https://linkedin.com/in/example",
+  instagram: "https://example.test/instagram",
+  website: "https://example.test",
+});
+
+export default function SocialLinksBlock({ template, editorPreview, ...data }) {
   const ctx = usePortfolioView();
   const portfolioId = ctx?.portfolioId;
   const fallbackLinks = ctx?.socialLinks || {};
   const [remoteLinks, setRemoteLinks] = useState(null);
-  const [loading, setLoading] = useState(Boolean(portfolioId));
+  const [loading, setLoading] = useState(Boolean(portfolioId) && !editorPreview);
 
   const platforms = useMemo(
     () => normalizePlatforms(data.platforms || data.showPlatforms),
@@ -45,7 +53,7 @@ export default function SocialLinksBlock({ template, ...data }) {
   const title = data.sectionTitle || data.title || "Connect";
 
   useEffect(() => {
-    if (!portfolioId) {
+    if (!portfolioId || editorPreview) {
       setLoading(false);
       return undefined;
     }
@@ -65,20 +73,27 @@ export default function SocialLinksBlock({ template, ...data }) {
     return () => {
       cancelled = true;
     };
-  }, [portfolioId]);
+  }, [portfolioId, editorPreview]);
 
-  const linkMap = remoteLinks && typeof remoteLinks === "object" ? remoteLinks : fallbackLinks;
+  const linkMap =
+    editorPreview
+      ? { ...PREVIEW_PLACEHOLDER_LINKS, ...fallbackLinks }
+      : remoteLinks && typeof remoteLinks === "object"
+        ? remoteLinks
+        : fallbackLinks;
 
   const entries = Object.keys(PLATFORM_META)
     .filter((key) => platforms[key])
     .map((key) => {
       const raw = linkMap?.[key];
-      const href = sanitizeHttpHref(raw);
+      const href =
+        sanitizeHttpHref(raw) ||
+        (editorPreview ? sanitizeHttpHref(PREVIEW_PLACEHOLDER_LINKS[key]) : null);
       return href ? { key, href, ...PLATFORM_META[key] } : null;
     })
     .filter(Boolean);
 
-  if (!loading && entries.length === 0) return null;
+  if (!loading && entries.length === 0 && !editorPreview) return null;
 
   const isPM = template === "projectManager" || template === "dataScientist" || template === "agent";
   const sectionClass = isPM ? "py-12 bg-slate-800/40" : "py-12 bg-gray-50";

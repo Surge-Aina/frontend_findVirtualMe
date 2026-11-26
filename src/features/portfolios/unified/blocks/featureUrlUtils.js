@@ -1,4 +1,33 @@
 const FORBIDDEN_QR_PREFIXES = /^(javascript:|data:|vbscript:)/i;
+const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:/i;
+const PATH_SEGMENT = /^[a-zA-Z0-9_.~%-]*$/;
+const PATH_QUERY = /^[a-zA-Z0-9&=%_.~+-]*$/;
+
+/**
+ * @param {string} path
+ * @returns {boolean}
+ */
+export function validateSameSitePath(path) {
+  if (typeof path !== "string" || path.length > 512) return false;
+  if (!path.startsWith("/") || path.startsWith("//")) return false;
+  if (path.length < 2 || path[1] === "/") return false;
+
+  const qIdx = path.indexOf("?");
+  const pathPart = qIdx >= 0 ? path.slice(0, qIdx) : path;
+  const query = qIdx >= 0 ? path.slice(qIdx + 1) : null;
+
+  const segments = pathPart.split("/").slice(1);
+  for (const seg of segments) {
+    if (seg === ".." || seg === ".") return false;
+    if (!PATH_SEGMENT.test(seg)) return false;
+  }
+
+  if (query !== null) {
+    if (query.length > 512) return false;
+    if (!PATH_QUERY.test(query)) return false;
+  }
+  return true;
+}
 
 /**
  * @param {string} href
@@ -10,9 +39,19 @@ export function sanitizeHttpHref(href) {
   if (!trimmed || FORBIDDEN_QR_PREFIXES.test(trimmed) || trimmed.startsWith("//")) {
     return null;
   }
+
+  let toParse = trimmed;
+  if (SCHEME_PREFIX.test(trimmed)) {
+    toParse = trimmed;
+  } else if (trimmed.startsWith("/")) {
+    return null;
+  } else {
+    toParse = `https://${trimmed}`;
+  }
+
   let parsed;
   try {
-    parsed = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    parsed = new URL(toParse);
   } catch {
     return null;
   }
@@ -34,6 +73,7 @@ export function resolveQrEncodeTarget(target, sitePublicUrl) {
   }
   if (raw.startsWith("/")) {
     if (raw.startsWith("//")) return "";
+    if (!validateSameSitePath(raw)) return "";
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     if (!origin) return "";
     try {

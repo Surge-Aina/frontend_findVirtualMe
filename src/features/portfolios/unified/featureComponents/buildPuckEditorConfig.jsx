@@ -1,6 +1,18 @@
 import BLOCK_COMPONENTS from "../blocks";
 import { blockDataFromPuckRenderProps } from "./featureComponentAdapters";
 import VoucherIdPickerField from "./VoucherIdPickerField";
+import { PortfolioViewProvider } from "../context/PortfolioViewContext";
+
+const PUCK_SOCIAL_PREVIEW_PORTFOLIO = {
+  _id: "puck-social-preview",
+  template: "agent",
+  socialLinks: {
+    github: "https://github.com/example",
+    linkedin: "https://linkedin.com/in/example",
+    website: "https://example.test",
+  },
+  sections: [],
+};
 
 /**
  * Merges owner GET /api/portfolios/components config with client render() functions.
@@ -21,6 +33,13 @@ export function buildPuckEditorConfig(serializableConfig, template) {
       render: (props) => {
         if (!Block) return null;
         const blockData = blockDataFromPuckRenderProps(type, props, template);
+        if (blockType === "socialLinks") {
+          return (
+            <PortfolioViewProvider portfolio={{ ...PUCK_SOCIAL_PREVIEW_PORTFOLIO, template }}>
+              <Block template={template} {...blockData} editorPreview />
+            </PortfolioViewProvider>
+          );
+        }
         return <Block template={template} {...blockData} />;
       },
     };
