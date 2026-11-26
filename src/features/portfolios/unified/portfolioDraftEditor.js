@@ -1,5 +1,3 @@
-import { SECTION_DISPLAY_LABEL_KEY } from "./portfolioEditorSections";
-
 export function workingPortfolioFromDraftDetail({ published, draft, hasDraft }) {
   if (!published) return null;
   if (!hasDraft || !draft) {
@@ -63,12 +61,4 @@ export function formatApprovalState(state) {
     default:
       return state;
   }
-}
-
-export function sectionDataForComparable(data) {
-  const next = { ...(data || {}) };
-  if (next[SECTION_DISPLAY_LABEL_KEY] === "") {
-    delete next[SECTION_DISPLAY_LABEL_KEY];
-  }
-  return next;
 }

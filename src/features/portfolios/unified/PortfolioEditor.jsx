@@ -58,17 +58,16 @@ import { mergeNavBrandDefaults } from "./PortfolioNavBrand";
 import OwnerSubUsersPanel from "@/features/portfolio-users/OwnerSubUsersPanel";
 import { logApiError } from "@/shared/api/safeLog";
 import { PortfolioSectionNavigator } from "./PortfolioSectionNavigator";
+import { SectionsStructurePanel } from "./SectionsStructurePanel";
+import { isEditorNavigatorEnabled } from "./editorNavigatorFlag";
 import { PortfolioDraftBanner } from "./PortfolioDraftBanner";
 import { PortfolioVersionHistoryPanel } from "./PortfolioVersionHistoryPanel";
-import {
-  draftMetaFromDetail,
-  sectionDataForComparable,
-  workingPortfolioFromDraftDetail,
-} from "./portfolioDraftEditor";
+import { draftMetaFromDetail, workingPortfolioFromDraftDetail } from "./portfolioDraftEditor";
 import {
   MAX_PORTFOLIO_SECTIONS,
   SECTION_DISPLAY_LABEL_KEY,
   getSectionDisplayLabel,
+  sectionDataForPersistenceCompare,
 } from "./portfolioEditorSections";
 
 function clonePortfolio(value) {
@@ -118,7 +117,9 @@ function toComparablePortfolio(value) {
       type: section.type,
       order: section.order,
       visible: section.visible !== false,
-      data: sectionDataForComparable(section.data),
+      data: sectionDataForPersistenceCompare(section.data, {
+        includeEditorLabel: isEditorNavigatorEnabled(),
+      }),
     })),
     themeId: value.themeId || "",
     themeTokens: value.themeTokens || {},
@@ -249,6 +250,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const [hasUnpublishedDraft, setHasUnpublishedDraft] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const isLgUp = useMediaQuery(LG_QUERY);
+  const navigatorEnabled = isEditorNavigatorEnabled();
 
   const applyDraftDetail = useCallback((detail) => {
     const working = workingPortfolioFromDraftDetail(detail);
@@ -680,7 +682,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
   const handleAddSection = async () => {
     if (!portfolio?._id || !addingSectionType) return;
-    if (sections.length >= MAX_PORTFOLIO_SECTIONS) {
+    if (navigatorEnabled && sections.length >= MAX_PORTFOLIO_SECTIONS) {
       toast.error(`You can add at most ${MAX_PORTFOLIO_SECTIONS} sections.`);
       return;
     }
@@ -898,6 +900,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   }
 
   const activeSection = sections[activeIdx];
+  const activeSectionHeading = activeSection
+    ? navigatorEnabled
+      ? getSectionDisplayLabel(activeSection)
+      : BLOCK_LABELS[activeSection.type] || activeSection.type
+    : "";
   const sl = portfolio.socialLinks || {};
   const nb = mergeNavBrandDefaults(portfolio.navBrand);
   const activeThemePreset =
@@ -1052,25 +1059,44 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
         <aside
           className={`w-full shrink-0 space-y-4 lg:w-64 ${showLeftRail ? "" : "hidden"}`}
         >
-          <PortfolioSectionNavigator
-            sections={sections}
-            activeIdx={activeIdx}
-            onActivateSection={(idx) => {
-              setActiveIdx(idx);
-              if (!isLgUp) setMobileWorkspace("edit");
-            }}
-            handleMoveSection={handleMoveSection}
-            handleDragReorder={handleDragReorder}
-            handleSectionVisibilityChange={handleSectionVisibilityChange}
-            onRenameSection={handleRenameSection}
-            onRemoveSection={handleRemoveSection}
-            addableBlocks={addableBlocks}
-            addingSectionType={addingSectionType}
-            setAddingSectionType={setAddingSectionType}
-            handleAddSection={handleAddSection}
-            addingSection={addingSection}
-            saveDisabled={saveDisabled}
-          />
+          {navigatorEnabled ? (
+            <PortfolioSectionNavigator
+              sections={sections}
+              activeIdx={activeIdx}
+              onActivateSection={(idx) => {
+                setActiveIdx(idx);
+                if (!isLgUp) setMobileWorkspace("edit");
+              }}
+              handleMoveSection={handleMoveSection}
+              handleDragReorder={handleDragReorder}
+              handleSectionVisibilityChange={handleSectionVisibilityChange}
+              onRenameSection={handleRenameSection}
+              onRemoveSection={handleRemoveSection}
+              addableBlocks={addableBlocks}
+              addingSectionType={addingSectionType}
+              setAddingSectionType={setAddingSectionType}
+              handleAddSection={handleAddSection}
+              addingSection={addingSection}
+              saveDisabled={saveDisabled}
+            />
+          ) : (
+            <SectionsStructurePanel
+              sections={sections}
+              activeIdx={activeIdx}
+              onActivateSection={(idx) => {
+                setActiveIdx(idx);
+                if (!isLgUp) setMobileWorkspace("edit");
+              }}
+              handleMoveSection={handleMoveSection}
+              handleSectionVisibilityChange={handleSectionVisibilityChange}
+              addableBlocks={addableBlocks}
+              addingSectionType={addingSectionType}
+              setAddingSectionType={setAddingSectionType}
+              handleAddSection={handleAddSection}
+              addingSection={addingSection}
+              saveDisabled={saveDisabled}
+            />
+          )}
         </aside>
 
         <main
@@ -1083,7 +1109,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                   <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
-                        {getSectionDisplayLabel(activeSection)}
+                        {activeSectionHeading}
                       </h2>
                       <button
                         type="button"
@@ -1176,7 +1202,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
             <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
-                  {getSectionDisplayLabel(activeSection)}
+                  {activeSectionHeading}
                 </h2>
                 <button
                   type="button"

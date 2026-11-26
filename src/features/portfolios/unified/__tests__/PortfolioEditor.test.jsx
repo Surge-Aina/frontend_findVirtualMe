@@ -222,6 +222,7 @@ function renderEditor(prefetched) {
 
 describe("PortfolioEditor", () => {
   beforeEach(() => {
+    delete import.meta.env.VITE_EDITOR_NAVIGATOR_ENABLED;
     setMatchMedia(false);
     portfolioApi.getById.mockReset();
     portfolioApi.getDraft.mockReset();
@@ -446,7 +447,18 @@ describe("PortfolioEditor", () => {
     });
   });
 
-  it("removes a section from the navigator", async () => {
+  it("uses legacy sections rail when VITE_EDITOR_NAVIGATOR_ENABLED is off", async () => {
+    setMatchMedia(true);
+    renderEditor(multiSectionPortfolio);
+    await screen.findByDisplayValue("Edit me");
+    expect(screen.getByRole("heading", { name: "Sections" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Structure" })).toBeInTheDocument();
+    expect(screen.queryByText(/pages & sections/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /remove contact/i })).not.toBeInTheDocument();
+  });
+
+  it("removes a section from the navigator when the flag is on", async () => {
+    import.meta.env.VITE_EDITOR_NAVIGATOR_ENABLED = "true";
     const user = userEvent.setup();
     setMatchMedia(true);
     portfolioApi.removeSection.mockResolvedValue({

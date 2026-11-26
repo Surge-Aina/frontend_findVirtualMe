@@ -14,6 +14,17 @@ export function getSectionDisplayLabel(section) {
   return BLOCK_LABELS[section.type] || section.type || "Section";
 }
 
+export function sectionDataForPersistenceCompare(data, { includeEditorLabel = true } = {}) {
+  const next = { ...(data || {}) };
+  if (!includeEditorLabel) {
+    delete next[SECTION_DISPLAY_LABEL_KEY];
+  }
+  if (next[SECTION_DISPLAY_LABEL_KEY] === "") {
+    delete next[SECTION_DISPLAY_LABEL_KEY];
+  }
+  return next;
+}
+
 export function getSectionTypeHint(section) {
   if (!section?.type) return "";
   const base = BLOCK_LABELS[section.type] || section.type;
