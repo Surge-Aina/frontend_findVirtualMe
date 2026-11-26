@@ -79,7 +79,7 @@ export function PortfolioFeatureComponentsWorkspace({
       setLocalData(next);
       prevContentRef.current = next.content;
     },
-    [onPortfolioUpdate, puckConfig?.components, puckData?.root]
+    [onPortfolioUpdate, puckConfig?.components, puckData?.root, template]
   );
 
   const syncStructuralAndProps = useCallback(
@@ -219,6 +219,7 @@ export function PortfolioFeatureComponentsWorkspace({
       saveBeforeStructureChange,
       sections,
       setBusy,
+      template,
     ]
   );
 
