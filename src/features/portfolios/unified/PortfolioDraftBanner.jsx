@@ -18,7 +18,8 @@ export function PortfolioDraftBanner({
 
   const approvalLabel = formatApprovalState(approvalState);
   const sourceLabel = formatDraftSourceLabel(draftSource);
-  const showAiPending = draftSource === "ai" && approvalState === "pending_owner";
+  const showAiPending =
+    approvalState === "pending_owner" && (draftSource === "ai" || draftSource === "api");
 
   return (
     <div className="border-b border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30">
@@ -36,7 +37,8 @@ export function PortfolioDraftBanner({
           </p>
           {showAiPending ? (
             <p className="text-xs text-amber-900 dark:text-amber-100">
-              Review this AI-proposed draft, then publish when you are ready.
+              Review this {draftSource === "api" ? "API" : "AI"}-proposed draft, then publish when
+              you are ready.
             </p>
           ) : null}
         </div>

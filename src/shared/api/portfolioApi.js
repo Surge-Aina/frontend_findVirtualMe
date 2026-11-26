@@ -4,10 +4,20 @@ import axiosAuth from "./axiosAuth";
 const BASE = "/api/portfolios";
 
 let siteDraftsKnownDisabled = false;
+let featureComponentsKnownDisabled = false;
 
 /** @internal Tests only */
 export function resetSiteDraftsProbeCache() {
   siteDraftsKnownDisabled = false;
+}
+
+/** @internal Tests only */
+export function resetFeatureComponentsProbeCache() {
+  featureComponentsKnownDisabled = false;
+}
+
+export function isFeatureComponentsProbeSkipped() {
+  return featureComponentsKnownDisabled;
 }
 
 export function isSiteDraftsProbeSkipped() {
@@ -18,6 +28,13 @@ const DRAFTS_DISABLED_REJECTION = Object.freeze({
   response: { status: 404, data: { code: "DRAFTS_DISABLED", error: "Site drafts are not enabled" } },
 });
 
+const FEATURE_COMPONENTS_DISABLED_REJECTION = Object.freeze({
+  response: {
+    status: 404,
+    data: { code: "FEATURE_COMPONENTS_DISABLED", error: "Feature components are not enabled" },
+  },
+});
+
 export const portfolioApi = {
   // Public
   getById: (id, config) => axiosAuth.get(`${BASE}/${id}`, config),
@@ -26,6 +43,20 @@ export const portfolioApi = {
     const params = template ? `?template=${template}` : "";
     return axios.get(`${import.meta.env.VITE_BACKEND_API}${BASE}/public/list${params}`);
   },
+  getComponents: (siteId) => {
+    if (featureComponentsKnownDisabled) {
+      return Promise.reject(FEATURE_COMPONENTS_DISABLED_REJECTION);
+    }
+    return axiosAuth
+      .get(`${BASE}/components`, { params: { siteId } })
+      .catch((err) => {
+        if (isFeatureComponentsDisabledError(err)) {
+          featureComponentsKnownDisabled = true;
+        }
+        throw err;
+      });
+  },
+
   getBlockTypes: (template, options = {}) => {
     const query = new URLSearchParams();
     if (template) query.set("template", template);
@@ -73,4 +104,8 @@ export const portfolioApi = {
 
 export function isPortfolioDraftsDisabledError(err) {
   return err?.response?.status === 404 && err?.response?.data?.code === "DRAFTS_DISABLED";
+}
+
+export function isFeatureComponentsDisabledError(err) {
+  return err?.response?.status === 404 && err?.response?.data?.code === "FEATURE_COMPONENTS_DISABLED";
 }

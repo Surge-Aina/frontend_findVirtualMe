@@ -1,6 +1,19 @@
-import { useEffect, useState, useCallback, useMemo, useContext, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useContext,
+  useSyncExternalStore,
+  lazy,
+  Suspense,
+} from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { isPortfolioDraftsDisabledError, portfolioApi } from "@/shared/api/portfolioApi";
+import {
+  isFeatureComponentsDisabledError,
+  isPortfolioDraftsDisabledError,
+  portfolioApi,
+} from "@/shared/api/portfolioApi";
 import {
   FaSave,
   FaEye,
@@ -60,6 +73,25 @@ import { logApiError } from "@/shared/api/safeLog";
 import { PortfolioSectionNavigator } from "./PortfolioSectionNavigator";
 import { SectionsStructurePanel } from "./SectionsStructurePanel";
 import { isEditorNavigatorEnabled } from "./editorNavigatorFlag";
+import { isEditorComponentsEnabled } from "./editorComponentsFlag";
+import { buildPuckEditorConfig } from "./featureComponents/buildPuckEditorConfig";
+import {
+  isFeatureSectionBlockType,
+  isUnifiedSiteTemplate,
+  sectionToPuckComponentData,
+} from "./featureComponents/puckBlockTypeMap";
+
+const PuckFeatureSectionEditor = lazy(() =>
+  import("./featureComponents/PuckFeatureSectionEditor").then((m) => ({
+    default: m.PuckFeatureSectionEditor,
+  }))
+);
+
+const PortfolioFeatureComponentsWorkspace = lazy(() =>
+  import("./featureComponents/PortfolioFeatureComponentsWorkspace").then((m) => ({
+    default: m.PortfolioFeatureComponentsWorkspace,
+  }))
+);
 import { PortfolioDraftBanner } from "./PortfolioDraftBanner";
 import { PortfolioVersionHistoryPanel } from "./PortfolioVersionHistoryPanel";
 import {
@@ -95,6 +127,7 @@ function useMediaQuery(query) {
 
 const INSPECTOR_TAB_LABELS = {
   sections: "Sections",
+  components: "Components",
   site: "Site",
   banners: "Banners",
   design: "Design",
@@ -135,8 +168,37 @@ function toComparablePortfolio(value) {
   };
 }
 
-function SectionEditor({ section, template, onDataChange, portfolioSections }) {
+function SectionEditor({
+  section,
+  template,
+  onDataChange,
+  portfolioSections,
+  featureComponentsActive,
+  puckEditorConfig,
+  onPersistFeatureSection,
+  persistFeatureSectionDisabled,
+}) {
   const { type, data } = section;
+
+  if (featureComponentsActive && isFeatureSectionBlockType(type) && puckEditorConfig) {
+    return (
+      <Suspense
+        fallback={
+          <div className="text-sm text-gray-500 dark:text-neutral-400 py-8 text-center">
+            Loading component editor…
+          </div>
+        }
+      >
+        <PuckFeatureSectionEditor
+          section={section}
+          template={template}
+          puckConfig={puckEditorConfig}
+          onPersistSection={(payload) => onPersistFeatureSection(section._id, payload)}
+          persistDisabled={persistFeatureSectionDisabled}
+        />
+      </Suspense>
+    );
+  }
 
   const main = (() => {
     switch (type) {
@@ -256,8 +318,12 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const [hasUnpublishedDraft, setHasUnpublishedDraft] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [publishedBaseline, setPublishedBaseline] = useState(null);
+  const [featureComponentsReady, setFeatureComponentsReady] = useState(false);
+  const [featureComponentsPayload, setFeatureComponentsPayload] = useState(null);
+  const [featureComponentsLoading, setFeatureComponentsLoading] = useState(false);
   const isLgUp = useMediaQuery(LG_QUERY);
   const navigatorEnabled = isEditorNavigatorEnabled();
+  const componentsFlagOn = isEditorComponentsEnabled();
 
   const applyDraftDetail = useCallback((detail) => {
     const working = workingPortfolioFromDraftDetail(detail);
@@ -377,17 +443,95 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     };
   }, [portfolio?.template]);
 
+  useEffect(() => {
+    if (!componentsFlagOn || !draftsEnabled || !portfolio?._id || !isUnifiedSiteTemplate(portfolio.template)) {
+      setFeatureComponentsReady(false);
+      setFeatureComponentsPayload(null);
+      return;
+    }
+
+    let cancelled = false;
+    setFeatureComponentsLoading(true);
+
+    portfolioApi
+      .getComponents(portfolio._id)
+      .then((res) => {
+        if (cancelled) return;
+        setFeatureComponentsPayload(res.data);
+        setFeatureComponentsReady(true);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        if (isFeatureComponentsDisabledError(err)) {
+          setFeatureComponentsReady(false);
+          setFeatureComponentsPayload(null);
+          return;
+        }
+        setFeatureComponentsReady(false);
+        setFeatureComponentsPayload(null);
+      })
+      .finally(() => {
+        if (!cancelled) setFeatureComponentsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [componentsFlagOn, draftsEnabled, portfolio?._id, portfolio?.template]);
+
+  const refreshFeatureComponentsData = useCallback((nextSections, title, siteTemplate) => {
+    setFeatureComponentsPayload((prev) => {
+      if (!prev?.config) return prev;
+      const content = (nextSections || [])
+        .map((section) => sectionToPuckComponentData(section, siteTemplate))
+        .filter(Boolean);
+      return {
+        ...prev,
+        data: {
+          content,
+          root: { props: { title: title || "" } },
+          zones: {},
+        },
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!featureComponentsReady || !portfolio?.sections || !portfolio?.template) return;
+    refreshFeatureComponentsData(portfolio.sections, portfolio.title, portfolio.template);
+  }, [
+    featureComponentsReady,
+    portfolio?.sections,
+    portfolio?.title,
+    portfolio?.template,
+    refreshFeatureComponentsData,
+  ]);
+
   const isAgentTemplate = portfolio?.template === "agent";
 
   const supportsSubUsers = TEMPLATES_WITH_SUB_USERS.has(portfolio?.template);
+
+  const puckEditorConfig = useMemo(() => {
+    if (!featureComponentsReady || !featureComponentsPayload?.config || !portfolio?.template) {
+      return null;
+    }
+    return buildPuckEditorConfig(featureComponentsPayload.config, portfolio.template);
+  }, [featureComponentsReady, featureComponentsPayload, portfolio?.template]);
+
+  const featureComponentsActive = Boolean(
+    componentsFlagOn && featureComponentsReady && puckEditorConfig && draftsEnabled
+  );
 
   const inspectorTabIds = useMemo(() => {
     const base = isAgentTemplate
       ? ["sections", "site", "banners", "design", "publish", "ai"]
       : ["sections", "site", "banners", "publish"];
+    if (featureComponentsActive) {
+      base.splice(1, 0, "components");
+    }
     if (supportsSubUsers) base.push("customers");
     return base;
-  }, [isAgentTemplate, supportsSubUsers]);
+  }, [isAgentTemplate, supportsSubUsers, featureComponentsActive]);
 
   useEffect(() => {
     if (!inspectorTabIds.includes(inspectorTab)) {
@@ -405,6 +549,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     () => [
       { id: "edit", label: "Edit" },
       { id: "sections", label: "Sections" },
+      ...(featureComponentsActive ? [{ id: "components", label: "Components" }] : []),
       { id: "site", label: "Site" },
       { id: "banners", label: "Banners" },
       ...(isAgentTemplate
@@ -415,7 +560,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
         : []),
       { id: "publish", label: "Publish" },
     ],
-    [isAgentTemplate]
+    [isAgentTemplate, featureComponentsActive]
   );
 
   useEffect(() => {
@@ -717,6 +862,25 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     }
   };
 
+  const handlePersistFeatureSection = useCallback(
+    async (sectionId, puckPayload) => {
+      if (!portfolio?._id) return;
+      const section = portfolio.sections?.find((s) => s._id === sectionId);
+      const merged = {
+        ...(section?.data || {}),
+        ...puckPayload,
+      };
+      handleSectionDataChange(sectionId, merged);
+      try {
+        const res = await portfolioApi.updateSection(portfolio._id, sectionId, merged);
+        applyPortfolioFromServer(res.data.portfolio, { currentPortfolio: portfolio });
+      } catch (err) {
+        toast.error(err.response?.data?.error || "Failed to save component");
+      }
+    },
+    [applyPortfolioFromServer, handleSectionDataChange, portfolio]
+  );
+
   const handleAddSection = async () => {
     if (!portfolio?._id || !addingSectionType) return;
     if (navigatorEnabled && sections.length >= MAX_PORTFOLIO_SECTIONS) {
@@ -954,7 +1118,14 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const nb = mergeNavBrandDefaults(portfolio.navBrand);
   const activeThemePreset =
     AGENT_THEME_PRESETS[portfolio.themeId] || AGENT_THEME_PRESETS.aurora;
-  const saveDisabled = saving || structureBusy || addingSection || remixing || aiLoading || publishing;
+  const saveDisabled =
+    saving ||
+    structureBusy ||
+    addingSection ||
+    remixing ||
+    aiLoading ||
+    publishing ||
+    featureComponentsLoading;
   const aiProposalDisabled = saveDisabled || (aiUsage?.remaining ?? 1) <= 0;
 
   const panelVisible = (tabId) => {
@@ -966,6 +1137,37 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const hideMainMobile = !isLgUp && mobileWorkspace !== "edit";
   const hideInspectorMobile =
     !isLgUp && (mobileWorkspace === "edit" || mobileWorkspace === "sections");
+
+  const featureComponentsPanel =
+    featureComponentsActive && featureComponentsPayload?.data ? (
+      <Suspense
+        fallback={
+          <div className="text-sm text-gray-500 dark:text-neutral-400 py-12 text-center">
+            Loading Puck editor…
+          </div>
+        }
+      >
+        <PortfolioFeatureComponentsWorkspace
+          portfolioId={portfolio._id}
+          template={portfolio.template}
+          puckConfig={puckEditorConfig}
+          puckData={featureComponentsPayload.data}
+          approvalState={featureComponentsPayload.approvalState ?? draftApprovalState}
+          source={featureComponentsPayload.source ?? draftSource}
+          sections={sections}
+          saveBeforeStructureChange={saveCurrentChangesIfNeeded}
+          onPortfolioUpdate={(nextPortfolio) => {
+            applyPortfolioFromServer(nextPortfolio, { currentPortfolio: portfolio });
+          }}
+          busy={structureBusy}
+          setBusy={setStructureBusy}
+        />
+      </Suspense>
+    ) : (
+      <p className="text-sm text-gray-500 dark:text-neutral-400">
+        Feature components are not available for this site.
+      </p>
+    );
 
   return (
     <PortfolioEditorContext.Provider value={{ portfolioId: portfolio._id }}>
@@ -1083,7 +1285,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 type="button"
                 onClick={() => {
                   setMobileWorkspace(tab.id);
-                  if (["sections", "site", "banners", "design", "publish", "ai"].includes(tab.id)) {
+                  if (
+                    ["sections", "components", "site", "banners", "design", "publish", "ai"].includes(
+                      tab.id
+                    )
+                  ) {
                     setInspectorTab(tab.id);
                   }
                 }}
@@ -1172,6 +1378,10 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                       template={portfolio.template}
                       onDataChange={(newData) => handleSectionDataChange(activeSection._id, newData)}
                       portfolioSections={sections}
+                      featureComponentsActive={featureComponentsActive}
+                      puckEditorConfig={puckEditorConfig}
+                      onPersistFeatureSection={handlePersistFeatureSection}
+                      persistFeatureSectionDisabled={saveDisabled}
                     />
                   </div>
                 ) : (
@@ -1179,6 +1389,9 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                     No sections yet. Add a section to get started.
                   </div>
                 ))}
+              {inspectorTab === "components" && featureComponentsActive && (
+                <div className="w-full max-w-6xl mx-auto">{featureComponentsPanel}</div>
+              )}
               {inspectorTab === "site" && (
                 <div className="w-full max-w-4xl mx-auto space-y-4">
                   <PortfolioSiteSettingsPanel
@@ -1265,6 +1478,10 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 template={portfolio.template}
                 onDataChange={(newData) => handleSectionDataChange(activeSection._id, newData)}
                 portfolioSections={sections}
+                featureComponentsActive={featureComponentsActive}
+                puckEditorConfig={puckEditorConfig}
+                onPersistFeatureSection={handlePersistFeatureSection}
+                persistFeatureSectionDisabled={saveDisabled}
               />
             </div>
           ) : (
@@ -1277,6 +1494,12 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
         <aside
           className={`w-full shrink-0 flex flex-col min-h-0 gap-2 max-h-[calc(100vh-7rem)] overflow-y-auto overflow-x-hidden ${hideInspectorMobile ? "hidden" : ""} lg:hidden`}
         >
+          {featureComponentsActive ? (
+            <MobileInspectorPanel tabId="components" panelVisible={panelVisible}>
+              <div className="w-full">{featureComponentsPanel}</div>
+            </MobileInspectorPanel>
+          ) : null}
+
           <MobileInspectorPanel tabId="site" panelVisible={panelVisible}>
             <PortfolioSiteSettingsPanel
               portfolio={portfolio}
