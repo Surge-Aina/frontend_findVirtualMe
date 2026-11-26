@@ -19,6 +19,12 @@ import {
   contactSectionToPuck,
   puckPropsToSectionData,
   sectionDataToPuckProps,
+  socialLinksSectionToPuck,
+  socialLinksPuckToSection,
+  qrCodeSectionToPuck,
+  qrCodePuckToSection,
+  voucherOfferSectionToPuck,
+  voucherOfferPuckToSection,
 } from "../featureComponentAdapters";
 import { stripPuckRenderProps } from "../puckRenderUtils";
 
@@ -173,6 +179,46 @@ describe("featureComponentAdapters", () => {
     });
     render(rendered);
     expect(screen.getByText("Shown")).toBeInTheDocument();
+  });
+
+  it("social links round-trip stores visibility only", () => {
+    const legacy = {
+      sectionTitle: "Find us",
+      platforms: { github: true, twitter: false, website: true },
+      github: "https://should-strip.test",
+    };
+    const puck = socialLinksSectionToPuck(legacy);
+    expect(puck.platforms.github).toBe(true);
+    const section = socialLinksPuckToSection(puck, legacy);
+    expect(section.linkSource).toBe("socialLinksModule");
+    expect(section.github).toBeUndefined();
+    expect(section.platforms.twitter).toBe(false);
+  });
+
+  it("qr code round-trip preserves section fields", () => {
+    const legacy = { sectionTitle: "Scan me", target: "/go", size: 200, caption: "Hi" };
+    const puck = qrCodeSectionToPuck(legacy);
+    const back = qrCodePuckToSection(puck, legacy);
+    expect(back.sectionTitle).toBe("Scan me");
+    expect(back.target).toBe("/go");
+    expect(back.size).toBe(200);
+  });
+
+  it("voucher offer maps voucherId to userVoucherId and strips secrets", () => {
+    const legacy = {
+      sectionTitle: "Deal",
+      userVoucherId: "507f1f77bcf86cd799439011",
+      code: "SECRET",
+    };
+    const puck = voucherOfferSectionToPuck(legacy);
+    expect(puck.voucherId).toBe("507f1f77bcf86cd799439011");
+    const back = voucherOfferPuckToSection(
+      { ...puck, description: "Save today", cta: "Go", ctaUrl: "https://example.test" },
+      legacy
+    );
+    expect(back.userVoucherId).toBe("507f1f77bcf86cd799439011");
+    expect(back.code).toBeUndefined();
+    expect(back.voucherCode).toBeUndefined();
   });
 
   it("sectionDataToPuckProps mirrors puckPropsToSectionData for gallery", () => {

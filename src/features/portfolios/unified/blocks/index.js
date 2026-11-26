@@ -23,6 +23,9 @@ import TeamBlock from "./TeamBlock";
 import VideoEmbedBlock from "./VideoEmbedBlock";
 import CaseStudyBlock from "./CaseStudyBlock";
 import AccountBlock from "./AccountBlock";
+import SocialLinksBlock from "./SocialLinksBlock";
+import QrCodeBlock from "./QrCodeBlock";
+import VoucherOfferBlock from "./VoucherOfferBlock";
 
 const BLOCK_COMPONENTS = {
   hero: HeroBlock,
@@ -50,6 +53,9 @@ const BLOCK_COMPONENTS = {
   videoEmbed: VideoEmbedBlock,
   caseStudy: CaseStudyBlock,
   account: AccountBlock,
+  socialLinks: SocialLinksBlock,
+  qrCode: QrCodeBlock,
+  voucherOffer: VoucherOfferBlock,
 };
 
 export default BLOCK_COMPONENTS;
