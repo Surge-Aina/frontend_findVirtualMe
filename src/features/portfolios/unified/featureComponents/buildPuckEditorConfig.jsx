@@ -2,6 +2,7 @@ import BLOCK_COMPONENTS from "../blocks";
 import { blockDataFromPuckRenderProps } from "./featureComponentAdapters";
 import VoucherIdPickerField from "./VoucherIdPickerField";
 import { PortfolioViewProvider } from "../context/PortfolioViewContext";
+import { isComponentBookingEnabled } from "../componentBookingFlag";
 
 const PUCK_SOCIAL_PREVIEW_PORTFOLIO = {
   _id: "puck-social-preview",
@@ -26,6 +27,9 @@ export function buildPuckEditorConfig(serializableConfig, template) {
   const components = {};
   const source = serializableConfig.components || {};
   for (const [type, definition] of Object.entries(source)) {
+    if (type === "BookingRequest" && !isComponentBookingEnabled()) {
+      continue;
+    }
     const blockType = definition?.metadata?.blockType;
     const Block = blockType ? BLOCK_COMPONENTS[blockType] : null;
     const componentConfig = {
@@ -38,6 +42,16 @@ export function buildPuckEditorConfig(serializableConfig, template) {
             <PortfolioViewProvider portfolio={{ ...PUCK_SOCIAL_PREVIEW_PORTFOLIO, template }}>
               <Block template={template} {...blockData} editorPreview />
             </PortfolioViewProvider>
+          );
+        }
+        if (blockType === "bookingRequest") {
+          return (
+            <Block
+              template={template}
+              {...blockData}
+              sectionId={props.id}
+              editorPreview
+            />
           );
         }
         return <Block template={template} {...blockData} />;

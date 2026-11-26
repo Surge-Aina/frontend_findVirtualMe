@@ -26,6 +26,7 @@ import AccountBlock from "./AccountBlock";
 import SocialLinksBlock from "./SocialLinksBlock";
 import QrCodeBlock from "./QrCodeBlock";
 import VoucherOfferBlock from "./VoucherOfferBlock";
+import BookingRequestBlock from "./BookingRequestBlock";
 
 const BLOCK_COMPONENTS = {
   hero: HeroBlock,
@@ -56,6 +57,7 @@ const BLOCK_COMPONENTS = {
   socialLinks: SocialLinksBlock,
   qrCode: QrCodeBlock,
   voucherOffer: VoucherOfferBlock,
+  bookingRequest: BookingRequestBlock,
 };
 
 export default BLOCK_COMPONENTS;

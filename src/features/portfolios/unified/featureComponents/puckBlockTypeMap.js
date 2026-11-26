@@ -1,8 +1,9 @@
 import { sectionDataToPuckProps, puckPropsToSectionData } from "./featureComponentAdapters";
+import { isComponentBookingEnabled } from "../componentBookingFlag";
 
 export { puckPropsToSectionData };
 
-export const FEATURE_SECTION_BLOCK_TYPES = Object.freeze([
+const FEATURE_SECTION_BLOCK_TYPES_CORE = Object.freeze([
   "contact",
   "gallery",
   "services",
@@ -13,6 +14,17 @@ export const FEATURE_SECTION_BLOCK_TYPES = Object.freeze([
   "voucherOffer",
 ]);
 
+/** @deprecated Prefer isFeatureSectionBlockType(); bookingRequest is included only when VITE_COMPONENT_BOOKING_ENABLED is on. */
+export function getFeatureSectionBlockTypes() {
+  const types = [...FEATURE_SECTION_BLOCK_TYPES_CORE];
+  if (isComponentBookingEnabled()) {
+    types.push("bookingRequest");
+  }
+  return Object.freeze(types);
+}
+
+export const FEATURE_SECTION_BLOCK_TYPES = FEATURE_SECTION_BLOCK_TYPES_CORE;
+
 export const BLOCK_TYPE_TO_PUCK_TYPE = Object.freeze({
   contact: "ContactLeadForm",
   gallery: "Gallery",
@@ -22,6 +34,7 @@ export const BLOCK_TYPE_TO_PUCK_TYPE = Object.freeze({
   socialLinks: "SocialLinks",
   qrCode: "QrCode",
   voucherOffer: "VoucherOffer",
+  bookingRequest: "BookingRequest",
 });
 
 export const UNIFIED_SITE_TEMPLATES = Object.freeze([
@@ -37,7 +50,10 @@ export function isUnifiedSiteTemplate(template) {
 }
 
 export function isFeatureSectionBlockType(blockType) {
-  return FEATURE_SECTION_BLOCK_TYPES.includes(blockType);
+  if (blockType === "bookingRequest") {
+    return isComponentBookingEnabled();
+  }
+  return FEATURE_SECTION_BLOCK_TYPES_CORE.includes(blockType);
 }
 
 export function puckTypeForBlockType(blockType) {

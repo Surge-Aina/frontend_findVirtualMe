@@ -73,7 +73,9 @@ function renderSections(sections, template, options = {}) {
     const key = section._id || `section-${section.order}-${section.type}`;
     const data = section.data || {};
     const showBanner = data.pageBanner?.enabled === true;
-    const inner = <Component template={template} {...data} />;
+    const inner = (
+      <Component template={template} {...data} sectionId={section._id} />
+    );
 
     return (
       <div

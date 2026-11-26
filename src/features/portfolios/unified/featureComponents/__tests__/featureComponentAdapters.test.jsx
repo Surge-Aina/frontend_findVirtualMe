@@ -25,7 +25,10 @@ import {
   qrCodePuckToSection,
   voucherOfferSectionToPuck,
   voucherOfferPuckToSection,
+  bookingRequestSectionToPuck,
+  bookingRequestPuckToSection,
 } from "../featureComponentAdapters";
+import BookingRequestBlockImpl from "../../blocks/BookingRequestBlockImpl";
 import { stripPuckRenderProps } from "../puckRenderUtils";
 
 const backendGalleryConfig = {
@@ -202,6 +205,30 @@ describe("featureComponentAdapters", () => {
     expect(back.sectionTitle).toBe("Scan me");
     expect(back.target).toBe("/go");
     expect(back.size).toBe(200);
+  });
+
+  it("booking request maps services between puck objects and string array", () => {
+    const prev = import.meta.env.VITE_COMPONENT_BOOKING_ENABLED;
+    import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = "true";
+
+    const legacy = {
+      sectionTitle: "Book",
+      intro: "Hi",
+      services: ["Checkup", "Follow-up"],
+      minNoticeHours: 12,
+      daysAheadMax: 14,
+      timezone: "UTC",
+      confirmationText: "Thanks",
+    };
+    const puck = bookingRequestSectionToPuck(legacy);
+    expect(puck.services).toEqual([{ name: "Checkup" }, { name: "Follow-up" }]);
+    const section = bookingRequestPuckToSection(puck, legacy);
+    expect(section.services).toEqual(["Checkup", "Follow-up"]);
+
+    render(<BookingRequestBlockImpl template="healthcare" sectionId="sect-1" {...section} />);
+    expect(screen.getByText("Book")).toBeInTheDocument();
+
+    import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = prev;
   });
 
   it("voucher offer maps voucherId to userVoucherId and strips secrets", () => {
