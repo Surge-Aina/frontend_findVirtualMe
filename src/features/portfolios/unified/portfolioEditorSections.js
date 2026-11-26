@@ -4,12 +4,17 @@ import { BLOCK_LABELS } from "./portfolioEditorConfig";
 export const MAX_PORTFOLIO_SECTIONS = 24;
 
 export const SECTION_DISPLAY_LABEL_KEY = "editorDisplayLabel";
+export const MAX_EDITOR_DISPLAY_LABEL_LENGTH = 80;
+
+export function normalizeEditorDisplayLabel(label) {
+  return String(label || "").trim().slice(0, MAX_EDITOR_DISPLAY_LABEL_LENGTH);
+}
 
 export function getSectionDisplayLabel(section) {
   if (!section) return "";
   const custom = section.data?.[SECTION_DISPLAY_LABEL_KEY];
   if (typeof custom === "string" && custom.trim()) {
-    return custom.trim();
+    return custom.trim().slice(0, MAX_EDITOR_DISPLAY_LABEL_LENGTH);
   }
   return BLOCK_LABELS[section.type] || section.type || "Section";
 }

@@ -10,8 +10,10 @@ import {
 import { BLOCK_LABELS } from "./portfolioEditorConfig";
 import {
   MAX_PORTFOLIO_SECTIONS,
+  MAX_EDITOR_DISPLAY_LABEL_LENGTH,
   getSectionDisplayLabel,
   getSectionTypeHint,
+  normalizeEditorDisplayLabel,
   SECTION_DISPLAY_LABEL_KEY,
 } from "./portfolioEditorSections";
 
@@ -43,7 +45,7 @@ export function PortfolioSectionNavigator({
   };
 
   const commitLabelEdit = (sectionId) => {
-    onRenameSection(sectionId, labelDraft);
+    onRenameSection(sectionId, normalizeEditorDisplayLabel(labelDraft));
     setLabelEditId(null);
     setLabelDraft("");
   };
@@ -131,6 +133,7 @@ export function PortfolioSectionNavigator({
                         type="text"
                         className="w-full min-w-0 rounded border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-2 py-1 text-sm text-gray-900 dark:text-neutral-100"
                         value={labelDraft}
+                        maxLength={MAX_EDITOR_DISPLAY_LABEL_LENGTH}
                         onChange={(e) => setLabelDraft(e.target.value)}
                         placeholder={BLOCK_LABELS[section.type] || section.type}
                         aria-label="Section display label"

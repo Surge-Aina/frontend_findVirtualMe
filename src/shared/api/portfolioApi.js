@@ -3,6 +3,21 @@ import axiosAuth from "./axiosAuth";
 
 const BASE = "/api/portfolios";
 
+let siteDraftsKnownDisabled = false;
+
+/** @internal Tests only */
+export function resetSiteDraftsProbeCache() {
+  siteDraftsKnownDisabled = false;
+}
+
+export function isSiteDraftsProbeSkipped() {
+  return siteDraftsKnownDisabled;
+}
+
+const DRAFTS_DISABLED_REJECTION = Object.freeze({
+  response: { status: 404, data: { code: "DRAFTS_DISABLED", error: "Site drafts are not enabled" } },
+});
+
 export const portfolioApi = {
   // Public
   getById: (id, config) => axiosAuth.get(`${BASE}/${id}`, config),
@@ -38,7 +53,17 @@ export const portfolioApi = {
   toggleBranding: (id) => axiosAuth.patch(`${BASE}/${id}/branding`),
   delete: (id) => axiosAuth.delete(`${BASE}/${id}`),
 
-  getDraft: (id) => axiosAuth.get(`${BASE}/${id}/draft`),
+  getDraft: (id) => {
+    if (siteDraftsKnownDisabled) {
+      return Promise.reject(DRAFTS_DISABLED_REJECTION);
+    }
+    return axiosAuth.get(`${BASE}/${id}/draft`).catch((err) => {
+      if (isPortfolioDraftsDisabledError(err)) {
+        siteDraftsKnownDisabled = true;
+      }
+      throw err;
+    });
+  },
   publish: (id) => axiosAuth.post(`${BASE}/${id}/publish`),
   listVersions: (id) => axiosAuth.get(`${BASE}/${id}/versions`),
   getVersion: (id, versionNumber) => axiosAuth.get(`${BASE}/${id}/versions/${versionNumber}`),

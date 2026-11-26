@@ -2,7 +2,11 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PortfolioSectionNavigator } from "../PortfolioSectionNavigator";
-import { MAX_PORTFOLIO_SECTIONS, SECTION_DISPLAY_LABEL_KEY } from "../portfolioEditorSections";
+import {
+  MAX_EDITOR_DISPLAY_LABEL_LENGTH,
+  MAX_PORTFOLIO_SECTIONS,
+  SECTION_DISPLAY_LABEL_KEY,
+} from "../portfolioEditorSections";
 
 const sections = [
   { _id: "sec1", type: "hero", order: 0, visible: true, data: {} },
@@ -41,6 +45,21 @@ describe("PortfolioSectionNavigator", () => {
     expect(screen.getByText("Reach us")).toBeInTheDocument();
     expect(screen.getByText("Contact")).toBeInTheDocument();
     expect(screen.getByText(`2/${MAX_PORTFOLIO_SECTIONS}`)).toBeInTheDocument();
+  });
+
+  it("truncates display labels to the max length", async () => {
+    const user = userEvent.setup();
+    const props = renderNavigator();
+  const longLabel = "L".repeat(MAX_EDITOR_DISPLAY_LABEL_LENGTH + 20);
+    await user.click(screen.getByRole("button", { name: /rename hero/i }));
+    const input = screen.getByLabelText(/section display label/i);
+    await user.clear(input);
+    await user.type(input, longLabel);
+    await user.click(screen.getByRole("button", { name: /^ok$/i }));
+    expect(props.onRenameSection).toHaveBeenCalledWith(
+      "sec1",
+      "L".repeat(MAX_EDITOR_DISPLAY_LABEL_LENGTH)
+    );
   });
 
   it("renames a section display label", async () => {

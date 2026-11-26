@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import PortfolioEditor from "../PortfolioEditor";
 import { AuthContext } from "@/shared/context/AuthContext";
@@ -15,6 +16,7 @@ const draftsDisabledError = {
 jest.mock("@/shared/api/portfolioApi", () => ({
   isPortfolioDraftsDisabledError: (err) =>
     err?.response?.status === 404 && err?.response?.data?.code === "DRAFTS_DISABLED",
+  resetSiteDraftsProbeCache: jest.fn(),
   portfolioApi: {
     getById: jest.fn(),
     getDraft: jest.fn(),
@@ -132,13 +134,27 @@ function renderEditor() {
   );
 }
 
+const agentPortfolio = {
+  ...examplePortfolio,
+  template: "agent",
+  themeId: "aurora",
+  layoutMode: "stacked",
+  socialLinks: {},
+  navBrand: {},
+  pageBannerDefaults: {},
+};
+
 describe("PortfolioEditor draft mode", () => {
   beforeEach(() => {
     setMatchMedia(true);
+    window.confirm = jest.fn(() => true);
     portfolioApi.getDraft.mockReset();
     portfolioApi.getById.mockReset();
+    portfolioApi.publish.mockReset();
+    portfolioApi.update.mockReset();
     portfolioApi.getById.mockResolvedValue({ data: examplePortfolio });
     portfolioApi.getDraft.mockRejectedValue(draftsDisabledError);
+    portfolioApi.update.mockResolvedValue({ data: { portfolio: examplePortfolio } });
   });
 
   it("hides draft UI when drafts API returns DRAFTS_DISABLED", async () => {
@@ -176,5 +192,109 @@ describe("PortfolioEditor draft mode", () => {
     expect(screen.getByRole("link", { name: /view live site/i })).toBeInTheDocument();
     expect(screen.getByText(/pending your approval/i)).toBeInTheDocument();
     expect(await screen.findByDisplayValue("Example Draft Title")).toBeInTheDocument();
+  });
+
+  it("does not show not-live banner when approved draft matches published", async () => {
+    portfolioApi.getDraft.mockResolvedValue({
+      data: {
+        hasDraft: true,
+        published: examplePortfolio,
+        draft: {
+          portfolioId: examplePortfolio._id,
+          source: "owner",
+          approvalState: "approved",
+          title: examplePortfolio.title,
+          sections: examplePortfolio.sections,
+        },
+      },
+    });
+
+    renderEditor();
+    expect(await screen.findByDisplayValue("Example Site")).toBeInTheDocument();
+    expect(screen.queryByText(/draft — not live yet/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /publish draft to live site/i })).toBeInTheDocument();
+  });
+
+  it("keeps template after a draft-mode save returns a partial portfolio", async () => {
+    portfolioApi.getDraft.mockResolvedValue({
+      data: {
+        hasDraft: true,
+        published: agentPortfolio,
+        draft: {
+          portfolioId: agentPortfolio._id,
+          approvalState: "pending_owner",
+          source: "owner",
+          title: agentPortfolio.title,
+          sections: agentPortfolio.sections,
+        },
+      },
+    });
+    portfolioApi.update.mockResolvedValue({
+      data: {
+        portfolio: {
+          _id: agentPortfolio._id,
+          title: "Draft save",
+          sections: agentPortfolio.sections,
+          draftMode: true,
+          workingDraft: { approvalState: "pending_owner", source: "owner" },
+        },
+      },
+    });
+
+    const user = userEvent.setup();
+    render(
+      <AuthContext.Provider value={auth}>
+        <MemoryRouter initialEntries={[`/portfolios/view/${agentPortfolio._id}/edit`]}>
+          <Routes>
+            <Route
+              path="/portfolios/view/:id/edit"
+              element={<PortfolioEditor portfolioData={agentPortfolio} />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </AuthContext.Provider>
+    );
+
+    const titleInput = await screen.findByDisplayValue("Example Site");
+    await user.clear(titleInput);
+    await user.type(titleInput, "Draft save");
+    await user.click(screen.getByRole("button", { name: /save portfolio/i }));
+
+    await waitFor(() => {
+      expect(portfolioApi.update).toHaveBeenCalled();
+    });
+    const aiTabs = await screen.findAllByRole("button", { name: /^ai$/i });
+    expect(aiTabs.length).toBeGreaterThan(0);
+  });
+
+  it("calls publish when the owner confirms", async () => {
+    portfolioApi.getDraft.mockResolvedValue({
+      data: {
+        hasDraft: true,
+        published: examplePortfolio,
+        draft: {
+          portfolioId: examplePortfolio._id,
+          approvalState: "pending_owner",
+          source: "owner",
+          title: "Changed",
+          sections: examplePortfolio.sections,
+        },
+      },
+    });
+    portfolioApi.publish.mockResolvedValue({
+      data: {
+        versionNumber: 1,
+        portfolio: { ...examplePortfolio, title: "Changed" },
+      },
+    });
+
+    const user = userEvent.setup();
+    renderEditor();
+    await screen.findByDisplayValue("Changed");
+    await user.click(screen.getByRole("button", { name: /publish draft to live site/i }));
+
+    await waitFor(() => {
+      expect(portfolioApi.publish).toHaveBeenCalledWith("example-portfolio-id");
+    });
   });
 });

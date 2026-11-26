@@ -62,11 +62,17 @@ import { SectionsStructurePanel } from "./SectionsStructurePanel";
 import { isEditorNavigatorEnabled } from "./editorNavigatorFlag";
 import { PortfolioDraftBanner } from "./PortfolioDraftBanner";
 import { PortfolioVersionHistoryPanel } from "./PortfolioVersionHistoryPanel";
-import { draftMetaFromDetail, workingPortfolioFromDraftDetail } from "./portfolioDraftEditor";
+import {
+  draftMetaFromDetail,
+  draftMetaFromMutationResponse,
+  mergeDraftMutationPortfolio,
+  workingPortfolioFromDraftDetail,
+} from "./portfolioDraftEditor";
 import {
   MAX_PORTFOLIO_SECTIONS,
   SECTION_DISPLAY_LABEL_KEY,
   getSectionDisplayLabel,
+  normalizeEditorDisplayLabel,
   sectionDataForPersistenceCompare,
 } from "./portfolioEditorSections";
 
@@ -249,6 +255,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const [draftApprovalState, setDraftApprovalState] = useState(null);
   const [hasUnpublishedDraft, setHasUnpublishedDraft] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [publishedBaseline, setPublishedBaseline] = useState(null);
   const isLgUp = useMediaQuery(LG_QUERY);
   const navigatorEnabled = isEditorNavigatorEnabled();
 
@@ -257,23 +264,32 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     if (!working) return false;
     setPortfolio(working);
     setOriginalPortfolio(clonePortfolio(working));
-    const meta = draftMetaFromDetail(detail);
+    setPublishedBaseline(detail.published ? clonePortfolio(detail.published) : null);
+    const meta = draftMetaFromDetail({
+      published: detail.published,
+      draft: detail.draft,
+      hasDraft: detail.hasDraft,
+    });
     setHasUnpublishedDraft(meta.hasUnpublishedDraft);
     setDraftSource(meta.source);
     setDraftApprovalState(meta.approvalState);
     return true;
   }, []);
 
-  const syncDraftMetaFromSave = useCallback((savedPortfolio) => {
-    if (!savedPortfolio?.draftMode) return;
-    setDraftsEnabled(true);
-    setHasUnpublishedDraft(true);
-    const wd = savedPortfolio.workingDraft;
-    if (wd) {
-      setDraftSource(wd.source || "owner");
-      setDraftApprovalState(wd.approvalState ?? null);
-    }
-  }, []);
+  const syncDraftMetaFromSave = useCallback(
+    (savedPortfolio, publishedRef = null) => {
+      if (!savedPortfolio?.draftMode) return;
+      setDraftsEnabled(true);
+      const meta = draftMetaFromMutationResponse(
+        savedPortfolio,
+        publishedRef ?? publishedBaseline
+      );
+      setHasUnpublishedDraft(meta.hasUnpublishedDraft);
+      setDraftSource(meta.source);
+      setDraftApprovalState(meta.approvalState);
+    },
+    [publishedBaseline]
+  );
 
   const loadEditorPortfolio = useCallback(
     async (portfolioId, publishedFallback = null) => {
@@ -293,6 +309,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
           setHasUnpublishedDraft(false);
           setDraftSource("owner");
           setDraftApprovalState(null);
+          setPublishedBaseline(null);
           const doc = publishedFallback || (await portfolioApi.getById(portfolioId)).data;
           setPortfolio(doc);
           setOriginalPortfolio(clonePortfolio(doc));
@@ -509,7 +526,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   }, []);
 
   const handleRenameSection = useCallback((sectionId, label) => {
-    const trimmed = String(label || "").trim();
+    const trimmed = normalizeEditorDisplayLabel(label);
     setPortfolio((prev) => ({
       ...prev,
       sections: prev.sections.map((s) => {
@@ -527,12 +544,24 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
   const applyPortfolioFromServer = useCallback(
     (nextPortfolio, options = {}) => {
-      const { resetBaseline = true } = options;
-      setPortfolio(nextPortfolio);
+      const { resetBaseline = true, currentPortfolio = null, publishedRef = null } = options;
+      setPortfolio((prev) => {
+        const base = currentPortfolio ?? prev;
+        if (nextPortfolio?.draftMode) {
+          return mergeDraftMutationPortfolio(base, nextPortfolio);
+        }
+        return nextPortfolio;
+      });
       if (resetBaseline) {
-        setOriginalPortfolio(clonePortfolio(nextPortfolio));
+        setOriginalPortfolio((prev) => {
+          const base = currentPortfolio ?? prev;
+          if (nextPortfolio?.draftMode) {
+            return clonePortfolio(mergeDraftMutationPortfolio(base, nextPortfolio));
+          }
+          return clonePortfolio(nextPortfolio);
+        });
       }
-      syncDraftMetaFromSave(nextPortfolio);
+      syncDraftMetaFromSave(nextPortfolio, publishedRef);
     },
     [syncDraftMetaFromSave]
   );
@@ -548,12 +577,17 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       });
       setPortfolio(merged);
       setOriginalPortfolio(clonePortfolio(merged));
-      setHasUnpublishedDraft(true);
-      setDraftSource(draft.source || "owner");
-      setDraftApprovalState(draft.approvalState ?? null);
+      const meta = draftMetaFromDetail({
+        published: publishedBaseline,
+        draft,
+        hasDraft: true,
+      });
+      setHasUnpublishedDraft(meta.hasUnpublishedDraft);
+      setDraftSource(meta.source);
+      setDraftApprovalState(meta.approvalState);
       setActiveIdx(0);
     },
-    [portfolio]
+    [portfolio, publishedBaseline]
   );
 
   const setSocialLink = (key, val) => {
@@ -579,12 +613,15 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     });
 
     const nextPortfolio = response.data?.portfolio || current;
-    applyPortfolioFromServer(nextPortfolio);
+    applyPortfolioFromServer(nextPortfolio, {
+      currentPortfolio: current,
+      publishedRef: publishedBaseline,
+    });
     if (showToast) {
       toast.success(draftsEnabled ? "Draft saved" : "Portfolio saved");
     }
     return nextPortfolio;
-  }, [applyPortfolioFromServer, draftsEnabled]);
+  }, [applyPortfolioFromServer, draftsEnabled, publishedBaseline]);
 
   const saveCurrentChangesIfNeeded = useCallback(async () => {
     if (!portfolio || !isDirty) return portfolio;
@@ -617,7 +654,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       setStructureBusy(true);
       await saveCurrentChangesIfNeeded();
       const res = await portfolioApi.removeSection(portfolio._id, sectionId);
-      applyPortfolioFromServer(res.data.portfolio);
+      applyPortfolioFromServer(res.data.portfolio, { currentPortfolio: portfolio });
       if (activeIdx >= sections.length - 1) setActiveIdx(Math.max(0, activeIdx - 1));
       toast.success("Section removed");
     } catch (err) {
@@ -645,7 +682,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       setStructureBusy(true);
       await saveCurrentChangesIfNeeded();
       const res = await portfolioApi.reorderSections(portfolio._id, nextIds);
-      applyPortfolioFromServer(res.data.portfolio);
+      applyPortfolioFromServer(res.data.portfolio, { currentPortfolio: portfolio });
       setActiveIdx(targetIndex);
       toast.success("Section order updated");
     } catch (err) {
@@ -670,7 +707,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       setStructureBusy(true);
       await saveCurrentChangesIfNeeded();
       const res = await portfolioApi.reorderSections(portfolio._id, nextIds);
-      applyPortfolioFromServer(res.data.portfolio);
+      applyPortfolioFromServer(res.data.portfolio, { currentPortfolio: portfolio });
       setActiveIdx(toIdx);
       toast.success("Section order updated");
     } catch (err) {
@@ -700,7 +737,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       const nextSections = [...(nextPortfolio.sections || [])].sort(
         (a, b) => a.order - b.order
       );
-      applyPortfolioFromServer(nextPortfolio);
+      applyPortfolioFromServer(nextPortfolio, { currentPortfolio: portfolio });
       setActiveIdx(Math.max(0, nextSections.length - 1));
       toast.success(`${BLOCK_LABELS[addingSectionType] || addingSectionType} added`);
     } catch (err) {
@@ -722,8 +759,16 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       const published = res.data?.portfolio;
       if (published) {
         applyPortfolioFromServer(published);
-        setHasUnpublishedDraft(false);
+        const nextPublished = clonePortfolio(published);
+        setPublishedBaseline(nextPublished);
+        const meta = draftMetaFromDetail({
+          published: nextPublished,
+          draft: { ...nextPublished, approvalState: "approved", source: "owner" },
+          hasDraft: true,
+        });
+        setHasUnpublishedDraft(meta.hasUnpublishedDraft);
         setDraftApprovalState("approved");
+        setDraftSource("owner");
       }
       const versionNumber = res.data?.versionNumber;
       toast.success(

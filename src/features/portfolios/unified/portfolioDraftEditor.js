@@ -1,28 +1,81 @@
+import { mergeNavBrandDefaults } from "./PortfolioNavBrand";
+import {
+  SECTION_DISPLAY_LABEL_KEY,
+  sectionDataForPersistenceCompare,
+} from "./portfolioEditorSections";
+import { isEditorNavigatorEnabled } from "./editorNavigatorFlag";
+
+/** Fields returned on draft-mode PATCH / section CRUD (overlay only). */
+export const DRAFT_PORTFOLIO_OVERLAY_KEYS = [
+  "title",
+  "slug",
+  "visibility",
+  "hideBranding",
+  "socialLinks",
+  "themeId",
+  "themeTokens",
+  "layoutMode",
+  "pageBannerDefaults",
+  "navBrand",
+  "subUserSettings",
+  "sections",
+];
+
+export function mergeDraftMutationPortfolio(current, incoming) {
+  if (!incoming) return current ?? null;
+  if (!current) return { ...incoming };
+  const merged = { ...current };
+  for (const key of DRAFT_PORTFOLIO_OVERLAY_KEYS) {
+    if (incoming[key] !== undefined) {
+      merged[key] = incoming[key];
+    }
+  }
+  if (incoming._id !== undefined) {
+    merged._id = incoming._id;
+  }
+  return merged;
+}
+
+export function extractDraftComparable(doc) {
+  if (!doc) return null;
+  const includeEditorLabel = isEditorNavigatorEnabled();
+  return {
+    title: doc.title || "",
+    socialLinks: doc.socialLinks || {},
+    sections: (doc.sections || []).map((section) => ({
+      _id: section._id || "",
+      type: section.type,
+      order: section.order,
+      visible: section.visible !== false,
+      data: sectionDataForPersistenceCompare(section.data, { includeEditorLabel }),
+    })),
+    themeId: doc.themeId || "",
+    themeTokens: doc.themeTokens || {},
+    layoutMode: doc.layoutMode || "",
+    pageBannerDefaults: doc.pageBannerDefaults || {},
+    navBrand: mergeNavBrandDefaults(doc.navBrand),
+  };
+}
+
+export function draftContentEquals(a, b) {
+  return (
+    JSON.stringify(extractDraftComparable(a)) === JSON.stringify(extractDraftComparable(b))
+  );
+}
+
 export function workingPortfolioFromDraftDetail({ published, draft, hasDraft }) {
   if (!published) return null;
   if (!hasDraft || !draft) {
     return JSON.parse(JSON.stringify(published));
   }
 
-  return {
-    ...published,
+  return mergeDraftMutationPortfolio(published, {
+    ...draft,
     _id: published._id || draft.portfolioId,
-    title: draft.title ?? published.title,
-    slug: draft.slug ?? published.slug,
-    visibility: draft.visibility ?? published.visibility,
-    hideBranding: draft.hideBranding ?? published.hideBranding,
-    socialLinks: draft.socialLinks ?? published.socialLinks,
-    themeId: draft.themeId ?? published.themeId,
-    themeTokens: draft.themeTokens ?? published.themeTokens,
-    layoutMode: draft.layoutMode ?? published.layoutMode,
-    pageBannerDefaults: draft.pageBannerDefaults ?? published.pageBannerDefaults,
-    navBrand: draft.navBrand ?? published.navBrand,
-    subUserSettings: draft.subUserSettings ?? published.subUserSettings,
-    sections: Array.isArray(draft.sections) ? draft.sections : published.sections,
-  };
+  });
 }
 
-export function draftMetaFromDetail({ draft, hasDraft }) {
+export function draftMetaFromDetail({ published, draft, hasDraft }) {
   if (!hasDraft || !draft) {
     return {
       hasUnpublishedDraft: false,
@@ -30,11 +83,29 @@ export function draftMetaFromDetail({ draft, hasDraft }) {
       approvalState: null,
     };
   }
+  const source = draft.source || "owner";
+  const approvalState = draft.approvalState || null;
+  const differsFromPublished = published ? !draftContentEquals(published, draft) : true;
+  const hasUnpublishedDraft =
+    approvalState !== "approved" || differsFromPublished;
+
   return {
-    hasUnpublishedDraft: true,
-    source: draft.source || "owner",
-    approvalState: draft.approvalState || null,
+    hasUnpublishedDraft,
+    source,
+    approvalState,
   };
+}
+
+export function draftMetaFromMutationResponse(savedPortfolio, publishedBaseline) {
+  if (!savedPortfolio?.draftMode) {
+    return { hasUnpublishedDraft: false, source: "owner", approvalState: null };
+  }
+  const draft = savedPortfolio.workingDraft || savedPortfolio;
+  return draftMetaFromDetail({
+    published: publishedBaseline,
+    draft,
+    hasDraft: true,
+  });
 }
 
 export function formatDraftSourceLabel(source) {
