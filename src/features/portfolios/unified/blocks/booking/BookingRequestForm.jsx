@@ -18,6 +18,9 @@ function friendlyError(err) {
   if (status === 404 && data?.code === "FEATURE_COMPONENT_BOOKING_DISABLED") {
     return { hidden: true, message: "" };
   }
+  if (status === 404) {
+    return { hidden: false, message: "This form is not available." };
+  }
   if (status === 400 && data?.message) {
     return { hidden: false, message: data.message };
   }

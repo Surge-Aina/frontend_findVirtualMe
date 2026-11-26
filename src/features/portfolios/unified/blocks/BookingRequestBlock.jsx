@@ -1,43 +1,16 @@
+import { lazy, Suspense } from "react";
 import { isComponentBookingEnabled } from "../componentBookingFlag";
-import BookingRequestForm from "./booking/BookingRequestForm";
 
-export default function BookingRequestBlock({
-  template,
-  sectionId,
-  editorPreview,
-  sectionTitle,
-  intro,
-  services,
-  minNoticeHours,
-  daysAheadMax,
-  timezone,
-  confirmationText,
-  ...rest
-}) {
+const LazyBookingRequestBlock = lazy(() => import("./BookingRequestBlockImpl"));
+
+export default function BookingRequestBlock(props) {
   if (!isComponentBookingEnabled()) {
     return null;
   }
 
-  const title = sectionTitle || rest.title || "Request a time";
-  const isPM =
-    template === "projectManager" || template === "dataScientist" || template === "agent";
-  const sectionClass = isPM ? "py-12" : "py-12 bg-white";
-
   return (
-    <section className={sectionClass} data-testid="booking-request-block">
-      <div className="max-w-xl mx-auto px-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
-        {intro ? <p className="text-gray-600 mb-6 whitespace-pre-line">{intro}</p> : null}
-        <BookingRequestForm
-          services={services}
-          minNoticeHours={minNoticeHours}
-          daysAheadMax={daysAheadMax}
-          timezone={timezone}
-          confirmationText={confirmationText}
-          sectionId={sectionId}
-          editorPreview={editorPreview}
-        />
-      </div>
-    </section>
+    <Suspense fallback={null}>
+      <LazyBookingRequestBlock {...props} />
+    </Suspense>
   );
 }

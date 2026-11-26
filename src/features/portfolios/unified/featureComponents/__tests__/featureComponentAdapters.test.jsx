@@ -28,7 +28,7 @@ import {
   bookingRequestSectionToPuck,
   bookingRequestPuckToSection,
 } from "../featureComponentAdapters";
-import BookingRequestBlock from "../../blocks/BookingRequestBlock";
+import BookingRequestBlockImpl from "../../blocks/BookingRequestBlockImpl";
 import { stripPuckRenderProps } from "../puckRenderUtils";
 
 const backendGalleryConfig = {
@@ -225,7 +225,7 @@ describe("featureComponentAdapters", () => {
     const section = bookingRequestPuckToSection(puck, legacy);
     expect(section.services).toEqual(["Checkup", "Follow-up"]);
 
-    render(<BookingRequestBlock template="healthcare" sectionId="sect-1" {...section} />);
+    render(<BookingRequestBlockImpl template="healthcare" sectionId="sect-1" {...section} />);
     expect(screen.getByText("Book")).toBeInTheDocument();
 
     import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = prev;

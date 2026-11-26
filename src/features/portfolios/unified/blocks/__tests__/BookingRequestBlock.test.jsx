@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import { DateTime } from "luxon";
 import BookingRequestBlock from "../BookingRequestBlock";
+import BookingRequestBlockImpl from "../BookingRequestBlockImpl";
 import { PortfolioViewProvider } from "../../context/PortfolioViewContext";
 import { HONEYPOT_FIELD } from "../booking/bookingRequestLimits";
 
@@ -25,13 +27,16 @@ const sectionDefaults = {
   sectionId: "507f1f77bcf86cd799439088",
 };
 
-function renderBlock(props = {}, { bookingFlag = "true" } = {}) {
+function renderBlock(props = {}, { bookingFlag = "true", useLazyShell = false } = {}) {
   const prev = import.meta.env.VITE_COMPONENT_BOOKING_ENABLED;
   import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = bookingFlag;
+  const Block = useLazyShell ? BookingRequestBlock : BookingRequestBlockImpl;
   const view = render(
-    <PortfolioViewProvider portfolio={portfolio}>
-      <BookingRequestBlock template="healthcare" {...sectionDefaults} {...props} />
-    </PortfolioViewProvider>
+    <Suspense fallback={null}>
+      <PortfolioViewProvider portfolio={portfolio}>
+        <Block template="healthcare" {...sectionDefaults} {...props} />
+      </PortfolioViewProvider>
+    </Suspense>
   );
   import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = prev;
   return view;
@@ -44,7 +49,7 @@ describe("BookingRequestBlock", () => {
   });
 
   it("renders nothing when VITE_COMPONENT_BOOKING_ENABLED is off", () => {
-    const { container } = renderBlock({}, { bookingFlag: "" });
+    const { container } = renderBlock({}, { bookingFlag: "", useLazyShell: true });
     expect(container.firstChild).toBeNull();
   });
 
@@ -101,6 +106,23 @@ describe("BookingRequestBlock", () => {
     await waitFor(() => {
       expect(container.querySelector('[data-testid="booking-request-form"]')).toBeNull();
     });
+  });
+
+  it("shows 'This form is not available' on other 404 responses", async () => {
+    axios.post.mockRejectedValueOnce({
+      response: { status: 404, data: { code: "not_found", message: "Site not found" } },
+    });
+
+    renderBlock();
+    const futureDate = DateTime.utc().plus({ days: 2 }).toISODate();
+
+    await userEvent.type(screen.getByLabelText(/Name/i), "Pat Example");
+    await userEvent.type(screen.getByLabelText(/Email/i), "pat.visitor@example.test");
+    await userEvent.clear(screen.getByLabelText(/Date/i));
+    await userEvent.type(screen.getByLabelText(/Date/i), futureDate);
+    await userEvent.click(screen.getByRole("button", { name: /Request time/i }));
+
+    expect(await screen.findByText("This form is not available.")).toBeInTheDocument();
   });
 
   it("shows a friendly message on 400 and 429", async () => {

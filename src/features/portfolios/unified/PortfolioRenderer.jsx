@@ -74,7 +74,7 @@ function renderSections(sections, template, options = {}) {
     const data = section.data || {};
     const showBanner = data.pageBanner?.enabled === true;
     const inner = (
-      <Component template={template} sectionId={section._id} {...data} />
+      <Component template={template} {...data} sectionId={section._id} />
     );
 
     return (
