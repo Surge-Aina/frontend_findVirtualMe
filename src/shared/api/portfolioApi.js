@@ -37,4 +37,15 @@ export const portfolioApi = {
   toggleVisibility: (id) => axiosAuth.patch(`${BASE}/${id}/visibility`),
   toggleBranding: (id) => axiosAuth.patch(`${BASE}/${id}/branding`),
   delete: (id) => axiosAuth.delete(`${BASE}/${id}`),
+
+  getDraft: (id) => axiosAuth.get(`${BASE}/${id}/draft`),
+  publish: (id) => axiosAuth.post(`${BASE}/${id}/publish`),
+  listVersions: (id) => axiosAuth.get(`${BASE}/${id}/versions`),
+  getVersion: (id, versionNumber) => axiosAuth.get(`${BASE}/${id}/versions/${versionNumber}`),
+  revertVersion: (id, versionNumber) =>
+    axiosAuth.post(`${BASE}/${id}/versions/${versionNumber}/revert`),
 };
+
+export function isPortfolioDraftsDisabledError(err) {
+  return err?.response?.status === 404 && err?.response?.data?.code === "DRAFTS_DISABLED";
+}

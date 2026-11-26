@@ -1,15 +1,11 @@
 import { useEffect, useState, useCallback, useMemo, useContext, useSyncExternalStore } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { portfolioApi } from "@/shared/api/portfolioApi";
+import { isPortfolioDraftsDisabledError, portfolioApi } from "@/shared/api/portfolioApi";
 import {
   FaSave,
   FaEye,
   FaArrowLeft,
   FaTrash,
-  FaGripVertical,
-  FaArrowUp,
-  FaArrowDown,
-  FaPlus,
   FaClone,
   FaUndo,
 } from "react-icons/fa";
@@ -61,6 +57,19 @@ import {
 import { mergeNavBrandDefaults } from "./PortfolioNavBrand";
 import OwnerSubUsersPanel from "@/features/portfolio-users/OwnerSubUsersPanel";
 import { logApiError } from "@/shared/api/safeLog";
+import { PortfolioSectionNavigator } from "./PortfolioSectionNavigator";
+import { PortfolioDraftBanner } from "./PortfolioDraftBanner";
+import { PortfolioVersionHistoryPanel } from "./PortfolioVersionHistoryPanel";
+import {
+  draftMetaFromDetail,
+  sectionDataForComparable,
+  workingPortfolioFromDraftDetail,
+} from "./portfolioDraftEditor";
+import {
+  MAX_PORTFOLIO_SECTIONS,
+  SECTION_DISPLAY_LABEL_KEY,
+  getSectionDisplayLabel,
+} from "./portfolioEditorSections";
 
 function clonePortfolio(value) {
   return value ? JSON.parse(JSON.stringify(value)) : null;
@@ -109,7 +118,7 @@ function toComparablePortfolio(value) {
       type: section.type,
       order: section.order,
       visible: section.visible !== false,
-      data: section.data || {},
+      data: sectionDataForComparable(section.data),
     })),
     themeId: value.themeId || "",
     themeTokens: value.themeTokens || {},
@@ -203,119 +212,6 @@ function SectionEditor({ section, template, onDataChange, portfolioSections }) {
   return <>{main}</>;
 }
 
-function SectionsStructurePanel({
-  sections,
-  activeIdx,
-  onActivateSection,
-  handleMoveSection,
-  handleSectionVisibilityChange,
-  addableBlocks,
-  addingSectionType,
-  setAddingSectionType,
-  handleAddSection,
-  addingSection,
-  saveDisabled,
-}) {
-  return (
-    <>
-      <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 dark:border-neutral-700">
-          <h3 className="font-semibold text-gray-900 dark:text-neutral-100">Sections</h3>
-        </div>
-        <nav className="p-2 space-y-1">
-          {sections.map((section, idx) => (
-            <div
-              key={section._id || idx}
-              className={`flex items-stretch rounded-lg border border-transparent ${
-                activeIdx === idx
-                  ? "bg-blue-50 dark:bg-blue-950/50 border-blue-100 dark:border-blue-900"
-                  : "hover:bg-gray-50 dark:hover:bg-neutral-800/80"
-              }`}
-            >
-              <div className="flex flex-col justify-center px-1.5 gap-1">
-                <button
-                  type="button"
-                  onClick={() => handleMoveSection(idx, -1)}
-                  disabled={idx === 0 || saveDisabled}
-                  className="text-gray-400 hover:text-gray-700 dark:hover:text-neutral-300 disabled:opacity-30"
-                  title="Move up"
-                >
-                  <FaArrowUp className="text-xs" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleMoveSection(idx, 1)}
-                  disabled={idx === sections.length - 1 || saveDisabled}
-                  className="text-gray-400 hover:text-gray-700 dark:hover:text-neutral-300 disabled:opacity-30"
-                  title="Move down"
-                >
-                  <FaArrowDown className="text-xs" />
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => onActivateSection(idx)}
-                className={`flex-1 min-w-0 flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors rounded-lg ${
-                  activeIdx === idx ? "text-blue-700 dark:text-blue-400 font-medium" : "text-gray-700 dark:text-neutral-300"
-                }`}
-              >
-                <FaGripVertical className="text-gray-400 text-xs shrink-0" />
-                <span className="truncate">{BLOCK_LABELS[section.type] || section.type}</span>
-              </button>
-              <label
-                className="flex items-center px-2 shrink-0 cursor-pointer"
-                title="Show on portfolio when saved"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <input
-                  type="checkbox"
-                  className="rounded border-gray-300 dark:border-neutral-600 dark:bg-neutral-800 text-blue-600 focus:ring-blue-500"
-                  checked={section.visible !== false}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    if (section._id) handleSectionVisibilityChange(section._id, e.target.checked);
-                  }}
-                />
-              </label>
-            </div>
-          ))}
-        </nav>
-      </div>
-
-      <div className="mt-4 bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4 space-y-3">
-        <h3 className="font-semibold text-gray-900 dark:text-neutral-100 text-sm">Structure</h3>
-        <p className="text-xs text-gray-500 dark:text-neutral-400 leading-relaxed">
-          Add a supported block type. Existing section types are hidden from the list to keep navigation predictable.
-        </p>
-        <select
-          value={addingSectionType}
-          onChange={(e) => setAddingSectionType(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-gray-900 dark:text-neutral-100 shadow-sm [color-scheme:light] dark:[color-scheme:dark] focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          disabled={!addableBlocks.length || saveDisabled}
-        >
-          {addableBlocks.length === 0 ? (
-            <option value="">All supported blocks are already in use</option>
-          ) : (
-            addableBlocks.map((block) => (
-              <option key={block.type} value={block.type}>
-                {block.label || BLOCK_LABELS[block.type] || block.type}
-              </option>
-            ))
-          )}
-        </select>
-        <button
-          type="button"
-          onClick={handleAddSection}
-          disabled={!addingSectionType || !addableBlocks.length || saveDisabled}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50"
-        >
-          <FaPlus /> {addingSection ? "Adding..." : "Add section"}
-        </button>
-      </div>
-    </>
-  );
-}
-
 function MobileInspectorPanel({ tabId, panelVisible, children }) {
   const open = panelVisible(tabId);
   return <div className={open ? "block" : "hidden"}>{children}</div>;
@@ -347,26 +243,97 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [inspectorTab, setInspectorTab] = useState("sections");
   const [mobileWorkspace, setMobileWorkspace] = useState("edit");
+  const [draftsEnabled, setDraftsEnabled] = useState(false);
+  const [draftSource, setDraftSource] = useState("owner");
+  const [draftApprovalState, setDraftApprovalState] = useState(null);
+  const [hasUnpublishedDraft, setHasUnpublishedDraft] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const isLgUp = useMediaQuery(LG_QUERY);
 
-  useEffect(() => {
-    if (prefetched) {
-      setPortfolio(prefetched);
-      setOriginalPortfolio(clonePortfolio(prefetched));
-      setLoading(false);
-      return;
-    }
-    if (!id) return;
+  const applyDraftDetail = useCallback((detail) => {
+    const working = workingPortfolioFromDraftDetail(detail);
+    if (!working) return false;
+    setPortfolio(working);
+    setOriginalPortfolio(clonePortfolio(working));
+    const meta = draftMetaFromDetail(detail);
+    setHasUnpublishedDraft(meta.hasUnpublishedDraft);
+    setDraftSource(meta.source);
+    setDraftApprovalState(meta.approvalState);
+    return true;
+  }, []);
 
-    portfolioApi
-      .getById(id)
-      .then((res) => {
+  const syncDraftMetaFromSave = useCallback((savedPortfolio) => {
+    if (!savedPortfolio?.draftMode) return;
+    setDraftsEnabled(true);
+    setHasUnpublishedDraft(true);
+    const wd = savedPortfolio.workingDraft;
+    if (wd) {
+      setDraftSource(wd.source || "owner");
+      setDraftApprovalState(wd.approvalState ?? null);
+    }
+  }, []);
+
+  const loadEditorPortfolio = useCallback(
+    async (portfolioId, publishedFallback = null) => {
+      try {
+        const draftRes = await portfolioApi.getDraft(portfolioId);
+        setDraftsEnabled(true);
+        const detail = {
+          published: draftRes.data?.published,
+          draft: draftRes.data?.draft,
+          hasDraft: Boolean(draftRes.data?.hasDraft),
+        };
+        applyDraftDetail(detail);
+        return;
+      } catch (err) {
+        if (isPortfolioDraftsDisabledError(err)) {
+          setDraftsEnabled(false);
+          setHasUnpublishedDraft(false);
+          setDraftSource("owner");
+          setDraftApprovalState(null);
+          const doc = publishedFallback || (await portfolioApi.getById(portfolioId)).data;
+          setPortfolio(doc);
+          setOriginalPortfolio(clonePortfolio(doc));
+          return;
+        }
+        const res = await portfolioApi.getById(portfolioId);
         setPortfolio(res.data);
         setOriginalPortfolio(clonePortfolio(res.data));
-      })
-      .catch(() => toast.error("Failed to load portfolio"))
-      .finally(() => setLoading(false));
-  }, [id, prefetched]);
+      }
+    },
+    [applyDraftDetail]
+  );
+
+  useEffect(() => {
+    if (!id && !prefetched) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      setLoading(true);
+      try {
+        if (prefetched) {
+          if (prefetched._id) {
+            await loadEditorPortfolio(prefetched._id, prefetched);
+          } else {
+            setPortfolio(prefetched);
+            setOriginalPortfolio(clonePortfolio(prefetched));
+          }
+        } else if (id) {
+          await loadEditorPortfolio(id);
+        }
+      } catch {
+        if (!cancelled) toast.error("Failed to load portfolio");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, prefetched, loadEditorPortfolio]);
 
   useEffect(() => {
     if (!portfolio?.template) return;
@@ -539,6 +506,54 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     }));
   }, []);
 
+  const handleRenameSection = useCallback((sectionId, label) => {
+    const trimmed = String(label || "").trim();
+    setPortfolio((prev) => ({
+      ...prev,
+      sections: prev.sections.map((s) => {
+        if (s._id !== sectionId) return s;
+        const data = { ...(s.data || {}) };
+        if (trimmed) {
+          data[SECTION_DISPLAY_LABEL_KEY] = trimmed;
+        } else {
+          delete data[SECTION_DISPLAY_LABEL_KEY];
+        }
+        return { ...s, data };
+      }),
+    }));
+  }, []);
+
+  const applyPortfolioFromServer = useCallback(
+    (nextPortfolio, options = {}) => {
+      const { resetBaseline = true } = options;
+      setPortfolio(nextPortfolio);
+      if (resetBaseline) {
+        setOriginalPortfolio(clonePortfolio(nextPortfolio));
+      }
+      syncDraftMetaFromSave(nextPortfolio);
+    },
+    [syncDraftMetaFromSave]
+  );
+
+  const handleDraftRestored = useCallback(
+    async (revertPayload) => {
+      const draft = revertPayload?.draft;
+      if (!portfolio || !draft) return;
+      const merged = workingPortfolioFromDraftDetail({
+        published: portfolio,
+        draft,
+        hasDraft: true,
+      });
+      setPortfolio(merged);
+      setOriginalPortfolio(clonePortfolio(merged));
+      setHasUnpublishedDraft(true);
+      setDraftSource(draft.source || "owner");
+      setDraftApprovalState(draft.approvalState ?? null);
+      setActiveIdx(0);
+    },
+    [portfolio]
+  );
+
   const setSocialLink = (key, val) => {
     setPortfolio((p) => ({
       ...p,
@@ -562,13 +577,12 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     });
 
     const nextPortfolio = response.data?.portfolio || current;
-    setPortfolio(nextPortfolio);
-    setOriginalPortfolio(clonePortfolio(nextPortfolio));
+    applyPortfolioFromServer(nextPortfolio);
     if (showToast) {
-      toast.success("Portfolio saved");
+      toast.success(draftsEnabled ? "Draft saved" : "Portfolio saved");
     }
     return nextPortfolio;
-  }, []);
+  }, [applyPortfolioFromServer, draftsEnabled]);
 
   const saveCurrentChangesIfNeeded = useCallback(async () => {
     if (!portfolio || !isDirty) return portfolio;
@@ -601,8 +615,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       setStructureBusy(true);
       await saveCurrentChangesIfNeeded();
       const res = await portfolioApi.removeSection(portfolio._id, sectionId);
-      setPortfolio(res.data.portfolio);
-      setOriginalPortfolio(clonePortfolio(res.data.portfolio));
+      applyPortfolioFromServer(res.data.portfolio);
       if (activeIdx >= sections.length - 1) setActiveIdx(Math.max(0, activeIdx - 1));
       toast.success("Section removed");
     } catch (err) {
@@ -630,9 +643,33 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       setStructureBusy(true);
       await saveCurrentChangesIfNeeded();
       const res = await portfolioApi.reorderSections(portfolio._id, nextIds);
-      setPortfolio(res.data.portfolio);
-      setOriginalPortfolio(clonePortfolio(res.data.portfolio));
+      applyPortfolioFromServer(res.data.portfolio);
       setActiveIdx(targetIndex);
+      toast.success("Section order updated");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to reorder sections");
+    } finally {
+      setStructureBusy(false);
+    }
+  };
+
+  const handleDragReorder = async (fromIdx, toIdx) => {
+    if (!portfolio?._id || fromIdx === toIdx) return;
+    const orderedIds = [...sections].map((section) => section._id).filter(Boolean);
+    if (orderedIds.length !== sections.length) {
+      toast.error("This portfolio cannot be reordered yet.");
+      return;
+    }
+    const nextIds = [...orderedIds];
+    const [moved] = nextIds.splice(fromIdx, 1);
+    nextIds.splice(toIdx, 0, moved);
+
+    try {
+      setStructureBusy(true);
+      await saveCurrentChangesIfNeeded();
+      const res = await portfolioApi.reorderSections(portfolio._id, nextIds);
+      applyPortfolioFromServer(res.data.portfolio);
+      setActiveIdx(toIdx);
       toast.success("Section order updated");
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to reorder sections");
@@ -643,6 +680,10 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
   const handleAddSection = async () => {
     if (!portfolio?._id || !addingSectionType) return;
+    if (sections.length >= MAX_PORTFOLIO_SECTIONS) {
+      toast.error(`You can add at most ${MAX_PORTFOLIO_SECTIONS} sections.`);
+      return;
+    }
 
     try {
       setAddingSection(true);
@@ -657,14 +698,39 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
       const nextSections = [...(nextPortfolio.sections || [])].sort(
         (a, b) => a.order - b.order
       );
-      setPortfolio(nextPortfolio);
-      setOriginalPortfolio(clonePortfolio(nextPortfolio));
+      applyPortfolioFromServer(nextPortfolio);
       setActiveIdx(Math.max(0, nextSections.length - 1));
       toast.success(`${BLOCK_LABELS[addingSectionType] || addingSectionType} added`);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to add section");
     } finally {
       setAddingSection(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!portfolio?._id || !draftsEnabled) return;
+    if (!window.confirm("Publish your draft to the live site? Visitors will see these changes.")) {
+      return;
+    }
+    setPublishing(true);
+    try {
+      await saveCurrentChangesIfNeeded();
+      const res = await portfolioApi.publish(portfolio._id);
+      const published = res.data?.portfolio;
+      if (published) {
+        applyPortfolioFromServer(published);
+        setHasUnpublishedDraft(false);
+        setDraftApprovalState("approved");
+      }
+      const versionNumber = res.data?.versionNumber;
+      toast.success(
+        versionNumber ? `Published live as version ${versionNumber}` : "Published live"
+      );
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Failed to publish");
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -836,7 +902,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
   const nb = mergeNavBrandDefaults(portfolio.navBrand);
   const activeThemePreset =
     AGENT_THEME_PRESETS[portfolio.themeId] || AGENT_THEME_PRESETS.aurora;
-  const saveDisabled = saving || structureBusy || addingSection || remixing || aiLoading;
+  const saveDisabled = saving || structureBusy || addingSection || remixing || aiLoading || publishing;
   const aiProposalDisabled = saveDisabled || (aiUsage?.remaining ?? 1) <= 0;
 
   const panelVisible = (tabId) => {
@@ -853,6 +919,15 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
     <PortfolioEditorContext.Provider value={{ portfolioId: portfolio._id }}>
     <div className="min-h-screen bg-gray-100 dark:bg-neutral-950">
       <div className="sticky top-0 z-40 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-700 shadow-sm">
+        <PortfolioDraftBanner
+          portfolioId={portfolio._id}
+          draftsEnabled={draftsEnabled}
+          hasUnpublishedDraft={hasUnpublishedDraft || isDirty}
+          draftSource={draftSource}
+          approvalState={draftApprovalState}
+          publishing={publishing}
+          onPublish={handlePublish}
+        />
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
           <div className="flex items-start gap-3 min-w-0 w-full lg:flex-1 lg:min-w-0">
             <button
@@ -872,6 +947,11 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
               />
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500 dark:text-neutral-400">
                 <span className="capitalize">{portfolio.template}</span>
+                {draftsEnabled && (hasUnpublishedDraft || isDirty) ? (
+                  <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-950/60 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-200">
+                    Draft not live
+                  </span>
+                ) : null}
                 {isDirty && (
                   <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
                     Unsaved changes
@@ -972,7 +1052,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
         <aside
           className={`w-full shrink-0 space-y-4 lg:w-64 ${showLeftRail ? "" : "hidden"}`}
         >
-          <SectionsStructurePanel
+          <PortfolioSectionNavigator
             sections={sections}
             activeIdx={activeIdx}
             onActivateSection={(idx) => {
@@ -980,7 +1060,10 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
               if (!isLgUp) setMobileWorkspace("edit");
             }}
             handleMoveSection={handleMoveSection}
+            handleDragReorder={handleDragReorder}
             handleSectionVisibilityChange={handleSectionVisibilityChange}
+            onRenameSection={handleRenameSection}
+            onRemoveSection={handleRemoveSection}
             addableBlocks={addableBlocks}
             addingSectionType={addingSectionType}
             setAddingSectionType={setAddingSectionType}
@@ -1000,7 +1083,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                   <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
-                        {BLOCK_LABELS[activeSection.type] || activeSection.type}
+                        {getSectionDisplayLabel(activeSection)}
                       </h2>
                       <button
                         type="button"
@@ -1008,6 +1091,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                         disabled={saveDisabled}
                         className="text-red-400 hover:text-red-600 p-2 disabled:opacity-50"
                         title="Remove section"
+                        aria-label="Remove section from editor"
                       >
                         <FaTrash />
                       </button>
@@ -1052,8 +1136,13 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                 </div>
               )}
               {inspectorTab === "publish" && (
-                <div className="w-full max-w-4xl mx-auto">
+                <div className="w-full max-w-4xl mx-auto space-y-4">
                   <PortfolioPublishReadinessPanel readiness={readiness} />
+                  <PortfolioVersionHistoryPanel
+                    portfolioId={portfolio._id}
+                    draftsEnabled={draftsEnabled}
+                    onDraftRestored={handleDraftRestored}
+                  />
                 </div>
               )}
               {inspectorTab === "customers" && supportsSubUsers && (
@@ -1087,7 +1176,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
             <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-neutral-100">
-                  {BLOCK_LABELS[activeSection.type] || activeSection.type}
+                  {getSectionDisplayLabel(activeSection)}
                 </h2>
                 <button
                   type="button"
@@ -1095,6 +1184,7 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
                   disabled={saveDisabled}
                   className="text-red-400 hover:text-red-600 p-2 disabled:opacity-50"
                   title="Remove section"
+                  aria-label="Remove section from editor"
                 >
                   <FaTrash />
                 </button>
@@ -1145,7 +1235,14 @@ export default function PortfolioEditor({ portfolioData: prefetched }) {
 
 
           <MobileInspectorPanel tabId="publish" panelVisible={panelVisible}>
-            <PortfolioPublishReadinessPanel readiness={readiness} />
+            <div className="space-y-4">
+              <PortfolioPublishReadinessPanel readiness={readiness} />
+              <PortfolioVersionHistoryPanel
+                portfolioId={portfolio._id}
+                draftsEnabled={draftsEnabled}
+                onDraftRestored={handleDraftRestored}
+              />
+            </div>
           </MobileInspectorPanel>
 
 

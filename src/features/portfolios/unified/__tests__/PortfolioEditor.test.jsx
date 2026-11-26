@@ -12,13 +12,22 @@ jest.mock("react-toastify", () => ({
 }));
 
 jest.mock("@/shared/api/portfolioApi", () => ({
+  isPortfolioDraftsDisabledError: (err) =>
+    err?.response?.status === 404 && err?.response?.data?.code === "DRAFTS_DISABLED",
   portfolioApi: {
     getById: jest.fn(),
+    getDraft: jest.fn(() =>
+      Promise.reject({
+        response: { status: 404, data: { code: "DRAFTS_DISABLED" } },
+      })
+    ),
+    listVersions: jest.fn(() => Promise.resolve({ data: { versions: [] } })),
     getBlockTypes: jest.fn(() =>
       Promise.resolve({ data: [{ type: "contact", label: "Contact" }] })
     ),
     update: jest.fn(),
     create: jest.fn(),
+    publish: jest.fn(),
     removeSection: jest.fn(),
     reorderSections: jest.fn(),
     addSection: jest.fn(),
@@ -215,6 +224,11 @@ describe("PortfolioEditor", () => {
   beforeEach(() => {
     setMatchMedia(false);
     portfolioApi.getById.mockReset();
+    portfolioApi.getDraft.mockReset();
+    portfolioApi.getDraft.mockRejectedValue({
+      response: { status: 404, data: { code: "DRAFTS_DISABLED" } },
+    });
+    portfolioApi.getById.mockResolvedValue({ data: minimalPortfolio });
     portfolioApi.update.mockReset();
     portfolioApi.create.mockReset();
     portfolioApi.removeSection.mockReset();
@@ -425,10 +439,31 @@ describe("PortfolioEditor", () => {
 
     renderEditor(multiSectionPortfolio);
     await screen.findByDisplayValue("Edit me");
-    await user.click(screen.getByTitle("Remove section"));
+    await user.click(screen.getByRole("button", { name: /remove section from editor/i }));
 
     await waitFor(() => {
       expect(portfolioApi.removeSection).toHaveBeenCalledWith("p1", "sec1");
+    });
+  });
+
+  it("removes a section from the navigator", async () => {
+    const user = userEvent.setup();
+    setMatchMedia(true);
+    portfolioApi.removeSection.mockResolvedValue({
+      data: {
+        portfolio: {
+          ...multiSectionPortfolio,
+          sections: [multiSectionPortfolio.sections[1]],
+        },
+      },
+    });
+
+    renderEditor(multiSectionPortfolio);
+    await screen.findByDisplayValue("Edit me");
+    await user.click(screen.getByRole("button", { name: /remove contact/i }));
+
+    await waitFor(() => {
+      expect(portfolioApi.removeSection).toHaveBeenCalledWith("p1", "sec2");
     });
   });
 
