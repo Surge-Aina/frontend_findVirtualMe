@@ -1,0 +1,41 @@
+import { BLOCK_LABELS } from "./portfolioEditorConfig";
+
+/** Matches backend `MAX_PORTFOLIO_SECTIONS` in portfolio.service.js */
+export const MAX_PORTFOLIO_SECTIONS = 24;
+
+export const SECTION_DISPLAY_LABEL_KEY = "editorDisplayLabel";
+export const MAX_EDITOR_DISPLAY_LABEL_LENGTH = 80;
+
+export function normalizeEditorDisplayLabel(label) {
+  return String(label || "").trim().slice(0, MAX_EDITOR_DISPLAY_LABEL_LENGTH);
+}
+
+export function getSectionDisplayLabel(section) {
+  if (!section) return "";
+  const custom = section.data?.[SECTION_DISPLAY_LABEL_KEY];
+  if (typeof custom === "string" && custom.trim()) {
+    return custom.trim().slice(0, MAX_EDITOR_DISPLAY_LABEL_LENGTH);
+  }
+  return BLOCK_LABELS[section.type] || section.type || "Section";
+}
+
+export function sectionDataForPersistenceCompare(data, { includeEditorLabel = true } = {}) {
+  const next = { ...(data || {}) };
+  if (!includeEditorLabel) {
+    delete next[SECTION_DISPLAY_LABEL_KEY];
+  }
+  if (next[SECTION_DISPLAY_LABEL_KEY] === "") {
+    delete next[SECTION_DISPLAY_LABEL_KEY];
+  }
+  return next;
+}
+
+export function getSectionTypeHint(section) {
+  if (!section?.type) return "";
+  const base = BLOCK_LABELS[section.type] || section.type;
+  const custom = section.data?.[SECTION_DISPLAY_LABEL_KEY];
+  if (typeof custom === "string" && custom.trim() && base !== custom.trim()) {
+    return base;
+  }
+  return "";
+}

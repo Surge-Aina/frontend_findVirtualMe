@@ -12,13 +12,22 @@ jest.mock("react-toastify", () => ({
 }));
 
 jest.mock("@/shared/api/portfolioApi", () => ({
+  isPortfolioDraftsDisabledError: (err) =>
+    err?.response?.status === 404 && err?.response?.data?.code === "DRAFTS_DISABLED",
   portfolioApi: {
     getById: jest.fn(),
+    getDraft: jest.fn(() =>
+      Promise.reject({
+        response: { status: 404, data: { code: "DRAFTS_DISABLED" } },
+      })
+    ),
+    listVersions: jest.fn(() => Promise.resolve({ data: { versions: [] } })),
     getBlockTypes: jest.fn(() =>
       Promise.resolve({ data: [{ type: "contact", label: "Contact" }] })
     ),
     update: jest.fn(),
     create: jest.fn(),
+    publish: jest.fn(),
     removeSection: jest.fn(),
     reorderSections: jest.fn(),
     addSection: jest.fn(),
@@ -213,8 +222,14 @@ function renderEditor(prefetched) {
 
 describe("PortfolioEditor", () => {
   beforeEach(() => {
+    delete import.meta.env.VITE_EDITOR_NAVIGATOR_ENABLED;
     setMatchMedia(false);
     portfolioApi.getById.mockReset();
+    portfolioApi.getDraft.mockReset();
+    portfolioApi.getDraft.mockRejectedValue({
+      response: { status: 404, data: { code: "DRAFTS_DISABLED" } },
+    });
+    portfolioApi.getById.mockResolvedValue({ data: minimalPortfolio });
     portfolioApi.update.mockReset();
     portfolioApi.create.mockReset();
     portfolioApi.removeSection.mockReset();
@@ -425,10 +440,42 @@ describe("PortfolioEditor", () => {
 
     renderEditor(multiSectionPortfolio);
     await screen.findByDisplayValue("Edit me");
-    await user.click(screen.getByTitle("Remove section"));
+    await user.click(screen.getByRole("button", { name: /remove section from editor/i }));
 
     await waitFor(() => {
       expect(portfolioApi.removeSection).toHaveBeenCalledWith("p1", "sec1");
+    });
+  });
+
+  it("uses legacy sections rail when VITE_EDITOR_NAVIGATOR_ENABLED is off", async () => {
+    setMatchMedia(true);
+    renderEditor(multiSectionPortfolio);
+    await screen.findByDisplayValue("Edit me");
+    expect(screen.getByRole("heading", { name: "Sections" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Structure" })).toBeInTheDocument();
+    expect(screen.queryByText(/pages & sections/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /remove contact/i })).not.toBeInTheDocument();
+  });
+
+  it("removes a section from the navigator when the flag is on", async () => {
+    import.meta.env.VITE_EDITOR_NAVIGATOR_ENABLED = "true";
+    const user = userEvent.setup();
+    setMatchMedia(true);
+    portfolioApi.removeSection.mockResolvedValue({
+      data: {
+        portfolio: {
+          ...multiSectionPortfolio,
+          sections: [multiSectionPortfolio.sections[1]],
+        },
+      },
+    });
+
+    renderEditor(multiSectionPortfolio);
+    await screen.findByDisplayValue("Edit me");
+    await user.click(screen.getByRole("button", { name: /remove contact/i }));
+
+    await waitFor(() => {
+      expect(portfolioApi.removeSection).toHaveBeenCalledWith("p1", "sec2");
     });
   });
 
