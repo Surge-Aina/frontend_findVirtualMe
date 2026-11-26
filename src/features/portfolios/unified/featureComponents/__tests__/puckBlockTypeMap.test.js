@@ -8,6 +8,9 @@ describe("puckBlockTypeMap", () => {
   it("maps feature block types to Puck component types", () => {
     expect(puckTypeForBlockType("contact")).toBe("ContactLeadForm");
     expect(BLOCK_TYPE_TO_PUCK_TYPE.gallery).toBe("Gallery");
+    expect(puckTypeForBlockType("socialLinks")).toBe("SocialLinks");
+    expect(puckTypeForBlockType("qrCode")).toBe("QrCode");
+    expect(puckTypeForBlockType("voucherOffer")).toBe("VoucherOffer");
   });
 
   it("builds puck component data via adapters", () => {
