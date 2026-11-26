@@ -20,6 +20,7 @@ export default {
             },
           ],
         ],
+        plugins: ["babel-plugin-transform-vite-meta-env"],
       },
     ],
   },

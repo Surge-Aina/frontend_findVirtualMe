@@ -11,6 +11,7 @@ export const FEATURE_SECTION_BLOCK_TYPES = Object.freeze([
   "socialLinks",
   "qrCode",
   "voucherOffer",
+  "bookingRequest",
 ]);
 
 export const BLOCK_TYPE_TO_PUCK_TYPE = Object.freeze({
@@ -22,6 +23,7 @@ export const BLOCK_TYPE_TO_PUCK_TYPE = Object.freeze({
   socialLinks: "SocialLinks",
   qrCode: "QrCode",
   voucherOffer: "VoucherOffer",
+  bookingRequest: "BookingRequest",
 });
 
 export const UNIFIED_SITE_TEMPLATES = Object.freeze([

@@ -38,6 +38,28 @@ describe("buildPuckEditorConfig", () => {
     expect(typeof config.components.VoucherOffer.fields.voucherId.render).toBe("function");
   });
 
+  it("omits BookingRequest from puck config when VITE_COMPONENT_BOOKING_ENABLED is off", () => {
+    const withBooking = {
+      root: serializable.root,
+      components: {
+        BookingRequest: {
+          label: "Booking request",
+          fields: {},
+          defaultProps: { sectionTitle: "Book" },
+          metadata: { blockType: "bookingRequest" },
+        },
+      },
+    };
+    const prev = import.meta.env.VITE_COMPONENT_BOOKING_ENABLED;
+    import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = "";
+    const config = buildPuckEditorConfig(withBooking, "agent");
+    expect(config.components.BookingRequest).toBeUndefined();
+    import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = "true";
+    const enabled = buildPuckEditorConfig(withBooking, "agent");
+    expect(typeof enabled.components.BookingRequest.render).toBe("function");
+    import.meta.env.VITE_COMPONENT_BOOKING_ENABLED = prev;
+  });
+
   it("wraps SocialLinks preview with placeholder portfolio context", () => {
     const withSocial = {
       root: serializable.root,

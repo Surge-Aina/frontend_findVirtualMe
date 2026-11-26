@@ -11,6 +11,7 @@ describe("puckBlockTypeMap", () => {
     expect(puckTypeForBlockType("socialLinks")).toBe("SocialLinks");
     expect(puckTypeForBlockType("qrCode")).toBe("QrCode");
     expect(puckTypeForBlockType("voucherOffer")).toBe("VoucherOffer");
+    expect(puckTypeForBlockType("bookingRequest")).toBe("BookingRequest");
   });
 
   it("builds puck component data via adapters", () => {
