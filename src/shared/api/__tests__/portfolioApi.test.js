@@ -26,6 +26,15 @@ jest.mock("../axiosAuth", () => ({
 describe("portfolioApi", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuthGet.mockResolvedValue({ data: {} });
+  });
+
+  it("getComponents calls authenticated GET with siteId", async () => {
+    const { portfolioApi } = await import("../portfolioApi");
+    portfolioApi.getComponents("site-42");
+    expect(mockAuthGet).toHaveBeenCalledWith("/api/portfolios/components", {
+      params: { siteId: "site-42" },
+    });
   });
 
   it("getById calls authenticated GET", async () => {
