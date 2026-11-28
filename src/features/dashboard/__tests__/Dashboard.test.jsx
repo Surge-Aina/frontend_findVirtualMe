@@ -5,6 +5,20 @@ import { MemoryRouter } from "react-router-dom";
 import { toast } from "react-toastify";
 import Dashboard from "../Dashboard";
 import { AuthContext } from "@/shared/context/AuthContext";
+import { AccountContext } from "@/shared/context/AccountContext";
+
+jest.mock("@/shared/config/accountTeams", () => ({
+  isAccountTeamsEnabled: () => false,
+}));
+
+const defaultAccountContext = {
+  accounts: [],
+  activeAccountId: null,
+  activeAccount: null,
+  setActiveAccountId: jest.fn(),
+  refreshAccounts: jest.fn(),
+  loading: false,
+};
 import { portfolioApi } from "@/shared/api/portfolioApi.js";
 
 const mockNavigate = jest.fn();
@@ -56,9 +70,11 @@ const authLoggedOut = {
 function renderDashboard(auth = authLoggedIn) {
   return render(
     <AuthContext.Provider value={auth}>
-      <MemoryRouter>
-        <Dashboard />
-      </MemoryRouter>
+      <AccountContext.Provider value={defaultAccountContext}>
+        <MemoryRouter>
+          <Dashboard />
+        </MemoryRouter>
+      </AccountContext.Provider>
     </AuthContext.Provider>
   );
 }

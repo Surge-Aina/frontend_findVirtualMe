@@ -6,6 +6,8 @@ import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import { useHandleCardClick } from "@/shared/utils/useHandleCardClick";
 import { portfolioApi } from "@/shared/api/portfolioApi.js";
 import { logApiError } from "@/shared/api/safeLog";
+import { isAccountTeamsEnabled } from "@/shared/config/accountTeams";
+import { AccountContext } from "@/shared/context/AccountContext";
 
 function getPortfolioDisplayName(portfolio) {
   if (portfolio.portfolioType === "Healthcare") {
@@ -128,6 +130,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { handleCardClick } = useHandleCardClick();
   const { user, token, refreshUser } = useContext(AuthContext);
+  const { accounts } = useContext(AccountContext);
 
   const [myPortfolios, setMyPortfolios] = useState([]);
   const [publicPortfolios, setPublicPortfolios] = useState([]);
@@ -148,6 +151,10 @@ export default function Dashboard() {
   const [adminListMeta, setAdminListMeta] = useState({ total: 0, totalPages: 1 });
 
   const isAdmin = user?.role === "admin";
+  const isSuperAdmin = user?.role === "super_admin";
+  const showAllPortfolios =
+    isAdmin || (isAccountTeamsEnabled() && isSuperAdmin);
+  const showSuperAdminAccounts = isAccountTeamsEnabled() && isSuperAdmin;
 
   useEffect(() => {
     setMyPortfolioPage(1);
@@ -183,7 +190,7 @@ export default function Dashboard() {
   }, [user, token]);
 
   useEffect(() => {
-    if (!isAdmin || !token) {
+    if (!showAllPortfolios || !token) {
       setAdminPortfolios([]);
       setAdminListMeta({ total: 0, totalPages: 1 });
       return;
@@ -209,7 +216,7 @@ export default function Dashboard() {
     };
 
     loadAdminPortfolios();
-  }, [isAdmin, token, adminListPage]);
+  }, [showAllPortfolios, token, adminListPage]);
 
   const isPortfolioPublic = (portfolio) =>
     portfolio?.visibility === "public" || Boolean(portfolio?.isPublic);
@@ -554,7 +561,24 @@ export default function Dashboard() {
           </section>
         )}
 
-        {isAdmin && (
+        {showSuperAdminAccounts && (
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-neutral-100">All accounts</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {accounts.map((account) => (
+                <div
+                  key={account.id}
+                  className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md p-6 border border-slate-200 dark:border-neutral-700"
+                >
+                  <div className="font-semibold text-slate-800 dark:text-neutral-100">{account.name}</div>
+                  <div className="text-xs text-slate-500 mt-2 truncate">{account.id}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {showAllPortfolios && (
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-neutral-100">All portfolios</h2>
             <p className="text-sm text-slate-600 dark:text-neutral-400 mb-6">

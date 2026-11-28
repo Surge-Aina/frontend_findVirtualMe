@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { Menu, X, User } from "lucide-react";
 import FvMark from "./FvMark";
+import AccountSwitcher from "./AccountSwitcher";
 
 export default function Navbar() {
   const [showAuth, setShowAuth] = useState(false);
@@ -70,6 +71,7 @@ export default function Navbar() {
               <span className="relative z-10">Developers</span>
               <span className="absolute inset-0 w-1/3 h-full bg-blue-200/40 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
             </button>
+            {user && <AccountSwitcher />}
             {user && user.role === "admin" && (
               <button
                 className="relative transition-colors text-slate-800 dark:text-neutral-200 px-2 py-2 xl:px-4 rounded-xl overflow-hidden group"

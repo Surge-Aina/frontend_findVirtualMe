@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import Layout from "@/shared/components/Layout";
 import About from "@/features/landing/About";
 import Dashboard from "@/features/dashboard/Dashboard";
+import TeamPage from "@/features/team/TeamPage.jsx";
 import Tip from "@/shared/components/Tip";
 import Footer from "@/shared/components/Footer";
 import "./App.css";
@@ -128,6 +129,7 @@ export default function App() {
           {/* Main Routes */}
           <Route path="/" element={<About onGetStarted={handleGetStarted} />} />
           <Route path="/dashboard" element={<Dashboard onRequestAdmin={handleRequestAdmin} />} />
+          <Route path="/team" element={<TeamPage />} />
           <Route path="/developer" element={<DeveloperApiKeysPage />} />
           <Route path="/developer/webhooks" element={<WebhooksPage />} />
           <Route path="/developer/apps" element={<DeveloperAppsPage />} />

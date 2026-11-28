@@ -6,6 +6,7 @@ React + Vite app for [FindVirtual.me](https://findvirtual.me).
 
 - Developer docs: `/developers` (MCP configs at `/developers/mcp` and `/developers/docs`).
 - Production API base (`VITE_BACKEND_API` default): `https://backend-production-6b312c6c.up.railway.app`
+- `VITE_ACCOUNT_TEAMS_ENABLED` — set to `true` with backend `ACCOUNT_TEAMS_ENABLED=true` to show the account switcher, `/team` management UI, and super-admin dashboard sections. When unset, the app behaves as before.
 - MCP server (streamable HTTP): `https://backend-production-6b312c6c.up.railway.app/api/mcp`
 - Machine-readable summary: `/llms.txt`
 
