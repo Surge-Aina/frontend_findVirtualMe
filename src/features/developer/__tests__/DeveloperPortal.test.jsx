@@ -6,7 +6,18 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import axiosAuth from "@/shared/api/axiosAuth";
 import { AuthContext } from "@/shared/context/AuthContext";
 import { DeveloperPortalLayout, GettingStartedPage, McpDocsPage } from "../docs/DeveloperPortal";
-import { ensureLeadLookup, joinApiUrl, llmBrief, apiCallAllowed, mcpConfigs, llmsTxt, withAbsoluteServer, serverUrlOf } from "../docs/specDocument";
+import {
+  ensureLeadLookup,
+  injectCodeSamples,
+  joinApiUrl,
+  llmBrief,
+  apiCallAllowed,
+  mcpConfigs,
+  llmsTxt,
+  preparePublicApiSpec,
+  withAbsoluteServer,
+  serverUrlOf,
+} from "../docs/specDocument";
 import OAuthConsentPage from "../OAuthConsentPage";
 import AppDetailPage from "../AppDetailPage";
 import * as developerApi from "../developerApi";
@@ -84,7 +95,31 @@ describe("Developer portal and OAuth consent", () => {
     });
     expect(brief).toContain("GET /leads/{leadId}");
     expect(brief).toContain("fvm_YOUR_KEY");
+    expect(brief).toContain("add_site_component");
+    expect(brief).toContain("sites:write");
     expect(brief).not.toContain("fvm_live");
+  });
+
+  test("preparePublicApiSpec injects curl, JavaScript, and Python samples", () => {
+    const base = "https://api.example.test/api/public/v1";
+    const prepared = preparePublicApiSpec(
+      {
+        openapi: "3.1.0",
+        servers: [{ url: "/api/public/v1" }],
+        paths: {
+          "/me": {
+            get: { summary: "Key owner", operationId: "getMe", responses: { 200: { description: "ok" } } },
+          },
+        },
+      },
+      "https://api.example.test"
+    );
+    expect(serverUrlOf(prepared)).toBe(base);
+    const samples = prepared.paths["/me"].get["x-codeSamples"];
+    expect(samples.map((sample) => sample.lang)).toEqual(["curl", "JavaScript", "Python"]);
+    expect(samples[0].source).toContain("curl");
+    expect(samples[0].source).toContain("fvm_YOUR_KEY");
+    expect(injectCodeSamples(prepared, base).paths["/me"].get["x-codeSamples"]).toEqual(samples);
   });
 
   test("consent screen lists scopes and posts the authorize decision", async () => {

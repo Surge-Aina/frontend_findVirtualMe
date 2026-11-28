@@ -1,7 +1,7 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import FvMark from "@/shared/components/FvMark";
 import CopyBlock from "./CopyBlock";
-import { MCP_ONE_CLICK_CONNECTORS_NOTE, mcpEndpointUrl } from "../developerApi";
+import { formatMcpToolsList, MCP_ONE_CLICK_CONNECTORS_NOTE, mcpEndpointUrl } from "../developerApi";
 import { mcpConfigs } from "./specDocument";
 
 const LINKS = [
@@ -20,9 +20,18 @@ function linkClass({ isActive }) {
 }
 
 export function DeveloperPortalLayout() {
+  const { pathname } = useLocation();
+  const isApiReference = pathname === "/developers/docs" || pathname.startsWith("/developers/docs/");
+
   return (
     <div className="min-h-[80vh] bg-gray-50 flex flex-col md:flex-row">
-      <aside className="w-full md:w-72 border-r border-gray-200 bg-white flex-shrink-0">
+      <aside
+        className={`w-full border-r border-gray-200 bg-white flex-shrink-0 ${
+          isApiReference
+            ? "md:w-56 md:sticky md:top-20 md:self-start md:max-h-[calc(100vh-5rem)] md:overflow-y-auto"
+            : "md:w-72"
+        }`}
+      >
         <div className="flex items-center gap-3 px-6 py-8 border-b border-gray-100">
           <FvMark />
           <div>
@@ -38,10 +47,14 @@ export function DeveloperPortalLayout() {
           ))}
         </nav>
       </aside>
-      <div className="flex-1 px-4 py-10 md:px-12">
-        <div className="max-w-3xl space-y-6">
+      <div className={isApiReference ? "flex-1 min-w-0 flex flex-col" : "flex-1 px-4 py-10 md:px-12"}>
+        {isApiReference ? (
           <Outlet />
-        </div>
+        ) : (
+          <div className="max-w-3xl space-y-6">
+            <Outlet />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -160,12 +173,16 @@ export function McpDocsPage() {
         commit a real key. Redoc&apos;s Connect MCP controls are not part of the free Community Edition, so these
         configs are ours.
       </p>
+      <p className="text-sm text-slate-600">
+        Tools: <span className="font-mono text-xs">{formatMcpToolsList()}</span>. Component tools require{" "}
+        <span className="font-mono">sites:write</span>.
+      </p>
       <p className="text-sm text-slate-600">{MCP_ONE_CLICK_CONNECTORS_NOTE}</p>
       {mcpConfigs(endpoint).map((config) => (
         <CopyBlock key={config.id} label={`${config.label} · ${config.file}`} text={config.text} />
       ))}
       <p className="text-sm text-slate-600">
-        The same samples are on{" "}
+        HTTP operations for the same resources are on{" "}
         <Link className="text-blue-700 underline" to="/developers/docs">
           the API reference
         </Link>

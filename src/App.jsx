@@ -134,10 +134,10 @@ export default function App() {
           <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/integrations/apps/:slug" element={<AppDetailPage />} />
           <Route path="/oauth/consent" element={<OAuthConsentPage />} />
-          <Route path="/developers/docs/*" element={<ApiReferencePage />} />
           <Route path="/developers" element={<DeveloperPortalLayout />}>
             <Route index element={<GettingStartedPage />} />
             <Route path="auth" element={<AuthDocsPage />} />
+            <Route path="docs/*" element={<ApiReferencePage />} />
             <Route path="reference" element={<Navigate to="/developers/docs" replace />} />
             <Route path="mcp" element={<McpDocsPage />} />
             <Route path="webhooks" element={<WebhookDocsPage />} />

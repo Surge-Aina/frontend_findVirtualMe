@@ -47,6 +47,24 @@ export const INSTALLATIONS_PATH = "/api/developer/installations";
 export const OAUTH_AUTHORIZE_PATH = "/api/oauth/authorize";
 export const MCP_PATH = "/api/mcp";
 export const MCP_ACCEPT_HEADER = "application/json, text/event-stream";
+
+/** MCP tools exposed at POST /api/mcp (same scopes as the public API). */
+export const MCP_TOOL_NAMES = [
+  "list_sites",
+  "get_site",
+  "get_business_profile",
+  "get_lead",
+  "list_webhooks",
+  "list_site_components",
+  "add_site_component",
+  "update_site_component",
+  "remove_site_component",
+  "reorder_site_components",
+];
+
+export function formatMcpToolsList() {
+  return MCP_TOOL_NAMES.join(", ");
+}
 export const MCP_ONE_CLICK_CONNECTORS_NOTE =
   "One-click connectors for claude.ai, ChatGPT, and grok.com are coming soon.";
 
