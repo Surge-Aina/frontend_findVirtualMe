@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { logApiError } from "./safeLog";
+import { isAccountTeamsEnabled } from "@/shared/config/accountTeams";
 
 export const SIGN_IN_MESSAGE = "Please sign in to continue.";
 export const PERMISSION_MESSAGE = "You do not have permission to do that.";
@@ -23,6 +24,12 @@ axiosAuth.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (isAccountTeamsEnabled()) {
+      const accountId = localStorage.getItem("activeAccountId");
+      if (accountId) {
+        config.headers["X-Account-Id"] = accountId;
+      }
     }
 
     return config;
