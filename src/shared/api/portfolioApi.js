@@ -67,6 +67,7 @@ export const portfolioApi = {
 
   // Authenticated
   getMine: () => axiosAuth.get(`${BASE}/mine`),
+  listAdmin: (params) => axiosAuth.get(`${BASE}/admin`, { params }),
   create: (template, data = {}) => axiosAuth.post(BASE, { template, ...data }),
   createAgent: (data = {}) => axiosAuth.post(`${BASE}/agent`, data),
   generateAgent: (data = {}) => axiosAuth.post(`${BASE}/agent/generate`, data),

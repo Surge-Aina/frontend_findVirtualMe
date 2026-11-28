@@ -104,6 +104,15 @@ function portfolioPageRange(page, total, pageSize) {
   return { start, end };
 }
 
+function normalizeAdminPortfolioRow(row) {
+  if (!row || typeof row !== "object") return row;
+  return {
+    ...row,
+    _id: row.id ?? row._id,
+    template: row.type ?? row.template,
+  };
+}
+
 export {
   getPortfolioDisplayName,
   getPortfolioTypeLabel,
@@ -134,6 +143,11 @@ export default function Dashboard() {
 
   const [myPortfolioPage, setMyPortfolioPage] = useState(1);
   const [publicPortfolioPage, setPublicPortfolioPage] = useState(1);
+  const [adminPortfolios, setAdminPortfolios] = useState([]);
+  const [adminListPage, setAdminListPage] = useState(1);
+  const [adminListMeta, setAdminListMeta] = useState({ total: 0, totalPages: 1 });
+
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     setMyPortfolioPage(1);
@@ -167,6 +181,35 @@ export default function Dashboard() {
 
     load();
   }, [user, token]);
+
+  useEffect(() => {
+    if (!isAdmin || !token) {
+      setAdminPortfolios([]);
+      setAdminListMeta({ total: 0, totalPages: 1 });
+      return;
+    }
+
+    const loadAdminPortfolios = async () => {
+      try {
+        const res = await portfolioApi.listAdmin({ page: adminListPage, limit: PAGE_SIZE });
+        const rows = Array.isArray(res.data?.portfolios)
+          ? res.data.portfolios.map(normalizeAdminPortfolioRow)
+          : [];
+        setAdminPortfolios(rows);
+        setAdminListMeta({
+          total: res.data?.total ?? rows.length,
+          totalPages: Math.max(1, res.data?.totalPages ?? 1),
+          page: res.data?.page ?? adminListPage,
+        });
+      } catch (error) {
+        logApiError(error, "Error fetching admin portfolios");
+        setAdminPortfolios([]);
+        toast.error("Could not load all portfolios");
+      }
+    };
+
+    loadAdminPortfolios();
+  }, [isAdmin, token, adminListPage]);
 
   const isPortfolioPublic = (portfolio) =>
     portfolio?.visibility === "public" || Boolean(portfolio?.isPublic);
@@ -237,6 +280,7 @@ export default function Dashboard() {
     filteredPublicPortfolios.length,
     PAGE_SIZE
   );
+  const adminPageRange = portfolioPageRange(adminListPage, adminListMeta.total, PAGE_SIZE);
 
   const togglePublic = async (portfolio) => {
     try {
@@ -500,6 +544,89 @@ export default function Dashboard() {
                     type="button"
                     disabled={myPortfolioPage >= myTotalPages}
                     onClick={() => setMyPortfolioPage((p) => Math.min(myTotalPages, p + 1))}
+                    className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {isAdmin && (
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-neutral-100">All portfolios</h2>
+            <p className="text-sm text-slate-600 dark:text-neutral-400 mb-6">
+              Every portfolio on the platform (admin only).
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adminPortfolios.length === 0 ? (
+                <div className="col-span-full text-center py-12 text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-700">
+                  No portfolios found
+                </div>
+              ) : (
+                adminPortfolios.map((portfolio) => (
+                  <div
+                    key={portfolio._id}
+                    className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md p-6 border border-transparent dark:border-neutral-700"
+                  >
+                    <div className="font-semibold mb-3 bg-slate-600 dark:bg-slate-500 rounded-2xl text-white px-3 py-1 inline-block text-sm">
+                      {getPortfolioTypeLabel(portfolio)}
+                    </div>
+                    <div className="font-bold text-slate-800 dark:text-neutral-100 mb-2 text-xl">
+                      {getPortfolioDisplayName(portfolio)}
+                    </div>
+                    <div className="text-slate-600 dark:text-neutral-400 text-sm">
+                      Owner: {portfolio.ownerId != null ? String(portfolio.ownerId) : "—"}
+                    </div>
+                    <div className="text-slate-600 dark:text-neutral-400 text-sm capitalize">
+                      {portfolio.visibility || "private"}
+                    </div>
+                    <div className="text-slate-400 dark:text-neutral-500 text-xs truncate mt-2">
+                      {portfolio._id}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCardClick(portfolio)}
+                        className="px-4 py-2 rounded bg-slate-700 text-white hover:bg-slate-800 transition-colors text-sm"
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/portfolios/view/${portfolio._id}/edit`)}
+                        className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {adminListMeta.total > 0 && (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-neutral-700">
+                <p className="text-sm text-slate-600 dark:text-neutral-400">
+                  Showing {adminPageRange.start}–{adminPageRange.end} of {adminListMeta.total}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={adminListPage <= 1}
+                    onClick={() => setAdminListPage((p) => Math.max(1, p - 1))}
+                    className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={adminListPage >= adminListMeta.totalPages}
+                    onClick={() => setAdminListPage((p) => Math.min(adminListMeta.totalPages, p + 1))}
                     className="rounded-lg border border-slate-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm font-medium text-slate-800 dark:text-neutral-200 shadow-sm hover:bg-slate-50 dark:hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
