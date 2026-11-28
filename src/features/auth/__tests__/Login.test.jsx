@@ -14,6 +14,11 @@ jest.mock("react-router-dom", () => {
   };
 });
 
+jest.mock("@/features/auth/phoneLogin/PhoneLoginSection", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 describe("Login page", () => {
   let mockLogin;
 
@@ -21,7 +26,7 @@ describe("Login page", () => {
     render(
       <MemoryRouter>
         <MaintenanceProvider>
-          <AuthContext.Provider value={{ login: mockLogin }}>
+          <AuthContext.Provider value={{ login: mockLogin, setUserAfterLogin: jest.fn() }}>
             <Login />
           </AuthContext.Provider>
         </MaintenanceProvider>
@@ -32,6 +37,7 @@ describe("Login page", () => {
     mockLogin = jest.fn().mockResolvedValue(undefined);
     mockNavigate.mockReset();
     delete import.meta.env.VITE_MAINTENANCE_MODE;
+    delete import.meta.env.VITE_PHONE_LOGIN_ENABLED;
     global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200 });
   });
 

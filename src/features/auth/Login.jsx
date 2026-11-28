@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/shared/context/AuthContext.jsx";
 import MaintenanceNotice from "@/shared/components/MaintenanceNotice";
 import { useMaintenance } from "@/shared/maintenance/MaintenanceProvider";
+import PhoneLoginSection from "@/features/auth/phoneLogin/PhoneLoginSection";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -94,6 +95,7 @@ export default function Login() {
           {submitting ? "Signing in..." : "Sign In"}
         </button>
       </form>
+      <PhoneLoginSection />
       <p className="mt-6 text-center text-sm text-slate-600 dark:text-neutral-400">
         Need an account?{" "}
         <Link to="/signup" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
