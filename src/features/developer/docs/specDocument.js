@@ -1,18 +1,33 @@
-import { MCP_ACCEPT_HEADER } from "../developerApi";
+import { MCP_ACCEPT_HEADER, formatMcpToolsList } from "../developerApi";
 import { resolveBackendApi } from "@/config/backendApi";
 import { buildLlmsTxt } from "@/config/llmsTxtContent";
 
 const LEAD_PATH = "/leads/{leadId}";
+const METHODS = ["get", "post", "put", "patch", "delete"];
+const MONO =
+  "'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
 export const REDOC_OPTIONS = {
   disableTelemetry: true,
-  nativeScrollbars: true,
   pathInMiddlePanel: true,
   requiredPropsFirst: true,
-  scrollYOffset: 88,
+  sortRequiredPropsFirst: true,
+  scrollYOffset: () => 80,
+  expandResponses: "200,201",
+  jsonSampleExpandLevel: 2,
+  hideHostname: false,
+  sortTagsAlphabetically: false,
+  menuToggle: true,
+  codeSamples: {
+    languages: [
+      { lang: "curl", label: "cURL", key: "curl" },
+      { lang: "JavaScript", label: "JavaScript", key: "javascript" },
+      { lang: "Python", label: "Python", key: "python" },
+    ],
+  },
   theme: {
     colors: {
-      primary: { main: "#1e293b" },
+      primary: { main: "#16a34a" },
       accent: { main: "#2563eb" },
       text: { primary: "#1e293b", secondary: "#475569" },
       http: {
@@ -20,19 +35,21 @@ export const REDOC_OPTIONS = {
         post: "#15803d",
         put: "#a16207",
         delete: "#b91c1c",
+        patch: "#7c3aed",
       },
     },
     sidebar: {
       backgroundColor: "#f8fafc",
       textColor: "#334155",
-      activeTextColor: "#1d4ed8",
+      activeTextColor: "#15803d",
     },
     typography: {
-      fontFamily: "ui-sans-serif, system-ui, sans-serif",
-      headings: { fontFamily: "ui-sans-serif, system-ui, sans-serif" },
-      code: { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" },
+      fontFamily: MONO,
+      headings: { fontFamily: MONO },
+      code: { fontFamily: MONO },
     },
-    rightPanel: { backgroundColor: "#0f172a" },
+    rightPanel: { backgroundColor: "#0f172a", textColor: "#e2e8f0" },
+    codeBlock: { backgroundColor: "#0f172a" },
   },
 };
 
@@ -143,12 +160,143 @@ export function withAbsoluteServer(spec, origin) {
   return next;
 }
 
+function demoPathParam(name) {
+  const lower = String(name).toLowerCase();
+  if (lower === "leadid") return "lead_example";
+  if (lower === "id") return "site_example";
+  if (lower === "sectionid") return "section_example";
+  if (lower.includes("webhook")) return "webhook_example";
+  return "example";
+}
+
+function demoPath(path) {
+  return String(path).replace(/\{([^}]+)\}/g, (_, name) => demoPathParam(name));
+}
+
+function operationNeedsAuth(operation) {
+  if (!operation || typeof operation !== "object") return true;
+  if (operation.security === null) return false;
+  if (Array.isArray(operation.security) && operation.security.length === 0) return false;
+  return true;
+}
+
+function buildOperationCodeSamples({ method, path, serverUrl, operation }) {
+  const upper = method.toUpperCase();
+  const relative = demoPath(path);
+  const url = `${serverUrl}${relative}`;
+  const authHeader = operationNeedsAuth(operation);
+  const hasBody = upper !== "GET" && upper !== "HEAD" && Boolean(operation?.requestBody);
+
+  const curlLines = [`curl -X ${upper} "${url}" \\`, `  -H "Accept: application/json" \\`];
+  if (authHeader) {
+    curlLines.push(`  -H "Authorization: Bearer fvm_YOUR_KEY" \\`);
+  }
+  if (hasBody) {
+    curlLines.push(`  -H "Content-Type: application/json" \\`);
+    curlLines.push(`  -d '{}'`);
+  } else {
+    curlLines[curlLines.length - 1] = curlLines[curlLines.length - 1].replace(/ \\$/, "");
+  }
+  const curl = curlLines.join("\n");
+
+  const javascript = `const response = await fetch("${url}", {
+  method: "${upper}",
+  headers: {
+    Accept: "application/json",${
+      authHeader ? '\n    Authorization: "Bearer fvm_YOUR_KEY",' : ""
+    }
+  }${hasBody ? ",\n  body: JSON.stringify({})" : ""}
+});
+const data = await response.json();`;
+
+  const python = hasBody
+    ? `import urllib.request
+
+req = urllib.request.Request(
+    "${url}",
+    data=b"{}",
+    headers={
+        "Accept": "application/json",
+        "Content-Type": "application/json",${
+          authHeader ? '\n        "Authorization": "Bearer fvm_YOUR_KEY",' : ""
+        }
+    },
+    method="${upper}",
+)
+with urllib.request.urlopen(req) as resp:
+    print(resp.read().decode())`
+    : `import urllib.request
+
+req = urllib.request.Request(
+    "${url}",
+    headers={
+        "Accept": "application/json",${
+          authHeader ? '\n        "Authorization": "Bearer fvm_YOUR_KEY",' : ""
+        }
+    },
+)
+with urllib.request.urlopen(req) as resp:
+    print(resp.read().decode())`;
+
+  return [
+    { lang: "curl", label: "cURL", source: curl },
+    { lang: "JavaScript", label: "JavaScript", source: javascript },
+    { lang: "Python", label: "Python", source: python },
+  ];
+}
+
+export function injectCodeSamples(spec, serverUrl) {
+  const next = spec && typeof spec === "object" ? cloneSpec(spec) : { paths: {} };
+  const base = String(serverUrl || "").replace(/\/$/, "");
+  const paths = next.paths && typeof next.paths === "object" ? next.paths : {};
+  for (const path of Object.keys(paths)) {
+    const item = paths[path] || {};
+    for (const method of METHODS) {
+      const operation = item[method];
+      if (!operation || typeof operation !== "object") continue;
+      if (Array.isArray(operation["x-codeSamples"]) && operation["x-codeSamples"].length) continue;
+      operation["x-codeSamples"] = buildOperationCodeSamples({ method, path, serverUrl: base, operation });
+    }
+  }
+  return next;
+}
+
+export function polishSpecForRedoc(spec) {
+  const next = spec && typeof spec === "object" ? cloneSpec(spec) : {};
+  if (next.info && typeof next.info === "object") {
+    next.info.title = "FindVirtual.me Public API";
+    const description = String(next.info.description || "");
+    next.info.description = description.replace(/Human docs:\s*\/api\/public\/docs\.?/i, "").trim();
+  }
+  if (Array.isArray(next.servers)) {
+    next.servers = next.servers.map((server) => ({
+      ...server,
+      description: "Public API v1 (Railway production host)",
+    }));
+  }
+  if (next.webhooks && typeof next.webhooks === "object") {
+    for (const key of Object.keys(next.webhooks)) {
+      const hook = next.webhooks[key];
+      if (!hook?.post || typeof hook.post !== "object") continue;
+      if (!Array.isArray(hook.post.tags) || !hook.post.tags.length) {
+        hook.post.tags = ["Webhooks"];
+      }
+      hook.post["x-displayName"] = hook.post["x-displayName"] || key;
+    }
+  }
+  return next;
+}
+
+export function preparePublicApiSpec(spec, origin) {
+  const absolute = withAbsoluteServer(ensureLeadLookup(spec), origin);
+  const serverUrl = serverUrlOf(absolute);
+  return injectCodeSamples(polishSpecForRedoc(absolute), serverUrl);
+}
+
 export function serverUrlOf(spec) {
   const url = spec?.servers?.[0]?.url;
   return typeof url === "string" && url ? url.replace(/\/$/, "") : "/api/public/v1";
 }
-
-const METHODS = ["get", "post", "put", "patch", "delete"];
 
 export function listOperations(spec) {
   const paths = spec?.paths && typeof spec.paths === "object" ? spec.paths : {};
@@ -253,7 +401,7 @@ export function llmBrief({ spec, docsUrl, specUrl, mcpUrl }) {
     `Reference: ${docsUrl}`,
     `OpenAPI: ${specUrl}`,
     "Auth: Authorization: Bearer fvm_YOUR_KEY. The key reads only its owner's data.",
-    `MCP: POST ${mcpUrl} with the same bearer key. Tools: list_sites, get_site, get_business_profile, list_webhooks.`,
+    `MCP: POST ${mcpUrl} with the same bearer key. Tools: ${formatMcpToolsList()}. Component tools need sites:write.`,
     "Webhook signature: HMAC-SHA256 of timestamp + '.' + raw body, header X-FindVirtualMe-Signature: v1=<hex>. Reject timestamps older or newer than 300 seconds.",
     "Operations:",
     operations,
@@ -289,7 +437,7 @@ export const MCP_DIAGRAM = `sequenceDiagram
   participant MCP as POST /api/mcp
   Dev->>Client: Add findvirtualme with the API host and a bearer key
   Client->>MCP: Streamable HTTP request, Authorization Bearer
-  MCP-->>Client: list_sites, get_site, get_business_profile, list_webhooks`;
+  MCP-->>Client: list_sites, get_site, list_site_components, add_site_component (sites:write)`;
 
 const KEY_PLACEHOLDER = "fvm_YOUR_KEY";
 
