@@ -24,7 +24,7 @@ Send Authorization: Bearer fvm_YOUR_KEY. That placeholder is not a real key.
 The OpenAPI document is ${openApiUrl}.
 The production API base is https only. The try-it panel on /developers/docs calls only that configured API host, holds the key in memory for that page, and does not store or log it.
 
-Scopes: sites:read, profile:read, webhooks:write, leads:read.
+Scopes: sites:read, sites:write, profile:read, webhooks:write, leads:read.
 Webhook signature: HMAC-SHA256 of the timestamp, a period, and the raw body. The header is X-FindVirtualMe-Signature: v1=<hex>. Reject timestamps more than 300 seconds off.
 
 ## MCP
@@ -33,5 +33,6 @@ ${host ? `POST ${mcpUrl}` : mcpUrl}. Streamable HTTP. Use the same bearer key.
 Tools: list_sites, get_site, get_business_profile, list_webhooks.
 Copy-paste configs for Cursor, VS Code, Claude Desktop, Claude Code, ChatGPT, Gemini, Grok, and Copilot are on /developers/docs.
 Redoc does not connect MCP servers. Those configs belong to this site.
+One-click connectors for claude.ai, ChatGPT, and grok.com are coming soon.
 `;
 }

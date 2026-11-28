@@ -69,6 +69,7 @@ describe("DeveloperApiKeysPage", () => {
     expect(screen.getByText("fvm_example1…")).toBeInTheDocument();
     expect(screen.getAllByText("sites:read").length).toBeGreaterThan(0);
     expect(screen.getAllByText("profile:read").length).toBeGreaterThan(0);
+    expect(screen.getByRole("checkbox", { name: /Edit sites/i })).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: /Leads/ })).toBeInTheDocument();
     expect(screen.getAllByText("leads:read").length).toBeGreaterThan(0);
     expect(screen.getByText("Active")).toBeInTheDocument();

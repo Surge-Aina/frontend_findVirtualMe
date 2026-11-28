@@ -59,6 +59,8 @@ describe("Developer portal and OAuth consent", () => {
     expect(screen.getByRole("heading", { name: "Getting started" })).toBeInTheDocument();
     expect(screen.getByText(/Bearer fvm_YOUR_KEY/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("link", { name: "MCP server" }));
+    expect(screen.getByRole("heading", { name: "MCP server" })).toBeInTheDocument();
+    expect(screen.getByText(/One-click connectors for claude\.ai, ChatGPT, and grok\.com are coming soon\./)).toBeInTheDocument();
   });
 
   test("adds lead lookup and keeps the API key out of the agent brief", () => {
@@ -255,5 +257,7 @@ describe("Developer portal and OAuth consent", () => {
     const file = fs.readFileSync(path.join(process.cwd(), "public/llms.txt"), "utf8");
     expect(file).toBe(llmsTxt(resolveBackendApiFromProcess()));
     expect(file).toContain("/developers/docs");
+    expect(file).toContain("https://backend-production-6b312c6c.up.railway.app/api/mcp");
+    expect(file).not.toContain("onrender.com");
   });
 });
