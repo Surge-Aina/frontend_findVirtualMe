@@ -19,6 +19,11 @@ jest.mock("@/shared/api/portfolioApi.js", () => ({
   portfolioApi: {
     listPublic: jest.fn(() => Promise.resolve({ data: { portfolios: [] } })),
     getMine: jest.fn(() => Promise.resolve({ data: { portfolios: [] } })),
+    listAdmin: jest.fn(() =>
+      Promise.resolve({
+        data: { portfolios: [], total: 0, totalPages: 1, page: 1 },
+      })
+    ),
     toggleVisibility: jest.fn(),
     delete: jest.fn(),
   },
@@ -63,6 +68,9 @@ describe("Dashboard", () => {
     jest.clearAllMocks();
     portfolioApi.listPublic.mockResolvedValue({ data: { portfolios: [] } });
     portfolioApi.getMine.mockResolvedValue({ data: { portfolios: [] } });
+    portfolioApi.listAdmin.mockResolvedValue({
+      data: { portfolios: [], total: 0, totalPages: 1, page: 1 },
+    });
     portfolioApi.toggleVisibility.mockResolvedValue({ data: { success: true, visibility: "public" } });
     portfolioApi.delete.mockResolvedValue({ data: { success: true } });
   });
@@ -81,6 +89,45 @@ describe("Dashboard", () => {
       expect(screen.getByRole("heading", { name: /^Public Portfolios$/i })).toBeInTheDocument();
     });
     expect(screen.queryByText(/My Portfolios/i)).not.toBeInTheDocument();
+  });
+
+  it("does not show All portfolios for non-admin users", async () => {
+    renderDashboard();
+    await waitFor(() => {
+      expect(screen.getByText(/My Portfolios/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole("heading", { name: /^All portfolios$/i })).not.toBeInTheDocument();
+    expect(portfolioApi.listAdmin).not.toHaveBeenCalled();
+  });
+
+  it("loads All portfolios for admin users with view and edit actions", async () => {
+    portfolioApi.listAdmin.mockResolvedValue({
+      data: {
+        portfolios: [
+          {
+            id: "adm1",
+            ownerId: "owner-9",
+            type: "agent",
+            title: "Admin Listed",
+            visibility: "private",
+          },
+        ],
+        total: 1,
+        totalPages: 1,
+        page: 1,
+      },
+    });
+    renderDashboard({
+      ...authLoggedIn,
+      user: { _id: "admin1", email: "admin@example.com", role: "admin" },
+    });
+    await waitFor(() => {
+      expect(portfolioApi.listAdmin).toHaveBeenCalledWith({ page: 1, limit: 18 });
+    });
+    expect(screen.getByRole("heading", { name: /^All portfolios$/i })).toBeInTheDocument();
+    expect(screen.getByText("Admin Listed")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^View$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Edit$/i })).toBeInTheDocument();
   });
 
   it("loads public list when listPublic fails", async () => {
