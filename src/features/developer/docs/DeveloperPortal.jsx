@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import FvMark from "@/shared/components/FvMark";
 import CopyBlock from "./CopyBlock";
-import { mcpEndpointUrl } from "../developerApi";
+import { MCP_ONE_CLICK_CONNECTORS_NOTE, mcpEndpointUrl } from "../developerApi";
 import { mcpConfigs } from "./specDocument";
 
 const LINKS = [
@@ -73,8 +73,9 @@ export function GettingStartedPage() {
         text={`curl ${mcpEndpointUrl().replace(/\/api\/mcp$/, "")}/api/public/v1/me \\\n  -H "Authorization: Bearer fvm_YOUR_KEY"`}
       />
       <p className="text-sm text-slate-600">
-        Scopes are <span className="font-mono">sites:read</span>, <span className="font-mono">profile:read</span>,{" "}
-        <span className="font-mono">webhooks:write</span>, and <span className="font-mono">leads:read</span>.{" "}
+        Scopes are <span className="font-mono">sites:read</span>, <span className="font-mono">sites:write</span>,{" "}
+        <span className="font-mono">profile:read</span>, <span className="font-mono">webhooks:write</span>, and{" "}
+        <span className="font-mono">leads:read</span>.{" "}
         <span className="font-mono">GET /api/public/v1/me</span>{" "}
         needs a valid key and no resource scope.
       </p>
@@ -159,6 +160,7 @@ export function McpDocsPage() {
         commit a real key. Redoc&apos;s Connect MCP controls are not part of the free Community Edition, so these
         configs are ours.
       </p>
+      <p className="text-sm text-slate-600">{MCP_ONE_CLICK_CONNECTORS_NOTE}</p>
       {mcpConfigs(endpoint).map((config) => (
         <CopyBlock key={config.id} label={`${config.label} · ${config.file}`} text={config.text} />
       ))}

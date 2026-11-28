@@ -9,6 +9,11 @@ export const API_KEY_SCOPES = [
     description: "List and read this account's websites.",
   },
   {
+    id: "sites:write",
+    label: "Edit sites (changes save as drafts for owner approval)",
+    description: "Update site content; changes are stored as drafts until the owner publishes.",
+  },
+  {
     id: "profile:read",
     label: "Business profile",
     description: "Read the published business profile for this account.",
@@ -42,6 +47,8 @@ export const INSTALLATIONS_PATH = "/api/developer/installations";
 export const OAUTH_AUTHORIZE_PATH = "/api/oauth/authorize";
 export const MCP_PATH = "/api/mcp";
 export const MCP_ACCEPT_HEADER = "application/json, text/event-stream";
+export const MCP_ONE_CLICK_CONNECTORS_NOTE =
+  "One-click connectors for claude.ai, ChatGPT, and grok.com are coming soon.";
 
 function backendOrigin() {
   return resolveBackendApi().replace(/\/$/, "");

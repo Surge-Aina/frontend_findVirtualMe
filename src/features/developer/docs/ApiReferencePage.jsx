@@ -5,7 +5,7 @@ import FvMark from "@/shared/components/FvMark";
 import CopyBlock from "./CopyBlock";
 import MermaidFigure from "./MermaidFigure";
 import TryItPanel from "./TryItPanel";
-import { mcpEndpointUrl, publicOpenApiUrl } from "../developerApi";
+import { MCP_ONE_CLICK_CONNECTORS_NOTE, mcpEndpointUrl, publicOpenApiUrl } from "../developerApi";
 import {
   MCP_DIAGRAM,
   OAUTH_DIAGRAM,
@@ -142,6 +142,7 @@ export default function ApiReferencePage() {
             takes the server URL; the JSON sample is the Responses API tool, which can send a bearer token. Grok reads{" "}
             <span className="font-mono">~/.grok/config.toml</span>.
           </p>
+          <p className="text-sm text-slate-600">{MCP_ONE_CLICK_CONNECTORS_NOTE}</p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {mcpConfigs(mcpEndpointUrl()).map((config) => (
               <CopyBlock key={config.id} label={`${config.label} · ${config.file}`} text={config.text} />
